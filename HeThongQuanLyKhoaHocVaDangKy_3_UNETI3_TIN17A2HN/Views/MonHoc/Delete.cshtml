@@ -1,0 +1,103 @@
+@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung thực hiện: Module 1 - Giao diện Xác nhận xóa môn học (Bảo vệ toàn vẹn dữ liệu) - Đồng bộ UNETI
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Xác nhận xóa môn học";
+    bool hasKhoaHoc = ViewBag.HasKhoaHoc ?? false;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="uneti-card overflow-hidden">
+                <div class="card-header bg-danger text-white py-3 px-4">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>XÁC NHẬN XÓA MÔN HỌC (DỮ LIỆU NỀN)</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    @if (hasKhoaHoc)
+                    {
+                        <!-- CẢNH BÁO CHẶN XÓA THEO QUY ĐỊNH ĐỀ 16 -->
+                        <div class="alert alert-warning border-warning d-flex align-items-start p-3 mb-4 rounded-3" role="alert">
+                            <i class="bi bi-shield-exclamation text-warning fs-3 me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">KHÔNG THỂ XÓA MÔN HỌC NÀY!</h6>
+                                <p class="small text-muted mb-2">
+                                    Môn học này hiện đã có <strong>@(Model.KhoaHocs?.Count ?? 1) khóa học</strong> đang liên kết trong cơ sở dữ liệu. 
+                                    Theo quy tắc bảo toàn toàn vẹn dữ liệu của Đề 16, việc xóa môn học này sẽ làm mất tính nhất quán dữ liệu của toàn hệ thống.
+                                </p>
+                                <span class="badge bg-danger">Giải pháp:</span>
+                                <span class="small text-dark fw-semibold ms-1">Vui lòng chuyển trạng thái môn học sang "Tạm dừng" thay vì xóa!</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger p-3 mb-4 text-center rounded-3">
+                            <i class="bi bi-trash-fill fs-2 d-block mb-1"></i>
+                            <h6 class="fw-bold mb-0">Bạn có chắc chắn muốn xóa vĩnh viễn môn học này khỏi hệ thống?</h6>
+                            <small class="text-muted">Môn học này chưa có khóa học nào liên kết, thao tác xóa có thể thực hiện an toàn.</small>
+                        </div>
+                    }
+
+                    <div class="bg-light p-3 rounded-3 mb-4 border">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4 text-muted">Mã môn học:</dt>
+                            <dd class="col-sm-8 fw-bold">#MH0@(Model.MaMonHoc)</dd>
+
+                            <dt class="col-sm-4 text-muted">Tên môn học:</dt>
+                            <dd class="col-sm-8 fw-bold" style="color: var(--uneti-primary);">@Model.TenMonHoc</dd>
+
+                            <dt class="col-sm-4 text-muted">Số tín chỉ:</dt>
+                            <dd class="col-sm-8">@Model.SoTinChi tín chỉ</dd>
+
+                            <dt class="col-sm-4 text-muted">Học phí định mức:</dt>
+                            <dd class="col-sm-8 fw-bold">@Model.HocPhi.ToString("N0") đ</dd>
+
+                            <dt class="col-sm-4 text-muted">Trạng thái hiện tại:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.TrangThai)
+                                {
+                                    <span class="uneti-badge-success">Đang mở giảng dạy</span>
+                                }
+                                else
+                                {
+                                    <span class="uneti-badge-danger">Tạm dừng</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="MaMonHoc" />
+
+                        <div class="d-flex justify-content-between pt-3 border-top">
+                            <a asp-action="QuanLy" class="btn uneti-btn-outline text-decoration-none">
+                                <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách quản lý
+                            </a>
+
+                            @if (!hasKhoaHoc)
+                            {
+                                <button type="submit" class="btn btn-danger fw-bold px-4 rounded-3 shadow-sm">
+                                    <i class="bi bi-trash me-1"></i>Xác nhận Xóa
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-secondary px-4 rounded-3" disabled title="Bị khóa do có khóa học tham chiếu">
+                                    <i class="bi bi-slash-circle me-1"></i>Không thể xóa
+                                </button>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

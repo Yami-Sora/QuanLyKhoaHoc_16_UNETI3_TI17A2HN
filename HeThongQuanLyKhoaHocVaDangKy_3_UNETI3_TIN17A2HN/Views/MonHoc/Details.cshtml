@@ -1,0 +1,194 @@
+@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung thực hiện: Module 1 - Giao diện Chi tiết môn học - Đồng bộ UNETI
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc
+@{
+    var userRole = Context.Session.GetString("VaiTro");
+    var isStaffOrAdmin = userRole == "Admin" || userRole == "NhanVien";
+    var isAdmin = userRole == "Admin";
+    var hoTen = Context.Session.GetString("HoTen");
+    var isLoggedIn = Context.Session.GetInt32("MaTaiKhoan") != null;
+    Layout = isStaffOrAdmin ? "~/Views/Shared/_LayoutAdmin.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chi tiết môn học: " + Model.TenMonHoc;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-3 small">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a asp-action="@(isStaffOrAdmin ? "QuanLy" : "Index")" class="text-decoration-none" style="color: var(--uneti-primary);">@(isStaffOrAdmin ? "Quản lý môn học" : "Chương trình môn học")</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chi tiết môn học</li>
+                </ol>
+            </nav>
+
+            <!-- Card Thông tin Môn học -->
+            <div class="uneti-card overflow-hidden mb-4">
+                <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center bg-light border-bottom">
+                    <div>
+                        <span class="badge bg-secondary mb-1">Mã môn: #MH0@(Model.MaMonHoc)</span>
+                        <h4 class="fw-bold text-dark mb-0">@Model.TenMonHoc</h4>
+                    </div>
+                    <div>
+                        @if (Model.TrangThai)
+                        {
+                            <span class="uneti-badge-success fs-6 px-3 py-1"><i class="bi bi-check-circle me-1"></i>Đang mở giảng dạy</span>
+                        }
+                        else
+                        {
+                            <span class="uneti-badge-danger fs-6 px-3 py-1"><i class="bi bi-pause-circle me-1"></i>Tạm dừng</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <small class="text-muted d-block">Số tín chỉ</small>
+                                <span class="fs-4 fw-bold text-dark">@Model.SoTinChi TC</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <small class="text-muted d-block">Học phí định mức</small>
+                                <span class="fs-4 fw-bold" style="color: var(--uneti-primary);">@Model.HocPhi.ToString("N0") đ</span>
+                                <small class="text-muted d-block" style="font-size: 11px;">(~@((Model.SoTinChi > 0 ? Model.HocPhi / Model.SoTinChi : 0).ToString("N0")) đ/tín)</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <small class="text-muted d-block">Khóa học liên kết</small>
+                                <span class="fs-4 fw-bold text-info">@(Model.KhoaHocs?.Count ?? 0)</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="p-3 bg-light rounded-3 text-center border">
+                                <small class="text-muted d-block">Trạng thái CSDL</small>
+                                <span class="fs-6 fw-semibold text-success"><i class="bi bi-check-circle-fill me-1"></i>Đã định danh</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-secondary border-bottom pb-2">Mô tả chương trình đào tạo:</h6>
+                        <p class="text-dark bg-light p-3 rounded-3 mb-0" style="white-space: pre-line;">
+                            @(string.IsNullOrEmpty(Model.MoTa) ? "Chưa có mô tả chi tiết cho môn học này." : Model.MoTa)
+                        </p>
+                    </div>
+
+                    <!-- Bảng các Khóa học đã mở thuộc môn này (Liên kết Module 2) -->
+                    <div class="mb-2">
+                        <h6 class="fw-bold text-primary border-bottom pb-2">
+                            <i class="bi bi-mortarboard me-2"></i>Danh sách Khóa học đã mở thuộc Môn này:
+                        </h6>
+                        @if (Model.KhoaHocs != null && Model.KhoaHocs.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Mã KH</th>
+                                            <th>Tên khóa học</th>
+                                            <th>Ngày bắt đầu</th>
+                                            <th>Sĩ số tối đa</th>
+                                            <th>Hình thức</th>
+                                            <th>Trạng thái</th>
+                                            <th class="text-center" style="width: 190px;">Đăng ký học</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var kh in Model.KhoaHocs)
+                                        {
+                                            <tr>
+                                                <td><code>#@kh.MaKhoaHoc</code></td>
+                                                <td class="fw-semibold">@kh.TenKhoaHoc</td>
+                                                <td>@kh.NgayBatDau.ToString("dd/MM/yyyy")</td>
+                                                <td>@kh.SoLuongToiDa học viên</td>
+                                                <td><span class="badge bg-light text-dark border">@kh.HinhThuc</span></td>
+                                                <td><span class="uneti-badge-primary">@kh.TrangThai</span></td>
+                                                <td class="text-center">
+                                                    @if (!isLoggedIn)
+                                                    {
+                                                        <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-outline-warning text-dark fw-bold px-2 py-1 shadow-sm text-nowrap" style="font-size: 11.5px;">
+                                                            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập để đăng ký
+                                                        </a>
+                                                    }
+                                                    else if (userRole == "HocVien")
+                                                    {
+                                                        <button type="button" class="btn btn-sm uneti-btn-primary px-3 py-1 shadow-sm fw-semibold text-nowrap" style="font-size: 11.5px;" onclick="alert('Đã tiếp nhận yêu cầu đăng ký lớp [#@kh.MaKhoaHoc - @kh.TenKhoaHoc] cho sinh viên @hoTen! Chức năng này kết nối trực tiếp với Module 3 & 4 của nhóm.')">
+                                                            <i class="bi bi-pencil-square me-1"></i>Đăng ký lớp học
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-light text-muted border py-1 px-2" style="font-size: 11px;">
+                                                            <i class="bi bi-shield-lock me-1"></i>Cán bộ quản trị
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if (!isLoggedIn)
+                            {
+                                <div class="alert alert-warning border-warning-subtle d-flex flex-wrap align-items-center justify-content-between p-3 mt-3 rounded-3 gap-2" role="alert">
+                                    <div>
+                                        <i class="bi bi-info-circle-fill text-warning me-2 fs-5 align-middle"></i>
+                                        <span class="align-middle fw-semibold text-dark">Bạn đang xem với tư cách Khách. Vui lòng đăng nhập hoặc đăng ký tài khoản sinh viên để đăng ký học môn này.</span>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-warning text-dark fw-bold px-3">
+                                            Đăng nhập ngay
+                                        </a>
+                                        <a asp-controller="TaiKhoan" asp-action="Register" class="btn btn-sm btn-outline-dark px-3 fw-semibold">
+                                            Đăng ký tài khoản
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                            else if (userRole == "HocVien")
+                            {
+                                <div class="alert alert-success border-success-subtle d-flex flex-wrap align-items-center justify-content-between p-3 mt-3 rounded-3 gap-2" role="alert">
+                                    <div>
+                                        <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+                                        <span class="align-middle fw-semibold text-dark">Tài khoản sinh viên: <strong>@hoTen</strong>. Hãy chọn lớp học phần phù hợp với thời khóa biểu để đăng ký học.</span>
+                                    </div>
+                                    <span class="badge bg-success px-3 py-2 rounded-pill fw-semibold">
+                                        <i class="bi bi-person-check me-1"></i>Đã xác thực sinh viên
+                                    </span>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-light border text-muted small mb-0">
+                                <i class="bi bi-info-circle me-1"></i>Hiện chưa có khóa học nào được mở cho môn học này.
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-between pt-4 mt-3 border-top">
+                        <a asp-action="@(isStaffOrAdmin ? "QuanLy" : "Index")" class="btn uneti-btn-outline text-decoration-none">
+                            <i class="bi bi-arrow-left me-1"></i>@(isStaffOrAdmin ? "Quay lại danh sách quản lý" : "Quay lại chương trình môn học")
+                        </a>
+                        @if (isAdmin)
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.MaMonHoc" class="btn btn-warning text-dark fw-bold px-4 rounded-3 text-decoration-none shadow-sm">
+                                <i class="bi bi-pencil me-1"></i>Chỉnh sửa môn học
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

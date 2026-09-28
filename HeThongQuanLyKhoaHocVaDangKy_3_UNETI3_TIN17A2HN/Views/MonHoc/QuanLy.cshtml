@@ -1,0 +1,273 @@
+@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung thực hiện: Module 1 - Giao diện Quản trị Môn học dành cho Quản trị viên & Nhân viên Đào tạo (CRUD & Thống kê nền tảng)
+*@
+
+@model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var userRole = Context.Session.GetString("VaiTro");
+    var isAdmin = userRole == "Admin";
+
+    ViewData["Title"] = "Quản lý môn học (Dữ liệu nền) - UNETI";
+    int totalCount = ViewBag.TotalCount ?? Model.Count();
+    int activeCount = ViewBag.ActiveCount ?? Model.Count(m => m.TrangThai);
+    int inactiveCount = ViewBag.InactiveCount ?? Model.Count(m => !m.TrangThai);
+    int totalTinChi = ViewBag.TotalTinChi ?? Model.Sum(m => m.SoTinChi);
+    int avgHocPhi = ViewBag.AvgHocPhi ?? (Model.Any() ? (int)Model.Average(m => m.HocPhi) : 0);
+    bool? currentTrangThai = ViewBag.CurrentTrangThai;
+}
+
+<div class="container py-4">
+    <!-- Header trang Quản lý cho Admin & Nhân viên -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Quản lý môn học (Dữ liệu nền)</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-book-half me-2" style="color: var(--uneti-primary);"></i>DANH MỤC MÔN HỌC (DỮ LIỆU NỀN)
+            </h3>
+            <p class="text-muted mb-0 small">Hệ thống quản lý dữ liệu nền tảng, định mức học phí và trạng thái mở lớp đào tạo UNETI</p>
+        </div>
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            <a asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none">
+                <i class="bi bi-grid-3x3-gap me-1"></i>Xem Cổng Sinh viên
+            </a>
+            @if (isAdmin)
+            {
+                <a asp-action="Create" class="btn uneti-btn-primary shadow-sm text-decoration-none">
+                    <i class="bi bi-plus-circle me-1"></i>Thêm môn học mới
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- 4 THẺ THỐNG KÊ (STAT CARDS) ĐỒNG BỘ PHONG CÁCH QUẢN LÝ TÀI KHOẢN -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Tổng số môn học -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
+                <div class="d-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary" style="width: 52px; height: 52px; min-width: 52px;">
+                    <i class="bi bi-journal-bookmark fs-3"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Tổng số môn học</span>
+                    <h3 class="fw-bold text-dark mb-0">@totalCount</h3>
+                    <small class="text-secondary" style="font-size: 11px;">Môn trong khung đào tạo</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Đang mở giảng dạy -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
+                <div class="d-flex align-items-center justify-content-center rounded-3 bg-success-subtle text-success" style="width: 52px; height: 52px; min-width: 52px;">
+                    <i class="bi bi-check2-circle fs-3"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Đang giảng dạy</span>
+                    <h3 class="fw-bold text-success mb-0">@activeCount</h3>
+                    <small class="text-success" style="font-size: 11px;">Sẵn sàng mở khóa học</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Tạm dừng mở lớp -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
+                <div class="d-flex align-items-center justify-content-center rounded-3 bg-danger-subtle text-danger" style="width: 52px; height: 52px; min-width: 52px;">
+                    <i class="bi bi-pause-circle fs-3"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Tạm dừng mở lớp</span>
+                    <h3 class="fw-bold text-danger mb-0">@inactiveCount</h3>
+                    <small class="text-muted" style="font-size: 11px;">Đang bảo trì / ngưng tuyển</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Tổng tín chỉ & Học phí TB -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
+                <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning-subtle text-warning-emphasis" style="width: 52px; height: 52px; min-width: 52px;">
+                    <i class="bi bi-cash-stack fs-3"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Học phí trung bình</span>
+                    <h4 class="fw-bold text-dark mb-0">@avgHocPhi.ToString("N0") <small class="fs-6 fw-normal text-muted">đ</small></h4>
+                    <small class="text-secondary" style="font-size: 11px;">Tổng tích lũy: <strong>@totalTinChi</strong> tín chỉ</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông báo TempData -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
+            <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-4 py-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- THANH TÌM KIẾM & BỘ LỌC -->
+    <div class="uneti-card p-3 mb-4 shadow-sm">
+        <form method="get" asp-action="QuanLy" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="searchString" value="@ViewBag.CurrentSearch" class="form-control border-start-0 ps-0" placeholder="Nhập tên môn học cần tìm..." />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="trangThai" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="true" selected="@(currentTrangThai == true)">Đang mở giảng dạy</option>
+                    <option value="false" selected="@(currentTrangThai == false)">Tạm dừng giảng dạy</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn uneti-btn-primary flex-grow-1">
+                    <i class="bi bi-funnel me-1"></i>Lọc môn
+                </button>
+                <a asp-action="QuanLy" class="btn uneti-btn-outline" title="Xóa bộ lọc">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- BẢNG DANH MỤC MÔN HỌC QUẢN TRỊ -->
+    <div class="uneti-card overflow-hidden shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 uneti-table">
+                <thead>
+                    <tr>
+                        <th class="ps-3" style="width: 100px;">Mã môn</th>
+                        <th>Tên môn học</th>
+                        <th class="text-center" style="width: 110px;">Số tín chỉ</th>
+                        <th class="text-end" style="width: 160px;">Định mức học phí</th>
+                        <th class="text-center" style="width: 120px;">Khóa mở</th>
+                        <th class="text-center" style="width: 140px;">Trạng thái</th>
+                        <th class="text-center" style="width: 180px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>Không tìm thấy môn học nào phù hợp.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-3 fw-bold text-muted">#MH0@(item.MaMonHoc)</td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.TenMonHoc</div>
+                                    @if (!string.IsNullOrEmpty(item.MoTa))
+                                    {
+                                        <small class="text-muted text-truncate d-block" style="max-width: 340px;">@item.MoTa</small>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="uneti-badge-primary">
+                                        @item.SoTinChi TC
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="fw-bold" style="color: var(--uneti-primary); font-size: 0.95rem;">
+                                        @item.HocPhi.ToString("N0") đ
+                                    </div>
+                                    <div class="text-muted small" style="font-size: 11px;">
+                                        ~@((item.SoTinChi > 0 ? item.HocPhi / item.SoTinChi : 0).ToString("N0")) đ/tín
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.KhoaHocs != null && item.KhoaHocs.Any())
+                                    {
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bi bi-mortarboard me-1" style="color: var(--uneti-primary);"></i>@item.KhoaHocs.Count lớp
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Chưa mở</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai)
+                                    {
+                                        <span class="uneti-badge-success">
+                                            <i class="bi bi-check-circle me-1"></i>Đang mở
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="uneti-badge-danger">
+                                            <i class="bi bi-pause-circle me-1"></i>Tạm dừng
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (isAdmin)
+                                    {
+                                        <div class="d-inline-flex align-items-center justify-content-center gap-1">
+                                            <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-view" title="Xem chi tiết môn học">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-edit" title="Chỉnh sửa môn học">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form asp-action="ToggleStatus" asp-route-id="@item.MaMonHoc" method="post" class="d-inline m-0 p-0">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn-action-icon btn-action-toggle" title="Đổi trạng thái Đang mở / Tạm dừng">
+                                                    <i class="bi bi-arrow-repeat"></i>
+                                                </button>
+                                            </form>
+                                            <a asp-action="Delete" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-delete" title="Xóa môn học">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="d-inline-flex align-items-center justify-content-center gap-1">
+                                            <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-view" title="Xem chi tiết môn học">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted">
+            <span>Hiển thị <strong>@Model.Count()</strong> trên tổng số <strong>@totalCount</strong> môn học trong cơ sở dữ liệu</span>
+            <span>Hệ thống tín chỉ UNETI - Năm học 2025-2026</span>
+        </div>
+    </div>
+</div>

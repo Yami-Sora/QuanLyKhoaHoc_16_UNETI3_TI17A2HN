@@ -1,0 +1,254 @@
+@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung thực hiện: Module 1 - Cổng Danh mục Môn học (Dành cho Sinh viên & Khách tra cứu theo Lưới Thẻ Card Grid)
+*@
+
+@model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc>
+@{
+    var userRole = Context.Session.GetString("VaiTro");
+    var hoTen = Context.Session.GetString("HoTen");
+    var tenDangNhap = Context.Session.GetString("TenDangNhap");
+    var isLoggedIn = Context.Session.GetInt32("MaTaiKhoan") != null;
+    var isStaffOrAdmin = userRole == "Admin" || userRole == "NhanVien";
+
+    ViewData["Title"] = "Chương trình khung đào tạo & Môn học - UNETI";
+    int totalCount = ViewBag.TotalCount ?? Model.Count();
+    int? currentTinChi = ViewBag.CurrentTinChi;
+    bool? currentTrangThai = ViewBag.CurrentTrangThai;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chương trình môn học</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-stars text-warning me-2"></i>CHƯƠNG TRÌNH KHUNG ĐÀO TẠO & MÔN HỌC
+            </h3>
+            <p class="text-muted mb-0 small">Dữ liệu thực tế được cập nhật trực tiếp từ Cơ sở dữ liệu đào tạo UNETI</p>
+        </div>
+
+        @if (isStaffOrAdmin)
+        {
+            <div class="mt-2 mt-md-0">
+                <a asp-action="QuanLy" class="btn btn-warning text-dark fw-bold shadow-sm text-decoration-none">
+                    <i class="bi bi-gear-fill me-1"></i>Đến Trang Quản lý Môn học (Admin)
+                </a>
+            </div>
+        }
+        else if (isLoggedIn)
+        {
+            <div class="mt-2 mt-md-0">
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-person-check-fill me-1"></i>Học viên: @hoTen
+                </span>
+            </div>
+        }
+        else
+        {
+            <div class="mt-2 mt-md-0">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-mortarboard me-1"></i>Hệ thống Tín chỉ Chuẩn UNETI
+                </span>
+            </div>
+        }
+    </div>
+
+    <!-- BANNER PHÂN BIỆT RÕ GIỮA KHÁCH, SINH VIÊN VÀ ADMIN -->
+    @if (isStaffOrAdmin)
+    {
+        <div class="alert alert-info alert-dismissible fade show uneti-card border-info-subtle mb-4 py-2 px-3 small d-flex align-items-center justify-content-between" role="alert">
+            <div>
+                <i class="bi bi-info-circle-fill text-info me-2"></i>
+                <span>Bạn đang xem chế độ <strong>Cổng Sinh viên & Khách (Card Grid)</strong>. Để chỉnh sửa, thêm hoặc xóa môn học, vui lòng vào trang Quản lý.</span>
+            </div>
+            <a asp-action="QuanLy" class="btn btn-sm btn-outline-primary fw-semibold ms-3 text-nowrap">
+                Vào Quản lý ngay <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    }
+    else if (!isLoggedIn)
+    {
+        <div class="alert bg-white border border-primary-subtle shadow-sm rounded-4 p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" role="alert">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-2 rounded-circle bg-primary-subtle text-primary fs-4 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Chào mừng bạn đến với Cổng Tra Cứu Khung Đào Tạo UNETI</h6>
+                    <small class="text-muted">Bạn có thể tra cứu số tín chỉ, định mức học phí môn học. Đăng ký tài khoản sinh viên để ghi danh lớp học phần.</small>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="TaiKhoan" asp-action="Login" class="btn btn-sm btn-warning text-dark fw-bold px-3">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                </a>
+                <a asp-controller="TaiKhoan" asp-action="Register" class="btn btn-sm uneti-btn-outline px-3">
+                    <i class="bi bi-person-plus me-1"></i>Đăng ký tài khoản
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert bg-primary-subtle border-primary-subtle text-primary shadow-sm rounded-4 p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" role="alert">
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 shadow-sm" style="width: 44px; height: 44px; background-color: var(--uneti-primary);">
+                    @(string.IsNullOrEmpty(hoTen) ? "S" : hoTen.Substring(0, 1).ToUpper())
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Xin chào sinh viên: @hoTen <small class="text-muted fw-normal">(@@@tenDangNhap)</small></h6>
+                    <small class="text-secondary">Chương trình đào tạo tín chỉ ngành CNTT - Tra cứu học phần và chuẩn bị đăng ký khóa học.</small>
+                </div>
+            </div>
+            <div>
+                <span class="badge bg-success px-3 py-2 rounded-pill fw-semibold">
+                    <i class="bi bi-patch-check-fill me-1"></i>Đã đăng nhập Học viên
+                </span>
+            </div>
+        </div>
+    }
+
+    <!-- THANH TÌM KIẾM & BỘ LỌC TÍN CHỈ THEO DẠNG THẺ CARD -->
+    <div class="uneti-card p-3 mb-4 shadow-sm">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <!-- Tìm kiếm theo tên môn -->
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="searchString" value="@ViewBag.CurrentSearch" class="form-control border-start-0 ps-0" placeholder="Nhập tên môn học cần tra cứu..." />
+                </div>
+            </div>
+
+            <!-- Lọc số tín chỉ -->
+            <div class="col-md-3">
+                <select name="soTinChi" class="form-select">
+                    <option value="">-- Tất cả số tín chỉ --</option>
+                    <option value="2" selected="@(currentTinChi == 2)">2 Tín chỉ</option>
+                    <option value="3" selected="@(currentTinChi == 3)">3 Tín chỉ</option>
+                    <option value="4" selected="@(currentTinChi == 4)">4 Tín chỉ</option>
+                    <option value="5" selected="@(currentTinChi == 5)">5 Tín chỉ</option>
+                </select>
+            </div>
+
+            <!-- Lọc trạng thái -->
+            <div class="col-md-2">
+                <select name="trangThai" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="true" selected="@(currentTrangThai == true)">Đang mở</option>
+                    <option value="false" selected="@(currentTrangThai == false)">Tạm dừng</option>
+                </select>
+            </div>
+
+            <!-- Nút bấm -->
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn uneti-btn-primary flex-grow-1">
+                    <i class="bi bi-funnel me-1"></i>Lọc
+                </button>
+                <a asp-action="Index" class="btn uneti-btn-outline" title="Đặt lại bộ lọc">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Thông báo kết quả tìm kiếm -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="small text-muted">
+            Hiển thị <strong class="text-dark">@Model.Count()</strong> môn học
+            @if (!string.IsNullOrWhiteSpace(ViewBag.CurrentSearch as string))
+            {
+                <span>theo từ khóa "<strong>@ViewBag.CurrentSearch</strong>"</span>
+            }
+            @if (currentTinChi.HasValue)
+            {
+                <span>(loại <strong>@currentTinChi Tín chỉ</strong>)</span>
+            }
+        </div>
+        <div class="small text-muted">
+            Tổng cộng: <strong>@totalCount</strong> môn trong chương trình đào tạo
+        </div>
+    </div>
+
+    <!-- LƯỚI DANH MỤC THẺ CARD (CARD GRID NHƯ GIAO DIỆN MÔN TIÊU BIỂU) -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <div class="uneti-card p-5">
+                    <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                    <h5 class="fw-bold text-dark">Không tìm thấy môn học nào</h5>
+                    <p class="text-muted small">Hãy thử tìm kiếm với từ khóa khác hoặc làm mới bộ lọc tín chỉ.</p>
+                    <a asp-action="Index" class="btn uneti-btn-outline btn-sm">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Xem tất cả môn học
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column" style="border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff;">
+                        <!-- Hàng trên: Mã môn & Trạng thái -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-light text-secondary border px-2 py-1 fw-semibold" style="font-size: 12px;">#MH0@(item.MaMonHoc)</span>
+                            @if (item.TrangThai)
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-semibold d-inline-flex align-items-center" style="font-size: 12px;">
+                                    <i class="bi bi-check-circle me-1"></i>Đang mở
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-semibold d-inline-flex align-items-center" style="font-size: 12px;">
+                                    <i class="bi bi-pause-circle me-1"></i>Tạm dừng
+                                </span>
+                            }
+                        </div>
+
+                        <!-- Tên môn học -->
+                        <h5 class="fw-bold text-dark mb-2" style="font-size: 1.08rem; line-height: 1.4;">
+                            @item.TenMonHoc
+                        </h5>
+
+                        <!-- Mô tả tóm tắt -->
+                        <p class="text-muted small flex-grow-1 mb-3" style="line-height: 1.5; min-height: 44px;">
+                            @(string.IsNullOrEmpty(item.MoTa) ? "Môn học thuộc chương trình khung đào tạo theo hệ thống tín chỉ chuẩn của trường UNETI." : item.MoTa)
+                        </p>
+
+                        <!-- Số tín chỉ & Định mức học phí -->
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-bold" style="font-size: 13px;">
+                                @item.SoTinChi Tín chỉ
+                            </span>
+                            <div class="text-end">
+                                <span class="fw-bold fs-5" style="color: var(--uneti-primary);">
+                                    @item.HocPhi.ToString("N0") đ
+                                </span>
+                                <div class="text-muted small" style="font-size: 11px;">
+                                    ~@((item.SoTinChi > 0 ? item.HocPhi / item.SoTinChi : 0).ToString("N0")) đ/tín
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nút xem chi tiết -->
+                        <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn btn-outline-secondary w-100 rounded-3 mt-3 fw-semibold text-dark text-decoration-none py-2 d-flex align-items-center justify-content-center" style="border-color: #e2e8f0; background-color: #fafbfc; font-size: 13.5px; transition: all 0.2s;">
+                            <span>Xem chi tiết môn học</span>
+                            <i class="bi bi-chevron-right ms-1 small"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
