@@ -15,84 +15,116 @@
 <ul class="navbar-nav align-items-center gap-2">
 @if (maTaiKhoan != null)
 {
-    <!-- Dropdown thông tin tài khoản -->
+    <!-- Dropdown thông tin tài khoản dạng Modern User Chip -->
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-3 rounded-pill bg-light border text-dark text-decoration-none" 
+        <a class="uneti-user-chip dropdown-toggle text-decoration-none" 
            href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="user-avatar text-white rounded-circle d-inline-flex justify-content-center align-items-center fw-bold shadow-sm" 
-                  style="width: 28px; height: 28px; font-size: 13px; background-color: var(--uneti-primary);">
+            <span class="uneti-user-avatar">
                 @(string.IsNullOrEmpty(hoTen) ? "U" : hoTen.Substring(0, 1).ToUpper())
             </span>
-            <div class="d-none d-md-block text-start pe-1">
-                <span class="fw-bold small d-block lh-1 text-dark">@hoTen</span>
-                <span style="font-size: 11px;">
+            <div class="uneti-user-info d-none d-md-flex">
+                <span class="uneti-user-name">@hoTen</span>
+                <span class="uneti-user-role">
                     @switch (vaiTro)
                     {
                         case "Admin":
-                            <span class="uneti-badge-danger py-0 px-1" style="font-size: 10px;">Quản trị viên</span>
+                            <span class="uneti-user-role-dot admin"></span><span>Quản trị viên</span>
                             break;
                         case "NhanVien":
-                            <span class="uneti-badge-primary py-0 px-1" style="font-size: 10px;">Nhân viên</span>
+                            <span class="uneti-user-role-dot staff"></span><span>Nhân viên</span>
                             break;
                         case "HocVien":
-                            <span class="uneti-badge-success py-0 px-1" style="font-size: 10px;">Học viên</span>
+                            <span class="uneti-user-role-dot student"></span><span>Học viên</span>
                             break;
                         default:
-                            <span class="uneti-badge-secondary py-0 px-1" style="font-size: 10px;">@vaiTro</span>
+                            <span class="uneti-user-role-dot"></span><span>@vaiTro</span>
                             break;
                     }
                 </span>
             </div>
+            <i class="bi bi-chevron-down uneti-chevron-icon"></i>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end uneti-card border shadow-sm p-2 mt-2" aria-labelledby="userDropdown" style="min-width: 230px;">
-            <li class="px-3 py-2 border-bottom bg-light rounded-2 mb-2">
-                <div class="fw-bold text-dark text-truncate">@hoTen</div>
-                <div class="text-muted small">@@@tenDangNhap</div>
-                <div class="mt-1">
+        <ul class="dropdown-menu dropdown-menu-end border shadow-sm mt-2" aria-labelledby="userDropdown" 
+            style="min-width: 250px; border-radius: 16px; border-color: #e2e8f0; padding: 10px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);">
+            <!-- Khối thông tin cá nhân trên cùng (ảnh 3) -->
+            <li class="p-3 rounded-3 mb-2" style="background-color: #f8fafc; border: 1px solid #f1f5f9;">
+                <div class="fw-bold text-dark lh-sm" style="font-size: 1.05rem; letter-spacing: -0.01em;">@hoTen</div>
+                <div class="text-muted small mt-1 mb-2" style="font-size: 13px;">@@@tenDangNhap</div>
+                <div>
                     @switch (vaiTro)
                     {
                         case "Admin":
-                            <span class="badge bg-danger">Quản trị viên hệ thống</span>
+                            <span class="badge bg-danger text-white px-2 py-1 fw-semibold" style="font-size: 11px; border-radius: 6px;">Quản trị viên</span>
                             break;
                         case "NhanVien":
-                            <span class="badge bg-primary">Nhân viên đào tạo</span>
+                            <span class="badge bg-primary text-white px-2 py-1 fw-semibold" style="font-size: 11px; border-radius: 6px;">Nhân viên</span>
                             break;
                         case "HocVien":
-                            <span class="badge bg-success">Học viên</span>
+                            <span class="badge text-white px-2 py-1 fw-semibold" style="background-color: #059669; font-size: 11px; border-radius: 6px;">Học viên</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary text-white px-2 py-1 fw-semibold" style="font-size: 11px; border-radius: 6px;">@vaiTro</span>
                             break;
                     }
                 </div>
             </li>
+
+            @* Nếu là Admin hoặc Nhân viên thì thêm nút Quản trị lên đầu *@
+            @if (vaiTro == "Admin" || vaiTro == "NhanVien")
+            {
+                <li>
+                    <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-primary fw-bold" style="font-size: 13.5px; background-color: #eff6ff;" asp-controller="QuanTri" asp-action="Dashboard">
+                        <i class="bi bi-speedometer2 text-primary fs-5"></i>
+                        <span>Quản trị</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider my-2" style="border-color: #e2e8f0;"></li>
+            }
+
+            @* Danh sách chức năng đào tạo (dùng chung cho mọi đối tượng) *@
             <li>
-                <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="TaiKhoan" asp-action="ChangePassword">
-                    <i class="bi bi-shield-lock me-2 text-warning"></i>Đổi mật khẩu
+                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" asp-controller="MonHoc" asp-action="Index">
+                    <i class="bi bi-mortarboard text-primary fs-5"></i>
+                    <span>Môn học</span>
                 </a>
             </li>
-            @if (vaiTro == "Admin")
-            {
-                <li>
-                    <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="TaiKhoan" asp-action="Index">
-                        <i class="bi bi-people me-2 text-danger"></i>Quản lý tài khoản
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="MonHoc" asp-action="QuanLy">
-                        <i class="bi bi-book-half me-2 text-primary"></i>Quản lý môn học
-                    </a>
-                </li>
-            }
-            else if (vaiTro == "NhanVien")
-            {
-                <li>
-                    <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="MonHoc" asp-action="QuanLy">
-                        <i class="bi bi-book-half me-2 text-primary"></i>Quản lý môn học
-                    </a>
-                </li>
-            }
-            <li><hr class="dropdown-divider my-2"></li>
             <li>
-                <a class="dropdown-item py-2 rounded d-flex align-items-center text-danger fw-semibold" asp-controller="TaiKhoan" asp-action="Logout">
-                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(2)">
+                    <i class="bi bi-journal-album text-warning fs-5"></i>
+                    <span>Khóa học</span>
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(3)">
+                    <i class="bi bi-journal-check text-info fs-5"></i>
+                    <span>Khóa học của tôi</span>
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(4)">
+                    <i class="bi bi-card-checklist text-success fs-5"></i>
+                    <span>Đăng ký khóa học</span>
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(5)">
+                    <i class="bi bi-award text-danger fs-5"></i>
+                    <span>Kết quả học tập</span>
+                </a>
+            </li>
+
+            <li><hr class="dropdown-divider my-2" style="border-color: #e2e8f0;"></li>
+            <li>
+                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" asp-controller="TaiKhoan" asp-action="ChangePassword">
+                    <i class="bi bi-shield-lock text-warning fs-5"></i>
+                    <span>Đổi mật khẩu</span>
+                </a>
+            </li>
+            <li><hr class="dropdown-divider my-2" style="border-color: #e2e8f0;"></li>
+            <li>
+                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-danger fw-semibold" style="font-size: 13.5px;" asp-controller="TaiKhoan" asp-action="Logout">
+                    <i class="bi bi-box-arrow-right text-danger fs-5"></i>
+                    <span>Đăng xuất</span>
                 </a>
             </li>
         </ul>
@@ -100,22 +132,33 @@
 
     <!-- Nút Đăng xuất trực tiếp nhanh chóng (Đồng bộ giao diện) -->
     <li class="nav-item">
-        <a asp-controller="TaiKhoan" asp-action="Logout" class="uneti-btn-danger d-inline-flex align-items-center text-decoration-none" title="Đăng xuất khỏi hệ thống">
-            <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+        <a asp-controller="TaiKhoan" asp-action="Logout" class="uneti-nav-logout text-decoration-none" title="Đăng xuất khỏi hệ thống">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Đăng xuất</span>
         </a>
     </li>
 }
 else
 {
     <li class="nav-item">
-        <a asp-controller="TaiKhoan" asp-action="Login" class="uneti-btn-outline d-inline-flex align-items-center text-decoration-none py-1 px-3">
-            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+        <a asp-controller="TaiKhoan" asp-action="Login" class="uneti-nav-login-btn">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Đăng nhập</span>
         </a>
     </li>
     <li class="nav-item">
-        <a asp-controller="TaiKhoan" asp-action="Register" class="uneti-btn-primary d-inline-flex align-items-center text-decoration-none py-1 px-3">
-            <i class="bi bi-person-plus me-1"></i>Đăng ký
+        <a asp-controller="TaiKhoan" asp-action="Register" class="uneti-nav-register-btn">
+            <i class="bi bi-person-plus-fill"></i>
+            <span>Đăng ký</span>
         </a>
     </li>
 }
 </ul>
+
+<script>
+    if (typeof thongBaoModule !== 'function') {
+        function thongBaoModule(soModule) {
+            alert("Đây là nội dung của Module " + soModule + " và sẽ tự xóa thông báo này khi hoàn thiện.");
+        }
+    }
+</script>

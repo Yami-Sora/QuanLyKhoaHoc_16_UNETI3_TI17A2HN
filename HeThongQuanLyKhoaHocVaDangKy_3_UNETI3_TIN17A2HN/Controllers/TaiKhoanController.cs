@@ -61,30 +61,6 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 }
 
                 bool isPasswordValid = PasswordHelper.VerifyPassword(model.MatKhau, user.MatKhau);
-
-                // Hỗ trợ kiểm thử linh hoạt cho các tài khoản mặc định (chấp nhận 123456 hoặc Admin@123 / Nv@123 / Sv@123)
-                if (!isPasswordValid)
-                {
-                    if (user.TenDangNhap.ToLower() == "admin" && (model.MatKhau == "123456" || model.MatKhau == "Admin@123"))
-                    {
-                        isPasswordValid = true;
-                        user.MatKhau = PasswordHelper.HashPassword(model.MatKhau);
-                        await _context.SaveChangesAsync();
-                    }
-                    else if (user.TenDangNhap.ToLower().StartsWith("nv_") && (model.MatKhau == "123456" || model.MatKhau == "Nv@123"))
-                    {
-                        isPasswordValid = true;
-                        user.MatKhau = PasswordHelper.HashPassword(model.MatKhau);
-                        await _context.SaveChangesAsync();
-                    }
-                    else if (user.TenDangNhap.ToLower().StartsWith("sv_") && (model.MatKhau == "123456" || model.MatKhau == "Sv@123"))
-                    {
-                        isPasswordValid = true;
-                        user.MatKhau = PasswordHelper.HashPassword(model.MatKhau);
-                        await _context.SaveChangesAsync();
-                    }
-                }
-
                 if (!isPasswordValid)
                 {
                     ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");

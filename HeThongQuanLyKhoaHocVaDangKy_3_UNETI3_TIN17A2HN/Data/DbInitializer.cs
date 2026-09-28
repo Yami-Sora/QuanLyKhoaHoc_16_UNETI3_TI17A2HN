@@ -115,7 +115,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "admin",
-                        MatKhau = PasswordHelper.HashPassword("123456"),
+                        MatKhau = PasswordHelper.HashPassword("Admin@123"),
                         HoTen = "Quản trị viên Hệ thống",
                         Email = "admin@uneti.edu.vn",
                         VaiTro = "Admin",
@@ -125,7 +125,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "nv_daotao",
-                        MatKhau = PasswordHelper.HashPassword("123456"),
+                        MatKhau = PasswordHelper.HashPassword("Nv@123"),
                         HoTen = "Trần Văn Đào Tạo",
                         Email = "daotao@uneti.edu.vn",
                         VaiTro = "NhanVien",
@@ -135,7 +135,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "nv_tuyensinh",
-                        MatKhau = PasswordHelper.HashPassword("123456"),
+                        MatKhau = PasswordHelper.HashPassword("Nv@123"),
                         HoTen = "Lê Thị Tuyển Sinh",
                         Email = "tuyensinh@uneti.edu.vn",
                         VaiTro = "NhanVien",
@@ -145,7 +145,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "sv_nguyenvana",
-                        MatKhau = PasswordHelper.HashPassword("123456"),
+                        MatKhau = PasswordHelper.HashPassword("Sv@123"),
                         HoTen = "Nguyễn Văn A",
                         Email = "nguyenvana@gmail.com",
                         VaiTro = "HocVien",
@@ -155,7 +155,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "sv_bitaikhoa",
-                        MatKhau = PasswordHelper.HashPassword("123456"),
+                        MatKhau = PasswordHelper.HashPassword("Sv@123"),
                         HoTen = "Phạm Văn Bị Khóa",
                         Email = "khoatk@gmail.com",
                         VaiTro = "HocVien",
@@ -182,6 +182,34 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     TrangThai = true
                 });
                 context.SaveChanges();
+            }
+            else
+            {
+                // Đồng bộ và cập nhật mật khẩu chuẩn theo các nút 1-Click nếu DB cũ đã tồn tại
+                var defaultAccounts = new (string Username, string Password)[]
+                {
+                    ("admin", "Admin@123"),
+                    ("nv_daotao", "Nv@123"),
+                    ("nv_tuyensinh", "Nv@123"),
+                    ("sv_nguyenvana", "Sv@123"),
+                    ("sv_bitaikhoa", "Sv@123")
+                };
+
+                bool hasUpdate = false;
+                foreach (var (uName, uPass) in defaultAccounts)
+                {
+                    var tk = context.TaiKhoans.FirstOrDefault(t => t.TenDangNhap == uName);
+                    if (tk != null && !PasswordHelper.VerifyPassword(uPass, tk.MatKhau))
+                    {
+                        tk.MatKhau = PasswordHelper.HashPassword(uPass);
+                        hasUpdate = true;
+                    }
+                }
+
+                if (hasUpdate)
+                {
+                    context.SaveChanges();
+                }
             }
         }
     }

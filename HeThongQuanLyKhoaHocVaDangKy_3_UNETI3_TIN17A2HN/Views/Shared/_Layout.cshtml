@@ -8,6 +8,8 @@
 @{
     var userRole = Context.Session.GetString("VaiTro");
     var isLoggedIn = Context.Session.GetInt32("MaTaiKhoan") != null;
+    var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAct = ViewContext.RouteData.Values["action"]?.ToString();
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -50,57 +52,38 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
                         <li class="nav-item">
-                            <a class="uneti-nav-link" asp-controller="Home" asp-action="Index">
+                            <a class="uneti-nav-link text-decoration-none @(currentCtrl == "Home" && currentAct == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door"></i>Trang chủ
                             </a>
                         </li>
                         
-                        @if (userRole == "Admin")
+                        <li class="nav-item">
+                            <a class="uneti-nav-link text-decoration-none @(currentCtrl == "MonHoc" && currentAct == "Index" ? "active" : "")" asp-controller="MonHoc" asp-action="Index">
+                                <i class="bi bi-mortarboard"></i>Môn học
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="uneti-nav-link text-decoration-none" href="javascript:void(0)" onclick="thongBaoModule(2)">
+                                <i class="bi bi-journal-album"></i>Khóa học
+                            </a>
+                        </li>
+
+                        @if (userRole == "Admin" || userRole == "NhanVien")
                         {
                             <li class="nav-item">
-                                <a class="uneti-nav-link text-primary fw-bold" asp-controller="MonHoc" asp-action="QuanLy">
-                                    <i class="bi bi-speedometer2 text-danger"></i>Console Quản trị (Admin)
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="uneti-nav-link" asp-controller="MonHoc" asp-action="Index">
-                                    <i class="bi bi-grid-3x3-gap"></i>Cổng môn học (Card)
-                                </a>
-                            </li>
-                        }
-                        else if (userRole == "NhanVien")
-                        {
-                            <li class="nav-item">
-                                <a class="uneti-nav-link text-primary fw-bold" asp-controller="MonHoc" asp-action="QuanLy">
-                                    <i class="bi bi-speedometer2 text-primary"></i>Console Quản trị
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="uneti-nav-link" asp-controller="MonHoc" asp-action="Index">
-                                    <i class="bi bi-grid-3x3-gap"></i>Cổng môn học (Card)
+                                <a class="uneti-nav-link text-primary fw-bold text-decoration-none @(currentCtrl == "QuanTri" && currentAct == "Dashboard" ? "active" : "")" asp-controller="QuanTri" asp-action="Dashboard">
+                                    <i class="bi bi-speedometer2"></i>Quản trị
                                 </a>
                             </li>
                         }
                         else if (userRole == "HocVien")
                         {
                             <li class="nav-item">
-                                <a class="uneti-nav-link" asp-controller="MonHoc" asp-action="Index">
-                                    <i class="bi bi-mortarboard"></i>Chương trình môn học
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="uneti-nav-link text-muted" href="javascript:void(0)" onclick="alert('Phân hệ Khóa học đã đăng ký thuộc Module 3 của nhóm!')">
+                                <a class="uneti-nav-link text-decoration-none" href="javascript:void(0)" onclick="thongBaoModule(3)">
                                     <i class="bi bi-journal-check"></i>Khóa học của tôi
-                                </a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="uneti-nav-link" asp-controller="MonHoc" asp-action="Index">
-                                    <i class="bi bi-book-half"></i>Chương trình môn học
                                 </a>
                             </li>
                         }
