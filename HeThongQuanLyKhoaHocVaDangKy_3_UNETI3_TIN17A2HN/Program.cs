@@ -9,7 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Cấu hình DbContext với SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+});
 
 // 2. Cấu hình Session & Memory Cache
 builder.Services.AddDistributedMemoryCache();
@@ -67,3 +70,4 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
+ 

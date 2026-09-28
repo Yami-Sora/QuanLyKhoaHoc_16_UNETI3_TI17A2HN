@@ -20,7 +20,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     {
                         TenMonHoc = "Lập trình C# và .NET Core",
                         SoTinChi = 3,
-                        HocPhi = 3500000m,
+                        HocPhi = 3500000,
                         TrangThai = true,
                         MoTa = "Kiến thức C# 13, ASP.NET Core MVC, Entity Framework Core và lập trình Web hiện đại."
                     },
@@ -28,7 +28,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     {
                         TenMonHoc = "Cơ sở Dữ liệu & SQL Server",
                         SoTinChi = 3,
-                        HocPhi = 3000000m,
+                        HocPhi = 3000000,
                         TrangThai = true,
                         MoTa = "Thiết kế CSDL quan hệ, T-SQL, Trigger, Store Procedure và tối ưu truy vấn."
                     },
@@ -36,7 +36,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     {
                         TenMonHoc = "Lập trình Web Frontend với React",
                         SoTinChi = 3,
-                        HocPhi = 3800000m,
+                        HocPhi = 3800000,
                         TrangThai = true,
                         MoTa = "Xây dựng giao diện tương tác Single Page Application với ReactJS, Redux Toolkit và Tailwind."
                     },
@@ -44,7 +44,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     {
                         TenMonHoc = "Lập trình Di động với Flutter",
                         SoTinChi = 4,
-                        HocPhi = 4200000m,
+                        HocPhi = 4200000,
                         TrangThai = true,
                         MoTa = "Phát triển ứng dụng di động đa nền tảng iOS & Android với Dart và Flutter Framework."
                     },
@@ -52,7 +52,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     {
                         TenMonHoc = "Phân tích Dữ liệu với Python",
                         SoTinChi = 3,
-                        HocPhi = 4000000m,
+                        HocPhi = 4000000,
                         TrangThai = false,
                         MoTa = "Xử lý dữ liệu lớn với Pandas, NumPy, Matplotlib và Machine Learning cơ bản (Tạm dừng tuyển sinh)."
                     }
@@ -69,7 +69,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "admin",
-                        MatKhau = PasswordHelper.HashPassword("Admin@123"),
+                        MatKhau = PasswordHelper.HashPassword("123456"),
                         HoTen = "Quản trị viên Hệ thống",
                         Email = "admin@uneti.edu.vn",
                         VaiTro = "Admin",
@@ -79,7 +79,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "nv_daotao",
-                        MatKhau = PasswordHelper.HashPassword("Nv@123"),
+                        MatKhau = PasswordHelper.HashPassword("123456"),
                         HoTen = "Trần Văn Đào Tạo",
                         Email = "daotao@uneti.edu.vn",
                         VaiTro = "NhanVien",
@@ -89,7 +89,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "nv_tuyensinh",
-                        MatKhau = PasswordHelper.HashPassword("Nv@123"),
+                        MatKhau = PasswordHelper.HashPassword("123456"),
                         HoTen = "Lê Thị Tuyển Sinh",
                         Email = "tuyensinh@uneti.edu.vn",
                         VaiTro = "NhanVien",
@@ -99,7 +99,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "sv_nguyenvana",
-                        MatKhau = PasswordHelper.HashPassword("Sv@123"),
+                        MatKhau = PasswordHelper.HashPassword("123456"),
                         HoTen = "Nguyễn Văn A",
                         Email = "nguyenvana@gmail.com",
                         VaiTro = "HocVien",
@@ -109,7 +109,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     new TaiKhoan
                     {
                         TenDangNhap = "sv_bitaikhoa",
-                        MatKhau = PasswordHelper.HashPassword("Sv@123"),
+                        MatKhau = PasswordHelper.HashPassword("123456"),
                         HoTen = "Phạm Văn Bị Khóa",
                         Email = "khoatk@gmail.com",
                         VaiTro = "HocVien",

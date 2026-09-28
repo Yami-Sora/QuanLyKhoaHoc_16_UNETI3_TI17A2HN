@@ -26,9 +26,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // 1. Chỉ mục Unique chống trùng tên
+            // 1. Chỉ mục Unique chống trùng tên và trùng email
             modelBuilder.Entity<TaiKhoan>()
                 .HasIndex(t => t.TenDangNhap)
+                .IsUnique();
+
+            modelBuilder.Entity<TaiKhoan>()
+                .HasIndex(t => t.Email)
                 .IsUnique();
 
             modelBuilder.Entity<MonHoc>()

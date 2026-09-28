@@ -1,0 +1,121 @@
+@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung thực hiện: Module 1 - Partial View Quản lý trạng thái Đăng nhập, Hồ sơ cá nhân và Nút Đăng xuất (Đồng bộ chuẩn UNETI)
+*@
+
+@using Microsoft.AspNetCore.Http
+@{
+    var maTaiKhoan = Context.Session.GetInt32("MaTaiKhoan");
+    var hoTen = Context.Session.GetString("HoTen");
+    var tenDangNhap = Context.Session.GetString("TenDangNhap");
+    var vaiTro = Context.Session.GetString("VaiTro");
+}
+
+<ul class="navbar-nav align-items-center gap-2">
+@if (maTaiKhoan != null)
+{
+    <!-- Dropdown thông tin tài khoản -->
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-3 rounded-pill bg-light border text-dark text-decoration-none" 
+           href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="user-avatar text-white rounded-circle d-inline-flex justify-content-center align-items-center fw-bold shadow-sm" 
+                  style="width: 28px; height: 28px; font-size: 13px; background-color: var(--uneti-primary);">
+                @(string.IsNullOrEmpty(hoTen) ? "U" : hoTen.Substring(0, 1).ToUpper())
+            </span>
+            <div class="d-none d-md-block text-start pe-1">
+                <span class="fw-bold small d-block lh-1 text-dark">@hoTen</span>
+                <span style="font-size: 11px;">
+                    @switch (vaiTro)
+                    {
+                        case "Admin":
+                            <span class="uneti-badge-danger py-0 px-1" style="font-size: 10px;">Quản trị viên</span>
+                            break;
+                        case "NhanVien":
+                            <span class="uneti-badge-primary py-0 px-1" style="font-size: 10px;">Nhân viên</span>
+                            break;
+                        case "HocVien":
+                            <span class="uneti-badge-success py-0 px-1" style="font-size: 10px;">Học viên</span>
+                            break;
+                        default:
+                            <span class="uneti-badge-secondary py-0 px-1" style="font-size: 10px;">@vaiTro</span>
+                            break;
+                    }
+                </span>
+            </div>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end uneti-card border shadow-sm p-2 mt-2" aria-labelledby="userDropdown" style="min-width: 230px;">
+            <li class="px-3 py-2 border-bottom bg-light rounded-2 mb-2">
+                <div class="fw-bold text-dark text-truncate">@hoTen</div>
+                <div class="text-muted small">@@@tenDangNhap</div>
+                <div class="mt-1">
+                    @switch (vaiTro)
+                    {
+                        case "Admin":
+                            <span class="badge bg-danger">Quản trị viên hệ thống</span>
+                            break;
+                        case "NhanVien":
+                            <span class="badge bg-primary">Nhân viên đào tạo</span>
+                            break;
+                        case "HocVien":
+                            <span class="badge bg-success">Học viên</span>
+                            break;
+                    }
+                </div>
+            </li>
+            <li>
+                <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="TaiKhoan" asp-action="ChangePassword">
+                    <i class="bi bi-shield-lock me-2 text-warning"></i>Đổi mật khẩu
+                </a>
+            </li>
+            @if (vaiTro == "Admin")
+            {
+                <li>
+                    <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="TaiKhoan" asp-action="Index">
+                        <i class="bi bi-people me-2 text-danger"></i>Quản lý tài khoản
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="MonHoc" asp-action="QuanLy">
+                        <i class="bi bi-book-half me-2 text-primary"></i>Quản lý môn học
+                    </a>
+                </li>
+            }
+            else if (vaiTro == "NhanVien")
+            {
+                <li>
+                    <a class="dropdown-item py-2 rounded d-flex align-items-center" asp-controller="MonHoc" asp-action="QuanLy">
+                        <i class="bi bi-book-half me-2 text-primary"></i>Quản lý môn học
+                    </a>
+                </li>
+            }
+            <li><hr class="dropdown-divider my-2"></li>
+            <li>
+                <a class="dropdown-item py-2 rounded d-flex align-items-center text-danger fw-semibold" asp-controller="TaiKhoan" asp-action="Logout">
+                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <!-- Nút Đăng xuất trực tiếp nhanh chóng (Đồng bộ giao diện) -->
+    <li class="nav-item">
+        <a asp-controller="TaiKhoan" asp-action="Logout" class="uneti-btn-danger d-inline-flex align-items-center text-decoration-none" title="Đăng xuất khỏi hệ thống">
+            <i class="bi bi-box-arrow-right me-1"></i>Đăng xuất
+        </a>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a asp-controller="TaiKhoan" asp-action="Login" class="uneti-btn-outline d-inline-flex align-items-center text-decoration-none py-1 px-3">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+        </a>
+    </li>
+    <li class="nav-item">
+        <a asp-controller="TaiKhoan" asp-action="Register" class="uneti-btn-primary d-inline-flex align-items-center text-decoration-none py-1 px-3">
+            <i class="bi bi-person-plus me-1"></i>Đăng ký
+        </a>
+    </li>
+}
+</ul>

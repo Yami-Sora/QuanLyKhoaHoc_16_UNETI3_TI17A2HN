@@ -1,8 +1,345 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung thực hiện: Trang chủ Hệ thống Quản lý Khóa học và Đăng ký học (UNETI) - Đồng bộ phong cách Light Academic
+*@
+
+@model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc>
+@using Microsoft.AspNetCore.Http
+@{
+    ViewData["Title"] = "Trang chủ - Cổng Đào Tạo Trực Tuyến UNETI";
+    var maTaiKhoan = Context.Session.GetInt32("MaTaiKhoan");
+    var hoTen = Context.Session.GetString("HoTen");
+    var tenDangNhap = Context.Session.GetString("TenDangNhap");
+    var vaiTro = Context.Session.GetString("VaiTro");
+    var isLoggedIn = maTaiKhoan != null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <!-- Thông báo TempData -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
+            <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- 1. HERO BANNER UNETI (CHUẨN THIẾT KẾ 3D MINH HỌA THEO MẪU) -->
+    <div class="uneti-hero-banner mb-4">
+        <div class="uneti-banner-content">
+            <!-- Badge nhận diện UNETI -->
+            <div class="uneti-banner-badge">
+                <i class="bi bi-mortarboard-fill"></i>
+                @if (isLoggedIn)
+                {
+                    <span>Cổng đào tạo trực tuyến UNETI &bull; @hoTen</span>
+                }
+                else
+                {
+                    <span>Cổng đào tạo trực tuyến UNETI</span>
+                }
+            </div>
+            
+            <!-- Tiêu đề lớn chuẩn mẫu -->
+            <h1 class="uneti-banner-title">
+                HỆ THỐNG QUẢN LÝ KHÓA HỌC <br />
+                &amp; ĐĂNG KÝ HỌC TẬP
+            </h1>
+            
+            <!-- Mô tả ngắn gọn, tinh tế chuẩn mẫu -->
+            <p class="uneti-banner-desc">
+                Học tập linh hoạt, nâng cao tri thức, phát triển bản thân<br class="d-none d-md-inline" />
+                cùng hệ thống đào tạo trực tuyến hiện đại.
+            </p>
+
+            <!-- Cụm nút hành động chuẩn mẫu ảnh 2 (Được tối ưu phân vai rõ ràng khi đã đăng nhập) -->
+            <div class="uneti-banner-actions d-flex flex-wrap align-items-center gap-3">
+                @if (isLoggedIn)
+                {
+                    @if (vaiTro == "Admin")
+                    {
+                        <a asp-controller="MonHoc" asp-action="Index" class="uneti-btn-banner-primary">
+                            <i class="bi bi-book-half fs-5"></i>
+                            <span>Quản lý môn học</span>
+                        </a>
+                        <a asp-controller="TaiKhoan" asp-action="Index" class="uneti-btn-banner-secondary">
+                            <i class="bi bi-people fs-5"></i>
+                            <span>Quản lý tài khoản</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    }
+                    else if (vaiTro == "NhanVien")
+                    {
+                        <a asp-controller="MonHoc" asp-action="Index" class="uneti-btn-banner-primary">
+                            <i class="bi bi-book-half fs-5"></i>
+                            <span>Quản lý môn học</span>
+                        </a>
+                        <a asp-controller="MonHoc" asp-action="Create" class="uneti-btn-banner-secondary">
+                            <i class="bi bi-plus-circle fs-5"></i>
+                            <span>Thêm môn học mới</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <!-- Dành cho Học viên / Sinh viên: 2 chức năng riêng biệt, không bị trùng lặp -->
+                        <a asp-controller="MonHoc" asp-action="Index" class="uneti-btn-banner-primary">
+                            <i class="bi bi-search fs-5"></i>
+                            <span>Tra cứu môn học</span>
+                        </a>
+                        <a href="#lo-trinh-dao-tao" class="uneti-btn-banner-secondary">
+                            <i class="bi bi-diagram-3 fs-5"></i>
+                            <span>Lộ trình đào tạo</span>
+                            <i class="bi bi-arrow-down-short fs-5"></i>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <!-- Khách chưa đăng nhập: Chuẩn 100% mẫu Ảnh 2 -->
+                    <a asp-controller="TaiKhoan" asp-action="Login" class="uneti-btn-banner-primary">
+                        <i class="bi bi-box-arrow-in-right fs-5"></i>
+                        <span>Đăng nhập</span>
+                    </a>
+                    <a asp-controller="MonHoc" asp-action="Index" class="uneti-btn-banner-secondary">
+                        <i class="bi bi-list-task fs-5"></i>
+                        <span>Xem danh mục môn học</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 3. MÔN HỌC TIÊU BIỂU - LIVE TỪ CSDL -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-stars text-warning me-1"></i>Môn Học Tiêu Biểu Trong Chương Trình
+                </h5>
+                <small class="text-muted">Dữ liệu thực tế được cập nhật trực tiếp từ Cơ sở dữ liệu đào tạo</small>
+            </div>
+            <a asp-controller="MonHoc" asp-action="Index" class="btn uneti-btn-outline btn-sm py-1 px-3 text-decoration-none">
+                Xem toàn bộ <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-3">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var mon in Model)
+                {
+                    <div class="col-md-4">
+                        <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-light text-secondary border px-2 py-1">#MH0@(mon.MaMonHoc)</span>
+                                <span class="uneti-badge-success">
+                                    <i class="bi bi-check-circle me-1"></i>Đang mở
+                                </span>
+                            </div>
+
+                            <h6 class="fw-bold text-dark mb-2">@mon.TenMonHoc</h6>
+                            <p class="text-muted small flex-grow-1 mb-3">
+                                @(string.IsNullOrEmpty(mon.MoTa) ? "Môn học thuộc chương trình khung đào tạo chuyên ngành Công nghệ thông tin UNETI." : mon.MoTa)
+                            </p>
+
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <span class="uneti-badge-primary">@mon.SoTinChi Tín chỉ</span>
+                                <span class="fw-bold text-primary">@mon.HocPhi.ToString("N0") đ</span>
+                            </div>
+
+                            <a asp-controller="MonHoc" asp-action="Details" asp-route-id="@mon.MaMonHoc" class="btn uneti-btn-outline btn-sm w-100 mt-3 text-decoration-none">
+                                Xem chi tiết môn học <i class="bi bi-chevron-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- 4. QUY TRÌNH ĐĂNG KÝ & HỌC TẬP (CHUẨN NGHIỆP VỤ HỌC VIÊN UNETI) -->
+    <div class="mt-5 mb-4" id="lo-trinh-dao-tao">
+        <div class="text-center mb-4">
+            <span class="badge px-3 py-1 rounded-pill fw-semibold text-uppercase small mb-2" 
+                  style="background-color: var(--uneti-primary-light); color: var(--uneti-primary); border: 1px solid var(--uneti-primary-border);">
+                <i class="bi bi-diagram-3-fill me-1"></i>LỘ TRÌNH ĐÀO TẠO THEO TÍN CHỈ
+            </span>
+            <h4 class="fw-bold text-dark mb-1">Quy Trình Đăng Ký & Học Tập</h4>
+            <p class="text-muted small mb-0">3 bước chuẩn mực giúp sinh viên chủ động xây dựng kế hoạch và hoàn thành chương trình học tập</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Bước 1: Tra cứu danh mục môn học & chương trình khung (Module 1 - Đã hoàn thiện) -->
+            <div class="col-lg-4 col-md-6">
+                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column position-relative shadow-sm" style="border-radius: 16px;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 fs-4" 
+                             style="width: 52px; height: 52px; background-color: #eff6ff; color: #1d4ed8; border: 1.5px solid #bfdbfe;">
+                            <i class="bi bi-journal-bookmark-fill"></i>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge rounded-pill fw-bold d-block mb-1" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 11px; padding: 5px 12px;">
+                                BƯỚC 01
+                            </span>
+                            <span class="badge rounded-pill" style="background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; font-size: 10px;">
+                                <i class="bi bi-check-circle-fill me-1"></i>Module 1: Đã có sẵn
+                            </span>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">Tra Cứu Môn Học & CTĐT</h5>
+                    <p class="text-muted small mb-3">
+                        Tra cứu danh mục môn học thuộc chương trình khung đào tạo, tìm hiểu số tín chỉ, định mức học phí và điều kiện tiên quyết.
+                    </p>
+
+                    <div class="p-3 rounded-3 mb-3 small" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="mb-1 text-secondary"><i class="bi bi-check2-circle text-primary me-2"></i>Tra cứu số tín chỉ & định mức học phí</div>
+                        <div class="text-secondary"><i class="bi bi-check2-circle text-primary me-2"></i>Xem đề cương môn học & điều kiện tiên quyết</div>
+                    </div>
+
+                    <a asp-controller="MonHoc" asp-action="Index" class="btn uneti-btn-outline btn-sm w-100 mt-auto rounded-3">
+                        <i class="bi bi-search me-1"></i>Tra cứu danh mục môn học
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bước 2: Lựa chọn khóa học phù hợp với kế hoạch học tập (Module 2 - Đang triển khai) -->
+            <div class="col-lg-4 col-md-6">
+                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column position-relative shadow-sm" style="border-radius: 16px;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 fs-4" 
+                             style="width: 52px; height: 52px; background-color: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0;">
+                            <i class="bi bi-calendar2-week-fill"></i>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge rounded-pill fw-bold d-block mb-1" style="background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 11px; padding: 5px 12px;">
+                                BƯỚC 02
+                            </span>
+                            <span class="badge rounded-pill" style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; font-size: 10px;">
+                                <i class="bi bi-clock-history me-1"></i>Module 2: Đang triển khai
+                            </span>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">Lựa Chọn Khóa Học Phù Hợp</h5>
+                    <p class="text-muted small mb-3">
+                        Khám phá các lớp khóa học phù hợp với kế hoạch cá nhân, nắm bắt thời khóa biểu, giảng viên phụ trách và chỉ tiêu sĩ số.
+                    </p>
+
+                    <div class="p-3 rounded-3 mb-3 small" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="mb-1 text-secondary"><i class="bi bi-check2-circle text-success me-2"></i>Kế hoạch mở lớp & thời khóa biểu học</div>
+                        <div class="text-secondary"><i class="bi bi-check2-circle text-success me-2"></i>Chỉ tiêu sĩ số lớp & giảng viên giảng dạy</div>
+                    </div>
+
+                    <button type="button" class="btn uneti-btn-outline btn-sm w-100 mt-auto rounded-3" 
+                            onclick="notifyPendingModule('Module 2 - Quản Lý Khóa Học & Lớp Học Phần', 'Xem Kế Hoạch Mở Lớp & Thời Khóa Biểu', 'Chức năng xem kế hoạch mở lớp, thời khóa biểu và phân công giảng viên thuộc phạm vi phát triển của <strong>Module 2 (Quản lý Khóa học & Lớp học phần)</strong> do thành viên khác trong nhóm phụ trách và đang được tích hợp hoàn thiện.', '#fffbeb', '#b45309', '#fde68a')">
+                        <i class="bi bi-calendar-check me-1"></i>Xem kế hoạch mở lớp <span class="badge bg-warning text-dark ms-1" style="font-size: 10px;">Module 2</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bước 3: Đăng ký trực tuyến & theo dõi tiến độ đào tạo (Module 4 - Đang triển khai) -->
+            <div class="col-lg-4 col-md-12">
+                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column position-relative shadow-sm" style="border-radius: 16px;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 fs-4" 
+                             style="width: 52px; height: 52px; background-color: #fffbeb; color: #d97706; border: 1.5px solid #fde68a;">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge rounded-pill fw-bold d-block mb-1" style="background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; font-size: 11px; padding: 5px 12px;">
+                                BƯỚC 03
+                            </span>
+                            <span class="badge rounded-pill" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 10px;">
+                                <i class="bi bi-clock-history me-1"></i>Module 4: Đang triển khai
+                            </span>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">Đăng Ký & Theo Dõi Tiến Độ</h5>
+                    <p class="text-muted small mb-3">
+                        Ghi danh học phần trực tuyến tức thì, quản lý kết quả đăng ký môn học và theo dõi lịch trình đào tạo minh bạch suốt học kỳ.
+                    </p>
+
+                    <div class="p-3 rounded-3 mb-3 small" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="mb-1 text-secondary"><i class="bi bi-check2-circle text-warning me-2"></i>Đăng ký học trực tuyến nhanh chóng</div>
+                        <div class="text-secondary"><i class="bi bi-check2-circle text-warning me-2"></i>Theo dõi tiến độ & thời khóa biểu cá nhân</div>
+                    </div>
+
+                    <button type="button" class="btn uneti-btn-primary btn-sm w-100 mt-auto rounded-3" 
+                            onclick="notifyPendingModule('Module 4 - Đăng Ký Khóa Học & Quản Lý Học Vụ', 'Đăng Ký Học Phần Trực Tuyến & Theo Dõi Tiến Độ', 'Chức năng ghi danh học phần trực tuyến, tính toán học phí và theo dõi tiến độ đào tạo thuộc phạm vi phát triển của <strong>Module 4 (Đăng ký Khóa học & Học phí)</strong> do thành viên khác trong nhóm phụ trách và đang được tích hợp hoàn thiện.', '#eff6ff', '#1d4ed8', '#bfdbfe')">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Đăng ký học trực tuyến <span class="badge bg-light text-primary ms-1" style="font-size: 10px;">Module 4</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- MODAL THÔNG BÁO TÍNH NĂNG THUỘC MODULE KHÁC ĐANG TRIỂN KHAI -->
+<div class="modal fade" id="moduleNoticeModal" tabindex="-1" aria-labelledby="moduleNoticeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="d-inline-flex justify-content-center align-items-center rounded-circle" 
+                          style="width: 44px; height: 44px; background-color: #fffbeb; color: #d97706; border: 1.5px solid #fde68a;">
+                        <i class="bi bi-cone-striped fs-5"></i>
+                    </span>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="moduleNoticeModalLabel">Tính Năng Đang Triển Khai</h5>
+                        <small class="text-muted" style="font-size: 11px;">HỆ THỐNG ĐÀO TẠO THEO PHÂN HỆ UNETI</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <span id="modalModuleBadge" class="badge px-3 py-1 rounded-pill fw-semibold mb-2" style="font-size: 12px;"></span>
+                    <h6 id="modalFeatureTitle" class="fw-bold text-dark mb-2"></h6>
+                    <p id="modalFeatureDesc" class="text-muted small mb-0" style="line-height: 1.6;"></p>
+                </div>
+                <div class="p-3 rounded-3 small" style="background-color: #eff6ff; border: 1px solid #bfdbfe;">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-info-circle-fill text-primary mt-1"></i>
+                        <div class="text-dark">
+                            <strong>Phạm vi hiện tại:</strong> Hệ thống đang phục vụ kiểm thử <strong>Module 1 (Quản lý Môn học & Tài khoản / Phân quyền)</strong> do sinh viên <strong>Trần Văn Thành (MSV: 23103100076)</strong> thực hiện.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0 pb-4 px-4 gap-2">
+                <button type="button" class="btn uneti-btn-outline btn-sm px-3" data-bs-dismiss="modal">
+                    Đã hiểu
+                </button>
+                <a asp-controller="MonHoc" asp-action="Index" class="btn uneti-btn-primary btn-sm px-4">
+                    <i class="bi bi-book-half me-1"></i>Khám phá Module 1 (Môn học)
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function notifyPendingModule(moduleName, featureTitle, featureDesc, badgeBg, badgeColor, badgeBorder) {
+            const badge = document.getElementById('modalModuleBadge');
+            badge.textContent = moduleName;
+            badge.style.backgroundColor = badgeBg;
+            badge.style.color = badgeColor;
+            badge.style.border = '1px solid ' + badgeBorder;
+
+            document.getElementById('modalFeatureTitle').textContent = featureTitle;
+            document.getElementById('modalFeatureDesc').innerHTML = featureDesc;
+
+            const modalEl = document.getElementById('moduleNoticeModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    </script>
+}
