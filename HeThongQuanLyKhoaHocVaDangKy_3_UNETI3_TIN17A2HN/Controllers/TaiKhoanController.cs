@@ -5,6 +5,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels;
@@ -163,18 +164,15 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // GET: /TaiKhoan/ChangePassword
+        [AuthorizeRole]
         [HttpGet]
         public IActionResult ChangePassword()
         {
-            var maTaiKhoan = HttpContext.Session.GetInt32("MaTaiKhoan");
-            if (maTaiKhoan == null)
-            {
-                return RedirectToAction(nameof(Login), new { returnUrl = "/TaiKhoan/ChangePassword" });
-            }
             return View();
         }
 
         // POST: /TaiKhoan/ChangePassword
+        [AuthorizeRole]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
