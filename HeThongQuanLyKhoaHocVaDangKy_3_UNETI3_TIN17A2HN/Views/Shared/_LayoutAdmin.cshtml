@@ -45,7 +45,7 @@
                     <i class="bi bi-shield-lock-fill fs-5"></i>
                 </span>
                 <div>
-                    <span class="d-block fw-bold text-white lh-1" style="font-size: 1rem; letter-spacing: -0.01em;">UNETI CONSOLE</span>
+                    <span class="d-block fw-bold text-dark lh-1" style="font-size: 1rem; letter-spacing: -0.01em;">UNETI CONSOLE</span>
                     <span class="d-block small text-muted" style="font-size: 11px;">Quản trị Đào tạo & Khóa học</span>
                 </div>
             </div>
@@ -58,18 +58,18 @@
                              style="width: 42px; height: 42px; background: linear-gradient(135deg, #2563eb, #1d4ed8);">
                             @(string.IsNullOrEmpty(hoTen) ? "A" : hoTen.Substring(0, 1).ToUpper())
                         </div>
-                        <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-dark rounded-circle" title="Đang trực tuyến"></span>
+                        <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-2 border-white rounded-circle" title="Đang trực tuyến"></span>
                     </div>
                     <div class="overflow-hidden">
-                        <div class="fw-bold text-white text-truncate small">@hoTen</div>
+                        <div class="fw-bold text-dark text-truncate small">@hoTen</div>
                         <div class="d-flex align-items-center gap-1 mt-1">
                             @if (isAdmin)
                             {
-                                <span class="badge bg-danger bg-opacity-75 text-white" style="font-size: 10px;">Quản trị viên</span>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-semibold" style="font-size: 10px;">Quản trị viên</span>
                             }
                             else
                             {
-                                <span class="badge bg-primary bg-opacity-75 text-white" style="font-size: 10px;">Nhân viên</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold" style="font-size: 10px;">Nhân viên</span>
                             }
                             <small class="text-muted" style="font-size: 10.5px;">@@@tenDangNhap</small>
                         </div>
@@ -79,68 +79,84 @@
 
             <!-- Menu Điều hướng Quản trị -->
             <div class="admin-sidebar-menu">
-                <!-- Nhóm 1: Module 1 - Quản lý Cốt lõi (Trần Văn Thành) -->
-                <div class="admin-menu-header">Module 1 - Cán bộ Quản trị</div>
-                
-                <a asp-controller="Home" asp-action="Index" class="admin-nav-item @(currentController == "Home" ? "active" : "")">
+                <!-- 1. TỔNG QUAN HỆ THỐNG -->
+                <div class="admin-menu-header">Tổng quan hệ thống</div>
+
+                <a asp-controller="QuanTri" asp-action="Dashboard" class="admin-nav-item @(currentController == "QuanTri" && currentAction == "Dashboard" ? "active" : "")">
                     <i class="bi bi-speedometer2"></i>
-                    <span>Trang chủ Dashboard</span>
+                    <span>Bảng điều khiển</span>
                 </a>
 
-                @if (isAdmin)
-                {
-                    <a asp-controller="TaiKhoan" asp-action="Index" class="admin-nav-item @(currentController == "TaiKhoan" && currentAction == "Index" ? "active" : "")">
-                        <i class="bi bi-people-fill"></i>
-                        <span>Quản lý tài khoản</span>
-                    </a>
-                }
+                <!-- 2. MÔN HỌC & TÀI KHOẢN -->
+                <div class="admin-menu-header mt-2">Môn học & Tài khoản</div>
 
                 <a asp-controller="MonHoc" asp-action="QuanLy" class="admin-nav-item @(currentController == "MonHoc" && currentAction == "QuanLy" ? "active" : "")">
                     <i class="bi bi-book-half"></i>
-                    <span>Quản lý môn học (CRUD)</span>
+                    <span>Quản lý môn học</span>
                 </a>
 
-                @if (isAdmin)
-                {
-                    <a asp-controller="MonHoc" asp-action="Create" class="admin-nav-item @(currentController == "MonHoc" && currentAction == "Create" ? "active" : "")">
-                        <i class="bi bi-plus-circle"></i>
-                        <span>Thêm môn học mới</span>
-                    </a>
-                }
-
-                <!-- Nhóm 2: Các phân hệ nhóm khác (Đề tài 16) -->
-                <div class="admin-menu-header mt-3">Phân hệ Đào tạo nhóm</div>
-                <a href="javascript:void(0)" class="admin-nav-item disabled-link" title="Thuộc Module 2 của nhóm">
-                    <i class="bi bi-mortarboard"></i>
-                    <span class="flex-grow-1">Quản lý khóa học</span>
-                    <span class="badge bg-secondary" style="font-size: 9.5px;">Mod 2</span>
+                <a asp-controller="TaiKhoan" asp-action="QuanLy" class="admin-nav-item @(currentController == "TaiKhoan" && (currentAction == "QuanLy" || currentAction == "Index") ? "active" : "")">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Quản lý tài khoản</span>
                 </a>
-                <a href="javascript:void(0)" class="admin-nav-item disabled-link" title="Thuộc Module 4 của nhóm">
+
+                <!-- 3. QUẢN TRỊ KHÓA HỌC -->
+                <div class="admin-menu-header mt-2">Quản trị khóa học</div>
+
+                <a href="javascript:void(0)" class="admin-nav-item module-placeholder-link"
+                   data-module="Module 2 (Quản lý khóa học & Lớp học phần)"
+                   data-feature="Quản lý khóa học & Giảng viên"
+                   data-desc="Bao gồm: Thiết lập danh sách khóa học, kế hoạch mở lớp, phân công giảng viên, tìm kiếm đa tiêu chí, lọc theo môn học & học phí theo Mục 6 & Mục 10 Đề tài 16.">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span>Quản lý khóa học</span>
+                </a>
+
+                <!-- 4. QUẢN TRỊ HỌC VIÊN -->
+                <div class="admin-menu-header mt-2">Quản trị học viên</div>
+
+                <a href="javascript:void(0)" class="admin-nav-item module-placeholder-link"
+                   data-module="Module 3 (Quản lý học viên & Hồ sơ)"
+                   data-feature="Quản lý hồ sơ học viên & Lịch sử học tập"
+                   data-desc="Bao gồm: Quản lý danh sách học viên, hồ sơ lý lịch cá nhân, thông tin liên lạc và theo dõi lịch sử tham gia khóa học theo Mục 7 Đề tài 16.">
+                    <i class="bi bi-person-lines-fill"></i>
+                    <span>Quản lý hồ sơ học viên</span>
+                </a>
+
+                <!-- 5. TIẾP NHẬN & ĐĂNG KÝ -->
+                <div class="admin-menu-header mt-2">Tiếp nhận & Đăng ký</div>
+
+                <a href="javascript:void(0)" class="admin-nav-item module-placeholder-link"
+                   data-module="Module 4 (Tiếp nhận & Quản lý trạng thái)"
+                   data-feature="Tiếp nhận đơn & Quản lý luồng trạng thái"
+                   data-desc="Bao gồm: Tiếp nhận đơn đăng ký học, kiểm tra điều kiện đầu vào, xét duyệt hồ sơ và chuyển đổi luồng trạng thái giao dịch (Chờ xử lý &rarr; Đang xử lý &rarr; Hoàn thành / Hủy) theo Mục 8.1 - 8.5 Đề tài 16.">
                     <i class="bi bi-card-checklist"></i>
-                    <span class="flex-grow-1">Tiếp nhận đăng ký</span>
-                    <span class="badge bg-secondary" style="font-size: 9.5px;">Mod 4</span>
-                </a>
-                <a href="javascript:void(0)" class="admin-nav-item disabled-link" title="Thuộc Module 5 của nhóm">
-                    <i class="bi bi-graph-up"></i>
-                    <span class="flex-grow-1">Báo cáo & Thống kê</span>
-                    <span class="badge bg-secondary" style="font-size: 9.5px;">Mod 5</span>
+                    <span>Tiếp nhận & Duyệt đăng ký</span>
                 </a>
 
-                <!-- Nhóm 3: Chuyển Cổng & Tiện ích -->
-                <div class="admin-menu-header mt-3">Tiện ích & Cổng Sinh viên</div>
-                <a asp-controller="MonHoc" asp-action="Index" class="admin-nav-item @(currentController == "MonHoc" && currentAction == "Index" ? "active" : "")" title="Xem Cổng môn học dạng Card Grid của Sinh viên">
-                    <i class="bi bi-grid-3x3-gap"></i>
-                    <span>Xem Cổng Sinh viên</span>
+                <a href="javascript:void(0)" class="admin-nav-item module-placeholder-link"
+                   data-module="Module 4 (Tiếp nhận & Quản lý trạng thái)"
+                   data-feature="Đối soát học phí & Quản lý công nợ"
+                   data-desc="Bao gồm: Kiểm soát số tiền đã đóng, số tiền còn lại của từng đơn đăng ký khóa học, đối soát hóa đơn và quản lý công nợ theo Mục 8.1 - 8.3 Đề tài 16.">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>Đối soát học phí & Công nợ</span>
                 </a>
-                <a asp-controller="TaiKhoan" asp-action="ChangePassword" class="admin-nav-item @(currentController == "TaiKhoan" && currentAction == "ChangePassword" ? "active" : "")">
-                    <i class="bi bi-shield-lock"></i>
-                    <span>Đổi mật khẩu cá nhân</span>
+
+                <!-- 6. KẾT QUẢ ĐÀO TẠO -->
+                <div class="admin-menu-header mt-2">Kết quả đào tạo</div>
+
+                <a href="javascript:void(0)" class="admin-nav-item module-placeholder-link"
+                   data-module="Module 5 (Kết quả, Dashboard & Thống kê)"
+                   data-feature="Quản lý kết quả học tập & Điểm số"
+                   data-desc="Bao gồm: Cập nhật điểm chuyên cần, giữa kỳ, cuối kỳ, tự động tính điểm tổng kết và xếp loại học lực học viên theo Mục 9.1 - 9.2 Đề tài 16.">
+                    <i class="bi bi-award-fill"></i>
+                    <span>Quản lý kết quả học tập</span>
                 </a>
+
             </div>
 
             <!-- Footer Sidebar: Nút Đăng xuất -->
             <div class="admin-sidebar-footer">
-                <a asp-controller="TaiKhoan" asp-action="Logout" class="btn btn-outline-danger btn-sm w-100 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                <a asp-controller="TaiKhoan" asp-action="Logout" class="admin-logout-btn w-100 fw-semibold d-flex align-items-center justify-content-center gap-2 text-decoration-none">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Đăng xuất hệ thống</span>
                 </a>
@@ -156,43 +172,65 @@
                         <i class="bi bi-list fs-5"></i>
                     </button>
                     <div>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill small fw-semibold">
-                            <i class="bi bi-building me-1"></i>UNETI - CỔNG QUẢN TRỊ ĐÀO TẠO
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 rounded-pill small fw-semibold">
+                            <i class="bi bi-shield-check me-1"></i>Trung tâm Quản trị Hệ thống
                         </span>
                     </div>
                 </div>
 
                 <div class="d-flex align-items-center gap-2">
-                    <a asp-controller="MonHoc" asp-action="Index" class="btn btn-sm btn-outline-primary rounded-3 px-3 d-none d-sm-inline-flex align-items-center gap-1">
-                        <i class="bi bi-eye"></i>
-                        <span>Cổng Sinh viên</span>
-                    </a>
                     <a asp-controller="Home" asp-action="Index" class="btn btn-sm uneti-btn-outline rounded-3 px-3 d-none d-sm-inline-flex align-items-center gap-1">
                         <i class="bi bi-house"></i>
                         <span>Trang chủ</span>
                     </a>
+                    <!-- Dropdown Hồ sơ cá nhân mini chuẩn Enterprise -->
                     <div class="dropdown">
-                        <button class="btn btn-light border dropdown-toggle py-1 px-3 d-flex align-items-center gap-2 rounded-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle text-primary"></i>
+                        <button class="btn btn-light border dropdown-toggle py-1 px-2.5 d-flex align-items-center gap-2 rounded-3 shadow-none bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="text-white rounded-circle d-inline-flex align-items-center justify-content-center fw-bold" 
+                                  style="width: 28px; height: 28px; font-size: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+                                @(string.IsNullOrEmpty(hoTen) ? "A" : hoTen.Substring(0, 1).ToUpper())
+                            </span>
                             <span class="small fw-semibold text-dark">@hoTen</span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2" style="border-radius: 12px; min-width: 200px;">
-                            <li class="px-3 py-1">
-                                <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">VAI TRÒ</small>
-                                <div class="fw-bold small text-dark">@(isAdmin ? "Quản trị viên" : "Nhân viên đào tạo")</div>
-                            </li>
-                            <li><hr class="dropdown-divider my-2"></li>
-                            <li>
-                                <a class="dropdown-item py-2 small" asp-controller="TaiKhoan" asp-action="ChangePassword">
-                                    <i class="bi bi-shield-lock me-2 text-warning"></i>Đổi mật khẩu
+                        <div class="dropdown-menu dropdown-menu-end shadow-lg border p-3" style="border-radius: 14px; min-width: 270px;">
+                            <!-- Header Thông tin tài khoản -->
+                            <div class="d-flex align-items-center gap-3 pb-3 mb-2 border-bottom">
+                                <div class="text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm flex-shrink-0" 
+                                     style="width: 44px; height: 44px; font-size: 16px; background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+                                    @(string.IsNullOrEmpty(hoTen) ? "A" : hoTen.Substring(0, 1).ToUpper())
+                                </div>
+                                <div class="overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate" style="font-size: 13.5px;" title="@hoTen">@hoTen</div>
+                                    <div class="text-muted small text-truncate" style="font-size: 12px;">@@@tenDangNhap</div>
+                                    <div class="mt-1">
+                                        @if (isAdmin)
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-0.5 rounded-pill" style="font-size: 10px; font-weight: 600;">
+                                                <i class="bi bi-shield-lock-fill me-1"></i>Quản trị viên
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 rounded-pill" style="font-size: 10px; font-weight: 600;">
+                                                <i class="bi bi-person-badge-fill me-1"></i>Nhân viên Đào tạo
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tác vụ tài khoản & bảo mật (Loại bỏ các link điều hướng trùng lặp với Sidebar) -->
+                            <div class="d-flex flex-column gap-1">
+                                <a class="dropdown-item py-2 px-2.5 rounded-2 small d-flex align-items-center gap-2 text-dark" asp-controller="TaiKhoan" asp-action="ChangePassword">
+                                    <i class="bi bi-shield-lock text-warning fs-6"></i>
+                                    <span class="fw-medium">Đổi mật khẩu tài khoản</span>
                                 </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item py-2 small text-danger fw-semibold" asp-controller="TaiKhoan" asp-action="Logout">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                <a class="dropdown-item py-2 px-2.5 rounded-2 small d-flex align-items-center gap-2 text-danger fw-semibold" asp-controller="TaiKhoan" asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right fs-6"></i>
+                                    <span>Đăng xuất hệ thống</span>
                                 </a>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -209,12 +247,60 @@
                         <strong>© 2026 Đề tài 16: Hệ thống Quản lý Khóa học và Đăng ký học</strong> — Khoa CNTT, UNETI.
                     </div>
                     <div>
-                        <span class="badge bg-light text-dark border">
-                            Module 1: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
+                        <span class="badge bg-light text-muted border">
+                            Cổng thông tin Quản trị Đào tạo
                         </span>
                     </div>
                 </div>
             </footer>
+        </div>
+    </div>
+
+    <!-- Modal Thông báo Phân hệ Chức năng (Đề tài 16 UNETI) -->
+    <div class="modal fade" id="moduleNoticeModal" tabindex="-1" aria-labelledby="moduleNoticeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="p-2 bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark fs-6" id="moduleNoticeModalLabel">Thông báo phân hệ</h5>
+                    </div>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-3 pb-3">
+                    <div class="alert alert-primary border-0 rounded-3 mb-3 p-3 bg-primary-subtle text-primary-emphasis">
+                        <div class="fw-bold mb-1" id="modalModuleTitle" style="font-size: 1.05rem;">
+                            <!-- JS ghi: Đây là nội dung của Module X -->
+                        </div>
+                        <div class="small opacity-75" id="modalModuleAssignee">
+                            <!-- JS ghi người phụ trách -->
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-semibold text-dark small mb-1">
+                            <i class="bi bi-file-earmark-text text-secondary me-1"></i>Nghiệp vụ chi tiết theo Đề 16:
+                        </label>
+                        <p class="text-secondary small mb-0 p-2 bg-light rounded border" id="modalModuleDesc" style="line-height: 1.6;">
+                            <!-- JS ghi mô tả -->
+                        </p>
+                    </div>
+
+                    <div class="p-2 bg-light rounded-3 border small text-muted d-flex align-items-start gap-2">
+                        <i class="bi bi-shield-check text-success fs-5 mt-n1"></i>
+                        <div>
+                            Hệ thống đang trong quá trình phát triển và hoàn thiện các phân hệ theo yêu cầu đề tài.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-primary w-100 rounded-pill py-2 fw-semibold" data-bs-dismiss="modal">
+                        Đã hiểu
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -226,6 +312,24 @@
         // Toggle Sidebar on mobile
         document.getElementById('sidebarToggle')?.addEventListener('click', function () {
             document.getElementById('adminSidebar')?.classList.toggle('show');
+        });
+
+        // Xử lý thông báo khi bấm vào các chức năng thuộc module khác
+        document.querySelectorAll('.module-placeholder-link').forEach(function (item) {
+            item.addEventListener('click', function (e) {
+                e.preventDefault();
+                var moduleName = this.getAttribute('data-module');
+                var featureName = this.getAttribute('data-feature');
+                var desc = this.getAttribute('data-desc');
+
+                document.getElementById('modalModuleTitle').innerText = 'Đây là nội dung của ' + moduleName + ' và sẽ tự xóa thông báo này khi hoàn thiện.';
+                document.getElementById('modalModuleAssignee').innerText = 'Chức năng: ' + featureName;
+                document.getElementById('modalModuleDesc').innerText = desc;
+
+                var modalEl = document.getElementById('moduleNoticeModal');
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            });
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

@@ -135,10 +135,18 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     return View(monHoc);
                 }
 
-                _context.Add(monHoc);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Đã thêm mới môn học '{monHoc.TenMonHoc}' thành công!";
-                return RedirectToAction(nameof(QuanLy));
+                try
+                {
+                    _context.Add(monHoc);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"Đã thêm mới môn học '{monHoc.TenMonHoc}' thành công!";
+                    return RedirectToAction(nameof(QuanLy));
+                }
+                catch (Exception)
+                {
+                    ModelState.AddModelError(string.Empty, "Không thể lưu môn học do lỗi kết nối CSDL. Vui lòng thử lại sau.");
+                    return View(monHoc);
+                }
             }
             return View(monHoc);
         }
@@ -191,6 +199,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     }
                     throw;
                 }
+                catch (Exception)
+                {
+                    ModelState.AddModelError(string.Empty, "Không thể cập nhật môn học do sự cố CSDL. Vui lòng thử lại.");
+                    return View(monHoc);
+                }
                 return RedirectToAction(nameof(QuanLy));
             }
             return View(monHoc);
@@ -220,21 +233,32 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole("Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // BẢO VỆ TOÀN VẸN DỮ LIỆU BẮT BUỘC: Kiểm tra trước khi xóa
-            bool daCoKhoaHoc = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id);
-
-            if (daCoKhoaHoc)
+            try
             {
-                TempData["ErrorMessage"] = "Không thể xóa môn học này vì đã có khóa học đang liên kết. Bạn có thể sửa trạng thái môn học sang 'Tạm dừng'!";
-                return RedirectToAction(nameof(QuanLy));
+                // BẢO VỆ TOÀN VẸN DỮ LIỆU BẮT BUỘC: Kiểm tra trước khi xóa
+                bool daCoKhoaHoc = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id);
+
+                if (daCoKhoaHoc)
+                {
+                    TempData["ErrorMessage"] = "Không thể xóa môn học này vì đã có khóa học đang liên kết. Bạn có thể sửa trạng thái môn học sang 'Tạm dừng'!";
+                    return RedirectToAction(nameof(QuanLy));
+                }
+
+                var monHoc = await _context.MonHocs.FindAsync(id);
+                if (monHoc != null)
+                {
+                    _context.MonHocs.Remove(monHoc);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"Đã xóa môn học '{monHoc.TenMonHoc}' thành công.";
+                }
             }
-
-            var monHoc = await _context.MonHocs.FindAsync(id);
-            if (monHoc != null)
+            catch (DbUpdateException)
             {
-                _context.MonHocs.Remove(monHoc);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Đã xóa môn học '{monHoc.TenMonHoc}' thành công.";
+                TempData["ErrorMessage"] = "Không thể xóa môn học này vì có dữ liệu liên kết khác trong hệ thống.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Đã xảy ra sự cố khi xóa môn học. Vui lòng thử lại sau.";
             }
 
             return RedirectToAction(nameof(QuanLy));
@@ -247,12 +271,19 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole("Admin")]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var monHoc = await _context.MonHocs.FindAsync(id);
-            if (monHoc != null)
+            try
             {
-                monHoc.TrangThai = !monHoc.TrangThai;
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"Đã đổi trạng thái môn '{monHoc.TenMonHoc}' sang {(monHoc.TrangThai ? "Đang mở" : "Tạm dừng")}.";
+                var monHoc = await _context.MonHocs.FindAsync(id);
+                if (monHoc != null)
+                {
+                    monHoc.TrangThai = !monHoc.TrangThai;
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"Đã đổi trạng thái môn '{monHoc.TenMonHoc}' sang {(monHoc.TrangThai ? "Đang mở" : "Tạm dừng")}.";
+                }
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Không thể đổi trạng thái môn học do sự cố CSDL.";
             }
             return RedirectToAction(nameof(QuanLy));
         }
