@@ -61,7 +61,53 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                 context.SaveChanges();
             }
 
-            // 2. Kiểm tra và Nạp Dữ liệu Tài khoản mẫu (Đủ 3 vai trò + Test tài khoản bị khóa)
+            // 2. Kiểm tra và Nạp Dữ liệu Giảng viên mẫu (Dữ liệu nền tảng phục vụ mở lớp)
+            if (!context.GiangViens.Any())
+            {
+                var giangViens = new List<GiangVien>
+                {
+                    new GiangVien
+                    {
+                        HoTen = "TS. Nguyễn Hoàng Long",
+                        Email = "nhlong@uneti.edu.vn",
+                        SoDienThoai = "0912345678",
+                        ChuyenMon = "Công nghệ phần mềm & Lập trình .NET",
+                        HocVi = "Tiến sĩ",
+                        TrangThai = true
+                    },
+                    new GiangVien
+                    {
+                        HoTen = "ThS. Trần Thị Mai Lan",
+                        Email = "ttmlan@uneti.edu.vn",
+                        SoDienThoai = "0923456789",
+                        ChuyenMon = "Cơ sở dữ liệu & Hệ thống thông tin",
+                        HocVi = "Thạc sĩ",
+                        TrangThai = true
+                    },
+                    new GiangVien
+                    {
+                        HoTen = "ThS. Lê Tuấn Anh",
+                        Email = "ltanh@uneti.edu.vn",
+                        SoDienThoai = "0934567890",
+                        ChuyenMon = "Lập trình Web & Di động (React, Flutter)",
+                        HocVi = "Thạc sĩ",
+                        TrangThai = true
+                    },
+                    new GiangVien
+                    {
+                        HoTen = "TS. Phạm Minh Đức",
+                        Email = "pmduc@uneti.edu.vn",
+                        SoDienThoai = "0945678901",
+                        ChuyenMon = "Khoa học Dữ liệu & Trí tuệ Nhân tạo",
+                        HocVi = "Tiến sĩ",
+                        TrangThai = true
+                    }
+                };
+                context.GiangViens.AddRange(giangViens);
+                context.SaveChanges();
+            }
+
+            // 3. Kiểm tra và Nạp Dữ liệu Tài khoản mẫu (Đủ 3 vai trò + Test tài khoản bị khóa)
             if (!context.TaiKhoans.Any())
             {
                 var taiKhoans = new List<TaiKhoan>

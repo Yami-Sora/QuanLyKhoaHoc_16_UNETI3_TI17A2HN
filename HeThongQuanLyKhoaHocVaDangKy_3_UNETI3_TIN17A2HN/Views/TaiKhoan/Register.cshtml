@@ -1,7 +1,7 @@
 @*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Đăng ký Tài khoản Học viên (Đồng bộ nhận diện UNETI)
+    Nội dung thực hiện: Module 1 - Giao diện Đăng ký Tài khoản Học viên (Hiện đại & Tinh tế)
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.RegisterViewModel
@@ -15,7 +15,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - UNETI Đào Tạo</title>
+    <title>@ViewData["Title"] - Cổng Đào Tạo Trực Tuyến</title>
     
     <!-- Google Font: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,14 +25,21 @@
     <!-- Bootstrap CSS & Icons -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <!-- Site CSS (Unified Design System) -->
+    <!-- Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             min-height: 100vh;
-            background-color: #dbeafe;
-            background-image: url('/images/auth-bg.jpg');
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f1f5f9;
+            background-image: 
+                linear-gradient(135deg, rgba(239, 246, 255, 0.45) 0%, rgba(219, 234, 254, 0.55) 100%),
+                url('/images/auth-bg.jpg');
             background-repeat: no-repeat;
             background-position: center center;
             background-size: cover;
@@ -41,132 +48,396 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem 1.5rem;
+            padding: 2.5rem 1rem;
             margin: 0;
             position: relative;
         }
 
+        /* Glassmorphism Card đồng bộ */
         .register-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.18), 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 40px -15px rgba(15, 23, 42, 0.16),
+                0 0 0 1px rgba(255, 255, 255, 0.8) inset;
             width: 100%;
-            max-width: 520px;
+            max-width: 530px;
+            padding: 2.25rem 2.25rem;
             position: relative;
             z-index: 10;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
-        .uneti-logo-badge {
-            width: 52px;
-            height: 52px;
-            background: var(--uneti-primary);
+
+        /* Logo Badge với gradient mềm mại */
+        .logo-badge {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
             color: #ffffff;
-            border-radius: 14px;
+            border-radius: 18px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
-            box-shadow: 0 4px 14px rgba(29, 78, 216, 0.3);
+            font-size: 28px;
+            box-shadow: 0 10px 22px -6px rgba(29, 78, 216, 0.38);
+            border: 3px solid #ffffff;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            color: #0f172a;
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-top: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-subtitle {
+            color: #64748b;
+            font-size: 13.5px;
+            font-weight: 500;
+            line-height: 1.45;
+        }
+
+        /* Label gọn gàng, tinh tế */
+        .form-label-custom {
+            color: #334155;
+            font-size: 13px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+
+        /* Custom Input Container */
+        .custom-input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .custom-input-group .input-icon-start {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+            pointer-events: none;
+            z-index: 5;
+            transition: color 0.2s ease;
+        }
+
+        .custom-input-group:focus-within .input-icon-start {
+            color: #2563eb;
+        }
+
+        /* Ô nhập liệu thanh thoát, viền xám nhẹ */
+        .custom-input-group .form-control.custom-input {
+            width: 100%;
+            height: 46px;
+            padding-left: 42px;
+            padding-right: 42px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background-color: #f8fafc;
+            font-size: 14px;
+            font-family: inherit;
+            color: #1e293b;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .custom-input-group .form-control.custom-input.no-right-icon {
+            padding-right: 14px;
+        }
+
+        .custom-input-group .form-control.custom-input::placeholder {
+            color: #94a3b8;
+            font-size: 13.5px;
+            font-weight: 400;
+        }
+
+        .custom-input-group .form-control.custom-input:focus {
+            background-color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+            color: #0f172a;
+            outline: none;
+        }
+
+        .custom-input-group .form-control.custom-input.input-validation-error,
+        .form-control.input-validation-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .custom-input-group .form-control.custom-input.input-validation-error:focus,
+        .form-control.input-validation-error:focus {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+            border-color: #ef4444 !important;
+        }
+
+        /* Định dạng thông báo lỗi thẩm mỹ, ổn định và chống rung giật giao diện */
+        .field-validation-error {
+            color: #ef4444;
+            font-size: 12.5px;
+            font-weight: 500;
+            margin-top: 4px;
+            display: block;
+            line-height: 1.3;
+        }
+
+        .field-validation-valid {
+            display: none !important;
+        }
+
+        /* Nút ẩn/hiện mật khẩu */
+        .btn-toggle-eye {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            padding: 6px 8px;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            cursor: pointer;
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-toggle-eye:hover {
+            color: #334155;
+            background-color: #e2e8f0;
+        }
+
+        /* Nút Đăng ký Gradient cao cấp */
+        .btn-submit-register {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            height: 48px;
+            font-size: 15.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 18px -4px rgba(29, 78, 216, 0.35);
+            transition: all 0.2s ease;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-submit-register:hover {
+            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+            box-shadow: 0 10px 22px -4px rgba(29, 78, 216, 0.45);
+            transform: translateY(-1px);
+            color: #ffffff;
+        }
+
+        .btn-submit-register:active {
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
-    <div class="register-card p-4 p-md-5">
+    <div class="register-card">
         <!-- Logo & Header -->
         <div class="text-center mb-4">
-            <div class="uneti-logo-badge mb-3">
+            <div class="logo-badge">
                 <i class="bi bi-mortarboard-fill"></i>
             </div>
-            <h4 class="fw-bold text-dark mb-1">ĐĂNG KÝ TÀI KHOẢN</h4>
-            <p class="text-muted small mb-0">Tạo tài khoản học viên để tham gia các khóa học tại UNETI</p>
+            <h1 class="header-title">ĐĂNG KÝ TÀI KHOẢN</h1>
+            <p class="header-subtitle mb-0">Tạo tài khoản học viên để tham gia các khóa học trực tuyến</p>
         </div>
 
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 px-3 rounded-3 mb-3" role="alert"></div>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 px-3 rounded-3 mb-3 border-0 shadow-sm" role="alert" style="background-color: #fef2f2; color: #b91c1c;"></div>
 
         <!-- Form Đăng ký -->
         <form asp-action="Register" method="post">
             @Html.AntiForgeryToken()
 
+            <!-- Hàng 1: Họ tên + Số điện thoại -->
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
-                    <label asp-for="HoTen" class="form-label fw-semibold small text-secondary">
+                    <label asp-for="HoTen" class="form-label-custom">
                         Họ và tên <span class="text-danger">*</span>
                     </label>
-                    <input asp-for="HoTen" class="form-control" placeholder="Nguyễn Văn A" autofocus />
-                    <span asp-validation-for="HoTen" class="text-danger small"></span>
+                    <div class="custom-input-group">
+                        <i class="bi bi-person-fill input-icon-start"></i>
+                        <input asp-for="HoTen" class="form-control custom-input no-right-icon" placeholder="Nguyễn Văn A" autofocus autocomplete="name" />
+                    </div>
+                    <span asp-validation-for="HoTen" class="text-danger small mt-1 d-block fw-medium"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="SoDienThoai" class="form-label fw-semibold small text-secondary">
+                    <label asp-for="SoDienThoai" class="form-label-custom">
                         Số điện thoại
                     </label>
-                    <input asp-for="SoDienThoai" class="form-control" placeholder="0912345678" />
-                    <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                    <div class="custom-input-group">
+                        <i class="bi bi-telephone-fill input-icon-start"></i>
+                        <input asp-for="SoDienThoai" class="form-control custom-input no-right-icon" placeholder="0912 345 678" autocomplete="tel" />
+                    </div>
+                    <span asp-validation-for="SoDienThoai" class="text-danger small mt-1 d-block fw-medium"></span>
                 </div>
             </div>
 
+            <!-- Hàng 2: Email -->
             <div class="mb-2">
-                <label asp-for="Email" class="form-label fw-semibold small text-secondary">
+                <label asp-for="Email" class="form-label-custom">
                     Địa chỉ Email <span class="text-danger">*</span>
                 </label>
-                <input asp-for="Email" type="email" class="form-control" placeholder="example@uneti.edu.vn" />
-                <span asp-validation-for="Email" class="text-danger small"></span>
+                <div class="custom-input-group">
+                    <i class="bi bi-envelope-fill input-icon-start"></i>
+                    <input asp-for="Email" type="email" class="form-control custom-input no-right-icon" placeholder="example@email.com" autocomplete="email" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger small mt-1 d-block fw-medium"></span>
             </div>
 
+            <!-- Hàng 3: Tên đăng nhập -->
             <div class="mb-2">
-                <label asp-for="TenDangNhap" class="form-label fw-semibold small text-secondary">
+                <label asp-for="TenDangNhap" class="form-label-custom">
                     Tên đăng nhập <span class="text-danger">*</span>
                 </label>
-                <input asp-for="TenDangNhap" class="form-control" placeholder="Tối thiểu 4 ký tự..." />
-                <span asp-validation-for="TenDangNhap" class="text-danger small"></span>
+                <div class="custom-input-group">
+                    <i class="bi bi-person-badge-fill input-icon-start"></i>
+                    <input asp-for="TenDangNhap" class="form-control custom-input no-right-icon" placeholder="Tối thiểu 3 ký tự (VD: nguyenvana)" autocomplete="username" />
+                </div>
+                <span asp-validation-for="TenDangNhap" class="text-danger small mt-1 d-block fw-medium"></span>
             </div>
 
+            <!-- Hàng 4: Mật khẩu + Xác nhận mật khẩu -->
             <div class="row g-2 mb-3">
                 <div class="col-md-6">
-                    <label asp-for="MatKhau" class="form-label fw-semibold small text-secondary">
+                    <label asp-for="MatKhau" class="form-label-custom">
                         Mật khẩu <span class="text-danger">*</span>
                     </label>
-                    <input asp-for="MatKhau" type="password" class="form-control" placeholder="Tối thiểu 6 ký tự" />
-                    <span asp-validation-for="MatKhau" class="text-danger small"></span>
+                    <div class="custom-input-group">
+                        <i class="bi bi-lock-fill input-icon-start"></i>
+                        <input asp-for="MatKhau" type="password" id="txtPassword" class="form-control custom-input" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" />
+                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('txtPassword', 'iconPass1')" title="Hiện / Ẩn mật khẩu" tabindex="-1">
+                            <i class="bi bi-eye" id="iconPass1"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="MatKhau" class="text-danger small mt-1 d-block fw-medium"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="XacNhanMatKhau" class="form-label fw-semibold small text-secondary">
+                    <label asp-for="XacNhanMatKhau" class="form-label-custom">
                         Xác nhận lại <span class="text-danger">*</span>
                     </label>
-                    <input asp-for="XacNhanMatKhau" type="password" class="form-control" placeholder="Nhập lại mật khẩu" />
-                    <span asp-validation-for="XacNhanMatKhau" class="text-danger small"></span>
+                    <div class="custom-input-group">
+                        <i class="bi bi-shield-lock-fill input-icon-start"></i>
+                        <input asp-for="XacNhanMatKhau" type="password" id="txtConfirmPassword" class="form-control custom-input" placeholder="Nhập lại mật khẩu" autocomplete="new-password" />
+                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('txtConfirmPassword', 'iconPass2')" title="Hiện / Ẩn mật khẩu" tabindex="-1">
+                            <i class="bi bi-eye" id="iconPass2"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="XacNhanMatKhau" class="text-danger small mt-1 d-block fw-medium"></span>
                 </div>
             </div>
 
+            <!-- Checkbox điều khoản -->
             <div class="form-check mb-3">
-                <input asp-for="DongYDieuKhoan" class="form-check-input" type="checkbox" id="chkTerms" />
-                <label class="form-check-label small text-muted" for="chkTerms">
-                    Tôi đồng ý với <a href="#" class="text-decoration-none" style="color: var(--uneti-primary);">Quy chế đào tạo</a> và điều khoản UNETI
+                <input asp-for="DongYDieuKhoan" class="form-check-input me-2 mt-0" type="checkbox" id="chkTerms" style="width: 17px; height: 17px; cursor: pointer; border-color: #cbd5e1;" />
+                <label class="form-check-label text-muted small user-select-none" for="chkTerms" style="font-size: 13px; cursor: pointer;">
+                    Tôi đồng ý với <a href="#" class="text-decoration-none fw-semibold" style="color: #2563eb;">Quy chế đào tạo</a> và điều khoản sử dụng
                 </label>
-                <span asp-validation-for="DongYDieuKhoan" class="text-danger small d-block"></span>
+                <span asp-validation-for="DongYDieuKhoan" class="text-danger small d-block fw-medium mt-1"></span>
             </div>
 
-            <button type="submit" class="btn uneti-btn-primary w-100 py-2 fw-bold mb-3 shadow-sm">
-                <i class="bi bi-person-check me-1"></i>Tạo tài khoản học viên
+            <!-- Nút Tạo tài khoản -->
+            <button type="submit" class="btn btn-submit-register mb-3">
+                <i class="bi bi-person-check-fill"></i>
+                <span>Tạo tài khoản học viên</span>
             </button>
 
-            <div class="text-center small text-muted">
+            <!-- Lối tắt đăng nhập & về trang chủ -->
+            <div class="text-center small text-muted mb-2">
                 Đã có tài khoản? 
-                <a asp-action="Login" class="text-decoration-none fw-bold" style="color: var(--uneti-primary);">
+                <a asp-action="Login" class="text-decoration-none fw-bold" style="color: #2563eb;">
                     Đăng nhập ngay
                 </a>
-                <div class="mt-2">
-                    <a asp-controller="Home" asp-action="Index" class="text-secondary text-decoration-none small">
-                        <i class="bi bi-arrow-left me-1"></i>Quay lại Trang chủ
-                    </a>
-                </div>
+            </div>
+            <div class="text-center">
+                <a asp-controller="Home" asp-action="Index" class="text-secondary text-decoration-none small d-inline-flex align-items-center gap-1 hover-underline">
+                    <i class="bi bi-arrow-left"></i> Quay lại Trang chủ
+                </a>
             </div>
         </form>
     </div>
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const pass = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (pass.type === 'password') {
+                pass.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                pass.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+
+        // Cấu hình jQuery Validation mượt mà, triệt tiêu hoàn toàn hiện tượng giật rung khi gõ phím
+        $(function () {
+            if ($.validator) {
+                $.validator.setDefaults({
+                    // TẮT validate onkeyup liên tục khi đang gõ từng ký tự dở dang
+                    // -> Chấm dứt hoàn toàn tình trạng DOM chớp tắt gây giật/nhảy trang khi gõ phím
+                    onkeyup: false,
+
+                    // Chỉ kiểm tra lỗi khi người dùng gõ xong và chuyển sang ô khác (blur)
+                    onfocusout: function (element) {
+                        if ($(element).is(':checkbox') || $(element).is(':radio')) {
+                            return;
+                        }
+                        $(element).valid();
+                    }
+                });
+            }
+
+            // Khi người dùng bắt đầu nhập lại để sửa ô đang báo lỗi:
+            // Tự động xóa trạng thái lỗi nhẹ nhàng 1 lần duy nhất, không giật màn hình
+            $('form').on('input', 'input', function () {
+                var $input = $(this);
+                if ($input.hasClass('input-validation-error')) {
+                    $input.removeClass('input-validation-error');
+                    var fieldName = $input.attr('name');
+                    if (fieldName) {
+                        var $err = $('span[data-valmsg-for="' + fieldName + '"]');
+                        $err.removeClass('field-validation-error').addClass('field-validation-valid').text('');
+                    }
+                }
+            });
+
+            // Khi tích vào checkbox điều khoản thì tự động ẩn thông báo lỗi nếu có
+            $('#chkTerms').on('change', function () {
+                var $chk = $(this);
+                if ($chk.is(':checked')) {
+                    $chk.removeClass('input-validation-error');
+                    $('span[data-valmsg-for="DongYDieuKhoan"]').removeClass('field-validation-error').addClass('field-validation-valid').text('');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

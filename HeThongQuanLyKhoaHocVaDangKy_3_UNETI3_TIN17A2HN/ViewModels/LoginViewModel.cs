@@ -9,6 +9,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
     public class LoginViewModel
     {
         [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
+        [StringLength(50, ErrorMessage = "Tên đăng nhập không vượt quá 50 ký tự")]
         [Display(Name = "Tên đăng nhập")]
         public string TenDangNhap { get; set; } = string.Empty;
 
