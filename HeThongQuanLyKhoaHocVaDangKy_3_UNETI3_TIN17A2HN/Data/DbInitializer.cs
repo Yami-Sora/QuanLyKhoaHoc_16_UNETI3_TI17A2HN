@@ -1,0 +1,142 @@
+// Họ và tên: Trần Văn Thành
+// Mã sinh viên: 23103100076
+// Nội dung thực hiện: Module 1 - Khởi tạo dữ liệu mẫu ban đầu (Seed Data)
+
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
+
+namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
+{
+    public static class DbInitializer
+    {
+        public static void Seed(ApplicationDbContext context)
+        {
+            // 1. Kiểm tra và Nạp Dữ liệu Môn học mẫu (Tối thiểu 5 môn theo Mục 16 Đề 16)
+            if (!context.MonHocs.Any())
+            {
+                var monHocs = new List<MonHoc>
+                {
+                    new MonHoc
+                    {
+                        TenMonHoc = "Lập trình C# và .NET Core",
+                        SoTinChi = 3,
+                        HocPhi = 3500000m,
+                        TrangThai = true,
+                        MoTa = "Kiến thức C# 13, ASP.NET Core MVC, Entity Framework Core và lập trình Web hiện đại."
+                    },
+                    new MonHoc
+                    {
+                        TenMonHoc = "Cơ sở Dữ liệu & SQL Server",
+                        SoTinChi = 3,
+                        HocPhi = 3000000m,
+                        TrangThai = true,
+                        MoTa = "Thiết kế CSDL quan hệ, T-SQL, Trigger, Store Procedure và tối ưu truy vấn."
+                    },
+                    new MonHoc
+                    {
+                        TenMonHoc = "Lập trình Web Frontend với React",
+                        SoTinChi = 3,
+                        HocPhi = 3800000m,
+                        TrangThai = true,
+                        MoTa = "Xây dựng giao diện tương tác Single Page Application với ReactJS, Redux Toolkit và Tailwind."
+                    },
+                    new MonHoc
+                    {
+                        TenMonHoc = "Lập trình Di động với Flutter",
+                        SoTinChi = 4,
+                        HocPhi = 4200000m,
+                        TrangThai = true,
+                        MoTa = "Phát triển ứng dụng di động đa nền tảng iOS & Android với Dart và Flutter Framework."
+                    },
+                    new MonHoc
+                    {
+                        TenMonHoc = "Phân tích Dữ liệu với Python",
+                        SoTinChi = 3,
+                        HocPhi = 4000000m,
+                        TrangThai = false,
+                        MoTa = "Xử lý dữ liệu lớn với Pandas, NumPy, Matplotlib và Machine Learning cơ bản (Tạm dừng tuyển sinh)."
+                    }
+                };
+                context.MonHocs.AddRange(monHocs);
+                context.SaveChanges();
+            }
+
+            // 2. Kiểm tra và Nạp Dữ liệu Tài khoản mẫu (Đủ 3 vai trò + Test tài khoản bị khóa)
+            if (!context.TaiKhoans.Any())
+            {
+                var taiKhoans = new List<TaiKhoan>
+                {
+                    new TaiKhoan
+                    {
+                        TenDangNhap = "admin",
+                        MatKhau = PasswordHelper.HashPassword("Admin@123"),
+                        HoTen = "Quản trị viên Hệ thống",
+                        Email = "admin@uneti.edu.vn",
+                        VaiTro = "Admin",
+                        TrangThai = true,
+                        NgayTao = DateTime.Now
+                    },
+                    new TaiKhoan
+                    {
+                        TenDangNhap = "nv_daotao",
+                        MatKhau = PasswordHelper.HashPassword("Nv@123"),
+                        HoTen = "Trần Văn Đào Tạo",
+                        Email = "daotao@uneti.edu.vn",
+                        VaiTro = "NhanVien",
+                        TrangThai = true,
+                        NgayTao = DateTime.Now
+                    },
+                    new TaiKhoan
+                    {
+                        TenDangNhap = "nv_tuyensinh",
+                        MatKhau = PasswordHelper.HashPassword("Nv@123"),
+                        HoTen = "Lê Thị Tuyển Sinh",
+                        Email = "tuyensinh@uneti.edu.vn",
+                        VaiTro = "NhanVien",
+                        TrangThai = true,
+                        NgayTao = DateTime.Now
+                    },
+                    new TaiKhoan
+                    {
+                        TenDangNhap = "sv_nguyenvana",
+                        MatKhau = PasswordHelper.HashPassword("Sv@123"),
+                        HoTen = "Nguyễn Văn A",
+                        Email = "nguyenvana@gmail.com",
+                        VaiTro = "HocVien",
+                        TrangThai = true,
+                        NgayTao = DateTime.Now
+                    },
+                    new TaiKhoan
+                    {
+                        TenDangNhap = "sv_bitaikhoa",
+                        MatKhau = PasswordHelper.HashPassword("Sv@123"),
+                        HoTen = "Phạm Văn Bị Khóa",
+                        Email = "khoatk@gmail.com",
+                        VaiTro = "HocVien",
+                        TrangThai = false, // Dùng để kiểm thử Test Case khóa tài khoản (TC-07)
+                        NgayTao = DateTime.Now
+                    }
+                };
+
+                context.TaiKhoans.AddRange(taiKhoans);
+                context.SaveChanges();
+
+                // Tạo kèm hồ sơ Học viên cho tài khoản sv_nguyenvana
+                var tkSv = context.TaiKhoans.First(t => t.TenDangNhap == "sv_nguyenvana");
+                context.HocViens.Add(new HocVien
+                {
+                    MaTaiKhoan = tkSv.MaTaiKhoan,
+                    HoTen = tkSv.HoTen,
+                    Email = tkSv.Email,
+                    SoDienThoai = "0987654321",
+                    DiaChi = "Hà Nội",
+                    GioiTinh = "Nam",
+                    NgaySinh = new DateTime(2003, 5, 15),
+                    NgayDangKy = DateTime.Now,
+                    TrangThai = true
+                });
+                context.SaveChanges();
+            }
+        }
+    }
+}
