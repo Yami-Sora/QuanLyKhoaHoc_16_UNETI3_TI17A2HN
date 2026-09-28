@@ -12,173 +12,175 @@
     var isLoggedIn = Context.Session.GetInt32("MaTaiKhoan") != null;
     var isStaffOrAdmin = userRole == "Admin" || userRole == "NhanVien";
 
-    ViewData["Title"] = "Chương trình khung đào tạo & Môn học - UNETI";
+    ViewData["Title"] = "Danh mục Môn học Đào tạo - UNETI";
     int totalCount = ViewBag.TotalCount ?? Model.Count();
     int? currentTinChi = ViewBag.CurrentTinChi;
     bool? currentTrangThai = ViewBag.CurrentTrangThai;
+    var currentSearch = ViewBag.CurrentSearch as string;
+    bool hasActiveFilter = !string.IsNullOrWhiteSpace(currentSearch) || currentTinChi.HasValue || currentTrangThai.HasValue;
 }
 
 <div class="container py-4">
-    <!-- Breadcrumb & Tiêu đề -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Chương trình môn học</li>
-                </ol>
-            </nav>
-            <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-stars text-warning me-2"></i>CHƯƠNG TRÌNH KHUNG ĐÀO TẠO & MÔN HỌC
-            </h3>
-            <p class="text-muted mb-0 small">Dữ liệu thực tế được cập nhật trực tiếp từ Cơ sở dữ liệu đào tạo UNETI</p>
-        </div>
+    <!-- 1. BREADCRUMB & TIÊU ĐỀ TRANG GỌN GÀNG, TINH TẾ -->
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 small">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Danh mục môn học</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
+                    <i class="bi bi-journal-bookmark-fill me-2" style="color: var(--uneti-primary);"></i>DANH MỤC MÔN HỌC ĐÀO TẠO
+                </h3>
+                <p class="text-muted mb-0 small">
+                    Hệ thống học phần đào tạo theo học chế tín chỉ &bull; Trường Đại học Kinh tế - Kỹ thuật Công nghiệp (UNETI)
+                </p>
+            </div>
 
-        @if (isStaffOrAdmin)
-        {
-            <div class="mt-2 mt-md-0">
-                <a asp-action="QuanLy" class="btn btn-warning text-dark fw-bold shadow-sm text-decoration-none">
-                    <i class="bi bi-gear-fill me-1"></i>Đến Trang Quản lý Môn học (Admin)
-                </a>
-            </div>
-        }
-        else if (isLoggedIn)
-        {
-            <div class="mt-2 mt-md-0">
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
-                    <i class="bi bi-person-check-fill me-1"></i>Học viên: @hoTen
+            <!-- Cụm thông tin & hành động góc phải -->
+            <div class="d-flex align-items-center gap-2">
+                @if (isStaffOrAdmin)
+                {
+                    <a asp-action="QuanLy" class="btn btn-warning text-dark fw-bold shadow-sm text-decoration-none rounded-3 btn-sm py-2 px-3">
+                        <i class="bi bi-gear-fill me-1"></i>Vào Console Quản trị (Admin)
+                    </a>
+                }
+                else if (!isLoggedIn)
+                {
+                    <a asp-controller="TaiKhoan" asp-action="Login" class="btn uneti-btn-primary btn-sm py-2 px-3 rounded-3 shadow-sm text-decoration-none">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập học viên
+                    </a>
+                }
+                <span class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-semibold shadow-sm small">
+                    <i class="bi bi-collection text-primary me-1"></i><strong>@totalCount</strong> môn học
                 </span>
             </div>
-        }
-        else
-        {
-            <div class="mt-2 mt-md-0">
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold">
-                    <i class="bi bi-mortarboard me-1"></i>Hệ thống Tín chỉ Chuẩn UNETI
-                </span>
-            </div>
-        }
+        </div>
     </div>
 
-    <!-- BANNER PHÂN BIỆT RÕ GIỮA KHÁCH, SINH VIÊN VÀ ADMIN -->
     @if (isStaffOrAdmin)
     {
-        <div class="alert alert-info alert-dismissible fade show uneti-card border-info-subtle mb-4 py-2 px-3 small d-flex align-items-center justify-content-between" role="alert">
+        <div class="alert alert-info border-0 shadow-sm py-2 px-3 rounded-3 small d-flex align-items-center justify-content-between mb-4" style="background-color: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe !important;">
             <div>
-                <i class="bi bi-info-circle-fill text-info me-2"></i>
-                <span>Bạn đang xem chế độ <strong>Cổng Sinh viên & Khách (Card Grid)</strong>. Để chỉnh sửa, thêm hoặc xóa môn học, vui lòng vào trang Quản lý.</span>
+                <i class="bi bi-info-circle-fill me-2 fs-6 align-middle"></i>
+                <span class="align-middle">Bạn đang xem chế độ <strong>Giao diện Học viên & Khách tra cứu (Card Grid)</strong>. Để thêm, sửa hoặc xóa môn học, vui lòng vào trang Quản trị.</span>
             </div>
-            <a asp-action="QuanLy" class="btn btn-sm btn-outline-primary fw-semibold ms-3 text-nowrap">
-                Vào Quản lý ngay <i class="bi bi-arrow-right ms-1"></i>
+            <a asp-action="QuanLy" class="btn btn-sm btn-primary fw-semibold ms-3 text-nowrap rounded-2 py-1 px-3" style="font-size: 12px;">
+                Quản trị môn học <i class="bi bi-arrow-right ms-1"></i>
             </a>
         </div>
     }
-    else if (!isLoggedIn)
-    {
-        <div class="alert bg-white border border-primary-subtle shadow-sm rounded-4 p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" role="alert">
-            <div class="d-flex align-items-center gap-3">
-                <div class="p-2 rounded-circle bg-primary-subtle text-primary fs-4 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
-                    <i class="bi bi-mortarboard"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-dark mb-0">Chào mừng bạn đến với Cổng Tra Cứu Khung Đào Tạo UNETI</h6>
-                    <small class="text-muted">Bạn có thể tra cứu số tín chỉ, định mức học phí môn học. Đăng ký tài khoản sinh viên để ghi danh lớp học phần.</small>
-                </div>
-            </div>
-            <div class="d-flex gap-2">
-                <a asp-controller="TaiKhoan" asp-action="Login" class="btn btn-sm btn-warning text-dark fw-bold px-3">
-                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
-                </a>
-                <a asp-controller="TaiKhoan" asp-action="Register" class="btn btn-sm uneti-btn-outline px-3">
-                    <i class="bi bi-person-plus me-1"></i>Đăng ký tài khoản
-                </a>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="alert bg-primary-subtle border-primary-subtle text-primary shadow-sm rounded-4 p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3" role="alert">
-            <div class="d-flex align-items-center gap-3">
-                <div class="text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-5 shadow-sm" style="width: 44px; height: 44px; background-color: var(--uneti-primary);">
-                    @(string.IsNullOrEmpty(hoTen) ? "S" : hoTen.Substring(0, 1).ToUpper())
-                </div>
-                <div>
-                    <h6 class="fw-bold mb-0 text-dark">Xin chào sinh viên: @hoTen <small class="text-muted fw-normal">(@@@tenDangNhap)</small></h6>
-                    <small class="text-secondary">Chương trình đào tạo tín chỉ ngành CNTT - Tra cứu học phần và chuẩn bị đăng ký khóa học.</small>
-                </div>
-            </div>
-            <div>
-                <span class="badge bg-success px-3 py-2 rounded-pill fw-semibold">
-                    <i class="bi bi-patch-check-fill me-1"></i>Đã đăng nhập Học viên
-                </span>
-            </div>
-        </div>
-    }
 
-    <!-- THANH TÌM KIẾM & BỘ LỌC TÍN CHỈ THEO DẠNG THẺ CARD -->
-    <div class="uneti-card p-3 mb-4 shadow-sm">
+    <!-- 2. THANH CÔNG CỤ TÌM KIẾM & BỘ LỌC LIỀN KHỐI (INTEGRATED TOOLBAR) -->
+    <div class="uneti-card p-3 mb-3 shadow-sm" style="border-radius: 14px; border: 1px solid #e2e8f0; background: #ffffff;">
         <form method="get" asp-action="Index" class="row g-2 align-items-center">
-            <!-- Tìm kiếm theo tên môn -->
-            <div class="col-md-5">
+            <!-- Ô tìm kiếm -->
+            <div class="col-lg-5 col-md-12">
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted">
+                    <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                         <i class="bi bi-search"></i>
                     </span>
-                    <input type="text" name="searchString" value="@ViewBag.CurrentSearch" class="form-control border-start-0 ps-0" placeholder="Nhập tên môn học cần tra cứu..." />
+                    <input type="text" name="searchString" value="@ViewBag.CurrentSearch" 
+                           class="form-control border-start-0 ps-2" 
+                           placeholder="Tìm kiếm môn học theo tên môn hoặc mã môn..." 
+                           style="border-color: #cbd5e1; font-size: 14px;" />
                 </div>
             </div>
 
             <!-- Lọc số tín chỉ -->
-            <div class="col-md-3">
-                <select name="soTinChi" class="form-select">
-                    <option value="">-- Tất cả số tín chỉ --</option>
-                    <option value="2" selected="@(currentTinChi == 2)">2 Tín chỉ</option>
-                    <option value="3" selected="@(currentTinChi == 3)">3 Tín chỉ</option>
-                    <option value="4" selected="@(currentTinChi == 4)">4 Tín chỉ</option>
-                    <option value="5" selected="@(currentTinChi == 5)">5 Tín chỉ</option>
-                </select>
+            <div class="col-lg-3 col-sm-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-journal-text"></i>
+                    </span>
+                    <select name="soTinChi" class="form-select border-start-0 ps-2" style="border-color: #cbd5e1; font-size: 13.5px;">
+                        <option value="">-- Tất cả số tín chỉ --</option>
+                        <option value="2" selected="@(currentTinChi == 2)">2 Tín chỉ</option>
+                        <option value="3" selected="@(currentTinChi == 3)">3 Tín chỉ</option>
+                        <option value="4" selected="@(currentTinChi == 4)">4 Tín chỉ</option>
+                        <option value="5" selected="@(currentTinChi == 5)">5 Tín chỉ</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Lọc trạng thái -->
-            <div class="col-md-2">
-                <select name="trangThai" class="form-select">
-                    <option value="">-- Tất cả trạng thái --</option>
-                    <option value="true" selected="@(currentTrangThai == true)">Đang mở</option>
-                    <option value="false" selected="@(currentTrangThai == false)">Tạm dừng</option>
-                </select>
+            <div class="col-lg-2 col-sm-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-activity"></i>
+                    </span>
+                    <select name="trangThai" class="form-select border-start-0 ps-2" style="border-color: #cbd5e1; font-size: 13.5px;">
+                        <option value="">-- Trạng thái --</option>
+                        <option value="true" selected="@(currentTrangThai == true)">Đang mở</option>
+                        <option value="false" selected="@(currentTrangThai == false)">Tạm dừng</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Nút bấm -->
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn uneti-btn-primary flex-grow-1">
-                    <i class="bi bi-funnel me-1"></i>Lọc
+            <!-- Cụm nút hành động -->
+            <div class="col-lg-2 col-md-12 d-flex gap-2">
+                <button type="submit" class="btn uneti-btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1 shadow-sm" style="font-size: 13.5px;">
+                    <i class="bi bi-funnel-fill"></i>
+                    <span>Lọc môn</span>
                 </button>
-                <a asp-action="Index" class="btn uneti-btn-outline" title="Đặt lại bộ lọc">
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                </a>
+                @if (hasActiveFilter)
+                {
+                    <a asp-action="Index" class="btn btn-outline-danger px-3 d-flex align-items-center justify-content-center" title="Xóa bộ lọc" style="border-radius: 8px;">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn uneti-btn-outline px-3 d-flex align-items-center justify-content-center" title="Làm mới" style="border-radius: 8px;">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                }
             </div>
         </form>
     </div>
 
-    <!-- Thông báo kết quả tìm kiếm -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="small text-muted">
-            Hiển thị <strong class="text-dark">@Model.Count()</strong> môn học
-            @if (!string.IsNullOrWhiteSpace(ViewBag.CurrentSearch as string))
+    <!-- 3. THANH THÔNG TIN TRẠNG THÁI KẾT QUẢ & BỘ LỌC ĐANG ÁP DỤNG -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 px-1 gap-2">
+        <div class="d-flex align-items-center flex-wrap gap-2 small">
+            <span class="text-muted">
+                Tìm thấy <strong class="text-dark">@Model.Count()</strong> môn học
+            </span>
+
+            @if (!string.IsNullOrWhiteSpace(currentSearch))
             {
-                <span>theo từ khóa "<strong>@ViewBag.CurrentSearch</strong>"</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill">
+                    <i class="bi bi-search me-1"></i>Từ khóa: "@currentSearch"
+                </span>
             }
             @if (currentTinChi.HasValue)
             {
-                <span>(loại <strong>@currentTinChi Tín chỉ</strong>)</span>
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">
+                    <i class="bi bi-journal-text me-1"></i>@currentTinChi Tín chỉ
+                </span>
+            }
+            @if (currentTrangThai.HasValue)
+            {
+                <span class="badge @(currentTrangThai == true ? "bg-success-subtle text-success border-success-subtle" : "bg-danger-subtle text-danger border-danger-subtle") border px-2 py-1 rounded-pill">
+                    <i class="bi bi-circle-fill me-1" style="font-size: 7px;"></i>@(currentTrangThai == true ? "Đang mở" : "Tạm dừng")
+                </span>
+            }
+            @if (hasActiveFilter)
+            {
+                <a asp-action="Index" class="text-danger text-decoration-none ms-1 fw-semibold small">
+                    <i class="bi bi-x-circle me-1"></i>Bỏ lọc
+                </a>
             }
         </div>
-        <div class="small text-muted">
-            Tổng cộng: <strong>@totalCount</strong> môn trong chương trình đào tạo
+
+        <div class="small text-muted d-none d-sm-block">
+            <i class="bi bi-info-circle me-1 text-primary"></i>Học phí được tính định mức theo số tín chỉ
         </div>
     </div>
 
-    <!-- LƯỚI DANH MỤC THẺ CARD (CARD GRID NHƯ GIAO DIỆN MÔN TIÊU BIỂU) -->
+    <!-- 4. LƯỚI DANH MỤC THẺ CARD (GIỮ NGUYÊN HOÀN TOÀN CẤU TRÚC ĐẸP) -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @if (!Model.Any())
         {
@@ -223,7 +225,7 @@
 
                         <!-- Mô tả tóm tắt -->
                         <p class="text-muted small flex-grow-1 mb-3" style="line-height: 1.5; min-height: 44px;">
-                            @(string.IsNullOrEmpty(item.MoTa) ? "Môn học thuộc chương trình khung đào tạo theo hệ thống tín chỉ chuẩn của trường UNETI." : item.MoTa)
+                            @(string.IsNullOrEmpty(item.MoTa) ? "Học phần đào tạo theo hệ thống tín chỉ chuẩn UNETI." : item.MoTa)
                         </p>
 
                         <!-- Số tín chỉ & Định mức học phí -->

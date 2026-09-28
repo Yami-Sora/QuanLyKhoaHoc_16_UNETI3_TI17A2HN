@@ -10,7 +10,7 @@
     var userRole = Context.Session.GetString("VaiTro");
     var isAdmin = userRole == "Admin";
 
-    ViewData["Title"] = "Quản lý môn học (Dữ liệu nền) - UNETI";
+    ViewData["Title"] = "Quản lý môn học (Dữ liệu nền)";
     int totalCount = ViewBag.TotalCount ?? Model.Count();
     int activeCount = ViewBag.ActiveCount ?? Model.Count(m => m.TrangThai);
     int inactiveCount = ViewBag.InactiveCount ?? Model.Count(m => !m.TrangThai);
@@ -32,12 +32,9 @@
             <h3 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-book-half me-2" style="color: var(--uneti-primary);"></i>DANH MỤC MÔN HỌC (DỮ LIỆU NỀN)
             </h3>
-            <p class="text-muted mb-0 small">Hệ thống quản lý dữ liệu nền tảng, định mức học phí và trạng thái mở lớp đào tạo UNETI</p>
+            <p class="text-muted mb-0 small">Hệ thống quản lý dữ liệu môn học, định mức học phí và trạng thái mở lớp đào tạo theo học chế tín chỉ</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
-            <a asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none">
-                <i class="bi bi-grid-3x3-gap me-1"></i>Xem Cổng Sinh viên
-            </a>
             @if (isAdmin)
             {
                 <a asp-action="Create" class="btn uneti-btn-primary shadow-sm text-decoration-none">
@@ -267,7 +264,7 @@
         </div>
         <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted">
             <span>Hiển thị <strong>@Model.Count()</strong> trên tổng số <strong>@totalCount</strong> môn học trong cơ sở dữ liệu</span>
-            <span>Hệ thống tín chỉ UNETI - Năm học 2025-2026</span>
+            <span>Cơ sở dữ liệu đào tạo tín chỉ - Năm học 2025-2026</span>
         </div>
     </div>
 </div>
