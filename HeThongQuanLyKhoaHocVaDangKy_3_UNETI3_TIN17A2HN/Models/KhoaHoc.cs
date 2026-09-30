@@ -47,9 +47,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
 
         [Required(ErrorMessage = "Học phí khóa học không được để trống")]
         [Range(0, 1000000000, ErrorMessage = "Học phí phải lớn hơn hoặc bằng 0 đ")]
+        [Column(TypeName = "decimal(18,2)")]
         [Display(Name = "Học phí thực tế")]
         [DisplayFormat(DataFormatString = "{0:N0} đ", ApplyFormatInEditMode = false)]
-        public int HocPhi { get; set; }
+        public decimal HocPhi { get; set; }
 
         [Required(ErrorMessage = "Hình thức đào tạo không được để trống")]
         [StringLength(50)]
