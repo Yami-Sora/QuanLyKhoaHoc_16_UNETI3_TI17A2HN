@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Quản lý môn học (Tách biệt Cổng Sinh viên Card Grid & Trang Quản trị CRUD Admin/NV)
+// Module 1: Quản lý môn học
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,22 +18,26 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         {
             _context = context;
         }
-
-        // =========================================================================
         // 1. CỔNG SINH VIÊN & KHÁCH (PUBLIC PORTAL - CARD GRID)
-        // =========================================================================
 
         // GET: /MonHoc
-        // Quyền: Mở công khai cho mọi đối tượng (Khách vãng lai & Sinh viên) xem danh mục môn học dạng Card Grid
-        public async Task<IActionResult> Index(string? searchString, int? soTinChi, bool? trangThai)
+        // Danh sách môn học công khai (hỗ trợ AJAX)
+        public async Task<IActionResult> Index(string? searchString, int? soTinChi, bool? trangThai, string? sortBy = null, int page = 1, int pageSize = 12)
         {
-            var query = _context.MonHocs.Include(m => m.KhoaHocs).AsQueryable();
+            var query = _context.MonHocs.AsQueryable();
 
-            // Tìm kiếm theo tên môn học
+            // Tìm kiếm theo tên môn học hoặc mã môn học
             if (!string.IsNullOrWhiteSpace(searchString))
             {
-                query = query.Where(m => m.TenMonHoc.Contains(searchString.Trim()));
-                ViewBag.CurrentSearch = searchString;
+                var trimmed = searchString.Trim();
+                var term = trimmed.ToLower();
+                var cleanCode = term.Replace("#", "").Replace("mh", "").TrimStart('0');
+                bool isNumeric = int.TryParse(cleanCode, out int searchId);
+
+                query = query.Where(m => m.TenMonHoc.Contains(trimmed)
+                                      || (isNumeric && m.MaMonHoc == searchId)
+                                      || m.MaMonHoc.ToString().Contains(term));
+                ViewBag.CurrentSearch = trimmed;
             }
 
             // Lọc theo số tín chỉ (2, 3, 4, 5 tín chỉ)
@@ -50,13 +54,50 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 ViewBag.CurrentTrangThai = trangThai;
             }
 
+            // Sắp xếp dữ liệu linh hoạt
+            ViewBag.SortBy = sortBy;
+            query = sortBy switch
+            {
+                "ten_asc" => query.OrderBy(m => m.TenMonHoc),
+                "ten_desc" => query.OrderByDescending(m => m.TenMonHoc),
+                "tinchi_asc" => query.OrderBy(m => m.SoTinChi).ThenBy(m => m.TenMonHoc),
+                "tinchi_desc" => query.OrderByDescending(m => m.SoTinChi).ThenBy(m => m.TenMonHoc),
+                "hocphi_asc" => query.OrderBy(m => m.HocPhi).ThenBy(m => m.TenMonHoc),
+                "hocphi_desc" => query.OrderByDescending(m => m.HocPhi).ThenBy(m => m.TenMonHoc),
+                _ => query.OrderBy(m => m.MaMonHoc)
+            };
+
+            // Tổng số môn toàn trường và số môn sau khi lọc
             ViewBag.TotalCount = await _context.MonHocs.CountAsync();
-            var list = await query.OrderByDescending(m => m.MaMonHoc).ToListAsync();
+            var totalFiltered = await query.CountAsync();
+            ViewBag.TotalFilteredItems = totalFiltered;
+
+            // Phân trang
+            if (page < 1) page = 1;
+            var totalPages = (int)Math.Ceiling(totalFiltered / (double)pageSize);
+            if (totalPages < 1) totalPages = 1;
+            if (page > totalPages) page = totalPages;
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+
+            var list = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Phản hồi AJAX nếu yêu cầu từ phía client
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_MonHocGrid", list);
+            }
+
             return View(list);
         }
 
         // GET: /MonHoc/Details/5
-        // Quyền: Mở công khai cho mọi đối tượng xem chi tiết thông tin môn học & đề cương
+        // Chi tiết môn học công khai
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -69,15 +110,12 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             return View(monHoc);
         }
-
-        // =========================================================================
         // 2. TRANG QUẢN TRỊ ADMIN & NHÂN VIÊN ĐÀO TẠO (DATA TABLE CRUD & STATS)
-        // =========================================================================
 
         // GET: /MonHoc/QuanLy
         // Quyền: Chỉ Admin và Nhân viên đào tạo mới được phép truy cập
         [AuthorizeRole("Admin", "NhanVien")]
-        public async Task<IActionResult> QuanLy(string? searchString, bool? trangThai)
+        public async Task<IActionResult> QuanLy(string? searchString, bool? trangThai, int page = 1, int pageSize = 10)
         {
             // Thống kê số liệu tổng thể phục vụ 4 thẻ Stat Cards
             ViewBag.TotalCount = await _context.MonHocs.CountAsync();
@@ -90,10 +128,16 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             var query = _context.MonHocs.Include(m => m.KhoaHocs).AsQueryable();
 
-            // LINQ Tìm kiếm theo tên môn học
+            // Tìm kiếm theo tên hoặc mã môn
             if (!string.IsNullOrWhiteSpace(searchString))
             {
-                query = query.Where(m => m.TenMonHoc.Contains(searchString.Trim()));
+                var term = searchString.Trim().ToLower();
+                var cleanCode = term.Replace("#", "").Replace("mh", "").TrimStart('0');
+                bool isNumeric = int.TryParse(cleanCode, out int searchId);
+
+                query = query.Where(m => m.TenMonHoc.ToLower().Contains(term)
+                                      || (isNumeric && m.MaMonHoc == searchId)
+                                      || m.MaMonHoc.ToString().Contains(term));
                 ViewBag.CurrentSearch = searchString;
             }
 
@@ -104,13 +148,30 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 ViewBag.CurrentTrangThai = trangThai;
             }
 
-            var list = await query.OrderByDescending(m => m.MaMonHoc).ToListAsync();
+            var totalFiltered = await query.CountAsync();
+            ViewBag.TotalFilteredItems = totalFiltered;
+
+            if (page < 1) page = 1;
+            var totalPages = (int)Math.Ceiling(totalFiltered / (double)pageSize);
+            if (totalPages < 1) totalPages = 1;
+            if (page > totalPages) page = totalPages;
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+
+            var list = await query
+                .OrderByDescending(m => m.MaMonHoc)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             return View(list);
         }
 
         // GET: /MonHoc/Create
         // Quyền: Chỉ Admin mới được quyền thêm mới môn học
-        [AuthorizeRole("Admin")]
+        [AuthorizeRole(VaiTro.Admin)]
         public IActionResult Create()
         {
             return View(new MonHoc { SoTinChi = 3, HocPhi = 3000000, TrangThai = true });
@@ -119,7 +180,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // POST: /MonHoc/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRole("Admin")]
+        [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> Create(MonHoc monHoc)
         {
             if (ModelState.IsValid)
@@ -153,7 +214,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
         // GET: /MonHoc/Edit/5
         // Quyền: Chỉ Admin mới được quyền chỉnh sửa môn học
-        [AuthorizeRole("Admin")]
+        [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -167,14 +228,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // POST: /MonHoc/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRole("Admin")]
+        [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> Edit(int id, MonHoc monHoc)
         {
             if (id != monHoc.MaMonHoc) return NotFound();
 
             if (ModelState.IsValid)
             {
-                // LINQ Kiểm tra trùng tên môn học với bản ghi khác trong CSDL an toàn
+                // Kiểm tra trùng tên môn học
                 var tenMonTrim = monHoc.TenMonHoc?.Trim().ToLower() ?? string.Empty;
                 bool exists = await _context.MonHocs.AnyAsync(m =>
                     m.MaMonHoc != id && m.TenMonHoc.Trim().ToLower() == tenMonTrim);
@@ -187,9 +248,33 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
                 try
                 {
-                    _context.Update(monHoc);
+                    // Cập nhật các trường được phép sửa
+                    var existing = await _context.MonHocs.FindAsync(id);
+                    if (existing == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Kiểm tra khóa học đang mở trước khi tạm dừng
+                    if (!monHoc.TrangThai && existing.TrangThai)
+                    {
+                        bool coKhoaHocDangMo = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && k.TrangThai == "DangMo");
+                        if (coKhoaHocDangMo)
+                        {
+                            ModelState.AddModelError(nameof(monHoc.TrangThai), "Không thể chuyển môn học sang 'Tạm dừng' vì vẫn còn lớp khóa học đang mở.");
+                            return View(monHoc);
+                        }
+                    }
+
+                    existing.TenMonHoc = monHoc.TenMonHoc?.Trim() ?? string.Empty;
+                    existing.SoTinChi = monHoc.SoTinChi;
+                    existing.HocPhi = monHoc.HocPhi;
+                    existing.MoTa = monHoc.MoTa;
+                    existing.TrangThai = monHoc.TrangThai;
+
                     await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = $"Cập nhật môn học '{monHoc.TenMonHoc}' thành công!";
+                    TempData["SuccessMessage"] = $"Cập nhật môn học '{existing.TenMonHoc}' thành công!";
+                    return RedirectToAction(nameof(QuanLy));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -204,14 +289,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     ModelState.AddModelError(string.Empty, "Không thể cập nhật môn học do sự cố CSDL. Vui lòng thử lại.");
                     return View(monHoc);
                 }
-                return RedirectToAction(nameof(QuanLy));
             }
             return View(monHoc);
         }
 
         // GET: /MonHoc/Delete/5
         // Quyền: Chỉ Admin
-        [AuthorizeRole("Admin")]
+        [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -230,7 +314,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // POST: /MonHoc/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [AuthorizeRole("Admin")]
+        [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             try
@@ -268,7 +352,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // Đổi trạng thái nhanh Đang mở / Tạm dừng
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRole("Admin")]
+        [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> ToggleStatus(int id)
         {
             try
@@ -276,6 +360,17 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 var monHoc = await _context.MonHocs.FindAsync(id);
                 if (monHoc != null)
                 {
+                    // Kiểm tra khóa học đang mở trước khi xóa
+                    if (monHoc.TrangThai)
+                    {
+                        bool coKhoaHocDangMo = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && k.TrangThai == "DangMo");
+                        if (coKhoaHocDangMo)
+                        {
+                            TempData["ErrorMessage"] = $"Không thể tạm dừng môn học '{monHoc.TenMonHoc}' vì vẫn còn lớp khóa học đang mở đào tạo. Vui lòng đóng hoặc hoàn tất các khóa học trước.";
+                            return RedirectToAction(nameof(QuanLy));
+                        }
+                    }
+
                     monHoc.TrangThai = !monHoc.TrangThai;
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = $"Đã đổi trạng thái môn '{monHoc.TenMonHoc}' sang {(monHoc.TrangThai ? "Đang mở" : "Tạm dừng")}.";

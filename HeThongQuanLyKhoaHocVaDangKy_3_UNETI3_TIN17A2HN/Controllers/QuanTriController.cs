@@ -1,15 +1,16 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Controller Cổng Quản trị / Bàn làm việc & Dashboard trung tâm
+// Module 1: Dashboard quản trị
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 {
-    [AuthorizeRole("Admin", "NhanVien")]
+    [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
     public class QuanTriController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,7 +24,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {
-            // Số liệu từ Module 1 (Trần Văn Thành phụ trách)
+            // Thống kê số liệu Module 1
             ViewBag.TongSoMonHoc = await _context.MonHocs.CountAsync();
             ViewBag.MonHocDangMo = await _context.MonHocs.CountAsync(m => m.TrangThai);
             ViewBag.TongSoTaiKhoan = await _context.TaiKhoans.CountAsync();

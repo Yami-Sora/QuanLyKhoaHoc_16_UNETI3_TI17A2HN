@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Đăng ký Tài khoản Học viên (Hiện đại & Tinh tế)
+    Nội dung: Đăng ký tài khoản học viên
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.RegisterViewModel
@@ -13,243 +13,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Cổng Đào Tạo Trực Tuyến</title>
-    
-    <!-- Google Font: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap CSS & Icons -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <!-- Site CSS -->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f1f5f9;
-            background-image: 
-                linear-gradient(135deg, rgba(239, 246, 255, 0.45) 0%, rgba(219, 234, 254, 0.55) 100%),
-                url('/images/auth-bg.jpg');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            background-attachment: fixed;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2.5rem 1rem;
-            margin: 0;
-            position: relative;
-        }
-
-        /* Glassmorphism Card đồng bộ */
-        .register-card {
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            border-radius: 24px;
-            box-shadow: 
-                0 20px 40px -15px rgba(15, 23, 42, 0.16),
-                0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-            width: 100%;
-            max-width: 530px;
-            padding: 2.25rem 2.25rem;
-            position: relative;
-            z-index: 10;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-
-        /* Logo Badge với gradient mềm mại */
-        .logo-badge {
-            width: 58px;
-            height: 58px;
-            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
-            color: #ffffff;
-            border-radius: 18px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 10px 22px -6px rgba(29, 78, 216, 0.38);
-            border: 3px solid #ffffff;
-            margin: 0 auto;
-        }
-
-        .header-title {
-            color: #0f172a;
-            font-size: 1.45rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-top: 0.75rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .header-subtitle {
-            color: #64748b;
-            font-size: 13.5px;
-            font-weight: 500;
-            line-height: 1.45;
-        }
-
-        /* Label gọn gàng, tinh tế */
-        .form-label-custom {
-            color: #334155;
-            font-size: 13px;
-            font-weight: 600;
-            display: block;
-            margin-bottom: 0.35rem;
-        }
-
-        /* Custom Input Container */
-        .custom-input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-
-        .custom-input-group .input-icon-start {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 1.1rem;
-            pointer-events: none;
-            z-index: 5;
-            transition: color 0.2s ease;
-        }
-
-        .custom-input-group:focus-within .input-icon-start {
-            color: #2563eb;
-        }
-
-        /* Ô nhập liệu thanh thoát, viền xám nhẹ */
-        .custom-input-group .form-control.custom-input {
-            width: 100%;
-            height: 46px;
-            padding-left: 42px;
-            padding-right: 42px;
-            border-radius: 12px;
-            border: 1.5px solid #e2e8f0;
-            background-color: #f8fafc;
-            font-size: 14px;
-            font-family: inherit;
-            color: #1e293b;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .custom-input-group .form-control.custom-input.no-right-icon {
-            padding-right: 14px;
-        }
-
-        .custom-input-group .form-control.custom-input::placeholder {
-            color: #94a3b8;
-            font-size: 13.5px;
-            font-weight: 400;
-        }
-
-        .custom-input-group .form-control.custom-input:focus {
-            background-color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
-            color: #0f172a;
-            outline: none;
-        }
-
-        .custom-input-group .form-control.custom-input.input-validation-error,
-        .form-control.input-validation-error {
-            border-color: #ef4444 !important;
-            background-color: #fef2f2 !important;
-        }
-
-        .custom-input-group .form-control.custom-input.input-validation-error:focus,
-        .form-control.input-validation-error:focus {
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
-            border-color: #ef4444 !important;
-        }
-
-        /* Định dạng thông báo lỗi thẩm mỹ, ổn định và chống rung giật giao diện */
-        .field-validation-error {
-            color: #ef4444;
-            font-size: 12.5px;
-            font-weight: 500;
-            margin-top: 4px;
-            display: block;
-            line-height: 1.3;
-        }
-
-        .field-validation-valid {
-            display: none !important;
-        }
-
-        /* Nút ẩn/hiện mật khẩu */
-        .btn-toggle-eye {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            padding: 6px 8px;
-            color: #94a3b8;
-            font-size: 1.1rem;
-            cursor: pointer;
-            z-index: 6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-toggle-eye:hover {
-            color: #334155;
-            background-color: #e2e8f0;
-        }
-
-        /* Nút Đăng ký Gradient cao cấp */
-        .btn-submit-register {
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-            color: #ffffff;
-            border: none;
-            border-radius: 12px;
-            height: 48px;
-            font-size: 15.5px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 8px 18px -4px rgba(29, 78, 216, 0.35);
-            transition: all 0.2s ease;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        .btn-submit-register:hover {
-            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-            box-shadow: 0 10px 22px -4px rgba(29, 78, 216, 0.45);
-            transform: translateY(-1px);
-            color: #ffffff;
-        }
-
-        .btn-submit-register:active {
-            transform: translateY(0);
-        }
-    </style>
+    <partial name="_Head" />
 </head>
 <body>
     <div class="register-card">
@@ -282,7 +46,7 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="SoDienThoai" class="form-label-custom">
-                        Số điện thoại
+                        Số điện thoại <span class="text-danger">*</span>
                     </label>
                     <div class="custom-input-group">
                         <i class="bi bi-telephone-fill input-icon-start"></i>
@@ -324,10 +88,17 @@
                     </label>
                     <div class="custom-input-group">
                         <i class="bi bi-lock-fill input-icon-start"></i>
-                        <input asp-for="MatKhau" type="password" id="txtPassword" class="form-control custom-input" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" />
-                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('txtPassword', 'iconPass1')" title="Hiện / Ẩn mật khẩu" tabindex="-1">
+                        <input asp-for="MatKhau" type="password" id="txtPassword" class="form-control custom-input" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" oninput="checkPasswordStrength(this.value)" />
+                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('txtPassword', 'iconPass1', this)" title="Hiện / Ẩn mật khẩu" aria-label="Hiện / Ẩn mật khẩu" aria-pressed="false" tabindex="-1">
                             <i class="bi bi-eye" id="iconPass1"></i>
                         </button>
+                    </div>
+                    <!-- Thanh đo độ mạnh mật khẩu (Gợi ý UX) -->
+                    <div class="password-strength-bar mt-1.5">
+                        <div id="pwdStrengthBar" class="password-strength-progress"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <small id="pwdStrengthText" class="text-muted uneti-fs-12">Độ mạnh: Chưa nhập</small>
                     </div>
                     <span asp-validation-for="MatKhau" class="text-danger small mt-1 d-block fw-medium"></span>
                 </div>
@@ -338,7 +109,7 @@
                     <div class="custom-input-group">
                         <i class="bi bi-shield-lock-fill input-icon-start"></i>
                         <input asp-for="XacNhanMatKhau" type="password" id="txtConfirmPassword" class="form-control custom-input" placeholder="Nhập lại mật khẩu" autocomplete="new-password" />
-                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('txtConfirmPassword', 'iconPass2')" title="Hiện / Ẩn mật khẩu" tabindex="-1">
+                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('txtConfirmPassword', 'iconPass2', this)" title="Hiện / Ẩn mật khẩu" aria-label="Hiện / Ẩn mật khẩu" aria-pressed="false" tabindex="-1">
                             <i class="bi bi-eye" id="iconPass2"></i>
                         </button>
                     </div>
@@ -377,35 +148,92 @@
     </div>
 
     <!-- Scripts -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_Scripts" />
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        function togglePasswordVisibility(inputId, iconId) {
+        function checkPasswordStrength(val) {
+            const bar = document.getElementById('pwdStrengthBar');
+            const txt = document.getElementById('pwdStrengthText');
+            if (!bar || !txt) return;
+
+            if (!val || val.length === 0) {
+                bar.style.width = '0%';
+                bar.style.backgroundColor = '#e2e8f0';
+                txt.textContent = 'Độ mạnh: Chưa nhập';
+                txt.className = 'text-muted';
+                return;
+            }
+
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            if (score <= 1) {
+                bar.style.width = '25%';
+                bar.style.backgroundColor = '#ef4444';
+                txt.textContent = 'Độ mạnh: Yếu (nên thêm số, ký tự đặc biệt)';
+                txt.className = 'text-danger fw-semibold';
+            } else if (score === 2) {
+                bar.style.width = '50%';
+                bar.style.backgroundColor = '#f59e0b';
+                txt.textContent = 'Độ mạnh: Trung bình';
+                txt.className = 'text-warning fw-semibold';
+            } else if (score === 3 || score === 4) {
+                bar.style.width = '75%';
+                bar.style.backgroundColor = '#3b82f6';
+                txt.textContent = 'Độ mạnh: Khá an toàn';
+                txt.className = 'text-primary fw-semibold';
+            } else {
+                bar.style.width = '100%';
+                bar.style.backgroundColor = '#10b981';
+                txt.textContent = 'Độ mạnh: Rất mạnh (Tối ưu)';
+                txt.className = 'text-success fw-semibold';
+            }
+        }
+
+        function togglePasswordVisibility(inputId, iconId, btn) {
             const pass = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
             if (pass.type === 'password') {
                 pass.type = 'text';
                 icon.classList.remove('bi-eye');
                 icon.classList.add('bi-eye-slash');
+                if (btn) btn.setAttribute('aria-pressed', 'true');
             } else {
                 pass.type = 'password';
                 icon.classList.remove('bi-eye-slash');
                 icon.classList.add('bi-eye');
+                if (btn) btn.setAttribute('aria-pressed', 'false');
             }
         }
 
-        // Cấu hình jQuery Validation mượt mà, triệt tiêu hoàn toàn hiện tượng giật rung khi gõ phím
+        // Cấu hình jQuery Validation mượt mà
         $(function () {
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <text>
+                const card = document.querySelector('.register-card');
+                if (card) {
+                    card.classList.add('fx-shake');
+                    setTimeout(() => card.classList.remove('fx-shake'), 450);
+                }
+                if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                    window.UnetiUI.toast({
+                        type: 'danger',
+                        title: 'Đăng ký không thành công',
+                        message: 'Vui lòng kiểm tra lại các thông tin bắt buộc trong form.'
+                    });
+                }
+                </text>
+            }
+
             if ($.validator) {
                 $.validator.setDefaults({
-                    // TẮT validate onkeyup liên tục khi đang gõ từng ký tự dở dang
-                    // -> Chấm dứt hoàn toàn tình trạng DOM chớp tắt gây giật/nhảy trang khi gõ phím
                     onkeyup: false,
-
-                    // Chỉ kiểm tra lỗi khi người dùng gõ xong và chuyển sang ô khác (blur)
                     onfocusout: function (element) {
                         if ($(element).is(':checkbox') || $(element).is(':radio')) {
                             return;
@@ -415,8 +243,7 @@
                 });
             }
 
-            // Khi người dùng bắt đầu nhập lại để sửa ô đang báo lỗi:
-            // Tự động xóa trạng thái lỗi nhẹ nhàng 1 lần duy nhất, không giật màn hình
+            // Tự động xóa trạng thái lỗi nhẹ nhàng 1 lần duy nhất
             $('form').on('input', 'input', function () {
                 var $input = $(this);
                 if ($input.hasClass('input-validation-error')) {
@@ -429,7 +256,7 @@
                 }
             });
 
-            // Khi tích vào checkbox điều khoản thì tự động ẩn thông báo lỗi nếu có
+            // Tự ẩn lỗi khi đã tích đồng ý
             $('#chkTerms').on('change', function () {
                 var $chk = $(this);
                 if ($chk.is(':checked')) {

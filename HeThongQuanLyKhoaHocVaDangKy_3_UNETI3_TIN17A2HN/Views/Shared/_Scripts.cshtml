@@ -1,0 +1,58 @@
+﻿@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung: Scripts dùng chung
+*@
+@using System.Text.Encodings.Web
+
+<!-- Core Libraries -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- UI Core & App Scripts -->
+<script src="~/js/ui.js" asp-append-version="true"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/effects.js" asp-append-version="true"></script>
+
+<!-- Hiển thị Toast từ TempData -->
+@if (TempData["SuccessMessage"] != null)
+{
+    var msg = TempData["SuccessMessage"]?.ToString() ?? "";
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                window.UnetiUI.toast({
+                    type: 'success',
+                    title: 'Thành công',
+                    message: '@Html.Raw(JavaScriptEncoder.Default.Encode(msg))'
+                });
+            }
+        });
+    </script>
+    <noscript>
+        <div class="alert alert-success m-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@msg
+        </div>
+    </noscript>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    var err = TempData["ErrorMessage"]?.ToString() ?? "";
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                window.UnetiUI.toast({
+                    type: 'danger',
+                    title: 'Thông báo lỗi',
+                    message: '@Html.Raw(JavaScriptEncoder.Default.Encode(err))'
+                });
+            }
+        });
+    </script>
+    <noscript>
+        <div class="alert alert-danger m-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@err
+        </div>
+    </noscript>
+}

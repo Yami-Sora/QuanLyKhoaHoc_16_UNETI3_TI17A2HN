@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Cấu hình DbContext, Fluent API và Ràng buộc toàn vẹn CSDL
+// Module 1: Cấu hình DbContext
 
 using Microsoft.EntityFrameworkCore;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
@@ -53,14 +53,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                 .HasForeignKey(k => k.MaGiangVien)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 4. Ràng buộc quan hệ HocVien -> DangKyKhoaHoc (Chặn xóa Cascade - Restrict)
+            // 4. Quan hệ HocVien -> DangKyKhoaHoc (Restrict)
             modelBuilder.Entity<DangKyKhoaHoc>()
                 .HasOne(d => d.HocVien)
                 .WithMany(h => h.DangKyKhoaHocs)
                 .HasForeignKey(d => d.MaHocVien)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 5. Ràng buộc quan hệ KhoaHoc -> DangKyKhoaHoc (Chặn xóa Cascade - Restrict)
+            // 5. Quan hệ KhoaHoc -> DangKyKhoaHoc (Restrict)
             modelBuilder.Entity<DangKyKhoaHoc>()
                 .HasOne(d => d.KhoaHoc)
                 .WithMany(k => k.DangKyKhoaHocs)

@@ -1,0 +1,127 @@
+﻿@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung: Thêm mới tài khoản (Admin)
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.CreateUserViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Thêm mới tài khoản người dùng";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-9 col-lg-8">
+            <div class="uneti-card overflow-hidden">
+                <div class="card-header py-3 px-4 text-white" style="background-color: var(--uneti-primary);">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-person-plus-fill me-2"></i>THÊM MỚI TÀI KHOẢN NGƯỜI DÙNG</h5>
+                </div>
+
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                        <!-- PHẦN 1: THÔNG TIN TÀI KHOẢN & ĐĂNG NHẬP -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                                <i class="bi bi-shield-lock text-primary me-2"></i>1. Thông tin đăng nhập &amp; Bảo mật
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="TenDangNhap" class="form-label fw-semibold small text-secondary">
+                                        Tên đăng nhập <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="TenDangNhap" class="form-control" placeholder="Ví dụ: nguyenvana..." autofocus autocomplete="username" />
+                                    <span asp-validation-for="TenDangNhap" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="MatKhau" class="form-label fw-semibold small text-secondary">
+                                        Mật khẩu khởi tạo <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="MatKhau" type="password" class="form-control" placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" />
+                                    <span asp-validation-for="MatKhau" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PHẦN 2: THÔNG TIN HỒ SƠ & LIÊN HỆ -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                                <i class="bi bi-person-lines-fill text-primary me-2"></i>2. Thông tin cá nhân &amp; Liên hệ
+                            </h6>
+                            <div class="mb-3">
+                                <label asp-for="HoTen" class="form-label fw-semibold small text-secondary">
+                                    Họ và tên <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="HoTen" class="form-control" placeholder="Ví dụ: Nguyễn Văn A..." autocomplete="name" />
+                                <span asp-validation-for="HoTen" class="text-danger small"></span>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="Email" class="form-label fw-semibold small text-secondary">
+                                        Địa chỉ Email <span class="text-danger">*</span>
+                                    </label>
+                                    <input asp-for="Email" type="email" class="form-control" placeholder="example@email.com" autocomplete="email" />
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="SoDienThoai" class="form-label fw-semibold small text-secondary">
+                                        Số điện thoại
+                                    </label>
+                                    <input asp-for="SoDienThoai" class="form-control" placeholder="0912 345 678" autocomplete="tel" />
+                                    <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PHẦN 3: PHÂN QUYỀN & TRẠNG THÁI -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                                <i class="bi bi-person-gear text-primary me-2"></i>3. Vai trò &amp; Quyền hạn
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="VaiTro" class="form-label fw-semibold small text-secondary">
+                                        Vai trò phân quyền <span class="text-danger">*</span>
+                                    </label>
+                                    <select asp-for="VaiTro" class="form-select">
+                                        <option value="Admin">Quản trị viên (Admin)</option>
+                                        <option value="NhanVien" selected>Nhân viên đào tạo</option>
+                                        <option value="HocVien">Học viên</option>
+                                    </select>
+                                    <span asp-validation-for="VaiTro" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="form-check form-switch pb-2">
+                                        <input class="form-check-input" type="checkbox" asp-for="TrangThai" id="chkTrangThai" checked style="cursor: pointer; width: 40px; height: 20px;">
+                                        <label class="form-check-label ms-2 small fw-semibold text-dark user-select-none" for="chkTrangThai" style="cursor: pointer;">
+                                            Kích hoạt hoạt động ngay
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NÚT HÀNH ĐỘNG -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a asp-action="QuanLy" class="btn btn-outline-secondary px-3">
+                                <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+                            </a>
+                            <button type="submit" class="btn uneti-btn-primary px-4 shadow-sm">
+                                <i class="bi bi-check-circle-fill me-1"></i>Tạo tài khoản
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

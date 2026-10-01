@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Thêm mới môn học (Dữ liệu nền) - Đồng bộ UNETI kèm tự động tính học phí theo tín chỉ
+    Nội dung: Thêm mới môn học
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc
@@ -24,80 +24,98 @@
 
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="TenMonHoc" class="form-label fw-semibold small text-secondary">Tên môn học <span class="text-danger">*</span></label>
-                            <input asp-for="TenMonHoc" class="form-control" placeholder="Ví dụ: Lập trình Cloud với AWS..." autofocus />
-                            <span asp-validation-for="TenMonHoc" class="text-danger small"></span>
-                        </div>
-
-                        <!-- Khối tính toán học phí theo tín chỉ thông minh -->
-                        <div class="card bg-light border-0 rounded-3 p-3 mb-3">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="fw-semibold small text-dark">
-                                    <i class="bi bi-calculator text-primary me-1"></i>Định mức học phí theo tín chỉ
-                                </span>
-                                <span class="badge bg-white text-primary border small" id="formulaBadge">
-                                    Công thức: Số tín chỉ × Đơn giá tín
-                                </span>
-                            </div>
-
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label asp-for="SoTinChi" class="form-label fw-semibold small text-secondary">
-                                        Số tín chỉ <span class="text-danger">*</span>
-                                    </label>
-                                    <input asp-for="SoTinChi" id="inputSoTinChi" type="number" min="1" max="10" class="form-control bg-white" />
-                                    <span asp-validation-for="SoTinChi" class="text-danger small"></span>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small text-secondary">
-                                        Đơn giá 1 tín chỉ (VNĐ)
-                                    </label>
-                                    <div class="input-group">
-                                        <input type="number" id="inputDonGia" class="form-control bg-white" value="1000000" min="100000" step="50000" />
-                                        <span class="input-group-text bg-white text-muted small">đ</span>
-                                    </div>
-                                    <div class="d-flex gap-1 mt-1">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-pill" style="font-size: 11px;" onclick="setDonGia(800000)">800k</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 11px;" onclick="setDonGia(1000000)">1.0tr</button>
-                                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 11px;" onclick="setDonGia(1200000)">1.2tr</button>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label asp-for="HocPhi" class="form-label fw-semibold small text-secondary">
-                                        Học phí định mức (VNĐ) <span class="text-danger">*</span>
-                                    </label>
-                                    <div class="input-group">
-                                        <input asp-for="HocPhi" id="inputHocPhi" type="number" min="0" step="1000" class="form-control fw-bold bg-white" style="color: var(--uneti-primary);" />
-                                        <span class="input-group-text bg-white text-muted small">đ</span>
-                                    </div>
-                                    <span asp-validation-for="HocPhi" class="text-danger small"></span>
-                                    <small class="text-muted d-block mt-1" style="font-size: 11px;">(Tự động tính hoặc tùy chỉnh)</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="TrangThai" class="form-label fw-semibold small text-secondary">Trạng thái giảng dạy</label>
-                            <select asp-for="TrangThai" class="form-select">
-                                <option value="true">Đang mở giảng dạy</option>
-                                <option value="false">Tạm dừng giảng dạy</option>
-                            </select>
-                        </div>
-
+                        <!-- PHẦN 1: THÔNG TIN CƠ BẢN -->
                         <div class="mb-4">
-                            <label asp-for="MoTa" class="form-label fw-semibold small text-secondary">Mô tả tóm tắt môn học</label>
-                            <textarea asp-for="MoTa" class="form-control" rows="3" placeholder="Nhập mục tiêu môn học, nội dung kiến thức cốt lõi..."></textarea>
-                            <span asp-validation-for="MoTa" class="text-danger small"></span>
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                                <i class="bi bi-info-circle text-primary me-2"></i>1. Thông tin cơ bản môn học
+                            </h6>
+                            <div class="mb-3">
+                                <label asp-for="TenMonHoc" class="form-label fw-semibold small text-secondary">Tên môn học <span class="text-danger">*</span></label>
+                                <input asp-for="TenMonHoc" class="form-control" placeholder="Ví dụ: Lập trình Cloud với AWS..." autofocus />
+                                <span asp-validation-for="TenMonHoc" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- PHẦN 2: ĐỊNH MỨC TÍN CHỈ & HỌC PHÍ -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                                <i class="bi bi-calculator text-primary me-2"></i>2. Định mức tín chỉ &amp; Học phí đào tạo
+                            </h6>
+                            <!-- Khối tính toán học phí theo tín chỉ thông minh -->
+                            <div class="card bg-light border-0 rounded-3 p-3 mb-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="fw-semibold small text-dark">
+                                        <i class="bi bi-cash-stack text-success me-1"></i>Công cụ tính học phí tức thì
+                                    </span>
+                                    <span class="badge bg-white text-primary border small" id="formulaBadge">
+                                        Công thức: Số tín chỉ × Đơn giá tín
+                                    </span>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label asp-for="SoTinChi" class="form-label fw-semibold small text-secondary">
+                                            Số tín chỉ <span class="text-danger">*</span>
+                                        </label>
+                                        <input asp-for="SoTinChi" id="inputSoTinChi" type="number" min="1" max="10" class="form-control bg-white" />
+                                        <span asp-validation-for="SoTinChi" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold small text-secondary">
+                                            Đơn giá 1 tín chỉ (VNĐ)
+                                        </label>
+                                        <div class="input-group">
+                                            <input type="number" id="inputDonGia" class="form-control bg-white" value="1000000" min="100000" step="50000" />
+                                            <span class="input-group-text bg-white text-muted small">đ</span>
+                                        </div>
+                                        <div class="d-flex gap-1 mt-1">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-pill" style="font-size: 12px;" onclick="setDonGia(800000)">800k</button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 12px;" onclick="setDonGia(1000000)">1.0tr</button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 12px;" onclick="setDonGia(1200000)">1.2tr</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label asp-for="HocPhi" class="form-label fw-semibold small text-secondary">
+                                            Học phí định mức (VNĐ) <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="input-group">
+                                            <input asp-for="HocPhi" id="inputHocPhi" type="number" min="0" step="1000" class="form-control fw-bold bg-white" style="color: var(--uneti-primary);" />
+                                            <span class="input-group-text bg-white text-muted small">đ</span>
+                                        </div>
+                                        <span asp-validation-for="HocPhi" class="text-danger small"></span>
+                                        <small class="text-muted d-block mt-1" style="font-size: 12px;">(Tự động tính hoặc tùy chỉnh)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PHẦN 3: TRẠNG THÁI & MÔ TẢ -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                                <i class="bi bi-toggles text-primary me-2"></i>3. Trạng thái giảng dạy &amp; Đề cương môn học
+                            </h6>
+                            <div class="mb-3">
+                                <label asp-for="TrangThai" class="form-label fw-semibold small text-secondary">Trạng thái giảng dạy</label>
+                                <select asp-for="TrangThai" class="form-select">
+                                    <option value="true">Đang mở giảng dạy</option>
+                                    <option value="false">Tạm dừng giảng dạy</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2">
+                                <label asp-for="MoTa" class="form-label fw-semibold small text-secondary">Mô tả tóm tắt môn học</label>
+                                <textarea asp-for="MoTa" class="form-control" rows="3" placeholder="Nhập mục tiêu môn học, nội dung kiến thức cốt lõi..."></textarea>
+                                <span asp-validation-for="MoTa" class="text-danger small"></span>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between pt-3 border-top">
                             <a asp-action="QuanLy" class="btn uneti-btn-outline text-decoration-none">
                                 <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách quản lý
                             </a>
-                            <button type="submit" class="btn uneti-btn-primary fw-bold px-4 shadow-sm">
+                            <button type="submit" class="btn uneti-btn-primary fw-bold px-4 shadow-sm" data-loading-text="Đang lưu môn học...">
                                 <i class="bi bi-save me-1"></i>Lưu môn học
                             </button>
                         </div>

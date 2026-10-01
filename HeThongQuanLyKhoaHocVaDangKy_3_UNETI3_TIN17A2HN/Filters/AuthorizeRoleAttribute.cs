@@ -1,9 +1,12 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Action Filter kiểm tra phân quyền truy cập tại cấp Controller
+// Module 1: Bộ lọc phân quyền
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters
 {
@@ -12,7 +15,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters
     {
         private readonly string[] _acceptedRoles;
 
-        // Cho phép truyền 0, 1 hoặc nhiều vai trò: [AuthorizeRole("Admin")], [AuthorizeRole("Admin", "NhanVien")]
+        // Nhận danh sách vai trò hợp lệ
         public AuthorizeRoleAttribute(params string[] roles)
         {
             _acceptedRoles = roles;
@@ -24,7 +27,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters
             var maTaiKhoan = session.GetInt32("MaTaiKhoan");
             var vaiTro = session.GetString("VaiTro");
 
-            // 1. Chưa đăng nhập: Chuyển hướng về trang Login kèm tham số returnUrl
+            // Chưa đăng nhập -> chuyển về Login
             if (!maTaiKhoan.HasValue || string.IsNullOrEmpty(vaiTro))
             {
                 var returnUrl = context.HttpContext.Request.Path + context.HttpContext.Request.QueryString;
@@ -32,7 +35,33 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters
                 return;
             }
 
-            // 2. Không thuộc vai trò được phép: Chuyển hướng sang trang AccessDenied
+            // Kiểm tra trạng thái tài khoản từ CSDL
+            var db = context.HttpContext.RequestServices.GetService<ApplicationDbContext>();
+            if (db != null)
+            {
+                var user = db.TaiKhoans.AsNoTracking().FirstOrDefault(t => t.MaTaiKhoan == maTaiKhoan.Value);
+                if (user == null || !user.TrangThai)
+                {
+                    // Khóa tài khoản -> xóa session và về Login
+                    session.Clear();
+                    context.Result = new RedirectToActionResult("Login", "TaiKhoan", null);
+                    if (context.Controller is Controller controller)
+                    {
+                        controller.TempData["ErrorMessage"] = "Tài khoản của bạn đã bị khóa hoặc không còn hiệu lực. Vui lòng liên hệ Quản trị viên.";
+                    }
+                    return;
+                }
+
+                // Đồng bộ vai trò nếu Admin vừa đổi
+                if (!string.Equals(user.VaiTro, vaiTro, StringComparison.OrdinalIgnoreCase))
+                {
+                    vaiTro = user.VaiTro;
+                    session.SetString("VaiTro", vaiTro);
+                    session.SetString("HoTen", user.HoTen);
+                }
+            }
+
+            // Không đúng quyền -> sang AccessDenied
             if (_acceptedRoles.Length > 0 && !_acceptedRoles.Contains(vaiTro))
             {
                 context.Result = new RedirectToActionResult("AccessDenied", "TaiKhoan", null);

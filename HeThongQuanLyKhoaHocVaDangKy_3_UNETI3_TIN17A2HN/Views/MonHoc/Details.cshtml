@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Chi tiết môn học - Thiết kế Hiện đại chuẩn Academic UNETI
+    Nội dung: Chi tiết môn học
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc
@@ -14,140 +14,55 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Chi tiết môn học: " + Model.TenMonHoc;
 
-    decimal hocPhiMoiTin = Model.SoTinChi > 0 ? (Model.HocPhi / Model.SoTinChi) : 0;
+    decimal hocPhiMoiTin = Model.SoTinChi > 0 ? Math.Round((Model.HocPhi / Model.SoTinChi) / 1000m, MidpointRounding.AwayFromZero) * 1000m : 0m;
     int tietLyThuyet = Model.SoTinChi * 10;
     int tietThucHanh = Model.SoTinChi * 5;
-    int tongTietLenLop = tietLyThuyet + tietThucHanh; // Tổng tiết chuẩn trên lớp (ví dụ 3 TC = 45 tiết)
-    int gioTuHoc = Model.SoTinChi * 30; // Giờ tự học độc lập chuẩn tín chỉ (ví dụ 3 TC = 90 giờ)
+    int tongTietLenLop = tietLyThuyet + tietThucHanh; // Ví dụ 3 TC = 45 tiết chuẩn
+    int gioTuHoc = Model.SoTinChi * 30; // 3 TC = 90 giờ tự học độc lập
     double pctLT = tongTietLenLop > 0 ? Math.Round(tietLyThuyet * 100.0 / tongTietLenLop) : 67;
     double pctTH = tongTietLenLop > 0 ? (100 - pctLT) : 33;
-
-    // Phân tích Mục tiêu & Chuẩn đầu ra động theo Chuyên môn môn học (Đa ngành UNETI - Phương án 2)
-    string tenMon = Model.TenMonHoc ?? "";
-    string kienThuc = "";
-    string kyNang = "";
-    string chuanDauRa = "";
-
-    // 1. NHÓM CNTT & PHẦN MỀM (.NET / C#)
-    if (tenMon.Contains("C#", StringComparison.OrdinalIgnoreCase) || tenMon.Contains(".NET", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Nắm vững nguyên lý lập trình hướng đối tượng (OOP), cú pháp C# 13, LINQ to Objects, kiến trúc ASP.NET Core MVC, Middleware, Dependency Injection và Entity Framework Core 10.";
-        kyNang = "Thiết kế và phát triển ứng dụng Web hoàn chỉnh, xây dựng RESTful Web API, phân quyền hệ thống đa cấp, xử lý nghiệp vụ CSDL Code-First và bảo mật Session/Cookie.";
-        chuanDauRa = $"Đạt chuẩn kỹ sư phát triển phần mềm Backend .NET; đủ điều kiện làm việc tại các doanh nghiệp CNTT và tích lũy trọn vẹn {Model.SoTinChi} tín chỉ chuyên ngành UNETI.";
-    }
-    // 2. NHÓM CƠ SỞ DỮ LIỆU & HỆ THỐNG
-    else if (tenMon.Contains("SQL", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Cơ sở Dữ liệu", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Database", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Hiểu sâu lý thuyết cơ sở dữ liệu quan hệ, quy chuẩn hóa dữ liệu 1NF - 3NF/BCNF, thiết kế sơ đồ thực thể liên kết (ERD), cấu trúc bảng, khóa ngoại và cơ chế giao dịch ACID.";
-        kyNang = "Thành thạo viết truy vấn T-SQL nâng cao, tối ưu hóa Store Procedure, lập trình Trigger, phân tích chỉ mục (Indexing) giảm tải hệ thống và sao lưu, phục hồi dữ liệu tự động.";
-        chuanDauRa = $"Đạt chuẩn năng lực Quản trị CSDL và Phân tích thiết kế hệ thống thông tin; tích lũy {Model.SoTinChi} tín chỉ cốt lõi CNTT UNETI.";
-    }
-    // 3. NHÓM WEB & FRONTEND
-    else if (tenMon.Contains("React", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Frontend", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Web", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("HTML", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("JavaScript", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Nắm vững cơ chế Virtual DOM, kiến trúc Single Page Application (SPA), Component Lifecycle, mô hình luồng dữ liệu 1 chiều và các nguyên tắc thiết kế UI/UX hiện đại.";
-        kyNang = "Thao tác thành thạo React Hooks (useState, useEffect, useMemo), quản lý State toàn cục với Redux Toolkit, tạo giao diện đáp ứng (Responsive) với TailwindCSS và kết nối REST API.";
-        chuanDauRa = $"Đạt chuẩn năng lực Lập trình viên Web Frontend hiện đại; sẵn sàng tham gia các dự án phát triển giao diện Web chuyên nghiệp và tích lũy {Model.SoTinChi} tín chỉ UNETI.";
-    }
-    // 4. NHÓM DI ĐỘNG & MOBILE APP
-    else if (tenMon.Contains("Flutter", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Di động", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Mobile", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Android", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("iOS", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Hiểu rõ tư duy lập trình ngôn ngữ Dart hướng đối tượng, cây Widget Flutter (Stateless & Stateful), kiến trúc đa nền tảng và cơ chế Render engine Skia/Impeller.";
-        kyNang = "Thiết kế giao diện Mobile chuẩn Material 3 & iOS Cupertino, quản lý State với Provider/Bloc, tích hợp Local SQLite/Shared Preferences và đóng gói ứng dụng phát hành lên Store.";
-        chuanDauRa = $"Đạt chuẩn năng lực Lập trình viên Di động đa nền tảng (Cross-platform); có khả năng tự build hoàn chỉnh ứng dụng Mobile thực tế và tích lũy {Model.SoTinChi} tín chỉ UNETI.";
-    }
-    // 5. NHÓM DỮ LIỆU & TRÍ TUỆ NHÂN TẠO (AI)
-    else if (tenMon.Contains("Python", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Dữ liệu", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("AI", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Trí tuệ nhân tạo", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Machine Learning", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Data", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Nắm vững cú pháp Python nâng cao, cấu trúc dữ liệu, toán xác suất thống kê ứng dụng, quy trình tiền xử lý làm sạch dữ liệu và thuật toán Học máy (Machine Learning) cơ bản.";
-        kyNang = "Khai phá và biến đổi dữ liệu lớn với Pandas/NumPy, trực quan hóa biểu đồ phân tích chuyên sâu qua Matplotlib/Seaborn, xây dựng mô hình phân loại và dự báo số liệu.";
-        chuanDauRa = $"Đạt chuẩn năng lực Phân tích Dữ liệu (Data Analyst); làm chủ kỹ năng đọc hiểu số liệu kinh doanh công nghệ và tích lũy {Model.SoTinChi} tín chỉ UNETI.";
-    }
-    // 6. NHÓM CÁC NGÔN NGỮ LẬP TRÌNH KHÁC & HẠ TẦNG MẠNG
-    else if (tenMon.Contains("Java", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("C++", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Mạng", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("An toàn thông tin", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Bảo mật", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Nắm vững bản chất kiến trúc hệ thống máy tính, mô hình OSI/TCP-IP, nguyên lý bảo mật dữ liệu, quản lý tài nguyên bộ nhớ và thuật toán cấu trúc dữ liệu kinh điển.";
-        kyNang = "Cấu hình thiết bị mạng, triển khai hạ tầng dịch vụ mạng cục bộ LAN/WAN, phân tích bắt gói tin Wireshark và rà soát lỗ hổng an ninh mạng phổ biến.";
-        chuanDauRa = $"Đạt chuẩn năng lực Kỹ sư Hạ tầng mạng & An toàn thông tin; tích lũy {Model.SoTinChi} tín chỉ chuyên ngành UNETI.";
-    }
-    // 7. KHỐI NGÀNH KINH TẾ / QUẢN TRỊ KINH DOANH / KẾ TOÁN / MARKETING / TMĐT
-    else if (tenMon.Contains("Kinh tế", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kế toán", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tài chính", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Marketing", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Quản trị", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kinh doanh", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Thương mại", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Logistics", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Nắm vững các nguyên lý kinh tế học vi mô/vĩ mô, quy chuẩn hạch toán kế toán - tài chính doanh nghiệp, cơ chế vận hành thị trường và quy trình quản trị chuỗi cung ứng.";
-        kyNang = "Lập báo cáo tài chính, phân tích chỉ số kinh doanh, xây dựng chiến dịch Digital Marketing, sử dụng thành thạo phần mềm ERP/Excel nâng cao và ra quyết định quản trị.";
-        chuanDauRa = $"Đạt chuẩn năng lực nghiệp vụ cử nhân Khối ngành Kinh tế & Quản trị kinh doanh; tích lũy trọn vẹn {Model.SoTinChi} tín chỉ chính quy UNETI.";
-    }
-    // 8. KHỐI NGÀNH KỸ THUẬT / ĐIỆN - ĐIỆN TỬ / TỰ ĐỘNG HÓA / CƠ KHÍ
-    else if (tenMon.Contains("Điện", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Cơ khí", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kỹ thuật", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tự động hóa", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Mạch", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Vi điều khiển", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("IoT", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Cơ điện", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Hiểu rõ các nguyên lý vật lý cơ học, định luật mạch điện tử, cấu trúc khí cụ điện, sơ đồ nguyên lý cảm biến và tiêu chuẩn kỹ thuật công nghiệp hiện đại.";
-        kyNang = "Đọc và vẽ bản vẽ kỹ thuật CAD/CAM, đo kiểm thông số linh kiện, lập trình điều khiển PLC/Arduino, đấu nối tủ điện và vận hành thiết bị xưởng an toàn.";
-        chuanDauRa = $"Đạt chuẩn kỹ năng thực hành kỹ sư Khối ngành Kỹ thuật công nghệ; tích lũy {Model.SoTinChi} tín chỉ chính quy UNETI.";
-    }
-    // 9. KHỐI NGOẠI NGỮ (Tiếng Anh, Tiếng Nhật, Tiếng Hàn)
-    else if (tenMon.Contains("Tiếng Anh", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("English", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Ngoại ngữ", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tiếng Nhật", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tiếng Hàn", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("TOEIC", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("IELTS", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Nắm vững hệ thống ngữ pháp học thuật, vốn từ vựng chuyên ngành sâu rộng, cấu trúc câu đa dạng và phong cách giao tiếp văn hóa hội nhập quốc tế.";
-        kyNang = "Thành thạo 4 kỹ năng Nghe - Nói - Đọc - Viết, thuyết trình trôi chảy, đọc hiểu tài liệu chuyên môn và soạn thảo văn bản/email thương mại quốc tế.";
-        chuanDauRa = $"Đạt chuẩn năng lực ngoại ngữ tối thiểu bậc 3/6 theo Khung năng lực ngoại ngữ Việt Nam (VSTEP B1/TOEIC 450+); tích lũy {Model.SoTinChi} tín chỉ UNETI.";
-    }
-    // 10. KHỐI ĐẠI CƯƠNG / CHÍNH TRỊ / TOÁN / PHÁP LUẬT / KỸ NĂNG MỀM
-    else if (tenMon.Contains("Triết", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Chính trị", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Hồ Chí Minh", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Pháp luật", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Toán", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Xác suất", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Đại số", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kỹ năng", StringComparison.OrdinalIgnoreCase))
-    {
-        kienThuc = "Nắm vững phương pháp luận duy vật biện chứng khoa học, tư duy logic giải tích, hệ thống pháp luật Nhà nước và các chuẩn mực đạo đức xã hội công dân.";
-        kyNang = "Tư duy phản biện, lập luận chặt chẽ, kỹ năng thuyết trình, kỹ năng làm việc nhóm hiệu quả và vận dụng kiến thức đại cương vào nghiên cứu chuyên ngành.";
-        chuanDauRa = $"Đạt chuẩn khối kiến thức đại cương và nền tảng phương pháp luận khoa học theo quy định của Bộ GD&ĐT và Trường ĐH Kinh tế - Kỹ thuật Công nghiệp; tích lũy {Model.SoTinChi} tín chỉ.";
-    }
-    // 11. BỘ SINH DỮ LIỆU ĐA NGÀNH MẶC ĐỊNH (FALLBACK ĐẠI HỌC UNETI TOÀN DIỆN)
-    else
-    {
-        kienThuc = $"Nắm vững toàn diện hệ thống lý thuyết nền tảng, các khái niệm chuẩn mực và phương pháp luận chuyên sâu của học phần {Model.TenMonHoc}.";
-        kyNang = "Vận dụng linh hoạt kiến thức vào phân tích tình huống thực tế, xử lý bài toán nghiệp vụ chuyên môn, thực hiện đồ án học phần và làm việc nhóm hiệu quả.";
-        chuanDauRa = $"Đạt chuẩn năng lực chuyên môn theo chuẩn đầu ra chương trình đào tạo đại học chính quy của Trường Đại học Kinh tế - Kỹ thuật Công nghiệp (UNETI); tích lũy trọn vẹn {Model.SoTinChi} tín chỉ.";
-    }
 }
 
 <div class="container py-4">
     <!-- BREADCRUMB ĐIỀU HƯỚNG -->
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb small">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a asp-action="@(isStaffOrAdmin ? "QuanLy" : "Index")" class="text-decoration-none" style="color: var(--uneti-primary);">@(isStaffOrAdmin ? "Quản lý môn học" : "Danh mục môn học")</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="@(isStaffOrAdmin ? "QuanLy" : "Index")" class="text-decoration-none text-primary">@(isStaffOrAdmin ? "Quản lý môn học" : "Danh mục môn học")</a></li>
             <li class="breadcrumb-item active text-muted" aria-current="page">@Model.TenMonHoc</li>
         </ol>
     </nav>
 
     <!-- HERO HEADER CARD CỦA MÔN HỌC -->
-    <div class="uneti-card p-4 p-md-5 mb-4 shadow-sm border-0 position-relative overflow-hidden" 
-         style="background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%); border: 1px solid #dbeafe !important;">
+    <div class="uneti-card uneti-hero-detail p-4 p-md-5 mb-4 shadow-sm border-0 position-relative overflow-hidden reveal">
         <div class="row align-items-center g-3">
             <div class="col-lg-8">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-semibold" style="font-size: 11.5px;">
-                        <i class="bi bi-mortarboard-fill me-1"></i>TRƯỜNG ĐH KINH TẾ - KỸ THUẬT CÔNG NGHIỆP (UNETI)
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 uneti-badge-tag">
+                        <i class="bi bi-mortarboard-fill me-1"></i>TRƯỜNG ĐH KINH TẾ - KỸ THUẬT CÔNG NGHIỆP
                     </span>
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1 rounded-pill fw-semibold" style="font-size: 11.5px;">
-                        MÃ HỌC PHẦN: #MH0@(Model.MaMonHoc)
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1 uneti-badge-tag">
+                        MÃ HỌC PHẦN: #MH@Model.MaMonHoc.ToString("D3")
                     </span>
                     @if (Model.TrangThai)
                     {
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-semibold" style="font-size: 11.5px;">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 uneti-badge-tag">
                             <i class="bi bi-check-circle-fill me-1"></i>Đang mở giảng dạy
                         </span>
                     }
                     else
                     {
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 rounded-pill fw-semibold" style="font-size: 11.5px;">
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 uneti-badge-tag">
                             <i class="bi bi-pause-circle-fill me-1"></i>Tạm dừng tuyển sinh
                         </span>
                     }
                 </div>
 
-                <h1 class="fw-bold text-dark mb-2" style="font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.02em;">
+                <h1 class="fw-bold text-dark mb-2 uneti-detail-title">
                     @Model.TenMonHoc
                 </h1>
                 <p class="text-muted mb-0 lead fs-6">
-                    Học phần đào tạo theo hệ thống tín chỉ chuẩn kiểm định chất lượng giáo dục đại học UNETI.
+                    Học phần đào tạo theo hệ thống tín chỉ chuẩn kiểm định chất lượng giáo dục đại học.
                 </p>
             </div>
 
@@ -172,48 +87,54 @@
     <!-- 4 THẺ THÔNG SỐ NHANH (QUICK METRIC TILES) -->
     <div class="row g-3 mb-4">
         <!-- 1. Số tín chỉ -->
-        <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3">
-                <div class="rounded-3 d-flex align-items-center justify-content-center bg-primary-subtle text-primary" style="width: 48px; height: 48px; min-width: 48px;">
+        <div class="col-6 col-md-3 reveal" style="--i: 0;">
+            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3" data-tilt>
+                <div class="uneti-icon-box-48 bg-primary-subtle text-primary">
                     <i class="bi bi-journal-bookmark-fill fs-4"></i>
                 </div>
                 <div>
-                    <span class="text-muted small d-block fw-semibold text-uppercase" style="font-size: 11px;">Số tín chỉ</span>
-                    <span class="fs-4 fw-bold text-dark lh-1">@Model.SoTinChi TC</span>
+                    <span class="text-muted small d-block fw-semibold text-uppercase uneti-fs-xs">Số tín chỉ</span>
+                    <span class="fs-4 fw-bold text-dark lh-1">
+                        <span data-count-to="@Model.SoTinChi" data-format="number">@Model.SoTinChi</span> TC
+                    </span>
                 </div>
             </div>
         </div>
 
         <!-- 2. Học phí định mức -->
-        <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3">
-                <div class="rounded-3 d-flex align-items-center justify-content-center bg-success-subtle text-success" style="width: 48px; height: 48px; min-width: 48px;">
+        <div class="col-6 col-md-3 reveal" style="--i: 1;">
+            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3" data-tilt>
+                <div class="uneti-icon-box-48 bg-success-subtle text-success">
                     <i class="bi bi-cash-coin fs-4"></i>
                 </div>
                 <div>
-                    <span class="text-muted small d-block fw-semibold text-uppercase" style="font-size: 11px;">Học phí định mức</span>
-                    <span class="fs-5 fw-bold text-success lh-1">@Model.HocPhi.ToString("N0") đ</span>
+                    <span class="text-muted small d-block fw-semibold text-uppercase uneti-fs-xs">Học phí định mức</span>
+                    <span class="fs-5 fw-bold text-success lh-1" data-count-to="@Model.HocPhi" data-format="currency">
+                        @Model.HocPhi.ToString("N0") đ
+                    </span>
                 </div>
             </div>
         </div>
 
         <!-- 3. Khóa học liên kết -->
-        <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3">
-                <div class="rounded-3 d-flex align-items-center justify-content-center bg-info-subtle text-info" style="width: 48px; height: 48px; min-width: 48px;">
+        <div class="col-6 col-md-3 reveal" style="--i: 2;">
+            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3" data-tilt>
+                <div class="uneti-icon-box-48 bg-info-subtle text-info">
                     <i class="bi bi-mortarboard-fill fs-4"></i>
                 </div>
                 <div>
-                    <span class="text-muted small d-block fw-semibold text-uppercase" style="font-size: 11px;">Lớp học phần mở</span>
+                    <span class="text-muted small d-block fw-semibold text-uppercase uneti-fs-xs">Lớp học phần mở</span>
                     @if ((Model.KhoaHocs?.Count ?? 0) > 0)
                     {
-                        <span class="fs-4 fw-bold text-dark lh-1">@(Model.KhoaHocs?.Count ?? 0) lớp</span>
+                        <span class="fs-4 fw-bold text-dark lh-1">
+                            <span data-count-to="@(Model.KhoaHocs?.Count ?? 0)" data-format="number">@(Model.KhoaHocs?.Count ?? 0)</span> lớp
+                        </span>
                     }
                     else
                     {
                         <div class="d-flex align-items-center gap-1.5 mt-1">
                             <span class="fs-5 fw-bold text-secondary lh-1">0</span>
-                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-1.5 py-0.5" style="font-size: 10px;">Chờ mở lớp</span>
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-1.5 py-0.5 uneti-fs-xs">Chờ mở lớp</span>
                         </div>
                     }
                 </div>
@@ -221,108 +142,40 @@
         </div>
 
         <!-- 4. Đơn giá mỗi tín chỉ -->
-        <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3">
-                <div class="rounded-3 d-flex align-items-center justify-content-center bg-warning-subtle text-warning" style="width: 48px; height: 48px; min-width: 48px;">
+        <div class="col-6 col-md-3 reveal" style="--i: 3;">
+            <div class="uneti-card p-3 h-100 shadow-sm d-flex align-items-center gap-3" data-tilt>
+                <div class="uneti-icon-box-48 bg-warning-subtle text-warning">
                     <i class="bi bi-tag-fill fs-4"></i>
                 </div>
                 <div>
-                    <span class="text-muted small d-block fw-semibold text-uppercase" style="font-size: 11px;">Đơn giá tín chỉ</span>
-                    <span class="fs-5 fw-bold text-dark lh-1">~@hocPhiMoiTin.ToString("N0") đ</span>
+                    <span class="text-muted small d-block fw-semibold text-uppercase uneti-fs-xs">Đơn giá tín chỉ</span>
+                    <span class="fs-5 fw-bold text-dark lh-1" data-count-to="@hocPhiMoiTin" data-format="currency">
+                        ~@hocPhiMoiTin.ToString("N0") đ
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- KHU VỰC NỘI DUNG CHÍNH (2 CỘT CÂN ĐỐI HOÀN HẢO - KHÔNG LỆCH ĐÁY) -->
-    <div class="row g-4">
-        <!-- CỘT TRÁI (col-lg-7 col-xl-8): ĐỀ CƯƠNG, MỤC TIÊU CĐR & DANH SÁCH LỚP -->
+    <!-- KHU VỰC NỘI DUNG CHÍNH (2 CỘT CÂN ĐỐI) -->
+    <div class="row g-4 align-items-start">
+        <!-- Cột trái: Đề cương & chuẩn đầu ra -->
         <div class="col-lg-7 col-xl-8">
-            <!-- 1. KHỐI ĐỀ CƯƠNG & MỤC TIÊU CHUẨN ĐẦU RA (GỘP CHUNG MÔ TẢ & 3 CỘT ĐỂ CÂN BẰNG THÔNG TIN) -->
-            <div class="uneti-card p-4 mb-4 shadow-sm" style="border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff;">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="d-inline-flex justify-content-center align-items-center text-primary rounded-3 bg-primary-subtle" style="width: 36px; height: 36px;">
-                            <i class="bi bi-journal-check fs-5"></i>
-                        </span>
-                        <div>
-                            <h5 class="fw-bold text-dark mb-0 fs-6">Mô tả & Mục tiêu đào tạo học phần</h5>
-                            <small class="text-muted" style="font-size: 11.5px;">Mô tả môn học, chuẩn đầu ra (CĐR) & năng lực sinh viên UNETI</small>
-                        </div>
-                    </div>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 small fw-semibold">
-                        <i class="bi bi-check2-all me-1"></i>Kiểm định chất lượng
-                    </span>
-                </div>
-
-                <!-- 1.1 Khối Mô tả môn học (Trích dẫn trực tiếp từ dữ liệu môn học Model.MoTa) -->
-                <div class="p-3 rounded-3 mb-3" style="background-color: #f8fafc; border-left: 4px solid var(--uneti-primary); font-size: 13.5px; line-height: 1.7; color: #334155;">
-                    <div class="fw-bold text-dark mb-1 small d-flex align-items-center gap-1.5">
-                        <i class="bi bi-card-text text-primary"></i>Mô tả môn học:
-                    </div>
-                    @if (string.IsNullOrWhiteSpace(Model.MoTa))
-                    {
-                        <span class="text-muted fst-italic">Học phần thuộc khối kiến thức chuyên môn trong khung chương trình đào tạo đại học chính quy của Trường Đại học Kinh tế - Kỹ thuật Công nghiệp (UNETI).</span>
-                    }
-                    else
-                    {
-                        <span style="white-space: pre-line;">@Model.MoTa</span>
-                    }
-                </div>
-
-                <!-- 1.2 Ba cột Mục tiêu & Chuẩn đầu ra (Giữ nguyên viền màu trên đầu được đánh giá cao, tối ưu dòng thoáng đãng) -->
-                <div class="row g-3">
-                    <!-- Cột 1: Kiến thức (Viền xanh dương) -->
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3 h-100 border" style="background-color: #ffffff; border-top: 3.5px solid var(--uneti-primary) !important; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                            <div class="d-flex align-items-center gap-2 text-primary fw-bold mb-2 small">
-                                <i class="bi bi-lightbulb-fill"></i>
-                                <span>1. Kiến thức chuyên môn</span>
-                            </div>
-                            <p class="text-secondary mb-0" style="line-height: 1.65; font-size: 13px; text-align: justify;">
-                                @kienThuc
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Cột 2: Kỹ năng (Viền xanh lá) -->
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3 h-100 border" style="background-color: #ffffff; border-top: 3.5px solid #16a34a !important; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                            <div class="d-flex align-items-center gap-2 text-success fw-bold mb-2 small">
-                                <i class="bi bi-laptop-fill"></i>
-                                <span>2. Kỹ năng thực hành</span>
-                            </div>
-                            <p class="text-secondary mb-0" style="line-height: 1.65; font-size: 13px; text-align: justify;">
-                                @kyNang
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Cột 3: Chuẩn đầu ra (Viền cam vàng) -->
-                    <div class="col-md-4">
-                        <div class="p-3 rounded-3 h-100 border" style="background-color: #ffffff; border-top: 3.5px solid #f59e0b !important; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                            <div class="d-flex align-items-center gap-2 text-warning fw-bold mb-2 small">
-                                <i class="bi bi-award-fill"></i>
-                                <span>3. Chuẩn đầu ra (CĐR)</span>
-                            </div>
-                            <p class="text-secondary mb-0" style="line-height: 1.65; font-size: 13px; text-align: justify;">
-                                @chuanDauRa
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            <!-- Đề cương & chuẩn đầu ra -->
+            <div class="reveal">
+                <partial name="_MonHocOutcomes" model="Model" />
             </div>
 
             <!-- 2. DANH SÁCH LỚP HỌC PHẦN ĐÃ MỞ (KẾT NỐI MODULE 2) -->
-            <div class="uneti-card p-4 shadow-sm" style="border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff;">
+            <div class="uneti-card p-4 shadow-sm uneti-card-surface reveal">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="d-inline-flex justify-content-center align-items-center text-primary rounded-3 bg-primary-subtle" style="width: 36px; height: 36px;">
+                        <span class="uneti-icon-box-36 text-primary bg-primary-subtle">
                             <i class="bi bi-mortarboard-fill fs-5"></i>
                         </span>
                         <div>
                             <h5 class="fw-bold text-dark mb-0 fs-6">Danh sách Khóa học đã mở</h5>
-                            <small class="text-muted" style="font-size: 11.5px;">Các lớp học phần mở tuyển sinh trực thuộc môn này</small>
+                            <small class="text-muted uneti-fs-sm">Các lớp học phần mở tuyển sinh trực thuộc môn này</small>
                         </div>
                     </div>
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill">
@@ -333,7 +186,7 @@
                 @if (Model.KhoaHocs != null && Model.KhoaHocs.Any())
                 {
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" style="font-size: 13.5px;">
+                        <table class="table table-hover align-middle mb-0 uneti-fs-13-5">
                             <thead class="table-light">
                                 <tr>
                                     <th class="py-2">Mã lớp</th>
@@ -356,19 +209,19 @@
                                         <td class="text-center">
                                             @if (!isLoggedIn)
                                             {
-                                                <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-outline-warning text-dark fw-bold px-2 py-1 shadow-sm text-nowrap" style="font-size: 11.5px;">
+                                                <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-outline-warning text-dark fw-bold px-2 py-1 shadow-sm text-nowrap uneti-fs-sm">
                                                     <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
                                                 </a>
                                             }
                                             else if (userRole == "HocVien")
                                             {
-                                                <button type="button" class="btn btn-sm uneti-btn-primary px-3 py-1 shadow-sm fw-semibold text-nowrap" style="font-size: 11.5px;" onclick="alert('Đã tiếp nhận yêu cầu đăng ký lớp [#@kh.MaKhoaHoc - @kh.TenKhoaHoc] cho học viên @hoTen! Chức năng này kết nối trực tiếp với Module 3 & 4 của nhóm.')">
+                                                <button type="button" class="btn btn-sm uneti-btn-primary px-3 py-1 shadow-sm fw-semibold text-nowrap uneti-fs-sm" onclick="UnetiUI.toast({ type: 'info', title: 'Tiếp nhận yêu cầu', message: 'Đã tiếp nhận yêu cầu đăng ký lớp [#@kh.MaKhoaHoc - @kh.TenKhoaHoc] cho học viên @hoTen! Chức năng này kết nối trực tiếp với Module 3 &amp; 4 của nhóm.' })">
                                                     <i class="bi bi-pencil-square me-1"></i>Đăng ký học
                                                 </button>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-light text-muted border py-1 px-2" style="font-size: 11px;">
+                                                <span class="badge bg-light text-muted border py-1 px-2 uneti-fs-xs">
                                                     <i class="bi bi-shield-lock me-1"></i>Cán bộ
                                                 </span>
                                             }
@@ -381,16 +234,15 @@
                 }
                 else
                 {
-                    <!-- Khung Empty State thu gọn thanh nhã, không chiếm diện tích quá lớn -->
-                    <div class="text-center py-4 px-3 rounded-3" style="background-color: #f8fafc; border: 1px dashed #cbd5e1;">
+                    <div class="text-center py-4 px-3 rounded-3 bg-light border border-dashed">
                         <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-white text-muted mb-2 shadow-sm" style="width: 50px; height: 50px; border: 1px solid #e2e8f0;">
                             <i class="bi bi-calendar-x fs-4 text-secondary"></i>
                         </div>
-                        <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">Hiện chưa có lớp học phần nào mở cho môn học này</h6>
-                        <p class="text-muted small mb-3" style="max-width: 480px; margin: 0 auto; line-height: 1.5; font-size: 12.5px;">
+                        <h6 class="fw-bold text-dark mb-1">Hiện chưa có lớp học phần nào mở cho môn học này</h6>
+                        <p class="text-muted small mb-3" style="max-width: 480px; margin: 0 auto; line-height: 1.5;">
                             Phòng Đào tạo và Khoa CNTT sẽ cập nhật lịch mở lớp vào đợt tuyển sinh tín chỉ tiếp theo. Học viên có thể tra cứu các môn học khác hoặc theo dõi thông báo.
                         </p>
-                        <a asp-action="@(isStaffOrAdmin ? "QuanLy" : "Index")" class="btn btn-sm uneti-btn-outline rounded-3 px-3 py-1.5" style="font-size: 12.5px;">
+                        <a asp-action="@(isStaffOrAdmin ? "QuanLy" : "Index")" class="btn btn-sm uneti-btn-outline rounded-3 px-3 py-1.5">
                             <i class="bi bi-arrow-left me-1"></i>Xem các môn học khác
                         </a>
                     </div>
@@ -398,56 +250,60 @@
             </div>
         </div>
 
-        <!-- CỘT PHẢI (col-lg-5 col-xl-4): THÔNG SỐ, CƠ CẤU THỜI LƯỢNG & ĐÁNH GIÁ, HỖ TRỢ, VÙNG QUẢN TRỊ -->
-        <div class="col-lg-5 col-xl-4">
+        <!-- Cột phải: Thông tin môn học -->
+        <div class="col-lg-5 col-xl-4 sticky-top" style="top: 85px; z-index: 10;">
             <div class="d-flex flex-column gap-4">
                 <!-- 1. THẺ THÔNG SỐ MÔN HỌC & ĐỊNH MỨC HỌC PHÍ -->
-                <div class="uneti-card p-4 shadow-sm" style="border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff;">
+                <div class="uneti-card p-4 shadow-sm uneti-card-surface reveal">
                     <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="d-inline-flex justify-content-center align-items-center rounded-3 bg-primary-subtle text-primary" style="width: 34px; height: 34px;">
+                            <span class="uneti-icon-box-36 bg-primary-subtle text-primary">
                                 <i class="bi bi-info-circle-fill fs-5"></i>
                             </span>
                             <h5 class="fw-bold text-dark mb-0 fs-6">Thông số môn học</h5>
                         </div>
-                        <span class="badge bg-light text-muted border px-2 py-1" style="font-size: 11px;">Đào tạo UNETI</span>
+                        <span class="badge bg-light text-muted border px-2 py-1 uneti-fs-xs">Cổng đào tạo</span>
                     </div>
 
                     <!-- Khối Học phí nổi bật -->
                     <div class="p-3 rounded-3 text-center mb-3 position-relative overflow-hidden" 
                          style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1.5px solid #bfdbfe;">
-                        <span class="badge bg-white text-primary border border-primary-subtle px-2 py-1 rounded-pill fw-semibold text-uppercase" style="font-size: 10px; letter-spacing: 0.5px;">
+                        <span class="badge bg-white text-primary border border-primary-subtle px-2 py-1 rounded-pill fw-semibold text-uppercase uneti-fs-xs">
                             Mức học phí định mức
                         </span>
                         <div class="fs-2 fw-bold text-primary my-1" style="letter-spacing: -0.02em;">
-                            @Model.HocPhi.ToString("N0") <span class="fs-6 fw-normal">đ</span>
+                            <span data-count-to="@Model.HocPhi" data-format="currency">@Model.HocPhi.ToString("N0")</span> <span class="fs-6 fw-normal">đ</span>
                         </div>
-                        <small class="text-secondary d-block" style="font-size: 11.5px;">
+                        <small class="text-secondary d-block uneti-fs-sm">
                             Đơn giá: <strong>~@hocPhiMoiTin.ToString("N0") đ</strong> / 1 tín chỉ
                         </small>
                     </div>
 
-                    <!-- Bảng thông số chi tiết (Sạch sẽ, không chứa nút thao tác thừa) -->
-                    <div class="d-flex flex-column gap-2" style="font-size: 13.5px;">
+                    <!-- Bảng thông số chi tiết -->
+                    <div class="d-flex flex-column gap-2 uneti-fs-13-5">
                         <div class="d-flex justify-content-between align-items-center py-2 px-3 rounded-2 bg-light border">
                             <span class="text-muted d-flex align-items-center gap-2">
                                 <i class="bi bi-tag text-primary"></i>Mã học phần:
                             </span>
-                            <code class="fw-bold fs-6">#MH0@(Model.MaMonHoc)</code>
+                            <code class="fw-bold fs-6">#MH@Model.MaMonHoc.ToString("D3")</code>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center py-2 px-3 rounded-2 bg-light border">
                             <span class="text-muted d-flex align-items-center gap-2">
                                 <i class="bi bi-journal-bookmark text-primary"></i>Số tín chỉ:
                             </span>
-                            <span class="fw-bold text-dark">@Model.SoTinChi Tín chỉ</span>
+                            <span class="fw-bold text-dark">
+                                <span data-count-to="@Model.SoTinChi" data-format="number">@Model.SoTinChi</span> Tín chỉ
+                            </span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center py-2 px-3 rounded-2 bg-light border">
                             <span class="text-muted d-flex align-items-center gap-2">
                                 <i class="bi bi-clock-history text-primary"></i>Thời lượng lên lớp:
                             </span>
-                            <span class="fw-bold text-dark">@tongTietLenLop tiết chuẩn</span>
+                            <span class="fw-bold text-dark">
+                                <span data-count-to="@tongTietLenLop" data-format="number">@tongTietLenLop</span> tiết chuẩn
+                            </span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center py-2 px-3 rounded-2 bg-light border">
@@ -470,7 +326,7 @@
                             <span class="text-muted d-flex align-items-center gap-2">
                                 <i class="bi bi-building text-primary"></i>Đơn vị quản lý:
                             </span>
-                            <span class="fw-bold text-dark">Trường ĐH UNETI</span>
+                            <span class="fw-bold text-dark">Nhà trường</span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center py-2 px-3 rounded-2 bg-light border">
@@ -493,68 +349,69 @@
                     </div>
                 </div>
 
-                <!-- 2. THẺ CƠ CẤU THỜI LƯỢNG & ĐÁNH GIÁ HỌC PHẦN (CHUYỂN SANG ĐÂY ĐỂ CÂN BẰNG CHIỀU CAO VÀ THỐNG NHẤT CÁCH TÍNH) -->
-                <div class="uneti-card p-4 shadow-sm" style="border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff;">
+                <!-- Cơ cấu thời lượng & đánh giá -->
+                <div class="uneti-card p-4 shadow-sm uneti-card-surface reveal">
                     <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="d-inline-flex justify-content-center align-items-center text-info rounded-3 bg-info-subtle" style="width: 34px; height: 34px;">
+                            <span class="uneti-icon-box-36 bg-info-subtle text-info">
                                 <i class="bi bi-pie-chart-fill fs-5"></i>
                             </span>
                             <h6 class="fw-bold text-dark mb-0">Cơ cấu thời lượng & Đánh giá</h6>
                         </div>
-                        <span class="badge bg-light text-muted border px-2 py-0.5" style="font-size: 10.5px;">Quy chế tín chỉ</span>
+                        <span class="badge bg-light text-muted border px-2 py-0.5 uneti-fs-xs">Quy chế tín chỉ</span>
                     </div>
 
-                    <!-- 2.1 Thời lượng lên lớp: 45 tiết chuẩn (Lý thuyết 30 tiết 67%, Thực hành 15 tiết 33%) -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1.5">
-                            <span class="fw-semibold text-dark small" style="font-size: 12.5px;">Thời lượng giảng đường:</span>
-                            <span class="badge bg-primary text-white" style="font-size: 11px;">@tongTietLenLop tiết chuẩn</span>
+                            <span class="fw-semibold text-dark small uneti-fs-13">Thời lượng giảng đường:</span>
+                            <span class="badge bg-primary text-white uneti-fs-xs">
+                                <span data-count-to="@tongTietLenLop" data-format="number">@tongTietLenLop</span> tiết chuẩn
+                            </span>
                         </div>
                         
                         <div class="row g-2 text-center mb-2">
                             <div class="col-6">
                                 <div class="p-2 rounded-2 bg-light border">
-                                    <span class="d-block text-muted" style="font-size: 11px; font-weight: 500;">LÝ THUYẾT</span>
-                                    <span class="fs-5 fw-bold text-primary lh-1 d-block my-1">@tietLyThuyet</span>
-                                    <small class="text-secondary d-block" style="font-size: 10.5px;">tiết (@pctLT%)</small>
+                                    <span class="d-block text-muted uneti-fs-xs fw-medium">LÝ THUYẾT</span>
+                                    <span class="fs-5 fw-bold text-primary lh-1 d-block my-1" data-count-to="@tietLyThuyet" data-format="number">@tietLyThuyet</span>
+                                    <small class="text-secondary d-block uneti-fs-xs">tiết (@pctLT%)</small>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="p-2 rounded-2 bg-light border">
-                                    <span class="d-block text-muted" style="font-size: 11px; font-weight: 500;">THỰC HÀNH</span>
-                                    <span class="fs-5 fw-bold text-info lh-1 d-block my-1">@tietThucHanh</span>
-                                    <small class="text-secondary d-block" style="font-size: 10.5px;">tiết (@pctTH%)</small>
+                                    <span class="d-block text-muted uneti-fs-xs fw-medium">THỰC HÀNH</span>
+                                    <span class="fs-5 fw-bold text-info lh-1 d-block my-1" data-count-to="@tietThucHanh" data-format="number">@tietThucHanh</span>
+                                    <small class="text-secondary d-block uneti-fs-xs">tiết (@pctTH%)</small>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Thanh phân bổ chỉ chia 2 phần thời lượng lên lớp chuẩn xác 100% -->
-                        <div class="progress" style="height: 8px; border-radius: 6px; background-color: #f1f5f9;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: @pctLT%" title="Lý thuyết: @tietLyThuyet tiết (@pctLT%)"></div>
-                            <div class="progress-bar bg-info" role="progressbar" style="width: @pctTH%" title="Thực hành: @tietThucHanh tiết (@pctTH%)"></div>
+                        <!-- Thanh tiến độ -->
+                        <div class="progress rounded-pill bg-light overflow-hidden" style="height: 8px;">
+                            <div class="progress-bar bg-primary fx-progress-bar" role="progressbar" style="--w: @pctLT%; width: @pctLT%;" title="Lý thuyết: @tietLyThuyet tiết (@pctLT%)"></div>
+                            <div class="progress-bar bg-info fx-progress-bar" role="progressbar" style="--w: @pctTH%; width: @pctTH%;" title="Thực hành: @tietThucHanh tiết (@pctTH%)"></div>
                         </div>
-                        <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 11px;">
+                        <div class="d-flex justify-content-between text-muted mt-1 uneti-fs-xs">
                             <span><i class="bi bi-circle-fill text-primary me-1" style="font-size: 7px;"></i>Lý thuyết (@pctLT%)</span>
                             <span><i class="bi bi-circle-fill text-info me-1" style="font-size: 7px;"></i>Thực hành (@pctTH%)</span>
                         </div>
 
-                        <!-- Khối tự học riêng biệt không gộp lẫn tiết và giờ -->
-                        <div class="mt-2.5 p-2 rounded-2 border d-flex align-items-center gap-2" style="background-color: #f0fdf4; border-color: #bbf7d0 !important;">
-                            <i class="bi bi-lightbulb-fill text-success fs-5"></i>
-                            <div style="font-size: 11.5px; line-height: 1.4;">
-                                <strong class="text-dark">Tự học & Nghiên cứu: @gioTuHoc giờ</strong>
-                                <span class="text-secondary d-block" style="font-size: 10.5px;">(30 giờ tự học/tín chỉ theo quy chế tín chỉ UNETI, không tính vào tiết lên lớp)</span>
+                        <!-- Khối tự học -->
+                        <div class="mt-2.5 p-2 rounded-2 border d-flex align-items-center gap-2 uneti-callout-info">
+                            <i class="bi bi-lightbulb-fill text-primary fs-5"></i>
+                            <div class="uneti-fs-sm lh-sm">
+                                <strong class="text-dark">Tự học & Nghiên cứu: <span data-count-to="@gioTuHoc" data-format="number">@gioTuHoc</span> giờ</strong>
+                                <span class="text-secondary d-block uneti-fs-xs">(30 giờ tự học/tín chỉ theo quy chế học chế tín chỉ)</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 2.2 Giải thích chi tiết tỷ lệ đánh giá "10% - 30% - 60%" -->
+                    <!-- Chi tiết tỷ lệ đánh giá -->
                     <div class="pt-3 border-top">
-                        <span class="text-dark fw-bold small d-flex align-items-center gap-1.5 mb-2" style="font-size: 12.5px;">
-                            <i class="bi bi-clipboard2-check text-success"></i>Cơ cấu điểm học phần (Chuẩn UNETI):
+                        <span class="text-dark fw-bold small d-flex align-items-center gap-1.5 mb-2 uneti-fs-13">
+                            <i class="bi bi-clipboard2-check text-success"></i>Cơ cấu điểm học phần (Chuẩn học chế tín chỉ):
                         </span>
-                        <div class="d-flex flex-column gap-1.5" style="font-size: 12px;">
+                        <div class="d-flex flex-column gap-1.5 uneti-fs-12">
                             <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light border">
                                 <span><i class="bi bi-check2-circle text-primary me-1"></i><strong>Chuyên cần (10%):</strong> Điểm danh & thái độ</span>
                                 <span class="badge bg-primary-subtle text-primary border fw-semibold">10%</span>
@@ -568,29 +425,29 @@
                                 <span class="badge bg-success-subtle text-success border fw-semibold">60%</span>
                             </div>
                         </div>
-                        <small class="text-muted d-block mt-2" style="font-size: 10.5px; line-height: 1.4;">
+                        <small class="text-muted d-block mt-2 uneti-fs-xs lh-sm">
                             * Điều kiện dự thi: Không vắng quá 20% số tiết và điểm quá trình đạt từ 4.0 trở lên.
                         </small>
                     </div>
                 </div>
 
-                <!-- 3. THẺ HỖ TRỢ & TƯ VẤN HỌC TẬP -->
-                <div class="uneti-card p-4 shadow-sm" style="border-radius: 16px; border: 1px solid #e2e8f0; background: #ffffff;">
+                <!-- Thẻ hỗ trợ học tập -->
+                <div class="uneti-card p-4 shadow-sm uneti-card-surface reveal">
                     <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
-                        <span class="d-inline-flex justify-content-center align-items-center rounded-3 bg-info-subtle text-info" style="width: 34px; height: 34px;">
+                        <span class="uneti-icon-box-36 bg-info-subtle text-info">
                             <i class="bi bi-headset fs-5"></i>
                         </span>
                         <div>
                             <h6 class="fw-bold text-dark mb-0">Tư vấn & Hỗ trợ học vụ</h6>
-                            <small class="text-muted" style="font-size: 11px;">Phòng Đào tạo UNETI</small>
+                            <small class="text-muted uneti-fs-xs">Phòng Đào tạo</small>
                         </div>
                     </div>
-                    <div class="small text-muted" style="line-height: 1.7;">
+                    <div class="small text-muted lh-base">
                         <div class="mb-2">
                             <span class="text-dark fw-semibold d-block">Bộ phận Cố vấn học tập</span>
                             Giải đáp thắc mắc về kế hoạch đào tạo, điều kiện môn học và hướng dẫn đăng ký học phần.
                         </div>
-                        <div class="p-2.5 rounded-3 bg-light border mb-2 d-flex flex-column gap-1" style="font-size: 12.5px;">
+                        <div class="p-2.5 rounded-3 bg-light border mb-2 d-flex flex-column gap-1 uneti-fs-13">
                             <div>
                                 <i class="bi bi-telephone-fill text-primary me-2"></i>Hotline: <strong class="text-dark">1900 xxxx</strong>
                             </div>
@@ -601,7 +458,7 @@
                                 <i class="bi bi-geo-alt-fill text-primary me-2"></i>Địa điểm: <span class="text-secondary">Cơ sở Lĩnh Nam / Minh Khai</span>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 mt-1" onclick="alert('Đã tiếp nhận yêu cầu tư vấn học phần! Cố vấn học tập sẽ liên hệ phản hồi qua email học viên.')">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 mt-1" onclick="UnetiUI.toast({ type: 'info', title: 'Tư vấn học phần', message: 'Đã tiếp nhận yêu cầu tư vấn học phần! Cố vấn học tập sẽ liên hệ phản hồi qua email học viên.' })">
                             <i class="bi bi-chat-dots me-1"></i>Gửi câu hỏi tư vấn học phần
                         </button>
                     </div>
@@ -609,23 +466,23 @@
 
                 @if (isAdmin)
                 {
-                    <!-- 4. VÙNG TÁC VỤ QUẢN TRỊ VIÊN (DANGER ZONE - TÁCH BIỆT AN TOÀN, CÓ MODAL XÁC NHẬN) -->
-                    <div class="uneti-card p-3 shadow-sm" style="border-radius: 14px; border: 1px dashed #fca5a5; background: #fff5f5;">
+                    <!-- 4. VÙNG TÁC VỤ QUẢN TRỊ VIÊN (DANGER ZONE) -->
+                    <div class="uneti-card p-3 shadow-sm rounded-3 border border-danger-subtle bg-danger-subtle reveal">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="text-danger fw-bold small d-flex align-items-center gap-1.5">
                                 <i class="bi bi-shield-exclamation fs-5"></i>Vùng thao tác Quản trị
                             </span>
-                            <span class="badge bg-danger text-white" style="font-size: 10px;">Chỉ Admin</span>
+                            <span class="badge bg-danger text-white uneti-fs-xs">Chỉ Admin</span>
                         </div>
-                        <p class="text-muted mb-2" style="font-size: 11.5px; line-height: 1.4;">
+                        <p class="text-muted mb-2 uneti-fs-sm lh-sm">
                             Thao tác nhạy cảm với cơ sở dữ liệu. Cần xác nhận kỹ lưỡng trước khi thực hiện.
                         </p>
-                        <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 fw-semibold py-1.5" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" style="font-size: 12.5px;">
+                        <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 fw-semibold py-1.5 uneti-fs-13" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
                             <i class="bi bi-trash3-fill me-1"></i>Xóa môn học này
                         </button>
                     </div>
 
-                    <!-- MODAL XÁC NHẬN XÓA MÔN HỌC AN TOÀN (BOOTSTRAP MODAL) -->
+                    <!-- Modal xác nhận xóa môn học -->
                     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content rounded-4 border-0 shadow">
@@ -638,9 +495,9 @@
                                 </div>
                                 <div class="modal-body py-3">
                                     <p class="mb-2 text-dark">
-                                        Bạn có chắc chắn muốn xóa môn học <strong>@Model.TenMonHoc</strong> (Mã học phần: <code>#MH0@(Model.MaMonHoc)</code>) khỏi hệ thống?
+                                        Bạn có chắc chắn muốn xóa môn học <strong>@Model.TenMonHoc</strong> (Mã học phần: <code>#MH@Model.MaMonHoc.ToString("D3")</code>) khỏi hệ thống?
                                     </p>
-                                    <div class="alert alert-warning border-0 small py-2 px-3 mb-0" style="background-color: #fffbeb; color: #92400e;">
+                                    <div class="alert alert-warning border-0 small py-2 px-3 mb-0 bg-warning-subtle text-warning-emphasis">
                                         <i class="bi bi-info-circle me-1"></i>Nếu môn học đã có khóa học/lớp học phần đang hoạt động, hệ thống sẽ bảo vệ toàn vẹn dữ liệu và từ chối xóa.
                                     </div>
                                 </div>

@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Entity Môn học (Dữ liệu nền)
+// Module 1: Entity Môn học
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -39,7 +39,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
         [Display(Name = "Trạng thái giảng dạy")]
         public bool TrangThai { get; set; } = true; // true: Đang mở, false: Tạm dừng
 
-        // Navigation Property: Liên kết 1 - N với Khóa học (Module 2)
+        // Danh sách khóa học (Module 2)
         public virtual ICollection<KhoaHoc> KhoaHocs { get; set; } = new List<KhoaHoc>();
     }
 }

@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Entity Học viên (Phục vụ liên kết Tài khoản và Đăng ký học)
+// Module 1: Entity Học viên
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

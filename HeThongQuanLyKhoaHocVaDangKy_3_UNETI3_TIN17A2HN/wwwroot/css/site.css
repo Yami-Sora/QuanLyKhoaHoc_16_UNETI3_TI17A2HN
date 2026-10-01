@@ -1,7 +1,7 @@
-/* 
+﻿/* 
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Hệ thống Thiết kế Giao diện Thống nhất (Unified Design System)
+    Nội dung: CSS giao diện dùng chung
     Áp dụng toàn bộ hệ thống: UNETI Blue (#1d4ed8), Light Academic Theme
 */
 
@@ -40,6 +40,16 @@
     --uneti-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
     --uneti-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
     --uneti-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+
+    /* Animation & Transitions Tokens */
+    --uneti-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --uneti-dur-fast: 150ms;
+    --uneti-dur-base: 250ms;
+    --uneti-dur-slow: 500ms;
+
+    /* Layer Z-Index Tokens */
+    --uneti-z-nav: 1030;
+    --uneti-z-toast: 1090;
 }
 
 /* Base Reset & Typography */
@@ -209,7 +219,7 @@ body {
     border: 1px solid #cbd5e1;
 }
 
-/* Nút thao tác bảng hiện đại, không bị gãy dòng và cân đối kích thước */
+/* Nút thao tác trên bảng dữ liệu */
 .uneti-action-btn {
     display: inline-flex;
     align-items: center;
@@ -376,7 +386,7 @@ body {
 }
 
 .uneti-user-role {
-    font-size: 11px;
+    font-size: 12px;
     color: #64748b;
     font-weight: 500;
     display: inline-flex;
@@ -404,7 +414,7 @@ body {
 }
 
 .uneti-chevron-icon {
-    font-size: 11px;
+    font-size: 12px;
     color: #94a3b8;
     transition: transform 0.2s ease;
     margin-left: 2px;
@@ -521,7 +531,7 @@ body {
     font-size: 0.875rem;
 }
 
-/* Nút thao tác bảng dữ liệu đồng kích thước (Square Action Buttons) */
+/* Nút thao tác dạng vuông */
 .btn-action-icon {
     width: 34px !important;
     height: 34px !important;
@@ -583,16 +593,13 @@ body {
     background-color: #fecaca;
     color: #b91c1c !important;
 }
-
-/* ========================================================
-   HERO BANNER ĐẦU TRANG THEO MẪU CHUẨN UNETI (3D ILLUSTRATION)
-   ======================================================== */
+   /* HERO BANNER ĐẦU TRANG THEO MẪU CHUẨN UNETI (3D ILLUSTRATION) */
 .uneti-hero-banner {
     position: relative;
     border-radius: var(--uneti-radius-xl, 22px);
     overflow: hidden;
     background-color: #1244c2;
-    background-image: url('/images/banner.png');
+    background-image: url('/images/banner.webp');
     background-repeat: no-repeat;
     background-position: right center;
     background-size: cover;
@@ -809,7 +816,7 @@ body {
 
 @media (max-width: 991.98px) {
     .uneti-hero-banner {
-        background: linear-gradient(90deg, rgba(16, 55, 175, 0.94) 0%, rgba(16, 55, 175, 0.88) 55%, rgba(16, 55, 175, 0.35) 100%), url('/images/banner.png') right center / cover no-repeat;
+        background: linear-gradient(90deg, rgba(16, 55, 175, 0.94) 0%, rgba(16, 55, 175, 0.88) 55%, rgba(16, 55, 175, 0.35) 100%), url('/images/banner.webp') right center / cover no-repeat;
         padding: 2.5rem 2rem;
         min-height: 300px;
     }
@@ -834,9 +841,7 @@ body {
     }
 }
 
-/* ==========================================================================
-   ADMIN DASHBOARD SIDEBAR & LAYOUT (MODULE 1 - TRẦN VĂN THÀNH)
-   ========================================================================== */
+/*ADMIN DASHBOARD SIDEBAR & LAYOUT (MODULE 1 - TRẦN VĂN THÀNH */
 .admin-wrapper {
     display: flex;
     min-height: 100vh;
@@ -894,7 +899,7 @@ body {
 }
 
 .admin-menu-header {
-    font-size: 10.5px;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -1023,4 +1028,272 @@ body {
     .admin-main-body {
         padding: 1.25rem 1rem;
     }
+}
+
+/*  HỆ THỐNG TOAST NOTIFICATIONS DÙNG CHUNG (UNETI UI) */
+.uneti-toast-container {
+    z-index: var(--uneti-z-toast, 1090);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 100%;
+}
+
+.uneti-toast {
+    pointer-events: auto;
+    width: 380px;
+    max-width: calc(100vw - 2rem);
+    background: #ffffff;
+    border: 1px solid var(--uneti-border);
+    border-radius: var(--uneti-radius-md, 12px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    position: relative;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: transform var(--uneti-dur-base, 250ms) var(--uneti-ease, cubic-bezier(0.16, 1, 0.3, 1)), 
+                opacity var(--uneti-dur-base, 250ms) ease;
+}
+
+.uneti-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.uneti-toast.hiding {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+}
+
+.uneti-toast-indicator {
+    height: 3px;
+    width: 100%;
+}
+
+.uneti-toast-success .uneti-toast-indicator { background-color: var(--uneti-success); }
+.uneti-toast-success .uneti-toast-icon { color: var(--uneti-success); }
+
+.uneti-toast-info .uneti-toast-indicator { background-color: var(--uneti-primary); }
+.uneti-toast-info .uneti-toast-icon { color: var(--uneti-primary); }
+
+.uneti-toast-warning .uneti-toast-indicator { background-color: var(--uneti-warning); }
+.uneti-toast-warning .uneti-toast-icon { color: var(--uneti-warning); }
+
+.uneti-toast-danger .uneti-toast-indicator { background-color: var(--uneti-danger); }
+.uneti-toast-danger .uneti-toast-icon { color: var(--uneti-danger); }
+
+.uneti-toast-progress {
+    height: 2px;
+    background-color: rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.uneti-toast-progress-bar {
+    height: 100%;
+    animation: unetiToastTimer linear forwards;
+}
+.uneti-toast-success .uneti-toast-progress-bar { background-color: var(--uneti-success); }
+.uneti-toast-info .uneti-toast-progress-bar { background-color: var(--uneti-primary); }
+.uneti-toast-warning .uneti-toast-progress-bar { background-color: var(--uneti-warning); }
+.uneti-toast-danger .uneti-toast-progress-bar { background-color: var(--uneti-danger); }
+
+@keyframes unetiToastTimer {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+
+/* CÁC UTILITY CLASSES DÙNG CHUNG THAY THẾ CHO INLINE STYLES */
+.uneti-fs-xs { font-size: 12px !important; }
+.uneti-fs-sm { font-size: 12.5px !important; }
+.uneti-fs-12 { font-size: 12px !important; }
+.uneti-fs-13 { font-size: 13px !important; }
+.uneti-fs-13-5 { font-size: 13.5px !important; }
+
+/* Icon Boxes */
+.uneti-icon-box-36 {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: var(--uneti-radius-sm, 8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uneti-icon-box-38 {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: var(--uneti-radius-sm, 8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uneti-icon-box-42 {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uneti-icon-box-44 {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uneti-icon-box-48 {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: var(--uneti-radius-sm, 8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uneti-icon-box-52 {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    border-radius: var(--uneti-radius-md, 12px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.uneti-icon-box-28 {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.uneti-icon-box-32 {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.uneti-max-w-340 {
+    max-width: 340px;
+}
+
+.uneti-table-min-1050 {
+    min-width: 1050px;
+}
+
+/* Common Surfaces & Badges */
+.uneti-hero-detail {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+    border: 1px solid #dbeafe !important;
+}
+
+.uneti-detail-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    letter-spacing: -0.02em;
+}
+
+.uneti-card-surface {
+    border-radius: 16px;
+    border: 1px solid var(--uneti-border);
+    background: #ffffff;
+}
+
+.uneti-callout-info {
+    background-color: var(--uneti-primary-light);
+    border: 1px solid var(--uneti-primary-border);
+    border-radius: var(--uneti-radius-sm, 8px);
+}
+
+.uneti-callout-warning {
+    background-color: var(--uneti-warning-light);
+    border: 1px solid var(--uneti-warning-border);
+    border-radius: var(--uneti-radius-sm, 8px);
+}
+
+.uneti-badge-tag {
+    font-size: 12px;
+    border-radius: 50rem;
+    padding: 0.25rem 0.75rem;
+    font-weight: 600;
+}
+
+.uneti-badge-status {
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-weight: 600;
+}
+
+.uneti-user-dropdown-menu {
+    min-width: 250px;
+    border-radius: 16px;
+    border-color: var(--uneti-border);
+    padding: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+.uneti-user-dropdown-header {
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: var(--uneti-radius-sm, 8px);
+    padding: 0.875rem;
+}
+
+.uneti-dropdown-item-btn {
+    font-size: 13.5px;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uneti-dropdown-item-active {
+    background-color: var(--uneti-primary-light);
+    color: var(--uneti-primary) !important;
+}
+
+.uneti-auth-page {
+    min-height: 100vh;
+    background-color: #f1f5f9;
+    background-image: linear-gradient(135deg, rgba(239, 246, 255, 0.45) 0%, rgba(219, 234, 254, 0.55) 100%), url('/images/auth-bg.webp');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 1rem;
+    margin: 0;
+    position: relative;
+}
+
+.uneti-glass-card {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px -15px rgba(29, 78, 216, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
 }

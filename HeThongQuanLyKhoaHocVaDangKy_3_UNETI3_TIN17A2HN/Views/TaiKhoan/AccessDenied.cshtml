@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Báo lỗi 403 Thân thiện chuẩn theo Mockup UNETI
+    Nội dung: Trang báo lỗi 403
 *@
 
 @{
@@ -24,7 +24,7 @@
     .error-page-container {
         min-height: calc(100vh - 160px);
         background: radial-gradient(circle at 10% 20%, rgba(240, 247, 255, 0.85) 0%, rgba(255, 255, 255, 0.95) 90%),
-                    url('/images/access-denied-bg.jpg') no-repeat center center;
+                    url('/images/access-denied-bg.webp') no-repeat center center;
         background-size: cover;
         display: flex;
         align-items: center;
@@ -231,7 +231,7 @@
                     <circle cx="60" cy="69" r="6" fill="#1E3A8A"/>
                     <path d="M57 73L55 83H65L63 73H57Z" fill="#1E3A8A"/>
 
-                    <!-- Huy hiệu tròn cấm (Minus Badge) màu hồng san hô phía góc dưới phải -->
+                    <!-- Biểu tượng cấm truy cập -->
                     <circle cx="86" cy="86" r="19" fill="#FB7185" stroke="#FFFFFF" stroke-width="5"/>
                     <rect x="74" y="83.5" width="24" height="5" rx="2.5" fill="#FFFFFF"/>
                 </svg>
@@ -254,10 +254,13 @@
                 <i class="bi bi-house-door-fill"></i>
                 Quay về trang chủ
             </a>
-            <a asp-controller="TaiKhoan" asp-action="Logout" class="btn-action-secondary">
-                <i class="bi bi-box-arrow-right"></i>
-                Đổi tài khoản khác
-            </a>
+            <form asp-controller="TaiKhoan" asp-action="Logout" method="post" class="d-inline m-0 p-0">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-action-secondary border-0">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Đổi tài khoản khác
+                </button>
+            </form>
         </div>
     </div>
 </div>

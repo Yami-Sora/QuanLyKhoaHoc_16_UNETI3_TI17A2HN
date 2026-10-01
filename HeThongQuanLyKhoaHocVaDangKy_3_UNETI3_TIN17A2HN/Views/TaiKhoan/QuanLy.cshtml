@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Quản lý danh sách tài khoản, Phân quyền & Khóa/Mở khóa tài khoản (Admin)
+    Nội dung: Quản trị tài khoản (Admin)
 *@
 
 @model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.TaiKhoan>
@@ -11,7 +11,16 @@
     var currentUserId = Context.Session.GetInt32("MaTaiKhoan");
     var currentUserRole = Context.Session.GetString("VaiTro");
     var isCurrentUserAdmin = currentUserRole == "Admin";
-    var totalAccounts = Model?.Count() ?? 0;
+    int totalCount = ViewBag.TotalCount ?? (Model?.Count() ?? 0);
+    int totalFiltered = ViewBag.TotalFilteredItems ?? (Model?.Count() ?? 0);
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    var currentSearch = ViewBag.CurrentSearch as string;
+    var currentRole = ViewBag.CurrentRole as string;
+    bool? currentTrangThai = ViewBag.CurrentTrangThai;
+
+    var totalAccounts = totalCount;
     var totalAdmins = Model?.Count(t => t.VaiTro == "Admin") ?? 0;
     var totalNhanViens = Model?.Count(t => t.VaiTro == "NhanVien") ?? 0;
     var totalHocViens = Model?.Count(t => t.VaiTro == "HocVien") ?? 0;
@@ -24,20 +33,20 @@
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Quản trị tài khoản</li>
                 </ol>
             </nav>
             <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-people-fill me-2" style="color: var(--uneti-primary);"></i>QUẢN LÝ TÀI KHOẢN & PHÂN QUYỀN
+                <i class="bi bi-people-fill me-2 text-primary"></i>QUẢN LÝ TÀI KHOẢN & PHÂN QUYỀN
             </h3>
             <p class="text-muted mb-0 small">Kiểm soát danh sách người dùng, cấp phân quyền hệ thống và khóa/mở khóa tài khoản</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
             @if (isCurrentUserAdmin)
             {
-                <a asp-action="Register" class="btn uneti-btn-outline shadow-sm text-decoration-none">
-                    <i class="bi bi-person-plus me-1"></i>Tạo tài khoản mới
+                <a asp-action="Create" class="btn uneti-btn-outline shadow-sm text-decoration-none">
+                    <i class="bi bi-person-plus-fill me-1"></i>Thêm tài khoản mới
                 </a>
             }
             <a asp-controller="MonHoc" asp-action="QuanLy" class="btn uneti-btn-primary shadow-sm text-decoration-none">
@@ -47,33 +56,35 @@
     </div>
 
     <!-- Thông báo TempData -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-3 py-2 px-3" role="alert">
-            <i class="bi bi-check-circle-fill text-success me-2"></i>@TempData["SuccessMessage"]
-            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+    <noscript>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-3 py-2 px-3" role="alert">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>@TempData["SuccessMessage"]
+                <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
 
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-3 py-2 px-3" role="alert">
-            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>@TempData["ErrorMessage"]
-            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-3 py-2 px-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>@TempData["ErrorMessage"]
+                <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </noscript>
 
-    <!-- 4 Thẻ Thống Kê Hiện Đại & Trực Quan (Click để lọc nhanh) -->
+    <!-- 4 thẻ thống kê -->
     <div class="row g-3 mb-4">
         <!-- Thẻ 1: Tất cả tài khoản -->
         <div class="col-6 col-lg-3">
             <a asp-action="QuanLy" class="text-decoration-none">
                 <div class="uneti-stat-card d-flex align-items-center gap-3 @(string.IsNullOrEmpty(ViewBag.CurrentRole) && ViewBag.CurrentTrangThai == null ? "active-filter border-primary bg-primary-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-primary text-white shadow-sm" style="width: 48px; height: 48px;">
+                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-primary text-white shadow-sm uneti-icon-box-48">
                         <i class="bi bi-people-fill fs-5"></i>
                     </span>
                     <div class="overflow-hidden">
-                        <div class="fs-4 fw-bold text-dark lh-1 mb-1">@totalAccounts</div>
+                        <div class="fs-4 fw-bold text-dark lh-1 mb-1"><span data-count-to="@totalAccounts">@totalAccounts</span></div>
                         <div class="small text-muted fw-semibold text-truncate">Tất cả tài khoản</div>
                     </div>
                 </div>
@@ -84,11 +95,11 @@
         <div class="col-6 col-lg-3">
             <a asp-action="QuanLy" asp-route-role="Admin" class="text-decoration-none">
                 <div class="uneti-stat-card d-flex align-items-center gap-3 @(ViewBag.CurrentRole == "Admin" ? "active-filter border-danger bg-danger-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-danger text-white shadow-sm" style="width: 48px; height: 48px;">
+                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-danger text-white shadow-sm uneti-icon-box-48">
                         <i class="bi bi-shield-lock-fill fs-5"></i>
                     </span>
                     <div class="overflow-hidden">
-                        <div class="fs-4 fw-bold text-danger lh-1 mb-1">@totalAdmins</div>
+                        <div class="fs-4 fw-bold text-danger lh-1 mb-1"><span data-count-to="@totalAdmins">@totalAdmins</span></div>
                         <div class="small text-muted fw-semibold text-truncate">Quản trị viên (Admin)</div>
                     </div>
                 </div>
@@ -99,11 +110,11 @@
         <div class="col-6 col-lg-3">
             <a asp-action="QuanLy" asp-route-role="NhanVien" class="text-decoration-none">
                 <div class="uneti-stat-card d-flex align-items-center gap-3 @(ViewBag.CurrentRole == "NhanVien" ? "active-filter border-primary bg-primary-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 text-white shadow-sm" style="width: 48px; height: 48px; background-color: #4f46e5;">
+                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 text-white shadow-sm uneti-icon-box-48 bg-primary">
                         <i class="bi bi-person-badge-fill fs-5"></i>
                     </span>
                     <div class="overflow-hidden">
-                        <div class="fs-4 fw-bold lh-1 mb-1" style="color: #4f46e5;">@totalNhanViens</div>
+                        <div class="fs-4 fw-bold lh-1 mb-1 text-primary"><span data-count-to="@totalNhanViens">@totalNhanViens</span></div>
                         <div class="small text-muted fw-semibold text-truncate">Nhân viên quản lý</div>
                     </div>
                 </div>
@@ -114,15 +125,15 @@
         <div class="col-6 col-lg-3">
             <a asp-action="QuanLy" asp-route-role="HocVien" class="text-decoration-none">
                 <div class="uneti-stat-card d-flex align-items-center gap-3 @(ViewBag.CurrentRole == "HocVien" ? "active-filter border-success bg-success-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-success text-white shadow-sm" style="width: 48px; height: 48px;">
+                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-success text-white shadow-sm uneti-icon-box-48">
                         <i class="bi bi-mortarboard-fill fs-5"></i>
                     </span>
                     <div class="overflow-hidden">
                         <div class="fs-4 fw-bold text-success lh-1 mb-1">
-                            @totalHocViens
+                            <span data-count-to="@totalHocViens">@totalHocViens</span>
                             @if (totalLocked > 0)
                             {
-                                <span class="badge bg-danger text-white fw-normal ms-1" style="font-size: 11px;">@totalLocked khóa</span>
+                                <span class="badge bg-danger text-white fw-normal ms-1 uneti-fs-xs">@totalLocked khóa</span>
                             }
                         </div>
                         <div class="small text-muted fw-semibold text-truncate">Học viên đào tạo</div>
@@ -169,10 +180,26 @@
         </form>
     </div>
 
+    <!-- THANH LỌC NHANH TRÊN BẢNG HIỆN TẠI -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 px-1 gap-2">
+        <div class="small text-muted fw-semibold">
+            <i class="bi bi-people me-1 text-primary"></i>Danh sách hiển thị (<span id="visibleRowCount">@(Model?.Count() ?? 0)</span> tài khoản)
+        </div>
+        <div style="min-width: 280px;">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
+                <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (username, họ tên, email, vai trò)..." aria-label="Lọc nhanh trên bảng" />
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bảng danh sách tài khoản -->
     <div class="uneti-card overflow-hidden">
         <div class="table-responsive">
-            <table class="table uneti-table align-middle mb-0" style="min-width: 1050px;">
+            <table class="table uneti-table align-middle mb-0 uneti-table-min-1050" id="taiKhoanAdminTable">
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 50px;">STT</th>
@@ -186,9 +213,18 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr id="quickSearchEmptyRow" style="display: none;">
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
+                            <div>Không tìm thấy tài khoản nào khớp với từ khóa "<strong><span id="quickSearchTerm"></span></strong>".</div>
+                            <button type="button" class="btn btn-sm uneti-btn-outline mt-3 rounded-pill" id="btnResetQuickFilter">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc nhanh
+                            </button>
+                        </td>
+                    </tr>
                 @if (Model != null && Model.Any())
                 {
-                    int stt = 1;
+                    int stt = (currentPage - 1) * pageSize + 1;
                     foreach (var item in Model)
                     {
                         var isCurrentAdmin = currentUserId == item.MaTaiKhoan;
@@ -196,14 +232,13 @@
                             <td class="text-center text-muted fw-bold">@stt</td>
                             <td>
                                 <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                                    <span class="user-avatar text-white rounded-circle d-inline-flex justify-content-center align-items-center fw-bold shadow-sm" 
-                                          style="width: 28px; height: 28px; font-size: 12px; background-color: var(--uneti-primary); flex-shrink: 0;">
+                                    <span class="user-avatar text-white uneti-icon-box-28 bg-primary fw-bold shadow-sm flex-shrink-0">
                                         @(string.IsNullOrEmpty(item.HoTen) ? "U" : item.HoTen.Substring(0, 1).ToUpper())
                                     </span>
                                     <span class="text-nowrap">@item.TenDangNhap</span>
                                     @if (isCurrentAdmin)
                                     {
-                                        <span class="badge bg-secondary-subtle text-secondary border py-0 px-1 text-nowrap" style="font-size: 10px;">Bạn</span>
+                                        <span class="badge bg-secondary-subtle text-secondary border py-0 px-1 text-nowrap uneti-fs-xs">Bạn</span>
                                     }
                                 </div>
                             </td>
@@ -253,22 +288,34 @@
                                 <div class="d-inline-flex align-items-center justify-content-center gap-1.5 flex-nowrap">
                                     @if (!isCurrentUserAdmin)
                                     {
-                                        <span class="badge bg-light text-muted border py-1 px-2" style="font-size: 11px;">
+                                        <span class="badge bg-light text-muted border py-1 px-2 uneti-fs-xs">
                                             <i class="bi bi-eye me-1"></i>Chỉ xem
                                         </span>
                                     }
                                     else if (!isCurrentAdmin)
                                     {
-                                        <!-- Nút Đổi vai trò / Phân quyền -->
-                                        <button type="button" class="btn btn-sm btn-outline-primary uneti-action-btn" 
-                                                data-bs-toggle="modal" data-bs-target="#editRoleModal_@item.MaTaiKhoan" 
+                                        <!-- Nút Chỉnh sửa thông tin tài khoản -->
+                                        <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan" class="btn btn-sm btn-outline-secondary uneti-action-btn" title="Chỉnh sửa thông tin tài khoản">
+                                            <i class="bi bi-pencil-square"></i><span>Sửa</span>
+                                        </a>
+
+                                        <!-- Nút đổi vai trò -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary uneti-action-btn js-open-role-modal" 
+                                                data-id="@item.MaTaiKhoan" 
+                                                data-username="@item.TenDangNhap"
+                                                data-fullname="@item.HoTen"
+                                                data-email="@item.Email"
+                                                data-role="@item.VaiTro"
                                                 title="Chỉnh sửa vai trò / Phân quyền tài khoản">
                                             <i class="bi bi-person-gear"></i><span>Vai trò</span>
                                         </button>
 
                                         <!-- Nút Khóa / Mở khóa tài khoản -->
                                         <form method="post" asp-action="ToggleStatus" asp-route-id="@item.MaTaiKhoan" class="d-inline"
-                                              onsubmit="return confirm('Bạn có chắc chắn muốn @(item.TrangThai ? "KHÓA" : "MỞ KHÓA") tài khoản @item.TenDangNhap?');">
+                                              data-uneti-confirm="Bạn có chắc chắn muốn @(item.TrangThai ? "KHÓA" : "MỞ KHÓA") tài khoản @item.TenDangNhap?"
+                                              data-uneti-title="@(item.TrangThai ? "Xác nhận khóa tài khoản" : "Xác nhận mở khóa tài khoản")"
+                                              data-uneti-type="@(item.TrangThai ? "danger" : "primary")"
+                                              data-uneti-ok="@(item.TrangThai ? "Khóa tài khoản" : "Mở khóa")">
                                             @Html.AntiForgeryToken()
                                             @if (item.TrangThai)
                                             {
@@ -284,75 +331,17 @@
                                             }
                                         </form>
 
-                                        <!-- Nút Đặt lại mật khẩu về 123456 -->
+                                        <!-- Nút Đặt lại mật khẩu về mặc định 123456 -->
                                         <form method="post" asp-action="ResetPasswordByAdmin" asp-route-id="@item.MaTaiKhoan" class="d-inline"
-                                              onsubmit="return confirm('Đặt lại mật khẩu tài khoản @item.TenDangNhap về mặc định 123456?');">
+                                              data-uneti-confirm="Đặt lại mật khẩu cho tài khoản @item.TenDangNhap về mặc định (123456)?"
+                                              data-uneti-title="Đặt lại mật khẩu"
+                                              data-uneti-type="warning"
+                                              data-uneti-ok="Đặt lại 123456">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary uneti-action-btn" title="Đặt lại mật khẩu về 123456">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary uneti-action-btn" title="Đặt lại mật khẩu về mặc định (123456)">
                                                 <i class="bi bi-key-fill"></i><span>Reset</span>
                                             </button>
                                         </form>
-
-                                        <!-- Modal Chỉnh sửa vai trò / Phân quyền -->
-                                        <div class="modal fade" id="editRoleModal_@item.MaTaiKhoan" tabindex="-1" aria-labelledby="modalLabel_@item.MaTaiKhoan" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content uneti-card border-0 shadow">
-                                                    <div class="modal-header bg-light border-bottom py-2.5 px-3">
-                                                        <h5 class="modal-title fw-bold text-dark fs-6" id="modalLabel_@item.MaTaiKhoan">
-                                                            <i class="bi bi-shield-lock-fill text-primary me-2"></i>Phân quyền tài khoản
-                                                        </h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <form method="post" asp-action="UpdateRole" asp-route-id="@item.MaTaiKhoan">
-                                                        @Html.AntiForgeryToken()
-                                                        <div class="modal-body p-3.5 text-start">
-                                                            <div class="mb-3 p-3 bg-light rounded-3 border">
-                                                                <div class="d-flex align-items-center gap-2 mb-2">
-                                                                    <span class="user-avatar text-white rounded-circle d-inline-flex justify-content-center align-items-center fw-bold" 
-                                                                          style="width: 32px; height: 32px; font-size: 13px; background-color: var(--uneti-primary);">
-                                                                        @(string.IsNullOrEmpty(item.HoTen) ? "U" : item.HoTen.Substring(0, 1).ToUpper())
-                                                                    </span>
-                                                                    <div>
-                                                                        <div class="fw-bold text-dark">@item.HoTen</div>
-                                                                        <div class="small text-muted">@@@item.TenDangNhap • @item.Email</div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <label class="form-label fw-bold small text-dark mb-2">Chọn vai trò mới cho tài khoản:</label>
-                                                            <div class="d-flex flex-column gap-2">
-                                                                <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
-                                                                    <input type="radio" name="vaiTro" value="Admin" @(item.VaiTro == "Admin" ? "checked" : "") class="form-check-input mt-0" />
-                                                                    <div>
-                                                                        <span class="uneti-badge-danger mb-1"><i class="bi bi-shield-lock-fill me-1"></i>Quản trị viên (Admin)</span>
-                                                                        <div class="small text-muted" style="font-size: 11px;">Toàn quyền hệ thống, quản lý tài khoản & dữ liệu nền</div>
-                                                                    </div>
-                                                                </label>
-                                                                <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
-                                                                    <input type="radio" name="vaiTro" value="NhanVien" @(item.VaiTro == "NhanVien" ? "checked" : "") class="form-check-input mt-0" />
-                                                                    <div>
-                                                                        <span class="uneti-badge-primary mb-1"><i class="bi bi-person-badge me-1"></i>Nhân viên quản lý</span>
-                                                                        <div class="small text-muted" style="font-size: 11px;">Quản lý khóa học, duyệt đơn đăng ký & cập nhật kết quả</div>
-                                                                    </div>
-                                                                </label>
-                                                                <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
-                                                                    <input type="radio" name="vaiTro" value="HocVien" @(item.VaiTro == "HocVien" ? "checked" : "") class="form-check-input mt-0" />
-                                                                    <div>
-                                                                        <span class="uneti-badge-success mb-1"><i class="bi bi-mortarboard me-1"></i>Học viên</span>
-                                                                        <div class="small text-muted" style="font-size: 11px;">Xem thông tin khóa học, đăng ký & xem kết quả học tập</div>
-                                                                    </div>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer bg-light border-top py-2 px-3">
-                                                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                            <button type="submit" class="btn btn-sm uneti-btn-primary">
-                                                                <i class="bi bi-check-lg me-1"></i>Lưu vai trò
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     }
                                     else
                                     {
@@ -379,5 +368,177 @@
                 </tbody>
             </table>
         </div>
+        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted">
+            <span>Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalAccounts</strong> tài khoản trong hệ thống</span>
+            <span>Quản trị tài khoản &amp; phân quyền</span>
+        </div>
+    </div>
+
+    <!-- PHÂN TRANG DANH SÁCH TÀI KHOẢN (PAGINATION) -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Phân trang danh sách tài khoản" class="mt-4 d-flex justify-content-center">
+            <ul class="pagination pagination-sm flex-wrap justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                @for (int p = 1; p <= totalPages; p++)
+                {
+                    <li class="page-item @(p == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">@p</a>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>
+
+<!-- Modal phân quyền chung -->
+<div class="modal fade" id="commonEditRoleModal" tabindex="-1" aria-labelledby="commonRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content uneti-card border-0 shadow">
+            <div class="modal-header bg-light border-bottom py-2.5 px-3">
+                <h5 class="modal-title fw-bold text-dark fs-6" id="commonRoleModalLabel">
+                    <i class="bi bi-shield-lock-fill text-primary me-2"></i>Phân quyền tài khoản
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="formUpdateRole" asp-action="UpdateRole">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-3.5 text-start">
+                    <div class="mb-3 p-3 bg-light rounded-3 border">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="user-avatar text-white uneti-icon-box-32 bg-primary fw-bold" id="roleModalAvatar">
+                                U
+                            </span>
+                            <div>
+                                <div class="fw-bold text-dark" id="roleModalFullName">...</div>
+                                <div class="small text-muted"><span id="roleModalUsername">...</span> • <span id="roleModalEmail">...</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="form-label fw-bold small text-dark mb-2">Chọn vai trò mới cho tài khoản:</label>
+                    <div class="d-flex flex-column gap-2">
+                        <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
+                            <input type="radio" name="vaiTro" value="Admin" id="roleRadioAdmin" class="form-check-input mt-0" />
+                            <div>
+                                <span class="uneti-badge-danger mb-1"><i class="bi bi-shield-lock-fill me-1"></i>Quản trị viên (Admin)</span>
+                                <div class="small text-muted uneti-fs-xs">Toàn quyền hệ thống, quản lý tài khoản & dữ liệu nền</div>
+                            </div>
+                        </label>
+                        <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
+                            <input type="radio" name="vaiTro" value="NhanVien" id="roleRadioNhanVien" class="form-check-input mt-0" />
+                            <div>
+                                <span class="uneti-badge-primary mb-1"><i class="bi bi-person-badge me-1"></i>Nhân viên quản lý</span>
+                                <div class="small text-muted uneti-fs-xs">Quản lý khóa học, duyệt đơn đăng ký & cập nhật kết quả</div>
+                            </div>
+                        </label>
+                        <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
+                            <input type="radio" name="vaiTro" value="HocVien" id="roleRadioHocVien" class="form-check-input mt-0" />
+                            <div>
+                                <span class="uneti-badge-success mb-1"><i class="bi bi-mortarboard me-1"></i>Học viên</span>
+                                <div class="small text-muted uneti-fs-xs">Xem thông tin khóa học, đăng ký & xem kết quả học tập</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top py-2 px-3">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-sm uneti-btn-primary" data-loading-text="Đang lưu...">
+                        <i class="bi bi-check-lg me-1"></i>Lưu vai trò
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Khởi tạo mở Modal phân quyền chung
+            const roleModalEl = document.getElementById('commonEditRoleModal');
+            const roleModal = roleModalEl ? new bootstrap.Modal(roleModalEl) : null;
+            const formRole = document.getElementById('formUpdateRole');
+            const avatarEl = document.getElementById('roleModalAvatar');
+            const fullNameEl = document.getElementById('roleModalFullName');
+            const usernameEl = document.getElementById('roleModalUsername');
+            const emailEl = document.getElementById('roleModalEmail');
+
+            document.querySelectorAll('.js-open-role-modal').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const username = this.getAttribute('data-username');
+                    const fullname = this.getAttribute('data-fullname');
+                    const email = this.getAttribute('data-email');
+                    const role = this.getAttribute('data-role');
+
+                    if (formRole) formRole.action = '/TaiKhoan/UpdateRole/' + id;
+                    if (fullNameEl) fullNameEl.textContent = fullname || 'Chưa đặt họ tên';
+                    if (usernameEl) usernameEl.textContent = '@@' + (username || '');
+                    if (emailEl) emailEl.textContent = email || '';
+                    if (avatarEl) avatarEl.textContent = (fullname && fullname.trim().length > 0) ? fullname.trim().charAt(0).toUpperCase() : 'U';
+
+                    const targetRadio = document.querySelector(`input[name="vaiTro"][value="${role}"]`);
+                    if (targetRadio) targetRadio.checked = true;
+
+                    if (roleModal) roleModal.show();
+                });
+            });
+
+            // Lọc nhanh trong trang hiện tại
+            const searchInput = document.getElementById('adminTableQuickSearch');
+            const clearBtn = document.getElementById('btnClearQuickSearch');
+            const resetBtn = document.getElementById('btnResetQuickFilter');
+            const emptyRow = document.getElementById('quickSearchEmptyRow');
+            const visibleCountEl = document.getElementById('visibleRowCount');
+            const summaryCountEl = document.getElementById('summaryRowCount');
+            const table = document.getElementById('taiKhoanAdminTable');
+            if (!searchInput || !table) return;
+
+            const rows = table.querySelectorAll('tbody tr:not(#quickSearchEmptyRow)');
+
+            function doFilter() {
+                const term = searchInput.value.trim().toLowerCase();
+                if (clearBtn) clearBtn.style.display = term ? 'inline-block' : 'none';
+                let visibleCount = 0;
+
+                rows.forEach(function (row) {
+                    const text = row.textContent.toLowerCase();
+                    if (!term || text.indexOf(term) !== -1) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (visibleCountEl) visibleCountEl.textContent = visibleCount;
+                if (summaryCountEl) summaryCountEl.textContent = visibleCount;
+                if (emptyRow) {
+                    emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+                    const termSpan = document.getElementById('quickSearchTerm');
+                    if (termSpan) termSpan.textContent = searchInput.value;
+                }
+            }
+
+            searchInput.addEventListener('input', doFilter);
+
+            function resetSearch() {
+                searchInput.value = '';
+                doFilter();
+                searchInput.focus();
+            }
+
+            clearBtn?.addEventListener('click', resetSearch);
+            resetBtn?.addEventListener('click', resetSearch);
+        })();
+    </script>
+}

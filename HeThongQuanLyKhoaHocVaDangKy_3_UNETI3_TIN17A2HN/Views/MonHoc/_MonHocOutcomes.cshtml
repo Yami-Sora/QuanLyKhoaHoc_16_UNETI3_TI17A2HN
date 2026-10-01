@@ -1,0 +1,165 @@
+﻿@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung: Chuẩn đầu ra môn học
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc
+@{
+    string tenMon = Model.TenMonHoc ?? "";
+    string kienThuc = "";
+    string kyNang = "";
+    string chuanDauRa = "";
+
+    // 1. NHÓM CNTT & PHẦN MỀM (.NET / C#)
+    if (tenMon.Contains("C#", StringComparison.OrdinalIgnoreCase) || tenMon.Contains(".NET", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Nắm vững nguyên lý lập trình hướng đối tượng (OOP), cú pháp C# 13, LINQ to Objects, kiến trúc ASP.NET Core MVC, Middleware, Dependency Injection và Entity Framework Core 10.";
+        kyNang = "Thiết kế và phát triển ứng dụng Web hoàn chỉnh, xây dựng RESTful Web API, phân quyền hệ thống đa cấp, xử lý nghiệp vụ CSDL Code-First và bảo mật Session/Cookie.";
+        chuanDauRa = $"Đạt chuẩn kỹ sư phát triển phần mềm Backend .NET; đủ điều kiện làm việc tại các doanh nghiệp CNTT và tích lũy trọn vẹn {Model.SoTinChi} tín chỉ chuyên ngành.";
+    }
+    // 2. NHÓM CƠ SỞ DỮ LIỆU & HỆ THỐNG
+    else if (tenMon.Contains("SQL", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Cơ sở Dữ liệu", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Database", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Hiểu sâu lý thuyết cơ sở dữ liệu quan hệ, quy chuẩn hóa dữ liệu 1NF - 3NF/BCNF, thiết kế sơ đồ thực thể liên kết (ERD), cấu trúc bảng, khóa ngoại và cơ chế giao dịch ACID.";
+        kyNang = "Thành thạo viết truy vấn T-SQL nâng cao, tối ưu hóa Store Procedure, lập trình Trigger, phân tích chỉ mục (Indexing) giảm tải hệ thống và sao lưu, phục hồi dữ liệu tự động.";
+        chuanDauRa = $"Đạt chuẩn năng lực Quản trị CSDL và Phân tích thiết kế hệ thống thông tin; tích lũy {Model.SoTinChi} tín chỉ cốt lõi CNTT.";
+    }
+    // 3. NHÓM WEB & FRONTEND
+    else if (tenMon.Contains("React", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Frontend", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Web", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("HTML", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("JavaScript", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Nắm vững cơ chế Virtual DOM, kiến trúc Single Page Application (SPA), Component Lifecycle, mô hình luồng dữ liệu 1 chiều và các nguyên tắc thiết kế UI/UX hiện đại.";
+        kyNang = "Thao tác thành thạo React Hooks (useState, useEffect, useMemo), quản lý State toàn cục với Redux Toolkit, tạo giao diện đáp ứng (Responsive) với TailwindCSS và kết nối REST API.";
+        chuanDauRa = $"Đạt chuẩn năng lực Lập trình viên Web Frontend hiện đại; sẵn sàng tham gia các dự án phát triển giao diện Web chuyên nghiệp và tích lũy {Model.SoTinChi} tín chỉ.";
+    }
+    // 4. NHÓM DI ĐỘNG & MOBILE APP
+    else if (tenMon.Contains("Flutter", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Di động", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Mobile", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Android", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("iOS", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Hiểu rõ tư duy lập trình ngôn ngữ Dart hướng đối tượng, cây Widget Flutter (Stateless & Stateful), kiến trúc đa nền tảng và cơ chế Render engine Skia/Impeller.";
+        kyNang = "Thiết kế giao diện Mobile chuẩn Material 3 & iOS Cupertino, quản lý State với Provider/Bloc, tích hợp Local SQLite/Shared Preferences và đóng gói ứng dụng phát hành lên Store.";
+        chuanDauRa = $"Đạt chuẩn năng lực Lập trình viên Di động đa nền tảng (Cross-platform); có khả năng tự build hoàn chỉnh ứng dụng Mobile thực tế và tích lũy {Model.SoTinChi} tín chỉ.";
+    }
+    // 5. NHÓM DỮ LIỆU & TRÍ TUỆ NHÂN TẠO (AI)
+    else if (tenMon.Contains("Python", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Dữ liệu", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("AI", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Trí tuệ nhân tạo", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Machine Learning", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Data", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Nắm vững cú pháp Python nâng cao, cấu trúc dữ liệu, toán xác suất thống kê ứng dụng, quy trình tiền xử lý làm sạch dữ liệu và thuật toán Học máy (Machine Learning) cơ bản.";
+        kyNang = "Khai phá và biến đổi dữ liệu lớn với Pandas/NumPy, trực quan hóa biểu đồ phân tích chuyên sâu qua Matplotlib/Seaborn, xây dựng mô hình phân loại và dự báo số liệu.";
+        chuanDauRa = $"Đạt chuẩn năng lực Phân tích Dữ liệu (Data Analyst); làm chủ kỹ năng đọc hiểu số liệu kinh doanh công nghệ và tích lũy {Model.SoTinChi} tín chỉ.";
+    }
+    // 6. NHÓM CÁC NGÔN NGỮ LẬP TRÌNH KHÁC & HẠ TẦNG MẠNG
+    else if (tenMon.Contains("Java", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("C++", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Mạng", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("An toàn thông tin", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Bảo mật", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Nắm vững bản chất kiến trúc hệ thống máy tính, mô hình OSI/TCP-IP, nguyên lý bảo mật dữ liệu, quản lý tài nguyên bộ nhớ và thuật toán cấu trúc dữ liệu kinh điển.";
+        kyNang = "Cấu hình thiết bị mạng, triển khai hạ tầng dịch vụ mạng cục bộ LAN/WAN, phân tích bắt gói tin Wireshark và rà soát lỗ hổng an ninh mạng phổ biến.";
+        chuanDauRa = $"Đạt chuẩn năng lực Kỹ sư Hạ tầng mạng & An toàn thông tin; tích lũy {Model.SoTinChi} tín chỉ chuyên ngành.";
+    }
+    // Khối ngành Kinh tế / Quản trị
+    else if (tenMon.Contains("Kinh tế", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kế toán", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tài chính", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Marketing", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Quản trị", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kinh doanh", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Thương mại", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Logistics", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Nắm vững các nguyên lý kinh tế học vi mô/vĩ mô, quy chuẩn hạch toán kế toán - tài chính doanh nghiệp, cơ chế vận hành thị trường và quy trình quản trị chuỗi cung ứng.";
+        kyNang = "Lập báo cáo tài chính, phân tích chỉ số kinh doanh, xây dựng chiến dịch Digital Marketing, sử dụng thành thạo phần mềm ERP/Excel nâng cao và ra quyết định quản trị.";
+        chuanDauRa = $"Đạt chuẩn năng lực nghiệp vụ cử nhân Khối ngành Kinh tế & Quản trị kinh doanh; tích lũy trọn vẹn {Model.SoTinChi} tín chỉ chính quy.";
+    }
+    // Khối ngành Kỹ thuật / Cơ khí
+    else if (tenMon.Contains("Điện", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Cơ khí", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kỹ thuật", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tự động hóa", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Mạch", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Vi điều khiển", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("IoT", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Cơ điện", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Hiểu rõ các nguyên lý vật lý cơ học, định luật mạch điện tử, cấu trúc khí cụ điện, sơ đồ nguyên lý cảm biến và tiêu chuẩn kỹ thuật công nghiệp hiện đại.";
+        kyNang = "Đọc và vẽ bản vẽ kỹ thuật CAD/CAM, đo kiểm thông số linh kiện, lập trình điều khiển PLC/Arduino, đấu nối tủ điện và vận hành thiết bị xưởng an toàn.";
+        chuanDauRa = $"Đạt chuẩn kỹ năng thực hành kỹ sư Khối ngành Kỹ thuật công nghệ; tích lũy {Model.SoTinChi} tín chỉ chính quy.";
+    }
+    // 9. KHỐI NGOẠI NGỮ (Tiếng Anh, Tiếng Nhật, Tiếng Hàn)
+    else if (tenMon.Contains("Tiếng Anh", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("English", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Ngoại ngữ", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tiếng Nhật", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Tiếng Hàn", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("TOEIC", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("IELTS", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Nắm vững hệ thống ngữ pháp học thuật, vốn từ vựng chuyên ngành sâu rộng, cấu trúc câu đa dạng và phong cách giao tiếp văn hóa hội nhập quốc tế.";
+        kyNang = "Thành thạo 4 kỹ năng Nghe - Nói - Đọc - Viết, thuyết trình trôi chảy, đọc hiểu tài liệu chuyên môn và soạn thảo văn bản/email thương mại quốc tế.";
+        chuanDauRa = $"Đạt chuẩn năng lực ngoại ngữ tối thiểu bậc 3/6 theo Khung năng lực ngoại ngữ Việt Nam (VSTEP B1/TOEIC 450+); tích lũy {Model.SoTinChi} tín chỉ.";
+    }
+    // Khối ngành Đại cương
+    else if (tenMon.Contains("Triết", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Chính trị", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Hồ Chí Minh", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Pháp luật", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Toán", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Xác suất", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Đại số", StringComparison.OrdinalIgnoreCase) || tenMon.Contains("Kỹ năng", StringComparison.OrdinalIgnoreCase))
+    {
+        kienThuc = "Nắm vững phương pháp luận duy vật biện chứng khoa học, tư duy logic giải tích, hệ thống pháp luật Nhà nước và các chuẩn mực đạo đức xã hội công dân.";
+        kyNang = "Tư duy phản biện, lập luận chặt chẽ, kỹ năng thuyết trình, kỹ năng làm việc nhóm hiệu quả và vận dụng kiến thức đại cương vào nghiên cứu chuyên ngành.";
+        chuanDauRa = $"Đạt chuẩn khối kiến thức đại cương và nền tảng phương pháp luận khoa học theo quy định của Bộ GD&ĐT và Trường ĐH Kinh tế - Kỹ thuật Công nghiệp; tích lũy {Model.SoTinChi} tín chỉ.";
+    }
+    // 11. BỘ SINH DỮ LIỆU ĐA NGÀNH MẶC ĐỊNH (FALLBACK)
+    else
+    {
+        kienThuc = $"Nắm vững toàn diện hệ thống lý thuyết nền tảng, các khái niệm chuẩn mực và phương pháp luận chuyên sâu của học phần {Model.TenMonHoc}.";
+        kyNang = "Vận dụng linh hoạt kiến thức vào phân tích tình huống thực tế, xử lý bài toán nghiệp vụ chuyên môn, thực hiện đồ án học phần và làm việc nhóm hiệu quả.";
+        chuanDauRa = $"Đạt chuẩn năng lực chuyên môn theo chuẩn đầu ra chương trình đào tạo đại học chính quy của Trường Đại học Kinh tế - Kỹ thuật Công nghiệp; tích lũy trọn vẹn {Model.SoTinChi} tín chỉ.";
+    }
+}
+
+<div class="uneti-card p-4 mb-4 shadow-sm uneti-card-surface">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-2 border-bottom">
+        <div class="d-flex align-items-center gap-2">
+            <span class="uneti-icon-box-36 text-primary bg-primary-subtle">
+                <i class="bi bi-journal-check fs-5"></i>
+            </span>
+            <div>
+                <h5 class="fw-bold text-dark mb-0 fs-6">Mô tả & Mục tiêu đào tạo học phần</h5>
+                <small class="text-muted uneti-fs-sm">Mô tả môn học, chuẩn đầu ra (CĐR) & năng lực học viên</small>
+            </div>
+        </div>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 small fw-semibold">
+            <i class="bi bi-check2-all me-1"></i>Kiểm định chất lượng
+        </span>
+    </div>
+
+    <!-- Khối Mô tả môn học -->
+    <div class="p-3 rounded-3 mb-3 bg-light border-start border-4 border-primary uneti-fs-13-5 text-secondary">
+        <div class="fw-bold text-dark mb-1 small d-flex align-items-center gap-1.5">
+            <i class="bi bi-card-text text-primary"></i>Mô tả môn học:
+        </div>
+        @if (string.IsNullOrWhiteSpace(Model.MoTa))
+        {
+            <span class="text-muted fst-italic">Học phần thuộc khối kiến thức chuyên môn trong khung chương trình đào tạo đại học chính quy của Trường Đại học Kinh tế - Kỹ thuật Công nghiệp.</span>
+        }
+        else
+        {
+            <span class="lh-base" style="white-space: pre-line;">@Model.MoTa</span>
+        }
+    </div>
+
+    <!-- Ba cột Mục tiêu & Chuẩn đầu ra -->
+    <div class="row g-3">
+        <!-- Cột 1: Kiến thức -->
+        <div class="col-md-4">
+            <div class="p-3 rounded-3 h-100 border bg-white border-top border-4 border-primary shadow-sm">
+                <div class="d-flex align-items-center gap-2 text-primary fw-bold mb-2 small">
+                    <i class="bi bi-lightbulb-fill"></i>
+                    <span>1. Kiến thức chuyên môn</span>
+                </div>
+                <p class="text-secondary mb-0 uneti-fs-13 lh-base">
+                    @kienThuc
+                </p>
+            </div>
+        </div>
+
+        <!-- Cột 2: Kỹ năng -->
+        <div class="col-md-4">
+            <div class="p-3 rounded-3 h-100 border bg-white border-top border-4 border-success shadow-sm">
+                <div class="d-flex align-items-center gap-2 text-success fw-bold mb-2 small">
+                    <i class="bi bi-laptop-fill"></i>
+                    <span>2. Kỹ năng thực hành</span>
+                </div>
+                <p class="text-secondary mb-0 uneti-fs-13 lh-base">
+                    @kyNang
+                </p>
+            </div>
+        </div>
+
+        <!-- Cột 3: Chuẩn đầu ra -->
+        <div class="col-md-4">
+            <div class="p-3 rounded-3 h-100 border bg-white border-top border-4 border-warning shadow-sm">
+                <div class="d-flex align-items-center gap-2 text-warning fw-bold mb-2 small">
+                    <i class="bi bi-award-fill"></i>
+                    <span>3. Chuẩn đầu ra (CĐR)</span>
+                </div>
+                <p class="text-secondary mb-0 uneti-fs-13 lh-base">
+                    @chuanDauRa
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

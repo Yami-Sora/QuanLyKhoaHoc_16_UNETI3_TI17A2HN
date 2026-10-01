@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Partial View Quản lý trạng thái Đăng nhập, Hồ sơ cá nhân và Nút Đăng xuất (Đồng bộ chuẩn UNETI)
+    Nội dung: Thanh trạng thái đăng nhập
 *@
 
 @using Microsoft.AspNetCore.Http
@@ -44,26 +44,25 @@
             </div>
             <i class="bi bi-chevron-down uneti-chevron-icon"></i>
         </a>
-        <ul class="dropdown-menu dropdown-menu-end border shadow-sm mt-2" aria-labelledby="userDropdown" 
-            style="min-width: 250px; border-radius: 16px; border-color: #e2e8f0; padding: 10px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);">
-            <!-- Khối thông tin cá nhân trên cùng (ảnh 3) -->
-            <li class="p-3 rounded-3 mb-2" style="background-color: #f8fafc; border: 1px solid #f1f5f9;">
-                <div class="fw-bold text-dark lh-sm" style="font-size: 1.05rem; letter-spacing: -0.01em;">@hoTen</div>
-                <div class="text-muted small mt-1 mb-2" style="font-size: 13px;">@@@tenDangNhap</div>
+        <ul class="dropdown-menu dropdown-menu-end border shadow-sm mt-2 uneti-user-dropdown-menu" aria-labelledby="userDropdown">
+            <!-- Khối thông tin cá nhân trên cùng -->
+            <li class="uneti-user-dropdown-header mb-2">
+                <div class="fw-bold text-dark lh-sm">@hoTen</div>
+                <div class="text-muted small mt-1 mb-2 uneti-fs-13">@@@tenDangNhap</div>
                 <div>
                     @switch (vaiTro)
                     {
                         case "Admin":
-                            <span class="badge bg-danger text-white px-2 py-1 fw-semibold" style="font-size: 11px; border-radius: 6px;">Quản trị viên</span>
+                            <span class="badge bg-danger text-white uneti-badge-status">Quản trị viên</span>
                             break;
                         case "NhanVien":
-                            <span class="badge bg-primary text-white px-2 py-1 fw-semibold" style="font-size: 11px; border-radius: 6px;">Nhân viên</span>
+                            <span class="badge bg-primary text-white uneti-badge-status">Nhân viên</span>
                             break;
                         case "HocVien":
-                            <span class="badge text-white px-2 py-1 fw-semibold" style="background-color: #059669; font-size: 11px; border-radius: 6px;">Học viên</span>
+                            <span class="badge bg-success text-white uneti-badge-status">Học viên</span>
                             break;
                         default:
-                            <span class="badge bg-secondary text-white px-2 py-1 fw-semibold" style="font-size: 11px; border-radius: 6px;">@vaiTro</span>
+                            <span class="badge bg-secondary text-white uneti-badge-status">@vaiTro</span>
                             break;
                     }
                 </div>
@@ -73,69 +72,31 @@
             @if (vaiTro == "Admin" || vaiTro == "NhanVien")
             {
                 <li>
-                    <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-primary fw-bold" style="font-size: 13.5px; background-color: #eff6ff;" asp-controller="QuanTri" asp-action="Dashboard">
+                    <a class="dropdown-item uneti-dropdown-item-btn uneti-dropdown-item-active fw-bold" asp-controller="QuanTri" asp-action="Dashboard">
                         <i class="bi bi-speedometer2 text-primary fs-5"></i>
-                        <span>Quản trị</span>
+                        <span>Quản trị hệ thống</span>
                     </a>
                 </li>
-                <li><hr class="dropdown-divider my-2" style="border-color: #e2e8f0;"></li>
+                <li><hr class="dropdown-divider my-2"></li>
             }
 
-            @* Danh sách chức năng đào tạo (dùng chung cho mọi đối tượng) *@
             <li>
-                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" asp-controller="MonHoc" asp-action="Index">
-                    <i class="bi bi-mortarboard text-primary fs-5"></i>
-                    <span>Môn học</span>
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(2)">
-                    <i class="bi bi-journal-album text-warning fs-5"></i>
-                    <span>Khóa học</span>
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(3)">
-                    <i class="bi bi-journal-check text-info fs-5"></i>
-                    <span>Khóa học của tôi</span>
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(4)">
-                    <i class="bi bi-card-checklist text-success fs-5"></i>
-                    <span>Đăng ký khóa học</span>
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" href="javascript:void(0)" onclick="thongBaoModule(5)">
-                    <i class="bi bi-award text-danger fs-5"></i>
-                    <span>Kết quả học tập</span>
-                </a>
-            </li>
-
-            <li><hr class="dropdown-divider my-2" style="border-color: #e2e8f0;"></li>
-            <li>
-                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-dark" style="font-size: 13.5px;" asp-controller="TaiKhoan" asp-action="ChangePassword">
+                <a class="dropdown-item uneti-dropdown-item-btn text-dark" asp-controller="TaiKhoan" asp-action="ChangePassword">
                     <i class="bi bi-shield-lock text-warning fs-5"></i>
                     <span>Đổi mật khẩu</span>
                 </a>
             </li>
-            <li><hr class="dropdown-divider my-2" style="border-color: #e2e8f0;"></li>
+            <li><hr class="dropdown-divider my-2"></li>
             <li>
-                <a class="dropdown-item py-2 px-3 rounded-2 d-flex align-items-center gap-2 text-danger fw-semibold" style="font-size: 13.5px;" asp-controller="TaiKhoan" asp-action="Logout">
-                    <i class="bi bi-box-arrow-right text-danger fs-5"></i>
-                    <span>Đăng xuất</span>
-                </a>
+                <form asp-controller="TaiKhoan" asp-action="Logout" method="post" class="d-inline w-100 m-0 p-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dropdown-item uneti-dropdown-item-btn text-danger fw-semibold w-100 text-start border-0 bg-transparent">
+                        <i class="bi bi-box-arrow-right text-danger fs-5"></i>
+                        <span>Đăng xuất</span>
+                    </button>
+                </form>
             </li>
         </ul>
-    </li>
-
-    <!-- Nút Đăng xuất trực tiếp nhanh chóng (Đồng bộ giao diện) -->
-    <li class="nav-item">
-        <a asp-controller="TaiKhoan" asp-action="Logout" class="uneti-nav-logout text-decoration-none" title="Đăng xuất khỏi hệ thống">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Đăng xuất</span>
-        </a>
     </li>
 }
 else
@@ -154,11 +115,3 @@ else
     </li>
 }
 </ul>
-
-<script>
-    if (typeof thongBaoModule !== 'function') {
-        function thongBaoModule(soModule) {
-            alert("Đây là nội dung của Module " + soModule + " và sẽ tự xóa thông báo này khi hoàn thiện.");
-        }
-    }
-</script>

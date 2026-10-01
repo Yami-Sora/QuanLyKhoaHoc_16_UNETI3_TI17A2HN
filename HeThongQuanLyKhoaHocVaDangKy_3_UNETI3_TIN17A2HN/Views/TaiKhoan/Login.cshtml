@@ -1,324 +1,23 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Đăng nhập Hệ thống chuẩn UNETI (Giao diện Hiện đại - Tinh tế)
+    Nội dung: Đăng nhập hệ thống
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.LoginViewModel
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnvironment
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@using Microsoft.Extensions.Hosting
 @{
     Layout = null;
     ViewData["Title"] = "Đăng nhập hệ thống";
+    var showDemoAccounts = WebHostEnvironment.IsDevelopment() || Configuration.GetValue<bool>("ShowDemoAccounts");
 }
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Cổng Đào Tạo Trực Tuyến</title>
-    
-    <!-- Google Font: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Bootstrap CSS & Icons -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <!-- Site CSS -->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f1f5f9;
-            background-image: 
-                linear-gradient(135deg, rgba(239, 246, 255, 0.45) 0%, rgba(219, 234, 254, 0.55) 100%),
-                url('/images/auth-bg.jpg');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            background-attachment: fixed;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2.5rem 1rem;
-            margin: 0;
-            position: relative;
-        }
-
-        /* Glassmorphism Card hiện đại */
-        .login-card {
-            background: rgba(255, 255, 255, 0.94);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            border-radius: 24px;
-            box-shadow: 
-                0 20px 40px -15px rgba(15, 23, 42, 0.16),
-                0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-            width: 100%;
-            max-width: 440px;
-            padding: 2.5rem 2.25rem;
-            position: relative;
-            z-index: 10;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-
-        /* Logo Badge với gradient mềm mại */
-        .uneti-logo-badge {
-            width: 58px;
-            height: 58px;
-            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
-            color: #ffffff;
-            border-radius: 18px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 10px 22px -6px rgba(29, 78, 216, 0.38);
-            border: 3px solid #ffffff;
-            margin: 0 auto;
-        }
-
-        .header-title {
-            color: #0f172a;
-            font-size: 1.45rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-top: 0.75rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .header-subtitle {
-            color: #64748b;
-            font-size: 13.5px;
-            font-weight: 500;
-            line-height: 1.45;
-        }
-
-        /* Label gọn gàng, tinh tế */
-        .form-label-custom {
-            color: #334155;
-            font-size: 13.5px;
-            font-weight: 600;
-            display: block;
-            margin-bottom: 0.45rem;
-        }
-
-        /* Custom Input Container */
-        .custom-input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
-
-        .custom-input-group .input-icon-start {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 1.15rem;
-            pointer-events: none;
-            z-index: 5;
-            transition: color 0.2s ease;
-        }
-
-        .custom-input-group:focus-within .input-icon-start {
-            color: #2563eb;
-        }
-
-        /* Ô nhập liệu thanh thoát, viền xám nhẹ tinh tế */
-        .custom-input-group .form-control.custom-input {
-            width: 100%;
-            height: 48px;
-            padding-left: 46px;
-            padding-right: 46px;
-            border-radius: 12px;
-            border: 1.5px solid #e2e8f0;
-            background-color: #f8fafc;
-            font-size: 14.5px;
-            font-family: inherit;
-            color: #1e293b;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .custom-input-group .form-control.custom-input::placeholder {
-            color: #94a3b8;
-            font-size: 14px;
-            font-weight: 400;
-        }
-
-        .custom-input-group .form-control.custom-input:focus {
-            background-color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
-            color: #0f172a;
-            outline: none;
-        }
-
-        .custom-input-group .form-control.custom-input.input-validation-error,
-        .form-control.input-validation-error {
-            border-color: #ef4444 !important;
-            background-color: #fef2f2 !important;
-        }
-
-        .custom-input-group .form-control.custom-input.input-validation-error:focus,
-        .form-control.input-validation-error:focus {
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
-            border-color: #ef4444 !important;
-        }
-
-        /* Định dạng thông báo lỗi thẩm mỹ, ổn định và chống rung giật giao diện */
-        .field-validation-error {
-            color: #ef4444;
-            font-size: 12.5px;
-            font-weight: 500;
-            margin-top: 4px;
-            display: block;
-            line-height: 1.3;
-        }
-
-        .field-validation-valid {
-            display: none !important;
-        }
-
-        /* Nút ẩn/hiện mật khẩu tinh chỉnh */
-        .btn-toggle-eye {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            padding: 6px 8px;
-            color: #94a3b8;
-            font-size: 1.15rem;
-            cursor: pointer;
-            z-index: 6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-toggle-eye:hover {
-            color: #334155;
-            background-color: #e2e8f0;
-        }
-
-        /* Nút Đăng nhập Gradient cao cấp */
-        .btn-submit-login {
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-            color: #ffffff;
-            border: none;
-            border-radius: 12px;
-            height: 48px;
-            font-size: 15.5px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 8px 18px -4px rgba(29, 78, 216, 0.35);
-            transition: all 0.2s ease;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        .btn-submit-login:hover {
-            background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-            box-shadow: 0 10px 22px -4px rgba(29, 78, 216, 0.45);
-            transform: translateY(-1px);
-            color: #ffffff;
-        }
-
-        .btn-submit-login:active {
-            transform: translateY(0);
-        }
-
-        /* Khối tài khoản mẫu kiểm thử đẹp mắt */
-        .demo-accounts-box {
-            background: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            border-radius: 14px;
-            padding: 12px 14px;
-        }
-
-        .demo-pill {
-            border: 1px solid transparent;
-            border-radius: 8px;
-            padding: 4px 10px;
-            font-size: 11.5px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.15s ease;
-            cursor: pointer;
-            text-decoration: none;
-            line-height: 1.4;
-        }
-
-        .demo-pill:hover {
-            transform: translateY(-1px);
-        }
-
-        .demo-pill-admin {
-            background: #fef2f2;
-            color: #b91c1c;
-            border-color: #fecaca;
-        }
-        .demo-pill-admin:hover {
-            background: #fee2e2;
-        }
-
-        .demo-pill-staff {
-            background: #eff6ff;
-            color: #1d4ed8;
-            border-color: #bfdbfe;
-        }
-        .demo-pill-staff:hover {
-            background: #dbeafe;
-        }
-
-        .demo-pill-student {
-            background: #ecfdf5;
-            color: #047857;
-            border-color: #a7f3d0;
-        }
-        .demo-pill-student:hover {
-            background: #d1fae5;
-        }
-
-        .demo-pill-locked {
-            background: #f1f5f9;
-            color: #64748b;
-            border-color: #e2e8f0;
-        }
-        .demo-pill-locked:hover {
-            background: #e2e8f0;
-        }
-
-        /* Hiệu ứng khi điền tài khoản */
-        .input-flash {
-            animation: inputPulse 0.4s ease-out;
-        }
-
-        @@keyframes inputPulse {
-            0% { background-color: #dbeafe; }
-            100% { background-color: #f8fafc; }
-        }
-    </style>
+    <partial name="_Head" />
 </head>
 <body>
     <div class="login-card">
@@ -352,7 +51,7 @@
                 <label asp-for="TenDangNhap" class="form-label-custom">Tên đăng nhập</label>
                 <div class="custom-input-group">
                     <i class="bi bi-person-fill input-icon-start"></i>
-                    <input asp-for="TenDangNhap" id="txtUsername" class="form-control custom-input" placeholder="Nhập tên đăng nhập hoặc mã sinh viên" autofocus autocomplete="username" />
+                    <input asp-for="TenDangNhap" id="txtUsername" class="form-control custom-input" placeholder="Nhập tên đăng nhập hoặc mã học viên" autofocus autocomplete="username" />
                 </div>
                 <span asp-validation-for="TenDangNhap" class="text-danger small mt-1 d-block fw-medium"></span>
             </div>
@@ -363,7 +62,7 @@
                 <div class="custom-input-group">
                     <i class="bi bi-lock-fill input-icon-start"></i>
                     <input asp-for="MatKhau" type="password" id="txtPassword" class="form-control custom-input" placeholder="Nhập mật khẩu của bạn" autocomplete="current-password" />
-                    <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility()" title="Hiện / Ẩn mật khẩu" aria-label="Hiện / Ẩn mật khẩu" tabindex="-1">
+                    <button type="button" class="btn-toggle-eye" id="btnTogglePassword" onclick="togglePasswordVisibility()" title="Hiện / Ẩn mật khẩu" aria-label="Hiện / Ẩn mật khẩu" aria-pressed="false" tabindex="-1">
                         <i class="bi bi-eye" id="toggleIcon"></i>
                     </button>
                 </div>
@@ -403,41 +102,42 @@
             </div>
         </form>
 
-        <!-- Tiện ích 1-Click tài khoản mẫu (Dành cho Giảng viên chấm bài) -->
-        <div class="demo-accounts-box mt-4">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="d-flex align-items-center gap-1 fw-bold" style="font-size: 11px; color: #475569; text-transform: uppercase; letter-spacing: 0.03em;">
-                    <i class="bi bi-lightning-charge-fill text-warning"></i> Tài khoản mẫu dùng thử:
-                </span>
-                <span class="badge rounded-pill bg-white text-secondary border px-2 py-0.5" style="font-size: 10px; font-weight: 500;">
-                    1-Click điền
-                </span>
+        @if (showDemoAccounts)
+        {
+            <!-- Điền nhanh tài khoản mẫu (chỉ khi test) -->
+            <div class="demo-accounts-box mt-4">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="d-flex align-items-center gap-1 fw-bold uneti-fs-12" style="color: #475569; text-transform: uppercase; letter-spacing: 0.03em;">
+                        <i class="bi bi-lightning-charge-fill text-warning"></i> Tài khoản mẫu dùng thử:
+                    </span>
+                    <span class="badge rounded-pill bg-white text-secondary border px-2 py-0.5 uneti-fs-12" style="font-weight: 500;">
+                        Bấm để điền
+                    </span>
+                </div>
+                <div class="demo-pills-grid">
+                    <button type="button" class="demo-pill demo-pill-admin" onclick="fillAccount('admin', 'Admin@123', 'Admin', this)" title="Vai trò Quản trị viên">
+                        <i class="bi bi-shield-lock-fill"></i> Admin
+                    </button>
+                    <button type="button" class="demo-pill demo-pill-staff" onclick="fillAccount('nv_daotao', 'Nv@123', 'Nhân viên', this)" title="Vai trò Nhân viên Đào tạo">
+                        <i class="bi bi-person-badge-fill"></i> Nhân viên
+                    </button>
+                    <button type="button" class="demo-pill demo-pill-student" onclick="fillAccount('sv_nguyenvana', 'Sv@123', 'Học viên', this)" title="Vai trò Học viên">
+                        <i class="bi bi-mortarboard-fill"></i> Học viên
+                    </button>
+                    <button type="button" class="demo-pill demo-pill-locked" onclick="fillAccount('sv_bitaikhoa', 'Sv@123', 'Bị khóa', this)" title="Tài khoản bị khóa để test nghiệp vụ">
+                        <i class="bi bi-lock-fill"></i> Bị khóa
+                    </button>
+                </div>
             </div>
-            <div class="d-flex flex-wrap gap-1.5 justify-content-between">
-                <button type="button" class="demo-pill demo-pill-admin" onclick="fillAccount('admin', 'Admin@123')" title="Vai trò Quản trị viên">
-                    <i class="bi bi-shield-lock-fill"></i> Admin
-                </button>
-                <button type="button" class="demo-pill demo-pill-staff" onclick="fillAccount('nv_daotao', 'Nv@123')" title="Vai trò Nhân viên Đào tạo">
-                    <i class="bi bi-person-badge-fill"></i> Nhân viên
-                </button>
-                <button type="button" class="demo-pill demo-pill-student" onclick="fillAccount('sv_nguyenvana', 'Sv@123')" title="Vai trò Học viên sinh viên">
-                    <i class="bi bi-mortarboard-fill"></i> Học viên
-                </button>
-                <button type="button" class="demo-pill demo-pill-locked" onclick="fillAccount('sv_bitaikhoa', 'Sv@123')" title="Tài khoản bị khóa để test nghiệp vụ">
-                    <i class="bi bi-lock-fill"></i> Bị khóa
-                </button>
-            </div>
-        </div>
+        }
     </div>
 
     <!-- Scripts -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_Scripts" />
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
-        function fillAccount(username, password) {
+        function fillAccount(username, password, roleName, el) {
             const u = document.getElementById('txtUsername');
             const p = document.getElementById('txtPassword');
             
@@ -449,6 +149,12 @@
             $('span[data-valmsg-for="TenDangNhap"]').removeClass('field-validation-error').addClass('field-validation-valid').text('');
             $('span[data-valmsg-for="MatKhau"]').removeClass('field-validation-error').addClass('field-validation-valid').text('');
 
+            // Đánh dấu nút vừa bấm bằng class is-active
+            document.querySelectorAll('.demo-pill').forEach(btn => btn.classList.remove('is-active'));
+            if (el) {
+                el.classList.add('is-active');
+            }
+
             // Hiệu ứng phản hồi nhẹ
             u.classList.remove('input-flash');
             p.classList.remove('input-flash');
@@ -456,24 +162,55 @@
             u.classList.add('input-flash');
             p.classList.add('input-flash');
 
+            // Toast thông báo qua hệ thống toast hiện có
+            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                window.UnetiUI.toast({
+                    type: 'info',
+                    title: 'Bấm để điền',
+                    message: 'Đã điền tài khoản ' + (roleName || username),
+                    duration: 2500
+                });
+            }
+
             p.focus();
         }
 
         function togglePasswordVisibility() {
             const pass = document.getElementById('txtPassword');
             const icon = document.getElementById('toggleIcon');
+            const btn = document.getElementById('btnTogglePassword');
             if (pass.type === 'password') {
                 pass.type = 'text';
                 icon.classList.remove('bi-eye');
                 icon.classList.add('bi-eye-slash');
+                if (btn) btn.setAttribute('aria-pressed', 'true');
             } else {
                 pass.type = 'password';
                 icon.classList.remove('bi-eye-slash');
                 icon.classList.add('bi-eye');
+                if (btn) btn.setAttribute('aria-pressed', 'false');
             }
         }
 
         $(function () {
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <text>
+                const card = document.querySelector('.login-card');
+                if (card) {
+                    card.classList.add('fx-shake');
+                    setTimeout(() => card.classList.remove('fx-shake'), 450);
+                }
+                if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                    window.UnetiUI.toast({
+                        type: 'danger',
+                        title: 'Đăng nhập không thành công',
+                        message: 'Tên đăng nhập hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại!'
+                    });
+                }
+                </text>
+            }
+
             if ($.validator) {
                 $.validator.setDefaults({
                     onkeyup: false,

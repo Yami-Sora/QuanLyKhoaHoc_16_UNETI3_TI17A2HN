@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Controller Trang chủ hệ thống - Tích hợp truy vấn dữ liệu nền môn học
+// Controller Trang chủ
 
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
@@ -21,9 +21,16 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var dangMo = _context.MonHocs.Where(m => m.TrangThai);
+
+            // Thống kê dữ liệu cho trang chủ
+            ViewBag.TongMon = await dangMo.CountAsync();
+            ViewBag.TongTinChi = await dangMo.SumAsync(m => (int?)m.SoTinChi) ?? 0;
+            ViewBag.HocPhiTb = await dangMo.AverageAsync(m => (decimal?)m.HocPhi) ?? 0m;
+            ViewBag.HocPhiThapNhat = await dangMo.MinAsync(m => (decimal?)m.HocPhi) ?? 0m;
+
             // Nạp 3 môn học tiêu biểu đang mở giảng dạy từ CSDL
-            var monHocs = await _context.MonHocs
-                .Where(m => m.TrangThai)
+            var monHocs = await dangMo
                 .OrderBy(m => m.MaMonHoc)
                 .Take(3)
                 .ToListAsync();
@@ -31,10 +38,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(monHocs);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

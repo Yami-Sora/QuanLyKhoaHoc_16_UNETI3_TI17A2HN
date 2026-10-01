@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Entity Tài khoản và Phân quyền người dùng
+// Module 1: Entity Tài khoản
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -40,7 +40,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
         [Required(ErrorMessage = "Vai trò không được để trống")]
         [StringLength(20)]
         [Display(Name = "Vai trò")]
-        public string VaiTro { get; set; } = "HocVien"; // Admin | NhanVien | HocVien
+        public string VaiTro { get; set; } = Models.VaiTro.HocVien; // Admin | NhanVien | HocVien
 
         [Display(Name = "Trạng thái hoạt động")]
         public bool TrangThai { get; set; } = true; // true: Hoạt động, false: Khóa
@@ -49,7 +49,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}")]
         public DateTime NgayTao { get; set; } = DateTime.Now;
 
-        // Navigation Property: Liên kết 1 - 0..1 với Học viên (Module 3)
+        // Hồ sơ học viên (Module 3)
         public virtual HocVien? HocVien { get; set; }
     }
 }

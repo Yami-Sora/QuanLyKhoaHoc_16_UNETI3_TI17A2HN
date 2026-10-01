@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - Lớp mã hóa mật khẩu an toàn SHA-256
+// Module 1: Mã hóa mật khẩu SHA-256
 
 using System.Security.Cryptography;
 using System.Text;
@@ -27,7 +27,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
             return string.Equals(hashOfInput, hashedPassword, StringComparison.OrdinalIgnoreCase);
         }
 
-        // Sinh mã Token đặt lại mật khẩu bảo mật (Hiệu lực mặc định 15 phút, tự động vô hiệu hóa sau 1 lần đổi)
+        // Tạo token đặt lại mật khẩu (hạn 15 phút)
         public static string GenerateResetToken(string email, string currentPasswordHash, int expireMinutes = 15)
         {
             var expiry = DateTime.Now.AddMinutes(expireMinutes);

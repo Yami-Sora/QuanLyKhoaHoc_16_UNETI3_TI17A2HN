@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - ViewModel phục vụ Form Đăng ký tài khoản học viên
+// Module 1: ViewModel đăng ký học viên
 
 using System.ComponentModel.DataAnnotations;
 
@@ -37,13 +37,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         [Display(Name = "Nhập lại mật khẩu")]
         public string XacNhanMatKhau { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Số điện thoại không được để trống")]
         [Display(Name = "Số điện thoại")]
         [StringLength(15, ErrorMessage = "Số điện thoại không vượt quá 15 ký tự")]
-        [RegularExpression(@"^$|^(0[3|5|7|8|9])[0-9]{8}$", ErrorMessage = "Số điện thoại phải là số di động Việt Nam hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)")]
-        public string? SoDienThoai { get; set; }
+        [RegularExpression(@"^0[35789][0-9]{8}$", ErrorMessage = "Số điện thoại phải là số di động Việt Nam hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)")]
+        public string SoDienThoai { get; set; } = string.Empty;
 
         [Range(typeof(bool), "true", "true", ErrorMessage = "Vui lòng tích chọn đồng ý với quy chế đào tạo và điều khoản")]
         [Display(Name = "Đồng ý điều khoản")]
-        public bool DongYDieuKhoan { get; set; } = true;
+        public bool DongYDieuKhoan { get; set; } = false;
     }
 }

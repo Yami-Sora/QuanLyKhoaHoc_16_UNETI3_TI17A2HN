@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Quản trị Môn học dành cho Quản trị viên & Nhân viên Đào tạo (CRUD & Thống kê nền tảng)
+    Nội dung: Quản trị môn học
 *@
 
 @model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc>
@@ -11,12 +11,17 @@
     var isAdmin = userRole == "Admin";
 
     ViewData["Title"] = "Quản lý môn học (Dữ liệu nền)";
-    int totalCount = ViewBag.TotalCount ?? Model.Count();
-    int activeCount = ViewBag.ActiveCount ?? Model.Count(m => m.TrangThai);
-    int inactiveCount = ViewBag.InactiveCount ?? Model.Count(m => !m.TrangThai);
-    int totalTinChi = ViewBag.TotalTinChi ?? Model.Sum(m => m.SoTinChi);
-    int avgHocPhi = ViewBag.AvgHocPhi ?? (Model.Any() ? (int)Model.Average(m => m.HocPhi) : 0);
+    int totalCount = ViewBag.TotalCount ?? (Model?.Count() ?? 0);
+    int activeCount = ViewBag.ActiveCount ?? (Model?.Count(m => m.TrangThai) ?? 0);
+    int inactiveCount = ViewBag.InactiveCount ?? (Model?.Count(m => !m.TrangThai) ?? 0);
+    int totalTinChi = ViewBag.TotalTinChi ?? (Model?.Sum(m => m.SoTinChi) ?? 0);
+    int avgHocPhi = ViewBag.AvgHocPhi ?? (Model?.Any() == true ? (int)(Math.Floor(Model.Average(m => m.HocPhi) / 1000m) * 1000m) : 0);
     bool? currentTrangThai = ViewBag.CurrentTrangThai;
+    var currentSearch = ViewBag.CurrentSearch as string;
+
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
 }
 
 <div class="container py-4">
@@ -25,12 +30,12 @@
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Quản lý môn học (Dữ liệu nền)</li>
                 </ol>
             </nav>
             <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-book-half me-2" style="color: var(--uneti-primary);"></i>DANH MỤC MÔN HỌC (DỮ LIỆU NỀN)
+                <i class="bi bi-book-half me-2 text-primary"></i>DANH MỤC MÔN HỌC (DỮ LIỆU NỀN)
             </h3>
             <p class="text-muted mb-0 small">Hệ thống quản lý dữ liệu môn học, định mức học phí và trạng thái mở lớp đào tạo theo học chế tín chỉ</p>
         </div>
@@ -44,82 +49,90 @@
         </div>
     </div>
 
-    <!-- 4 THẺ THỐNG KÊ (STAT CARDS) ĐỒNG BỘ PHONG CÁCH QUẢN LÝ TÀI KHOẢN -->
+    <!-- 4 thẻ thống kê -->
     <div class="row g-3 mb-4">
         <!-- 1. Tổng số môn học -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary" style="width: 52px; height: 52px; min-width: 52px;">
-                    <i class="bi bi-journal-bookmark fs-3"></i>
+            <a asp-action="QuanLy" class="text-decoration-none d-block h-100" title="Xem tất cả môn học">
+                <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm @(currentTrangThai == null ? "active-filter border-primary bg-primary-subtle" : "")">
+                    <div class="uneti-icon-box-52 bg-primary text-white shadow-sm rounded-3">
+                        <i class="bi bi-journal-bookmark fs-3"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Tổng số môn học</span>
+                        <h3 class="fw-bold text-dark mb-0"><span data-count-to="@totalCount">@totalCount</span></h3>
+                        <small class="text-secondary uneti-fs-xs">Môn trong khung đào tạo</small>
+                    </div>
                 </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Tổng số môn học</span>
-                    <h3 class="fw-bold text-dark mb-0">@totalCount</h3>
-                    <small class="text-secondary" style="font-size: 11px;">Môn trong khung đào tạo</small>
-                </div>
-            </div>
+            </a>
         </div>
 
         <!-- 2. Đang mở giảng dạy -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-success-subtle text-success" style="width: 52px; height: 52px; min-width: 52px;">
-                    <i class="bi bi-check2-circle fs-3"></i>
+            <a asp-action="QuanLy" asp-route-trangThai="true" class="text-decoration-none d-block h-100" title="Lọc các môn đang mở">
+                <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm @(currentTrangThai == true ? "active-filter border-success bg-success-subtle" : "")">
+                    <div class="uneti-icon-box-52 bg-success text-white shadow-sm rounded-3">
+                        <i class="bi bi-check2-circle fs-3"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Đang giảng dạy</span>
+                        <h3 class="fw-bold text-success mb-0"><span data-count-to="@activeCount">@activeCount</span></h3>
+                        <small class="text-success uneti-fs-xs">Sẵn sàng mở khóa học</small>
+                    </div>
                 </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Đang giảng dạy</span>
-                    <h3 class="fw-bold text-success mb-0">@activeCount</h3>
-                    <small class="text-success" style="font-size: 11px;">Sẵn sàng mở khóa học</small>
-                </div>
-            </div>
+            </a>
         </div>
 
         <!-- 3. Tạm dừng mở lớp -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-danger-subtle text-danger" style="width: 52px; height: 52px; min-width: 52px;">
-                    <i class="bi bi-pause-circle fs-3"></i>
+            <a asp-action="QuanLy" asp-route-trangThai="false" class="text-decoration-none d-block h-100" title="Lọc các môn tạm dừng">
+                <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm @(currentTrangThai == false ? "active-filter border-danger bg-danger-subtle" : "")">
+                    <div class="uneti-icon-box-52 bg-danger text-white shadow-sm rounded-3">
+                        <i class="bi bi-pause-circle fs-3"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Tạm dừng mở lớp</span>
+                        <h3 class="fw-bold text-danger mb-0"><span data-count-to="@inactiveCount">@inactiveCount</span></h3>
+                        <small class="text-muted uneti-fs-xs">Đang bảo trì / ngưng tuyển</small>
+                    </div>
                 </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Tạm dừng mở lớp</span>
-                    <h3 class="fw-bold text-danger mb-0">@inactiveCount</h3>
-                    <small class="text-muted" style="font-size: 11px;">Đang bảo trì / ngưng tuyển</small>
-                </div>
-            </div>
+            </a>
         </div>
 
         <!-- 4. Tổng tín chỉ & Học phí TB -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning-subtle text-warning-emphasis" style="width: 52px; height: 52px; min-width: 52px;">
+            <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
+                <div class="uneti-icon-box-52 bg-warning text-white shadow-sm rounded-3">
                     <i class="bi bi-cash-stack fs-3"></i>
                 </div>
                 <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Học phí trung bình</span>
-                    <h4 class="fw-bold text-dark mb-0">@avgHocPhi.ToString("N0") <small class="fs-6 fw-normal text-muted">đ</small></h4>
-                    <small class="text-secondary" style="font-size: 11px;">Tổng tích lũy: <strong>@totalTinChi</strong> tín chỉ</small>
+                    <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Học phí trung bình</span>
+                    <h4 class="fw-bold text-dark mb-0"><span data-count-to="@avgHocPhi" data-format="currency">@avgHocPhi.ToString("N0")</span> <small class="fs-6 fw-normal text-muted">đ</small></h4>
+                    <small class="text-secondary uneti-fs-xs">Tổng tích lũy: <strong>@totalTinChi</strong> tín chỉ</small>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Thông báo TempData -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
-            <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
-            <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-4 py-3" role="alert">
-            <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
-            <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
+    <noscript>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
+                <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+                <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-4 py-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
+                <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </noscript>
 
     <!-- THANH TÌM KIẾM & BỘ LỌC -->
     <div class="uneti-card p-3 mb-4 shadow-sm">
@@ -150,10 +163,26 @@
         </form>
     </div>
 
+    <!-- THANH LỌC NHANH TRÊN BẢNG HIỆN TẠI -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 px-1 gap-2">
+        <div class="small text-muted fw-semibold">
+            <i class="bi bi-list-check me-1 text-primary"></i>Danh sách hiển thị (<span id="visibleRowCount">@(Model?.Count() ?? 0)</span> môn học)
+        </div>
+        <div style="min-width: 280px;">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
+                <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (tên, mã, TC)..." aria-label="Lọc nhanh trên bảng" />
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- BẢNG DANH MỤC MÔN HỌC QUẢN TRỊ -->
     <div class="uneti-card overflow-hidden shadow-sm">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 uneti-table">
+            <table class="table table-hover align-middle mb-0 uneti-table" id="monHocAdminTable">
                 <thead>
                     <tr>
                         <th class="ps-3" style="width: 100px;">Mã môn</th>
@@ -166,7 +195,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    <tr id="quickSearchEmptyRow" style="display: none;">
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
+                            <div>Không tìm thấy môn học nào khớp với từ khóa "<strong><span id="quickSearchTerm"></span></strong>".</div>
+                            <button type="button" class="btn btn-sm uneti-btn-outline mt-3 rounded-pill" id="btnResetQuickFilter">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc nhanh
+                            </button>
+                        </td>
+                    </tr>
+                    @if (Model == null || !Model.Any())
                     {
                         <tr>
                             <td colspan="7" class="text-center py-5 text-muted">
@@ -179,12 +217,12 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="ps-3 fw-bold text-muted">#MH0@(item.MaMonHoc)</td>
+                                <td class="ps-3 fw-bold text-muted">#MH@item.MaMonHoc.ToString("D3")</td>
                                 <td>
                                     <div class="fw-bold text-dark">@item.TenMonHoc</div>
                                     @if (!string.IsNullOrEmpty(item.MoTa))
                                     {
-                                        <small class="text-muted text-truncate d-block" style="max-width: 340px;">@item.MoTa</small>
+                                        <small class="text-muted text-truncate d-block uneti-max-w-340">@item.MoTa</small>
                                     }
                                 </td>
                                 <td class="text-center">
@@ -193,18 +231,18 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <div class="fw-bold" style="color: var(--uneti-primary); font-size: 0.95rem;">
+                                    <div class="fw-bold text-primary">
                                         @item.HocPhi.ToString("N0") đ
                                     </div>
-                                    <div class="text-muted small" style="font-size: 11px;">
-                                        ~@((item.SoTinChi > 0 ? item.HocPhi / item.SoTinChi : 0).ToString("N0")) đ/tín
+                                    <div class="text-muted small uneti-fs-xs">
+                                        ~@((item.SoTinChi > 0 ? Math.Round((item.HocPhi / item.SoTinChi) / 1000m, MidpointRounding.AwayFromZero) * 1000m : 0m).ToString("N0")) đ/tín
                                     </div>
                                 </td>
                                 <td class="text-center">
                                     @if (item.KhoaHocs != null && item.KhoaHocs.Any())
                                     {
                                         <span class="badge bg-light text-dark border">
-                                            <i class="bi bi-mortarboard me-1" style="color: var(--uneti-primary);"></i>@item.KhoaHocs.Count lớp
+                                            <i class="bi bi-mortarboard me-1 text-primary"></i>@item.KhoaHocs.Count lớp
                                         </span>
                                     }
                                     else
@@ -236,7 +274,11 @@
                                             <a asp-action="Edit" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-edit" title="Chỉnh sửa môn học">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <form asp-action="ToggleStatus" asp-route-id="@item.MaMonHoc" method="post" class="d-inline m-0 p-0">
+                                            <form asp-action="ToggleStatus" asp-route-id="@item.MaMonHoc" method="post" class="d-inline m-0 p-0"
+                                                  data-uneti-confirm="Bạn có chắc chắn muốn thay đổi trạng thái môn '@item.TenMonHoc' sang @(item.TrangThai ? "Tạm dừng" : "Đang mở")?"
+                                                  data-uneti-title="Đổi trạng thái môn học"
+                                                  data-uneti-type="warning"
+                                                  data-uneti-ok="Đổi trạng thái">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="btn-action-icon btn-action-toggle" title="Đổi trạng thái Đang mở / Tạm dừng">
                                                     <i class="bi bi-arrow-repeat"></i>
@@ -263,8 +305,85 @@
             </table>
         </div>
         <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted">
-            <span>Hiển thị <strong>@Model.Count()</strong> trên tổng số <strong>@totalCount</strong> môn học trong cơ sở dữ liệu</span>
+            <span>Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalCount</strong> môn học trong cơ sở dữ liệu</span>
             <span>Cơ sở dữ liệu đào tạo tín chỉ - Năm học 2025-2026</span>
         </div>
     </div>
+
+    <!-- PHÂN TRANG DANH SÁCH MÔN HỌC (PAGINATION) -->
+    @if (totalPages > 1)
+    {
+        <nav aria-label="Phân trang danh mục môn học" class="mt-4 d-flex justify-content-center">
+            <ul class="pagination pagination-sm flex-wrap justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                @for (int p = 1; p <= totalPages; p++)
+                {
+                    <li class="page-item @(p == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">@p</a>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const searchInput = document.getElementById('adminTableQuickSearch');
+            const clearBtn = document.getElementById('btnClearQuickSearch');
+            const resetBtn = document.getElementById('btnResetQuickFilter');
+            const emptyRow = document.getElementById('quickSearchEmptyRow');
+            const visibleCountEl = document.getElementById('visibleRowCount');
+            const summaryCountEl = document.getElementById('summaryRowCount');
+            const table = document.getElementById('monHocAdminTable');
+            if (!searchInput || !table) return;
+
+            const rows = table.querySelectorAll('tbody tr:not(#quickSearchEmptyRow)');
+
+            function doFilter() {
+                const term = searchInput.value.trim().toLowerCase();
+                if (clearBtn) clearBtn.style.display = term ? 'inline-block' : 'none';
+                let visibleCount = 0;
+
+                rows.forEach(function (row) {
+                    const text = row.textContent.toLowerCase();
+                    if (!term || text.indexOf(term) !== -1) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (visibleCountEl) visibleCountEl.textContent = visibleCount;
+                if (summaryCountEl) summaryCountEl.textContent = visibleCount;
+                if (emptyRow) {
+                    emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+                    const termSpan = document.getElementById('quickSearchTerm');
+                    if (termSpan) termSpan.textContent = searchInput.value;
+                }
+            }
+
+            searchInput.addEventListener('input', doFilter);
+
+            function resetSearch() {
+                searchInput.value = '';
+                doFilter();
+                searchInput.focus();
+            }
+
+            clearBtn?.addEventListener('click', resetSearch);
+            resetBtn?.addEventListener('click', resetSearch);
+        })();
+    </script>
+}

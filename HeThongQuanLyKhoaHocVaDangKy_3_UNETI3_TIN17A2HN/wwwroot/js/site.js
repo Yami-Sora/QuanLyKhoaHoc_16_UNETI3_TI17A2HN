@@ -1,13 +1,15 @@
-// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
-// Nội dung thực hiện: Module 1 - Hệ thống Script hỗ trợ trải nghiệm người dùng (UX) & Validation tương tác Realtime
+﻿// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
+// Module 1: Script hỗ trợ UI & Validation
 
-// Hàm thông báo phân hệ các Module khác đang phát triển (Đề tài 16 UNETI)
+// Hàm thông báo phân hệ các Module khác đang phát triển (Đề tài 16)
 function thongBaoModule(soModule) {
-    alert("Đây là nội dung của Module " + soModule + " và sẽ tự xóa thông báo này khi hoàn thiện.");
+    if (window.UnetiUI && typeof window.UnetiUI.showModulePending === 'function') {
+        window.UnetiUI.showModulePending(soModule);
+    }
 }
 
 // =========================================================================
-// HỆ THỐNG VALIDATION TƯƠNG TÁC THÔNG MINH - TỰ ĐỘNG XÓA LỖI ĐỎ KHI NHẬP LIỆU
+// Tự động xóa thông báo lỗi khi người dùng nhập liệu
 // =========================================================================
 document.addEventListener('DOMContentLoaded', function () {
     initDynamicFormValidation();
@@ -25,7 +27,7 @@ function initDynamicFormValidation() {
             });
         });
 
-        // Khi người dùng bấm focus vào ô cũng hỗ trợ xóa cảnh báo nếu đã có ký tự
+        // Xóa cảnh báo khi focus nếu ô đã có giá trị
         input.addEventListener('focus', function () {
             if (input.value && input.value.trim().length > 0) {
                 clearFieldError(input);
@@ -135,7 +137,7 @@ function findErrorElement(input) {
         if (el) return el;
     }
 
-    // Ưu tiên 2: Tìm trong container bao quanh (.col, .mb-2, .mb-3, .custom-input-group)
+    // Tìm trong container bao quanh
     const container = input.closest('.col-md-6, .col-12, .mb-2, .mb-3, .form-check, .form-group') || input.parentElement;
     if (container) {
         const localError = container.querySelector('.field-validation-error, span[data-valmsg-for], span.text-danger:not(.text-danger-required)');

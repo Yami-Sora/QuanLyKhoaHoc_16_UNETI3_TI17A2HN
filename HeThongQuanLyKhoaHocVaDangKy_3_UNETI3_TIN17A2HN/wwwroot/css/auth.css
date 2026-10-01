@@ -1,0 +1,417 @@
+﻿/*
+    Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
+    Nội dung: CSS các trang xác thực (Login, Register...)
+*/
+
+:root {
+    --uneti-primary: #1d4ed8;
+    --uneti-primary-hover: #1e40af;
+    --uneti-primary-light: #3b82f6;
+    --uneti-primary-subtle: #eff6ff;
+    --uneti-border: #e2e8f0;
+    --uneti-muted: #94a3b8;
+    --uneti-danger: #ef4444;
+    --uneti-danger-bg: #fef2f2;
+    --uneti-text-main: #1e293b;
+    --uneti-text-muted: #64748b;
+    --uneti-text-heading: #0f172a;
+    --uneti-bg-page: #f1f5f9;
+}
+
+/* 1. Nền trang xác thực toàn màn hình */
+body.auth-body,
+body:has(.auth-card),
+body:has(.login-card),
+body:has(.register-card),
+body:has(.forgot-card),
+body:has(.reset-card),
+body:has(.change-card) {
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--uneti-bg-page);
+    background-image: 
+        linear-gradient(135deg, rgba(239, 246, 255, 0.45) 0%, rgba(219, 234, 254, 0.55) 100%),
+        url('/images/auth-bg.webp');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 1rem;
+    margin: 0;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* 2. Glassmorphism Card xác thực */
+.auth-card,
+.login-card,
+.forgot-card,
+.reset-card,
+.change-card {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 24px;
+    box-shadow: 
+        0 20px 40px -15px rgba(15, 23, 42, 0.16),
+        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+    width: 100%;
+    max-width: 440px;
+    padding: 2.5rem 2.25rem;
+    position: relative;
+    z-index: 10;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-sizing: border-box;
+}
+
+.auth-card-wide,
+.register-card {
+    max-width: 530px;
+    padding: 2.25rem 2.25rem;
+}
+
+/* 3. Logo Badge nhận diện */
+.uneti-logo-badge,
+.logo-badge {
+    width: 58px;
+    height: 58px;
+    background: linear-gradient(135deg, var(--uneti-primary) 0%, var(--uneti-primary-light) 100%);
+    color: #ffffff;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 10px 22px -6px rgba(29, 78, 216, 0.38);
+    border: 3px solid #ffffff;
+    margin: 0 auto;
+}
+
+/* 4. Tiêu đề khối xác thực */
+.header-title {
+    color: var(--uneti-text-heading);
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.header-subtitle {
+    color: var(--uneti-text-muted);
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+/* 5. Nhãn trường nhập liệu */
+.form-label-custom {
+    color: #334155;
+    font-size: 13.5px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.45rem;
+}
+
+.auth-card-wide .form-label-custom,
+.register-card .form-label-custom {
+    font-size: 13px;
+    margin-bottom: 0.35rem;
+}
+
+/* 6. Nhóm ô nhập liệu & Biểu tượng */
+.custom-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.custom-input-group .input-icon-start {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--uneti-muted);
+    font-size: 1.15rem;
+    pointer-events: none;
+    z-index: 5;
+    transition: color 0.2s ease;
+}
+
+.auth-card-wide .custom-input-group .input-icon-start,
+.register-card .custom-input-group .input-icon-start {
+    left: 14px;
+    font-size: 1.1rem;
+}
+
+.custom-input-group:focus-within .input-icon-start {
+    color: var(--uneti-primary-hover);
+}
+
+.custom-input-group .form-control.custom-input {
+    width: 100%;
+    height: 48px;
+    padding-left: 46px;
+    padding-right: 46px;
+    border-radius: 12px;
+    border: 1.5px solid var(--uneti-border);
+    background-color: #f8fafc;
+    font-size: 14.5px;
+    font-family: inherit;
+    color: var(--uneti-text-main);
+    transition: all 0.2s ease-in-out;
+}
+
+.auth-card-wide .custom-input-group .form-control.custom-input,
+.register-card .custom-input-group .form-control.custom-input {
+    height: 46px;
+    padding-left: 42px;
+    padding-right: 42px;
+    font-size: 14px;
+}
+
+.custom-input-group .form-control.custom-input.no-right-icon {
+    padding-right: 16px;
+}
+
+.custom-input-group .form-control.custom-input::placeholder {
+    color: var(--uneti-muted);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.custom-input-group .form-control.custom-input:focus {
+    background-color: #ffffff;
+    border-color: var(--uneti-primary-light);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    color: var(--uneti-text-heading);
+    outline: none;
+}
+
+/* 7. Định dạng lỗi Validation */
+.custom-input-group .form-control.custom-input.input-validation-error,
+.form-control.input-validation-error {
+    border-color: var(--uneti-danger) !important;
+    background-color: var(--uneti-danger-bg) !important;
+}
+
+.custom-input-group .form-control.custom-input.input-validation-error:focus,
+.form-control.input-validation-error:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12) !important;
+    border-color: var(--uneti-danger) !important;
+}
+
+.field-validation-error {
+    color: var(--uneti-danger);
+    font-size: 12.5px;
+    font-weight: 500;
+    margin-top: 4px;
+    display: block;
+    line-height: 1.3;
+}
+
+.field-validation-valid {
+    display: none !important;
+}
+
+/* 8. Nút ẩn/hiện mật khẩu */
+.btn-toggle-eye {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 6px 8px;
+    color: var(--uneti-muted);
+    font-size: 1.15rem;
+    cursor: pointer;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-eye:hover {
+    color: #334155;
+    background-color: var(--uneti-border);
+}
+
+/* 9. Nút Submit hành động */
+.btn-submit-auth,
+.btn-submit-login,
+.btn-submit-register,
+.btn-submit-change,
+.btn-submit-action {
+    background: linear-gradient(135deg, var(--uneti-primary) 0%, var(--uneti-primary-hover) 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    height: 48px;
+    font-size: 15.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 18px -4px rgba(29, 78, 216, 0.35);
+    transition: all 0.2s ease;
+    width: 100%;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-submit-auth:hover,
+.btn-submit-login:hover,
+.btn-submit-register:hover,
+.btn-submit-change:hover,
+.btn-submit-action:hover {
+    background: linear-gradient(135deg, var(--uneti-primary-hover) 0%, var(--uneti-primary) 100%);
+    box-shadow: 0 10px 22px -4px rgba(29, 78, 216, 0.45);
+    transform: translateY(-1px);
+    color: #ffffff;
+}
+
+.btn-submit-auth:active,
+.btn-submit-login:active,
+.btn-submit-register:active,
+.btn-submit-change:active,
+.btn-submit-action:active {
+    transform: translateY(0);
+}
+
+.hover-underline:hover {
+    text-decoration: underline !important;
+}
+
+/* 10. Thanh đo độ mạnh mật khẩu */
+.password-strength-bar {
+    height: 4px;
+    background: var(--uneti-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.password-strength-progress {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+/* 11. Khối tài khoản mẫu dùng thử */
+.demo-accounts-box {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 12px 14px;
+}
+
+.demo-pills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+@media (min-width: 576px) {
+    .demo-pills-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.demo-pill {
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    height: 38px;
+    padding: 0 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.18s ease;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+}
+
+.demo-pill:hover {
+    transform: translateY(-1px);
+}
+
+.demo-pill-admin {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+.demo-pill-admin:hover {
+    background: #fee2e2;
+}
+.demo-pill-admin.is-active {
+    border-color: #dc2626 !important;
+    background: #fee2e2 !important;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(220, 38, 38, 0.35);
+}
+
+.demo-pill-staff {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+.demo-pill-staff:hover {
+    background: #dbeafe;
+}
+.demo-pill-staff.is-active {
+    border-color: #2563eb !important;
+    background: #dbeafe !important;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(37, 99, 235, 0.35);
+}
+
+.demo-pill-student {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+.demo-pill-student:hover {
+    background: #d1fae5;
+}
+.demo-pill-student.is-active {
+    border-color: #059669 !important;
+    background: #d1fae5 !important;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(5, 150, 105, 0.35);
+}
+
+.demo-pill-locked {
+    background: #f1f5f9;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+.demo-pill-locked:hover {
+    background: #e2e8f0;
+}
+.demo-pill-locked.is-active {
+    border-color: #475569 !important;
+    background: #e2e8f0 !important;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(71, 85, 105, 0.35);
+}
+
+/* 12. Hiệu ứng nhấp nháy Input */
+.input-flash {
+    animation: authInputPulse 0.4s ease-out;
+}
+
+@keyframes authInputPulse {
+    0% { background-color: #dbeafe; }
+    100% { background-color: #f8fafc; }
+}

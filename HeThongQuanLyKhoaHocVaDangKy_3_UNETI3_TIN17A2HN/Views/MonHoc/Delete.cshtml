@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung thực hiện: Module 1 - Giao diện Xác nhận xóa môn học (Bảo vệ toàn vẹn dữ liệu) - Đồng bộ UNETI
+    Nội dung: Xác nhận xóa môn học
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc
@@ -48,7 +48,7 @@
                     <div class="bg-light p-3 rounded-3 mb-4 border">
                         <dl class="row mb-0">
                             <dt class="col-sm-4 text-muted">Mã môn học:</dt>
-                            <dd class="col-sm-8 fw-bold">#MH0@(Model.MaMonHoc)</dd>
+                            <dd class="col-sm-8 fw-bold">#MH@Model.MaMonHoc.ToString("D3")</dd>
 
                             <dt class="col-sm-4 text-muted">Tên môn học:</dt>
                             <dd class="col-sm-8 fw-bold" style="color: var(--uneti-primary);">@Model.TenMonHoc</dd>
@@ -84,7 +84,7 @@
 
                             @if (!hasKhoaHoc)
                             {
-                                <button type="submit" class="btn btn-danger fw-bold px-4 rounded-3 shadow-sm">
+                                <button type="submit" class="btn btn-danger fw-bold px-4 rounded-3 shadow-sm" data-loading-text="Đang xóa môn học...">
                                     <i class="bi bi-trash me-1"></i>Xác nhận Xóa
                                 </button>
                             }

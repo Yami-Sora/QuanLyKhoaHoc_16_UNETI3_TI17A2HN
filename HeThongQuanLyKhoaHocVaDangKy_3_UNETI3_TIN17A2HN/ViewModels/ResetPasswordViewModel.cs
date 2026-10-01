@@ -1,6 +1,6 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Nội dung thực hiện: Module 1 - ViewModel phục vụ Form Đặt lại mật khẩu mới
+// Module 1: ViewModel đặt lại mật khẩu
 
 using System.ComponentModel.DataAnnotations;
 
