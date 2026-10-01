@@ -1,0 +1,119 @@
+@*
+    Họ và tên: Bạch Đức Sự
+    Mã sinh viên: 23103100063
+    Nội dung thực hiện: Module 4 - Giao diện Tiếp nhận Đăng ký Khóa học Mới tại Quầy Tiếp nhận
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.TaoDangKyMoiViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Tiếp nhận ghi danh khóa học mới tại quầy";
+}
+
+<div class="container py-4" style="max-width: 850px;">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="mb-4 pb-2 border-bottom">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small">
+                <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Quản trị</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Tiếp nhận & Duyệt đăng ký</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tiếp nhận ghi danh mới</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-pencil-square me-2" style="color: var(--uneti-primary);"></i>TIẾP NHẬN GHI DANH KHÓA HỌC TẠI QUẦY
+        </h3>
+        <p class="text-muted mb-0 small">Thêm mới đơn đăng ký khóa học cho học viên, thẩm định sĩ số lớp và thu học phí ban đầu</p>
+    </div>
+
+    <!-- Thông báo lỗi tổng quát -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger uneti-card border-danger-subtle mb-4 py-3" role="alert">
+            <div class="fw-bold d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                <span>Vui lòng kiểm tra lại thông tin:</span>
+            </div>
+            <div asp-validation-summary="All" class="text-danger small mb-0 ps-3"></div>
+        </div>
+    }
+
+    <!-- FORM GHI DANH TẠI QUẦY -->
+    <div class="uneti-card p-4 shadow-sm">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3">
+                <!-- 1. Chọn Học viên -->
+                <div class="col-12">
+                    <label asp-for="MaHocVien" class="form-label small fw-semibold text-dark">
+                        Chọn Học viên ghi danh (*):
+                    </label>
+                    <select asp-for="MaHocVien" asp-items="ViewBag.HocViens" class="form-select form-select-sm">
+                        <option value="">-- Vui lòng chọn học viên trong hệ thống --</option>
+                    </select>
+                    <span asp-validation-for="MaHocVien" class="text-danger small"></span>
+                </div>
+
+                <!-- 2. Chọn Khóa học -->
+                <div class="col-12">
+                    <label asp-for="MaKhoaHoc" class="form-label small fw-semibold text-dark">
+                        Chọn Khóa học đăng ký (* Chỉ hiển thị các khóa học đang mở):
+                    </label>
+                    <select asp-for="MaKhoaHoc" asp-items="ViewBag.KhoaHocs" class="form-select form-select-sm">
+                        <option value="">-- Vui lòng chọn khóa học đang mở tuyển sinh --</option>
+                    </select>
+                    <span asp-validation-for="MaKhoaHoc" class="text-danger small"></span>
+                </div>
+
+                <!-- 3. Trạng thái ban đầu -->
+                <div class="col-md-6">
+                    <label asp-for="TrangThai" class="form-label small fw-semibold text-dark">
+                        Trạng thái ban đầu:
+                    </label>
+                    <select asp-for="TrangThai" class="form-select form-select-sm">
+                        <option value="ChoXuLy">Chờ xử lý (Tiếp nhận hồ sơ ban đầu)</option>
+                        <option value="DangXuLy">Đang xử lý (Đã thẩm định sơ bộ tại quầy)</option>
+                    </select>
+                    <span asp-validation-for="TrangThai" class="text-danger small"></span>
+                </div>
+
+                <!-- 4. Số tiền nộp đợt đầu -->
+                <div class="col-md-6">
+                    <label asp-for="SoTienDaDong" class="form-label small fw-semibold text-dark">
+                        Số tiền nộp ban đầu (VNĐ):
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input asp-for="SoTienDaDong" class="form-control form-control-sm" type="number" step="50000" min="0" placeholder="0" />
+                        <span class="input-group-text">đ</span>
+                    </div>
+                    <span asp-validation-for="SoTienDaDong" class="text-danger small"></span>
+                    <small class="text-muted" style="font-size: 11px;">Nhập 0 đ nếu học viên chưa nộp tiền ngay.</small>
+                </div>
+
+                <!-- 5. Ghi chú tiếp nhận -->
+                <div class="col-12">
+                    <label asp-for="GhiChu" class="form-label small fw-semibold text-dark">
+                        Ghi chú tiếp nhận hồ sơ:
+                    </label>
+                    <textarea asp-for="GhiChu" class="form-control form-control-sm" rows="3" placeholder="Nhập ghi chú ca học mong muốn, hình thức đóng tiền (tiền mặt/chuyển khoản), ghi chú thêm..."></textarea>
+                    <span asp-validation-for="GhiChu" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <!-- Nút Lưu -->
+            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary px-3">
+                    <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+                </a>
+                <button type="submit" class="btn btn-sm uneti-btn-primary px-4 fw-semibold shadow-sm">
+                    <i class="bi bi-check-circle-fill me-1"></i>Xác nhận tạo đơn đăng ký
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

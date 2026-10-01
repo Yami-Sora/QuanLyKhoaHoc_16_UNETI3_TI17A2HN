@@ -1,0 +1,196 @@
+@*
+    Họ và tên: Bạch Đức Sự
+    Mã sinh viên: 23103100063
+    Nội dung thực hiện: Module 4 - Giao diện Cập nhật Luồng Trạng thái Đăng ký, Đối soát Thu học phí và Thẩm định Điều kiện
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.CapNhatTrangThaiViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = $"Cập nhật trạng thái hồ sơ #{Model.MaDangKy}";
+}
+
+<div class="container py-4" style="max-width: 900px;">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="mb-4 pb-2 border-bottom">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small">
+                <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Quản trị</a></li>
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Tiếp nhận & Duyệt đăng ký</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Cập nhật hồ sơ #@Model.MaDangKy</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-sliders me-2" style="color: var(--uneti-primary);"></i>CẬP NHẬT TRẠNG THÁI & ĐỐI SOÁT HỌC PHÍ
+        </h3>
+        <p class="text-muted mb-0 small">Hồ sơ đăng ký #@Model.MaDangKy — Học viên: <strong>@Model.HoTenHocVien</strong></p>
+    </div>
+
+    <!-- Thông báo lỗi tổng thể (Validation Summary) -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger uneti-card border-danger-subtle mb-4 py-3" role="alert">
+            <div class="fw-bold d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                <span>Phát hiện vi phạm điều kiện nghiệp vụ:</span>
+            </div>
+            <div asp-validation-summary="All" class="text-danger small mb-0 ps-3"></div>
+        </div>
+    }
+
+    <!-- CARD THÔNG TIN TỔNG QUAN HỒ SƠ ĐĂNG KÝ -->
+    <div class="uneti-card p-3 mb-4 shadow-sm bg-light">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="small text-muted mb-1">Học viên đăng ký:</div>
+                <div class="fw-bold text-dark fs-6">@Model.HoTenHocVien</div>
+                <div class="small text-muted mt-1">
+                    <span><i class="bi bi-telephone text-primary me-1"></i>@Model.SoDienThoai</span> |
+                    <span><i class="bi bi-envelope text-primary me-1"></i>@Model.Email</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="small text-muted mb-1">Khóa học đăng ký:</div>
+                <div class="fw-bold text-primary fs-6">@Model.TenKhoaHoc</div>
+                <div class="small text-muted mt-1 d-flex flex-wrap gap-2">
+                    <span>Học phí: <strong>@Model.HocPhi.ToString("N0") đ</strong></span>
+                    <span>•</span>
+                    <span>Sĩ số: <strong>@Model.SiSoHienTai / @Model.SoLuongToiDa</strong></span>
+                    <span>•</span>
+                    <span>Trạng thái lớp: <span class="badge @(Model.TrangThaiKhoaHoc == "DangMo" ? "bg-success" : "bg-warning text-dark")">@Model.TrangThaiKhoaHoc</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI QUY TẮC LUỒNG TRẠNG THÁI -->
+    <div class="alert alert-primary border-0 rounded-3 mb-4 p-3 bg-primary-subtle text-primary-emphasis">
+        <div class="fw-bold mb-1 small text-uppercase"><i class="bi bi-diagram-3-fill me-1"></i>Quy tắc luồng trạng thái chuẩn:</div>
+        <div class="small">
+            <strong>[Chờ xử lý]</strong> &rarr; <strong>[Đang xử lý]</strong> &rarr; <strong>[Hoàn thành]</strong> (hoặc <strong>[Đã hủy]</strong>). Không cho phép nhảy cóc sai quy trình thẩm định.
+        </div>
+    </div>
+
+    <!-- FORM CẬP NHẬT TRẠNG THÁI -->
+    <div class="uneti-card p-4 shadow-sm">
+        <form asp-action="CapNhatTrangThai" method="post" id="formCapNhat">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="MaDangKy" />
+            <input type="hidden" id="hocPhiGoc" value="@Model.HocPhi" />
+
+            <div class="row g-3">
+                <!-- 1. Trạng thái hiện tại -->
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold text-secondary">Trạng thái hiện tại:</label>
+                    <div class="form-control form-control-sm bg-light text-muted fw-bold">
+                        @switch (Model.TrangThaiHienTai)
+                        {
+                            case "ChoXuLy": <span><i class="bi bi-clock text-warning me-1"></i>Chờ xử lý</span>; break;
+                            case "DangXuLy": <span><i class="bi bi-gear text-primary me-1"></i>Đang xử lý</span>; break;
+                            case "HoanThanh": <span><i class="bi bi-check-circle-fill text-success me-1"></i>Hoàn thành</span>; break;
+                            case "BiHuy": <span><i class="bi bi-x-circle-fill text-danger me-1"></i>Đã hủy</span>; break;
+                            default: <span>@Model.TrangThaiHienTai</span>; break;
+                        }
+                    </div>
+                </div>
+
+                <!-- 2. Trạng thái mới (Dropdown chỉ chứa trạng thái hợp lệ) -->
+                <div class="col-md-6">
+                    <label asp-for="TrangThaiMoi" class="form-label small fw-semibold text-dark">
+                        Chuyển sang trạng thái mới (*):
+                    </label>
+                    <select asp-for="TrangThaiMoi" class="form-select form-select-sm" id="selectTrangThaiMoi">
+                        <!-- Giữ nguyên trạng thái hiện tại -->
+                        <option value="@Model.TrangThaiHienTai">-- Giữ nguyên (@Model.TrangThaiHienTai) --</option>
+                        
+                        <!-- Các trạng thái hợp lệ theo luồng -->
+                        @foreach (var tt in Model.TrangThaiHopLe)
+                        {
+                            if (tt != Model.TrangThaiHienTai)
+                            {
+                                var tenHienThi = tt switch
+                                {
+                                    "DangXuLy" => "Đang xử lý (Tiếp nhận hồ sơ & đối soát)",
+                                    "HoanThanh" => "Hoàn thành (Duyệt thành công & nhập học)",
+                                    "BiHuy" => "Đã hủy / Từ chối đơn",
+                                    "ChoXuLy" => "Chờ xử lý (Khôi phục / xem xét lại)",
+                                    _ => tt
+                                };
+                                <option value="@tt" selected="@(Model.TrangThaiMoi == tt)">@tenHienThi</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="TrangThaiMoi" class="text-danger small"></span>
+                </div>
+
+                <!-- 3. Số tiền đã nộp -->
+                <div class="col-md-6">
+                    <label asp-for="SoTienDaDong" class="form-label small fw-semibold text-dark">
+                        Số tiền đã nộp (VNĐ) (*):
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input asp-for="SoTienDaDong" class="form-control form-control-sm" id="inputSoTienDaDong" type="number" step="10000" min="0" max="100000000" />
+                        <span class="input-group-text">đ</span>
+                    </div>
+                    <span asp-validation-for="SoTienDaDong" class="text-danger small"></span>
+                    <div class="d-flex gap-2 mt-1">
+                        <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 11px;" onclick="setTien(0)">0 đ</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size: 11px;" onclick="setTien(@(Model.HocPhi / 2))">50% (@((Model.HocPhi / 2).ToString("N0")) đ)</button>
+                        <button type="button" class="btn btn-outline-success btn-sm py-0 px-2" style="font-size: 11px;" onclick="setTien(@Model.HocPhi)">Đủ 100% (@Model.HocPhi.ToString("N0") đ)</button>
+                    </div>
+                </div>
+
+                <!-- 4. Số tiền còn lại (Công nợ tự động tính) -->
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold text-secondary">Công nợ học phí còn lại:</label>
+                    <div class="form-control form-control-sm bg-light text-danger fw-bold" id="displaySoTienConLai">
+                        @Model.SoTienConLai.ToString("N0") đ
+                    </div>
+                    <small class="text-muted" style="font-size: 11px;">Tự động tính: Học phí niêm yết - Số tiền đã nộp</small>
+                </div>
+
+                <!-- 5. Ghi chú giao dịch / Lý do -->
+                <div class="col-12">
+                    <label asp-for="GhiChu" class="form-label small fw-semibold text-dark">
+                        Ghi chú giao dịch / Lý do chuyển trạng thái:
+                    </label>
+                    <textarea asp-for="GhiChu" class="form-control form-control-sm" rows="3" placeholder="Nhập ghi chú giao dịch nộp tiền, mã hóa đơn ngân hàng, hoặc lý do hủy đơn nếu chuyển sang Đã hủy..."></textarea>
+                    <span asp-validation-for="GhiChu" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <!-- Nút Lưu -->
+            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                <a asp-action="Details" asp-route-id="@Model.MaDangKy" class="btn btn-sm btn-outline-secondary px-3">
+                    <i class="bi bi-arrow-left me-1"></i>Hủy thao tác
+                </a>
+                <button type="submit" class="btn btn-sm uneti-btn-primary px-4 fw-semibold shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i>Lưu cập nhật hồ sơ
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Tự động tính công nợ còn lại
+        var hocPhi = parseFloat(document.getElementById('hocPhiGoc').value) || 0;
+        var inputDaDong = document.getElementById('inputSoTienDaDong');
+        var displayConLai = document.getElementById('displaySoTienConLai');
+
+        function updateConLai() {
+            var daDong = parseFloat(inputDaDong.value) || 0;
+            var conLai = Math.max(0, hocPhi - daDong);
+            displayConLai.innerText = conLai.toLocaleString('vi-VN') + ' đ';
+        }
+
+        function setTien(soTien) {
+            inputDaDong.value = soTien;
+            updateConLai();
+        }
+
+        inputDaDong.addEventListener('input', updateConLai);
+    </script>
+}
