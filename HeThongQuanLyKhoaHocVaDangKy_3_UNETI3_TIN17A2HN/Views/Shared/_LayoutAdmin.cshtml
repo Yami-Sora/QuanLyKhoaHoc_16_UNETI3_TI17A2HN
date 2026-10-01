@@ -91,11 +91,7 @@
                 <!-- 3. QUẢN TRỊ KHÓA HỌC -->
                 <div class="admin-menu-header mt-2">Quản trị khóa học</div>
 
-                <a href="#module-pending" role="button" class="admin-nav-item module-placeholder-link"
-                   title="Quản lý khóa học"
-                   data-module="Module 2 (Quản lý khóa học & Lớp học phần)"
-                   data-feature="Quản lý khóa học & Giảng viên"
-                   data-desc="Bao gồm: Thiết lập danh sách khóa học, kế hoạch mở lớp, phân công giảng viên, tìm kiếm đa tiêu chí, lọc theo môn học & học phí theo Mục 6 & Mục 10 Đề tài 16.">
+                <a asp-controller="KhoaHoc" asp-action="QuanLy" class="admin-nav-item @(currentController == "KhoaHoc" && currentAction == "QuanLy" ? "active" : "")">
                     <i class="bi bi-mortarboard-fill"></i>
                     <span>Quản lý khóa học</span>
                 </a>

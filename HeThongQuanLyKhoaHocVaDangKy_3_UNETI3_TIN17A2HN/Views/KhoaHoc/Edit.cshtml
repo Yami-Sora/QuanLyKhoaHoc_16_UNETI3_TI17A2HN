@@ -1,0 +1,161 @@
+@*
+    Họ và tên: Nguyễn Văn Mạnh
+    Mã sinh viên: 23103100096
+    Nội dung thực hiện: Module 2 - Giao diện Cập nhật Thông tin Khóa học
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.KhoaHoc
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Chỉnh sửa khóa học";
+}
+
+<div class="container py-4">
+    <!-- Header trang -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Bảng điều khiển</a></li>
+                    <li class="breadcrumb-item"><a asp-action="QuanLy" class="text-decoration-none" style="color: var(--uneti-primary);">Quản lý khóa học</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa khóa học #KH0@Model.MaKhoaHoc</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-pencil-square me-2" style="color: var(--uneti-primary);"></i>CHỈNH SỬA KHÓA HỌC: @Model.TenKhoaHoc
+            </h3>
+            <p class="text-muted mb-0 small">Cập nhật kế hoạch mở lớp, phân công lại giảng viên hoặc điều chỉnh sĩ số & học phí</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a asp-action="QuanLy" class="btn uneti-btn-outline shadow-sm text-decoration-none">
+                <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="uneti-card p-4 shadow-sm">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="MaKhoaHoc" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 p-3 mb-4 rounded-3 small" role="alert"></div>
+
+                    <!-- THÔNG TIN CƠ BẢN KHÓA HỌC -->
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-info-circle me-2 text-primary"></i>1. Thông tin chung về khóa học
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label asp-for="TenKhoaHoc" class="form-label fw-semibold text-dark small">Tên khóa học <span class="text-danger">*</span></label>
+                            <input asp-for="TenKhoaHoc" class="form-control" placeholder="Nhập tên khóa học..." />
+                            <span asp-validation-for="TenKhoaHoc" class="text-danger small"></span>
+                        </div>
+
+                        <!-- KHÓA NGOẠI LẤY TỪ DATABASE -->
+                        <div class="col-md-6">
+                            <label asp-for="MaMonHoc" class="form-label fw-semibold text-dark small">Môn học đào tạo <span class="text-danger">*</span></label>
+                            <select asp-for="MaMonHoc" class="form-select" asp-items="ViewBag.MaMonHoc">
+                                <option value="">-- Chọn môn học từ CSDL --</option>
+                            </select>
+                            <span asp-validation-for="MaMonHoc" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="MaGiangVien" class="form-label fw-semibold text-dark small">Giảng viên phụ trách <span class="text-danger">*</span></label>
+                            <select asp-for="MaGiangVien" class="form-select" asp-items="ViewBag.MaGiangVien">
+                                <option value="">-- Chọn giảng viên từ CSDL --</option>
+                            </select>
+                            <span asp-validation-for="MaGiangVien" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- KẾ HOẠCH BÀI GIẢNG & THỜI GIAN -->
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-calendar-range me-2 text-primary"></i>2. Thời gian & Sĩ số
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label asp-for="NgayBatDau" class="form-label fw-semibold text-dark small">Ngày khai giảng / Bắt đầu <span class="text-danger">*</span></label>
+                            <input asp-for="NgayBatDau" type="date" class="form-control" value="@Model.NgayBatDau.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="NgayBatDau" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="NgayKetThuc" class="form-label fw-semibold text-dark small">Ngày kết thúc dự kiến <span class="text-danger">*</span></label>
+                            <input asp-for="NgayKetThuc" type="date" class="form-control" value="@Model.NgayKetThuc.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="NgayKetThuc" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="SoLuongToiDa" class="form-label fw-semibold text-dark small">Sĩ số học viên tối đa <span class="text-danger">*</span></label>
+                            <input asp-for="SoLuongToiDa" class="form-control" type="number" min="1" max="500" />
+                            <span asp-validation-for="SoLuongToiDa" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- HỌC PHÍ, HÌNH THỨC & TRẠNG THÁI -->
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-cash-coin me-2 text-primary"></i>3. Học phí & Cấu hình tổ chức
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label asp-for="HocPhi" class="form-label fw-semibold text-dark small">Học phí khóa học (VNĐ) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="HocPhi" class="form-control" type="number" step="50000" min="0" />
+                                <span class="input-group-text bg-light text-muted">đ</span>
+                            </div>
+                            <span asp-validation-for="HocPhi" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="HinhThuc" class="form-label fw-semibold text-dark small">Hình thức giảng dạy <span class="text-danger">*</span></label>
+                            <select asp-for="HinhThuc" class="form-select">
+                                <option value="Trực tiếp">Trực tiếp (Tại lớp)</option>
+                                <option value="Trực tuyến">Trực tuyến (Online)</option>
+                                <option value="Kết hợp">Kết hợp (Hybrid)</option>
+                            </select>
+                            <span asp-validation-for="HinhThuc" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="TrangThai" class="form-label fw-semibold text-dark small">Trạng thái khóa học <span class="text-danger">*</span></label>
+                            <select asp-for="TrangThai" class="form-select">
+                                <option value="SapMo">Sắp mở</option>
+                                <option value="DangMo">Đang mở đăng ký</option>
+                                <option value="DangHoc">Đang giảng dạy</option>
+                                <option value="DaKetThuc">Đã kết thúc</option>
+                                <option value="BiHuy">Đã hủy</option>
+                            </select>
+                            <span asp-validation-for="TrangThai" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="MoTa" class="form-label fw-semibold text-dark small">Mô tả nội dung & Lịch học chi tiết</label>
+                            <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="MoTa" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- CỤM NÚT HÀNH ĐỘNG -->
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a asp-action="QuanLy" class="btn uneti-btn-outline px-4">
+                            Hủy bỏ
+                        </a>
+                        <button type="submit" class="btn uneti-btn-primary px-4 fw-semibold">
+                            <i class="bi bi-save me-1"></i>Cập nhật khóa học
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

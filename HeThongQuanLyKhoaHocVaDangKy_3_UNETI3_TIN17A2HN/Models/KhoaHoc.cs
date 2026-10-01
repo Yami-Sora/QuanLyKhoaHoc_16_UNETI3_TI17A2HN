@@ -1,6 +1,6 @@
-﻿// Họ và tên: Trần Văn Thành
-// Mã sinh viên: 23103100076
-// Module 1: Entity Khóa học
+// Họ và tên: Nguyễn Văn Mạnh
+// Mã sinh viên: 23103100096
+// Nội dung thực hiện: Module 2 - Entity Khóa học (Phục vụ liên kết Môn học và Đăng ký học)
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -47,9 +47,9 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
 
         [Required(ErrorMessage = "Học phí khóa học không được để trống")]
         [Range(0, 1000000000, ErrorMessage = "Học phí phải lớn hơn hoặc bằng 0 đ")]
-        [Column(TypeName = "decimal(18,2)")]
         [Display(Name = "Học phí thực tế")]
         [DisplayFormat(DataFormatString = "{0:N0} đ", ApplyFormatInEditMode = false)]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal HocPhi { get; set; }
 
         [Required(ErrorMessage = "Hình thức đào tạo không được để trống")]
