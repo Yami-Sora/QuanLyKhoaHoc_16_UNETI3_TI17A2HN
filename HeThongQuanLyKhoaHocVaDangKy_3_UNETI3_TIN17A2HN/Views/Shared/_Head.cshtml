@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Thẻ Head dùng chung
@@ -25,7 +25,19 @@
 <!-- Global Effects System -->
 <link rel="stylesheet" href="~/css/effects.css" asp-append-version="true" />
 
-<!-- Hỗ trợ JavaScript Detection cho Scroll Reveal -->
+<!-- Hỗ trợ JavaScript Detection & Khôi phục tức thì vị trí cuộn phân trang (không bị giật lên đầu) -->
 <script>
     document.documentElement.classList.add('js');
+    (function () {
+        try {
+            var y = sessionStorage.getItem('uneti_pagination_scroll_y');
+            var t = sessionStorage.getItem('uneti_pagination_scroll_time');
+            if (y !== null && t !== null && (Date.now() - parseInt(t, 10) < 15000)) {
+                if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                }
+                window.scrollTo(0, parseInt(y, 10));
+            }
+        } catch (_) {}
+    })();
 </script>

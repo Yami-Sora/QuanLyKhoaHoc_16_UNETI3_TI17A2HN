@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Xác nhận xóa môn học
@@ -48,7 +48,7 @@
                     <div class="bg-light p-3 rounded-3 mb-4 border">
                         <dl class="row mb-0">
                             <dt class="col-sm-4 text-muted">Mã môn học:</dt>
-                            <dd class="col-sm-8 fw-bold">#MH@Model.MaMonHoc.ToString("D3")</dd>
+                            <dd class="col-sm-8 fw-bold">@($"#MH{Model.MaMonHoc:D3}")</dd>
 
                             <dt class="col-sm-4 text-muted">Tên môn học:</dt>
                             <dd class="col-sm-8 fw-bold" style="color: var(--uneti-primary);">@Model.TenMonHoc</dd>

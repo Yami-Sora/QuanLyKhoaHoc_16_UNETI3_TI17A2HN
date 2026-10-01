@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Quản trị tài khoản (Admin)
@@ -197,7 +197,8 @@
     </div>
 
     <!-- Bảng danh sách tài khoản -->
-    <div class="uneti-card overflow-hidden">
+    <div id="taiKhoanTableContainer" class="position-relative">
+        <div class="uneti-card overflow-hidden">
         <div class="table-responsive">
             <table class="table uneti-table align-middle mb-0 uneti-table-min-1050" id="taiKhoanAdminTable">
                 <thead>
@@ -377,27 +378,53 @@
     <!-- PHÂN TRANG DANH SÁCH TÀI KHOẢN (PAGINATION) -->
     @if (totalPages > 1)
     {
-        <nav aria-label="Phân trang danh sách tài khoản" class="mt-4 d-flex justify-content-center">
-            <ul class="pagination pagination-sm flex-wrap justify-content-center">
-                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                </li>
-                @for (int p = 1; p <= totalPages; p++)
-                {
-                    <li class="page-item @(p == currentPage ? "active" : "")">
-                        <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">@p</a>
+        <div class="mt-4 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="text-muted small">
+                <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-xs">
+                    <i class="bi bi-people-fill text-primary me-1"></i>Trang <strong>@currentPage</strong> / <strong>@totalPages</strong> (Tổng <strong>@totalFiltered</strong> tài khoản)
+                </span>
+            </div>
+            <nav aria-label="Phân trang danh sách tài khoản">
+                <ul class="pagination uneti-pagination mb-0">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang đầu">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="1" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
                     </li>
-                }
-                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang trước">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        if (totalPages > 7 && Math.Abs(p - currentPage) > 2 && p != 1 && p != totalPages)
+                        {
+                            if (p == currentPage - 3 || p == currentPage + 3)
+                            {
+                                <li class="page-item disabled"><span class="page-ellipsis">…</span></li>
+                            }
+                            continue;
+                        }
+                        <li class="page-item @(p == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang tiếp theo">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang cuối">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@totalPages" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     }
+    </div>
 </div>
 
 <!-- Modal phân quyền chung -->
@@ -463,7 +490,7 @@
 @section Scripts {
     <script>
         (function () {
-            // Khởi tạo mở Modal phân quyền chung
+            // 1. Quản lý Modal phân quyền chung (Sử dụng Event Delegation để hoạt động trơn tru sau khi chuyển trang)
             const roleModalEl = document.getElementById('commonEditRoleModal');
             const roleModal = roleModalEl ? new bootstrap.Modal(roleModalEl) : null;
             const formRole = document.getElementById('formUpdateRole');
@@ -472,73 +499,158 @@
             const usernameEl = document.getElementById('roleModalUsername');
             const emailEl = document.getElementById('roleModalEmail');
 
-            document.querySelectorAll('.js-open-role-modal').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const id = this.getAttribute('data-id');
-                    const username = this.getAttribute('data-username');
-                    const fullname = this.getAttribute('data-fullname');
-                    const email = this.getAttribute('data-email');
-                    const role = this.getAttribute('data-role');
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.js-open-role-modal');
+                if (!btn) return;
 
-                    if (formRole) formRole.action = '/TaiKhoan/UpdateRole/' + id;
-                    if (fullNameEl) fullNameEl.textContent = fullname || 'Chưa đặt họ tên';
-                    if (usernameEl) usernameEl.textContent = '@@' + (username || '');
-                    if (emailEl) emailEl.textContent = email || '';
-                    if (avatarEl) avatarEl.textContent = (fullname && fullname.trim().length > 0) ? fullname.trim().charAt(0).toUpperCase() : 'U';
+                const id = btn.getAttribute('data-id');
+                const username = btn.getAttribute('data-username');
+                const fullname = btn.getAttribute('data-fullname');
+                const email = btn.getAttribute('data-email');
+                const role = btn.getAttribute('data-role');
 
-                    const targetRadio = document.querySelector(`input[name="vaiTro"][value="${role}"]`);
-                    if (targetRadio) targetRadio.checked = true;
+                if (formRole) formRole.action = '/TaiKhoan/UpdateRole/' + id;
+                if (fullNameEl) fullNameEl.textContent = fullname || 'Chưa đặt họ tên';
+                if (usernameEl) usernameEl.textContent = '@@' + (username || '');
+                if (emailEl) emailEl.textContent = email || '';
+                if (avatarEl) avatarEl.textContent = (fullname && fullname.trim().length > 0) ? fullname.trim().charAt(0).toUpperCase() : 'U';
 
-                    if (roleModal) roleModal.show();
-                });
+                const targetRadio = document.querySelector(`input[name="vaiTro"][value="${role}"]`);
+                if (targetRadio) targetRadio.checked = true;
+
+                if (roleModal) roleModal.show();
             });
 
-            // Lọc nhanh trong trang hiện tại
-            const searchInput = document.getElementById('adminTableQuickSearch');
-            const clearBtn = document.getElementById('btnClearQuickSearch');
-            const resetBtn = document.getElementById('btnResetQuickFilter');
-            const emptyRow = document.getElementById('quickSearchEmptyRow');
-            const visibleCountEl = document.getElementById('visibleRowCount');
-            const summaryCountEl = document.getElementById('summaryRowCount');
-            const table = document.getElementById('taiKhoanAdminTable');
-            if (!searchInput || !table) return;
+            // 2. Lọc nhanh trong bảng hiện tại
+            function initQuickSearch() {
+                const searchInput = document.getElementById('adminTableQuickSearch');
+                const clearBtn = document.getElementById('btnClearQuickSearch');
+                const resetBtn = document.getElementById('btnResetQuickFilter');
+                const emptyRow = document.getElementById('quickSearchEmptyRow');
+                const visibleCountEl = document.getElementById('visibleRowCount');
+                const summaryCountEl = document.getElementById('summaryRowCount');
+                const table = document.getElementById('taiKhoanAdminTable');
+                if (!searchInput || !table) return;
 
-            const rows = table.querySelectorAll('tbody tr:not(#quickSearchEmptyRow)');
+                const rows = table.querySelectorAll('tbody tr:not(#quickSearchEmptyRow)');
 
-            function doFilter() {
-                const term = searchInput.value.trim().toLowerCase();
-                if (clearBtn) clearBtn.style.display = term ? 'inline-block' : 'none';
-                let visibleCount = 0;
+                function doFilter() {
+                    const term = searchInput.value.trim().toLowerCase();
+                    if (clearBtn) clearBtn.style.display = term ? 'inline-block' : 'none';
+                    let visibleCount = 0;
 
-                rows.forEach(function (row) {
-                    const text = row.textContent.toLowerCase();
-                    if (!term || text.indexOf(term) !== -1) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
+                    rows.forEach(function (row) {
+                        const text = row.textContent.toLowerCase();
+                        if (!term || text.indexOf(term) !== -1) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    if (visibleCountEl) visibleCountEl.textContent = visibleCount;
+                    if (summaryCountEl) summaryCountEl.textContent = visibleCount;
+                    if (emptyRow) {
+                        emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+                        const termSpan = document.getElementById('quickSearchTerm');
+                        if (termSpan) termSpan.textContent = searchInput.value;
                     }
-                });
+                }
 
-                if (visibleCountEl) visibleCountEl.textContent = visibleCount;
-                if (summaryCountEl) summaryCountEl.textContent = visibleCount;
-                if (emptyRow) {
-                    emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
-                    const termSpan = document.getElementById('quickSearchTerm');
-                    if (termSpan) termSpan.textContent = searchInput.value;
+                searchInput.oninput = doFilter;
+
+                function resetSearch() {
+                    searchInput.value = '';
+                    doFilter();
+                    searchInput.focus();
+                }
+
+                if (clearBtn) clearBtn.onclick = resetSearch;
+                if (resetBtn) resetBtn.onclick = resetSearch;
+
+                if (searchInput.value.trim()) {
+                    doFilter();
                 }
             }
 
-            searchInput.addEventListener('input', doFilter);
+            initQuickSearch();
 
-            function resetSearch() {
-                searchInput.value = '';
-                doFilter();
-                searchInput.focus();
+            // 3. Phân trang AJAX giữ nguyên vị trí cuộn ("Đứng yên", không cuộn/giật lên đầu trang)
+            const tableContainer = document.getElementById('taiKhoanTableContainer');
+            if (tableContainer) {
+                tableContainer.addEventListener('click', async function (e) {
+                    const link = e.target.closest('.uneti-pagination a, .pagination a');
+                    if (!link) return;
+
+                    const item = link.closest('.page-item');
+                    if (item && (item.classList.contains('disabled') || item.classList.contains('active'))) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    const href = link.getAttribute('href');
+                    if (!href || href === '#' || href.startsWith('javascript:')) return;
+
+                    e.preventDefault();
+
+                    // Hiệu ứng mờ nhẹ trong lúc tải dữ liệu mới mà không thay đổi scroll màn hình
+                    tableContainer.style.transition = 'opacity 0.15s ease';
+                    tableContainer.style.opacity = '0.45';
+                    tableContainer.style.pointerEvents = 'none';
+
+                    try {
+                        const response = await fetch(href, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        if (!response.ok) throw new Error('Network error ' + response.status);
+
+                        const html = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newContainer = doc.getElementById('taiKhoanTableContainer');
+
+                        if (newContainer) {
+                            tableContainer.innerHTML = newContainer.innerHTML;
+                            window.history.pushState({ path: href }, '', href);
+                            initQuickSearch();
+
+                            // Khởi tạo tooltips
+                            if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
+                                tableContainer.querySelectorAll('[title]').forEach(function (el) {
+                                    new bootstrap.Tooltip(el);
+                                });
+                            }
+                        } else {
+                            window.location.href = href;
+                        }
+                    } catch (err) {
+                        console.error('AJAX pagination error:', err);
+                        window.location.href = href;
+                    } finally {
+                        tableContainer.style.opacity = '1';
+                        tableContainer.style.pointerEvents = '';
+                    }
+                });
+
+                // Hỗ trợ nút Back / Forward trên trình duyệt
+                window.addEventListener('popstate', async function () {
+                    try {
+                        tableContainer.style.opacity = '0.45';
+                        const res = await fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                        if (res.ok) {
+                            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+                            const newContainer = doc.getElementById('taiKhoanTableContainer');
+                            if (newContainer) {
+                                tableContainer.innerHTML = newContainer.innerHTML;
+                                initQuickSearch();
+                            }
+                        }
+                    } finally {
+                        tableContainer.style.opacity = '1';
+                    }
+                });
             }
-
-            clearBtn?.addEventListener('click', resetSearch);
-            resetBtn?.addEventListener('click', resetSearch);
         })();
     </script>
 }

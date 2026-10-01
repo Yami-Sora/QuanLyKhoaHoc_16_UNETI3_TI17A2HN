@@ -1,4 +1,4 @@
-﻿// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
+// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
 // Module 1: Script hỗ trợ UI & Validation
 
 // Hàm thông báo phân hệ các Module khác đang phát triển (Đề tài 16)
@@ -155,3 +155,80 @@ function findErrorElement(input) {
 
     return null;
 }
+
+// =========================================================================
+// GIỮ NGUYÊN VỊ TRÍ CUỘN KHI CHUYỂN TRANG PHÂN TRANG (PAGINATION SCROLL RETENTION)
+// Đảm bảo mỗi lần sang trang màn hình "đứng yên" tại bảng, không nhảy lên đầu
+// =========================================================================
+(function () {
+    const STORAGE_KEY = 'uneti_pagination_scroll_y';
+    const TIME_KEY = 'uneti_pagination_scroll_time';
+
+    // 1. Lưu lại tọa độ cuộn màn hình khi click vào bất kỳ nút phân trang nào
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('.uneti-pagination a, .pagination a');
+        if (!link) return;
+
+        // Bỏ qua nếu nút disabled hoặc active
+        const item = link.closest('.page-item');
+        if (item && (item.classList.contains('disabled') || item.classList.contains('active'))) {
+            return;
+        }
+
+        // Bỏ qua nếu nút là link rỗng
+        const href = link.getAttribute('href');
+        if (!href || href === '#' || href.startsWith('javascript:')) return;
+
+        // Lưu tọa độ Y hiện tại của màn hình
+        const currentY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+        try {
+            sessionStorage.setItem(STORAGE_KEY, currentY.toString());
+            sessionStorage.setItem(TIME_KEY, Date.now().toString());
+        } catch (_) {}
+    });
+
+    // 2. Khôi phục lại đúng vị trí cuộn khi trang mới nạp xong
+    function restorePaginationScroll() {
+        let savedY = null;
+        let savedTime = null;
+        try {
+            savedY = sessionStorage.getItem(STORAGE_KEY);
+            savedTime = sessionStorage.getItem(TIME_KEY);
+        } catch (_) {}
+
+        if (savedY !== null && savedTime !== null) {
+            const elapsed = Date.now() - parseInt(savedTime, 10);
+            if (elapsed < 15000) {
+                const targetY = parseInt(savedY, 10);
+                if (!isNaN(targetY)) {
+                    if ('scrollRestoration' in history) {
+                        history.scrollRestoration = 'manual';
+                    }
+                    window.scrollTo(0, targetY);
+
+                    requestAnimationFrame(function () {
+                        window.scrollTo(0, targetY);
+                    });
+                    setTimeout(function () {
+                        window.scrollTo(0, targetY);
+                        try {
+                            sessionStorage.removeItem(STORAGE_KEY);
+                            sessionStorage.removeItem(TIME_KEY);
+                        } catch (_) {}
+                    }, 80);
+                }
+            } else {
+                try {
+                    sessionStorage.removeItem(STORAGE_KEY);
+                    sessionStorage.removeItem(TIME_KEY);
+                } catch (_) {}
+            }
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', restorePaginationScroll);
+    } else {
+        restorePaginationScroll();
+    }
+})();

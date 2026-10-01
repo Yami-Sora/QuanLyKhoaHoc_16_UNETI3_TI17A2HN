@@ -1,4 +1,4 @@
-﻿/*
+/*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Lớp: TIN17A2HN
@@ -85,28 +85,9 @@ html.js .reveal-zoom.is-visible {
     -webkit-backdrop-filter: blur(12px);
 }
 
-/* Chỉ báo trượt khi hover link trên Navbar */
+/* Chỉ báo trượt link Navbar đã được hợp nhất theo dạng pill badge tương tác trong site.css */
 .uneti-nav-link {
     position: relative;
-}
-
-.uneti-nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 12px;
-    right: 12px;
-    height: 2.5px;
-    background: var(--uneti-primary, #1d4ed8);
-    border-radius: 4px;
-    transform: scaleX(0);
-    transform-origin: center;
-    transition: transform var(--uneti-dur-base, 250ms) var(--uneti-ease, cubic-bezier(0.16, 1, 0.3, 1));
-}
-
-.uneti-nav-link:hover::after,
-.uneti-nav-link.active::after {
-    transform: scaleX(1);
 }
 
 /* Nút Back-To-Top */

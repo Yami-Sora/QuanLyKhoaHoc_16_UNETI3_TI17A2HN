@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Danh mục môn học công khai
@@ -275,10 +275,7 @@
                         window.UnetiEffects.refresh();
                     }
 
-                    // Cuộn nhẹ lên đầu lưới nếu là thao tác chuyển trang
-                    if (isPageChange) {
-                        gridContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    // Giữ nguyên vị trí cuộn khi chuyển trang (không cuộn lên đầu)
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);

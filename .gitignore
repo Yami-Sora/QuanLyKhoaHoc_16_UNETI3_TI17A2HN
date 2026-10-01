@@ -29,3 +29,6 @@ bld/
 *.tmp
 *~
 de16_extracted.txt
+
+## Image Backups
+**/wwwroot/images/_original/

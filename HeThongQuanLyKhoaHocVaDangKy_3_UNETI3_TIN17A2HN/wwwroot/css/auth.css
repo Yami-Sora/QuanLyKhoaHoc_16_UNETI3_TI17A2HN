@@ -1,19 +1,12 @@
-﻿/*
+/*
     Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
     Nội dung: CSS các trang xác thực (Login, Register...)
 */
 
 :root {
-    --uneti-primary: #1d4ed8;
-    --uneti-primary-hover: #1e40af;
-    --uneti-primary-light: #3b82f6;
-    --uneti-primary-subtle: #eff6ff;
-    --uneti-border: #e2e8f0;
+    --auth-primary-accent: #3b82f6;
     --uneti-muted: #94a3b8;
-    --uneti-danger: #ef4444;
     --uneti-danger-bg: #fef2f2;
-    --uneti-text-main: #1e293b;
-    --uneti-text-muted: #64748b;
     --uneti-text-heading: #0f172a;
     --uneti-bg-page: #f1f5f9;
 }
@@ -80,7 +73,7 @@ body:has(.change-card) {
 .logo-badge {
     width: 58px;
     height: 58px;
-    background: linear-gradient(135deg, var(--uneti-primary) 0%, var(--uneti-primary-light) 100%);
+    background: linear-gradient(135deg, var(--uneti-primary) 0%, var(--auth-primary-accent, #3b82f6) 100%);
     color: #ffffff;
     border-radius: 18px;
     display: inline-flex;
@@ -188,7 +181,7 @@ body:has(.change-card) {
 
 .custom-input-group .form-control.custom-input:focus {
     background-color: #ffffff;
-    border-color: var(--uneti-primary-light);
+    border-color: var(--auth-primary-accent, #3b82f6);
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
     color: var(--uneti-text-heading);
     outline: none;

@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Quản trị môn học
@@ -9,6 +9,7 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     var userRole = Context.Session.GetString("VaiTro");
     var isAdmin = userRole == "Admin";
+    var isManager = userRole == "Admin" || userRole == "NhanVien";
 
     ViewData["Title"] = "Quản lý môn học (Dữ liệu nền)";
     int totalCount = ViewBag.TotalCount ?? (Model?.Count() ?? 0);
@@ -40,7 +41,7 @@
             <p class="text-muted mb-0 small">Hệ thống quản lý dữ liệu môn học, định mức học phí và trạng thái mở lớp đào tạo theo học chế tín chỉ</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
-            @if (isAdmin)
+            @if (isManager)
             {
                 <a asp-action="Create" class="btn uneti-btn-primary shadow-sm text-decoration-none">
                     <i class="bi bi-plus-circle me-1"></i>Thêm môn học mới
@@ -180,7 +181,8 @@
     </div>
 
     <!-- BẢNG DANH MỤC MÔN HỌC QUẢN TRỊ -->
-    <div class="uneti-card overflow-hidden shadow-sm">
+    <div id="monHocTableContainer" class="position-relative">
+        <div class="uneti-card overflow-hidden shadow-sm">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 uneti-table" id="monHocAdminTable">
                 <thead>
@@ -217,7 +219,7 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="ps-3 fw-bold text-muted">#MH@item.MaMonHoc.ToString("D3")</td>
+                                <td class="ps-3 fw-bold text-muted">@($"#MH{item.MaMonHoc:D3}")</td>
                                 <td>
                                     <div class="fw-bold text-dark">@item.TenMonHoc</div>
                                     @if (!string.IsNullOrEmpty(item.MoTa))
@@ -265,12 +267,12 @@
                                     }
                                 </td>
                                 <td class="text-center">
-                                    @if (isAdmin)
-                                    {
-                                        <div class="d-inline-flex align-items-center justify-content-center gap-1">
-                                            <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-view" title="Xem chi tiết môn học">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
+                                    <div class="d-inline-flex align-items-center justify-content-center gap-1">
+                                        <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-view" title="Xem chi tiết môn học">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (isManager)
+                                        {
                                             <a asp-action="Edit" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-edit" title="Chỉnh sửa môn học">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
@@ -284,19 +286,14 @@
                                                     <i class="bi bi-arrow-repeat"></i>
                                                 </button>
                                             </form>
+                                        }
+                                        @if (isAdmin)
+                                        {
                                             <a asp-action="Delete" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-delete" title="Xóa môn học">
                                                 <i class="bi bi-trash"></i>
                                             </a>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="d-inline-flex align-items-center justify-content-center gap-1">
-                                            <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-view" title="Xem chi tiết môn học">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </div>
-                                    }
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -313,77 +310,185 @@
     <!-- PHÂN TRANG DANH SÁCH MÔN HỌC (PAGINATION) -->
     @if (totalPages > 1)
     {
-        <nav aria-label="Phân trang danh mục môn học" class="mt-4 d-flex justify-content-center">
-            <ul class="pagination pagination-sm flex-wrap justify-content-center">
-                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                </li>
-                @for (int p = 1; p <= totalPages; p++)
-                {
-                    <li class="page-item @(p == currentPage ? "active" : "")">
-                        <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">@p</a>
+        <div class="mt-4 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="text-muted small">
+                <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-xs">
+                    <i class="bi bi-journal-bookmark text-primary me-1"></i>Trang <strong>@currentPage</strong> / <strong>@totalPages</strong> (Tổng <strong>@totalCount</strong> môn học)
+                </span>
+            </div>
+            <nav aria-label="Phân trang danh mục môn học">
+                <ul class="pagination uneti-pagination mb-0">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang đầu">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="1" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
                     </li>
-                }
-                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                    <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang trước">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (int p = 1; p <= totalPages; p++)
+                    {
+                        if (totalPages > 7 && Math.Abs(p - currentPage) > 2 && p != 1 && p != totalPages)
+                        {
+                            if (p == currentPage - 3 || p == currentPage + 3)
+                            {
+                                <li class="page-item disabled"><span class="page-ellipsis">…</span></li>
+                            }
+                            continue;
+                        }
+                        <li class="page-item @(p == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang tiếp theo">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang cuối">
+                        <a class="page-link" asp-action="QuanLy" asp-route-page="@totalPages" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     }
+    </div>
 </div>
 
 @section Scripts {
     <script>
         (function () {
-            const searchInput = document.getElementById('adminTableQuickSearch');
-            const clearBtn = document.getElementById('btnClearQuickSearch');
-            const resetBtn = document.getElementById('btnResetQuickFilter');
-            const emptyRow = document.getElementById('quickSearchEmptyRow');
-            const visibleCountEl = document.getElementById('visibleRowCount');
-            const summaryCountEl = document.getElementById('summaryRowCount');
-            const table = document.getElementById('monHocAdminTable');
-            if (!searchInput || !table) return;
+            // 1. Lọc nhanh trong bảng môn học
+            function initQuickSearch() {
+                const searchInput = document.getElementById('adminTableQuickSearch');
+                const clearBtn = document.getElementById('btnClearQuickSearch');
+                const resetBtn = document.getElementById('btnResetQuickFilter');
+                const emptyRow = document.getElementById('quickSearchEmptyRow');
+                const visibleCountEl = document.getElementById('visibleRowCount');
+                const summaryCountEl = document.getElementById('summaryRowCount');
+                const table = document.getElementById('monHocAdminTable');
+                if (!searchInput || !table) return;
 
-            const rows = table.querySelectorAll('tbody tr:not(#quickSearchEmptyRow)');
+                const rows = table.querySelectorAll('tbody tr:not(#quickSearchEmptyRow)');
 
-            function doFilter() {
-                const term = searchInput.value.trim().toLowerCase();
-                if (clearBtn) clearBtn.style.display = term ? 'inline-block' : 'none';
-                let visibleCount = 0;
+                function doFilter() {
+                    const term = searchInput.value.trim().toLowerCase();
+                    if (clearBtn) clearBtn.style.display = term ? 'inline-block' : 'none';
+                    let visibleCount = 0;
 
-                rows.forEach(function (row) {
-                    const text = row.textContent.toLowerCase();
-                    if (!term || text.indexOf(term) !== -1) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
+                    rows.forEach(function (row) {
+                        const text = row.textContent.toLowerCase();
+                        if (!term || text.indexOf(term) !== -1) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    if (visibleCountEl) visibleCountEl.textContent = visibleCount;
+                    if (summaryCountEl) summaryCountEl.textContent = visibleCount;
+                    if (emptyRow) {
+                        emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+                        const termSpan = document.getElementById('quickSearchTerm');
+                        if (termSpan) termSpan.textContent = searchInput.value;
                     }
-                });
+                }
 
-                if (visibleCountEl) visibleCountEl.textContent = visibleCount;
-                if (summaryCountEl) summaryCountEl.textContent = visibleCount;
-                if (emptyRow) {
-                    emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
-                    const termSpan = document.getElementById('quickSearchTerm');
-                    if (termSpan) termSpan.textContent = searchInput.value;
+                searchInput.oninput = doFilter;
+
+                function resetSearch() {
+                    searchInput.value = '';
+                    doFilter();
+                    searchInput.focus();
+                }
+
+                if (clearBtn) clearBtn.onclick = resetSearch;
+                if (resetBtn) resetBtn.onclick = resetSearch;
+
+                if (searchInput.value.trim()) {
+                    doFilter();
                 }
             }
 
-            searchInput.addEventListener('input', doFilter);
+            initQuickSearch();
 
-            function resetSearch() {
-                searchInput.value = '';
-                doFilter();
-                searchInput.focus();
+            // 2. Phân trang AJAX giữ nguyên vị trí cuộn ("Đứng yên", không nhảy lên đầu)
+            const tableContainer = document.getElementById('monHocTableContainer');
+            if (tableContainer) {
+                tableContainer.addEventListener('click', async function (e) {
+                    const link = e.target.closest('.uneti-pagination a, .pagination a');
+                    if (!link) return;
+
+                    const item = link.closest('.page-item');
+                    if (item && (item.classList.contains('disabled') || item.classList.contains('active'))) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    const href = link.getAttribute('href');
+                    if (!href || href === '#' || href.startsWith('javascript:')) return;
+
+                    e.preventDefault();
+
+                    tableContainer.style.transition = 'opacity 0.15s ease';
+                    tableContainer.style.opacity = '0.45';
+                    tableContainer.style.pointerEvents = 'none';
+
+                    try {
+                        const response = await fetch(href, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        if (!response.ok) throw new Error('Network error ' + response.status);
+
+                        const html = await response.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newContainer = doc.getElementById('monHocTableContainer');
+
+                        if (newContainer) {
+                            tableContainer.innerHTML = newContainer.innerHTML;
+                            window.history.pushState({ path: href }, '', href);
+                            initQuickSearch();
+
+                            if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
+                                tableContainer.querySelectorAll('[title]').forEach(function (el) {
+                                    new bootstrap.Tooltip(el);
+                                });
+                            }
+                        } else {
+                            window.location.href = href;
+                        }
+                    } catch (err) {
+                        console.error('AJAX pagination error:', err);
+                        window.location.href = href;
+                    } finally {
+                        tableContainer.style.opacity = '1';
+                        tableContainer.style.pointerEvents = '';
+                    }
+                });
+
+                window.addEventListener('popstate', async function () {
+                    try {
+                        tableContainer.style.opacity = '0.45';
+                        const res = await fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                        if (res.ok) {
+                            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+                            const newContainer = doc.getElementById('monHocTableContainer');
+                            if (newContainer) {
+                                tableContainer.innerHTML = newContainer.innerHTML;
+                                initQuickSearch();
+                            }
+                        }
+                    } finally {
+                        tableContainer.style.opacity = '1';
+                    }
+                });
             }
-
-            clearBtn?.addEventListener('click', resetSearch);
-            resetBtn?.addEventListener('click', resetSearch);
         })();
     </script>
 }
