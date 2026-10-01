@@ -1,4 +1,4 @@
-﻿// Họ và tên: Trần Văn Thành
+// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Xác thực, tài khoản và phân quyền
 
@@ -472,10 +472,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             }
         }
 
-        // QUẢN LÝ DANH SÁCH TÀI KHOẢN (DÀNH CHO ADMIN) - THEO MỤC 5.4 ĐỀ 16
+        // QUẢN LÝ DANH SÁCH TÀI KHOẢN (ADMIN & NHÂN VIÊN) - THEO MỤC 5.4 ĐỀ 16
 
-        // GET: /TaiKhoan/QuanLy (Chỉ Admin theo Mục 5.4 Đề 16)
-        [AuthorizeRole(VaiTro.Admin)]
+        // GET: /TaiKhoan/QuanLy (Admin & Nhân viên tra cứu hồ sơ)
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         [HttpGet]
         public async Task<IActionResult> QuanLy(string? searchString, string? role, bool? trangThai, int page = 1, int pageSize = 10)
         {
@@ -527,7 +527,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // GET: /TaiKhoan/Index -> chuyển hướng về QuanLy
-        [AuthorizeRole(VaiTro.Admin)]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         [HttpGet]
         public IActionResult Index(string? searchString, string? role, bool? trangThai, int page = 1, int pageSize = 10)
         {

@@ -1,4 +1,4 @@
-﻿// Họ và tên: Trần Văn Thành
+// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Quản lý môn học
 
@@ -170,8 +170,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // GET: /MonHoc/Create
-        // Quyền: Chỉ Admin mới được quyền thêm mới môn học
-        [AuthorizeRole(VaiTro.Admin)]
+        // Quyền: Admin và Nhân viên đều có quyền thêm mới môn học (Mục 25.2 Đề 16)
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public IActionResult Create()
         {
             return View(new MonHoc { SoTinChi = 3, HocPhi = 3000000, TrangThai = true });
@@ -180,7 +180,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // POST: /MonHoc/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRole(VaiTro.Admin)]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> Create(MonHoc monHoc)
         {
             if (ModelState.IsValid)
@@ -213,8 +213,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // GET: /MonHoc/Edit/5
-        // Quyền: Chỉ Admin mới được quyền chỉnh sửa môn học
-        [AuthorizeRole(VaiTro.Admin)]
+        // Quyền: Admin và Nhân viên đều có quyền chỉnh sửa môn học
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -228,7 +228,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // POST: /MonHoc/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRole(VaiTro.Admin)]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> Edit(int id, MonHoc monHoc)
         {
             if (id != monHoc.MaMonHoc) return NotFound();
@@ -352,7 +352,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // Đổi trạng thái nhanh Đang mở / Tạm dừng
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AuthorizeRole(VaiTro.Admin)]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> ToggleStatus(int id)
         {
             try
