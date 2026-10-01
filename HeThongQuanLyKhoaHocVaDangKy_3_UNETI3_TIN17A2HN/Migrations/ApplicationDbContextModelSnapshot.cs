@@ -332,9 +332,6 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Migrations
 
                     b.HasKey("MaTaiKhoan");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
                     b.HasIndex("TenDangNhap")
                         .IsUnique();
 
