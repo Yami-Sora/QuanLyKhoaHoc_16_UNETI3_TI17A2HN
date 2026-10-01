@@ -122,23 +122,17 @@
                     <span>Quản lý hồ sơ học viên</span>
                 </a>
 
-                <!-- 5. TIẾP NHẬN & ĐĂNG KÝ -->
+                <!-- 5. TIẾP NHẬN & ĐĂNG KÝ (Module 4 - Bạch Đức Sự - 23103100063) -->
                 <div class="admin-menu-header mt-2">Tiếp nhận & Đăng ký</div>
 
-                <a href="javascript:void(0)" class="admin-nav-item module-placeholder-link"
-                   data-module="Module 4 (Tiếp nhận & Quản lý trạng thái)"
-                   data-feature="Tiếp nhận đơn & Quản lý luồng trạng thái"
-                   data-desc="Bao gồm: Tiếp nhận đơn đăng ký học, kiểm tra điều kiện đầu vào, xét duyệt hồ sơ và chuyển đổi luồng trạng thái giao dịch (Chờ xử lý &rarr; Đang xử lý &rarr; Hoàn thành / Hủy) theo Mục 8.1 - 8.5 Đề tài 16.">
+                <a asp-controller="TiepNhanDangKy" asp-action="Index" class="admin-nav-item @(currentController == "TiepNhanDangKy" && (currentAction == "Index" || currentAction == "Details" || currentAction == "CapNhatTrangThai") ? "active" : "")">
                     <i class="bi bi-card-checklist"></i>
                     <span>Tiếp nhận & Duyệt đăng ký</span>
                 </a>
 
-                <a href="javascript:void(0)" class="admin-nav-item module-placeholder-link"
-                   data-module="Module 4 (Tiếp nhận & Quản lý trạng thái)"
-                   data-feature="Đối soát học phí & Quản lý công nợ"
-                   data-desc="Bao gồm: Kiểm soát số tiền đã đóng, số tiền còn lại của từng đơn đăng ký khóa học, đối soát hóa đơn và quản lý công nợ theo Mục 8.1 - 8.3 Đề tài 16.">
-                    <i class="bi bi-cash-coin"></i>
-                    <span>Đối soát học phí & Công nợ</span>
+                <a asp-controller="TiepNhanDangKy" asp-action="Create" class="admin-nav-item @(currentController == "TiepNhanDangKy" && currentAction == "Create" ? "active" : "")">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Ghi danh tại quầy</span>
                 </a>
 
                 <!-- 6. KẾT QUẢ ĐÀO TẠO -->
