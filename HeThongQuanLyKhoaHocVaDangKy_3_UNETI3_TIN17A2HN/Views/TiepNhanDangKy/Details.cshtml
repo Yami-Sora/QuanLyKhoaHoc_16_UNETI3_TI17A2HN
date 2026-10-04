@@ -1,20 +1,21 @@
 @*
-    Họ và tên: Bạch Đức Sự
-    Mã sinh viên: 23103100063
-    Nội dung thực hiện: Module 4 - Giao diện Xem Chi tiết Đơn đăng ký, Đối soát Tài chính và Thẩm định Điều kiện
+// Họ và tên: Bạch Đức Sự
+// Mã sinh viên: 23103100063
+// Nội dung thực hiện: Module 4 - Tiếp nhận đăng ký, Xác nhận/Hủy đăng ký và Quản lý trạng thái.
 *@
 
-@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.DangKyKhoaHoc
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.ChiTietDangKyViewModel
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    ViewData["Title"] = $"Chi tiết hồ sơ đăng ký #{Model.MaDangKy}";
+    var dk = Model.DangKy;
+    ViewData["Title"] = $"Chi tiết hồ sơ đăng ký #{dk.MaDangKy}";
 
-    var hocPhi = Model.KhoaHoc?.HocPhi ?? 0;
+    var hocPhi = Model.HocPhi;
     var daDong = Model.SoTienDaDong;
     var conLai = Model.SoTienConLai;
-    var siSoHienTai = ViewBag.SiSoHienTai ?? 0;
-    var soLuongToiDa = Model.KhoaHoc?.SoLuongToiDa ?? 0;
-    var cacDangKyKhac = ViewBag.CacDangKyKhac as List<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.DangKyKhoaHoc> ?? new();
+    var siSoHienTai = Model.SiSoHienTai;
+    var soLuongToiDa = Model.SiSoToiDa;
+    var cacDangKyKhac = Model.CacDangKyKhac;
 }
 
 <div class="container-fluid py-3 px-4">
@@ -25,14 +26,14 @@
                 <ol class="breadcrumb mb-1 small">
                     <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Quản trị</a></li>
                     <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Tiếp nhận & Duyệt đăng ký</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Hồ sơ #@Model.MaDangKy</li>
+                    <li class="breadcrumb-item active" aria-current="page">Hồ sơ #@dk.MaDangKy</li>
                 </ol>
             </nav>
             <div class="d-flex align-items-center gap-2">
                 <h3 class="fw-bold mb-0 text-dark">
-                    HỒ SƠ ĐĂNG KÝ HỌC #@Model.MaDangKy
+                    HỒ SƠ ĐĂNG KÝ HỌC #@dk.MaDangKy
                 </h3>
-                @switch (Model.TrangThai)
+                @switch (dk.TrangThai)
                 {
                     case "ChoXuLy":
                         <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-1 rounded-pill">
@@ -56,19 +57,19 @@
                         break;
                 }
             </div>
-            <p class="text-muted mb-0 small mt-1">Ngày nộp hồ sơ: @Model.NgayDangKy.ToString("dd/MM/yyyy HH:mm")</p>
+            <p class="text-muted mb-0 small mt-1">Ngày nộp hồ sơ: @dk.NgayDangKy.ToString("dd/MM/yyyy HH:mm")</p>
         </div>
 
         <!-- Thao tác hành động -->
         <div class="mt-3 mt-md-0 d-flex flex-wrap gap-2">
-            <a asp-action="CapNhatTrangThai" asp-route-id="@Model.MaDangKy" class="btn uneti-btn-primary shadow-sm text-decoration-none d-flex align-items-center gap-1">
+            <a asp-action="CapNhatTrangThai" asp-route-id="@dk.MaDangKy" class="btn uneti-btn-primary shadow-sm text-decoration-none d-flex align-items-center gap-1">
                 <i class="bi bi-sliders"></i>
                 <span>Đổi trạng thái / Học phí</span>
             </a>
 
-            @if (Model.TrangThai == "HoanThanh")
+            @if (dk.TrangThai == "HoanThanh")
             {
-                <a asp-action="InPhieuDangKy" asp-route-id="@Model.MaDangKy" target="_blank" class="btn btn-outline-success shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <a asp-action="InPhieuDangKy" asp-route-id="@dk.MaDangKy" target="_blank" class="btn btn-outline-success shadow-sm text-decoration-none d-flex align-items-center gap-1">
                     <i class="bi bi-printer"></i>
                     <span>In phiếu đăng ký</span>
                 </a>
@@ -108,7 +109,7 @@
             <div class="row text-center g-2">
                 <!-- Bước 1: Tiếp nhận -->
                 <div class="col-4">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle @(Model.TrangThai != "BiHuy" ? "bg-primary text-white" : "bg-secondary-subtle text-muted") shadow-sm" style="width: 44px; height: 44px;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle @(dk.TrangThai != "BiHuy" ? "bg-primary text-white" : "bg-secondary-subtle text-muted") shadow-sm" style="width: 44px; height: 44px;">
                         <i class="bi bi-inbox fs-5"></i>
                     </div>
                     <div class="fw-bold mt-2 small text-dark">1. Chờ xử lý</div>
@@ -117,7 +118,7 @@
 
                 <!-- Bước 2: Thẩm định & Đối soát -->
                 <div class="col-4">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle @(Model.TrangThai == "DangXuLy" || Model.TrangThai == "HoanThanh" ? "bg-primary text-white" : "bg-light text-muted border") shadow-sm" style="width: 44px; height: 44px;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle @(dk.TrangThai == "DangXuLy" || dk.TrangThai == "HoanThanh" ? "bg-primary text-white" : "bg-light text-muted border") shadow-sm" style="width: 44px; height: 44px;">
                         <i class="bi bi-gear-wide-connected fs-5"></i>
                     </div>
                     <div class="fw-bold mt-2 small text-dark">2. Đang xử lý</div>
@@ -126,14 +127,14 @@
 
                 <!-- Bước 3: Hoàn thành -->
                 <div class="col-4">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle @(Model.TrangThai == "HoanThanh" ? "bg-success text-white" : (Model.TrangThai == "BiHuy" ? "bg-danger text-white" : "bg-light text-muted border")) shadow-sm" style="width: 44px; height: 44px;">
-                        <i class="bi @(Model.TrangThai == "BiHuy" ? "bi-x-lg" : "bi-check-lg") fs-5"></i>
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle @(dk.TrangThai == "HoanThanh" ? "bg-success text-white" : (dk.TrangThai == "BiHuy" ? "bg-danger text-white" : "bg-light text-muted border")) shadow-sm" style="width: 44px; height: 44px;">
+                        <i class="bi @(dk.TrangThai == "BiHuy" ? "bi-x-lg" : "bi-check-lg") fs-5"></i>
                     </div>
-                    <div class="fw-bold mt-2 small @(Model.TrangThai == "BiHuy" ? "text-danger" : "text-dark")">
-                        @(Model.TrangThai == "BiHuy" ? "3. Đã hủy / Từ chối" : "3. Hoàn thành")
+                    <div class="fw-bold mt-2 small @(dk.TrangThai == "BiHuy" ? "text-danger" : "text-dark")">
+                        @(dk.TrangThai == "BiHuy" ? "3. Đã hủy / Từ chối" : "3. Hoàn thành")
                     </div>
                     <div class="text-muted" style="font-size: 11px;">
-                        @(Model.TrangThai == "BiHuy" ? "Đơn không được duyệt" : "Chính thức nhập học")
+                        @(dk.TrangThai == "BiHuy" ? "Đơn không được duyệt" : "Chính thức nhập học")
                     </div>
                 </div>
             </div>
@@ -152,28 +153,28 @@
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Học viên UNETI</span>
                 </div>
 
-                @if (Model.HocVien != null)
+                @if (dk.HocVien != null)
                 {
                     <div class="row g-3">
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Họ và tên:</label>
-                            <span class="fw-bold text-dark fs-6">@Model.HocVien.HoTen</span>
+                            <span class="fw-bold text-dark fs-6">@dk.HocVien.HoTen</span>
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Số điện thoại:</label>
-                            <span class="fw-semibold text-primary"><i class="bi bi-telephone me-1"></i>@Model.HocVien.SoDienThoai</span>
+                            <span class="fw-semibold text-primary"><i class="bi bi-telephone me-1"></i>@dk.HocVien.SoDienThoai</span>
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Email liên hệ:</label>
-                            <span class="text-dark"><i class="bi bi-envelope me-1"></i>@Model.HocVien.Email</span>
+                            <span class="text-dark"><i class="bi bi-envelope me-1"></i>@dk.HocVien.Email</span>
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Giới tính & Ngày sinh:</label>
-                            <span class="text-dark">@(Model.HocVien.GioiTinh ?? "Chưa rõ") — @(Model.HocVien.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</span>
+                            <span class="text-dark">@(dk.HocVien.GioiTinh ?? "Chưa rõ") — @(dk.HocVien.NgaySinh?.ToString("dd/MM/yyyy") ?? "Chưa cập nhật")</span>
                         </div>
                         <div class="col-12">
                             <label class="text-muted small d-block">Địa chỉ:</label>
-                            <span class="text-dark"><i class="bi bi-geo-alt me-1 text-danger"></i>@(Model.HocVien.DiaChi ?? "Chưa có địa chỉ cụ thể")</span>
+                            <span class="text-dark"><i class="bi bi-geo-alt me-1 text-danger"></i>@(dk.HocVien.DiaChi ?? "Chưa có địa chỉ cụ thể")</span>
                         </div>
                     </div>
                 }
@@ -185,7 +186,7 @@
                     <h6 class="fw-bold text-dark mb-0 small text-uppercase">
                         <i class="bi bi-mortarboard text-primary me-2"></i>Khóa học đăng ký
                     </h6>
-                    @if (Model.KhoaHoc?.TrangThai == "DangMo")
+                    @if (dk.KhoaHoc?.TrangThai == "DangMo")
                     {
                         <span class="badge bg-success-subtle text-success border border-success-subtle">
                             <i class="bi bi-unlock-fill me-1"></i>Đang mở đăng ký
@@ -194,31 +195,31 @@
                     else
                     {
                         <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-                            <i class="bi bi-lock-fill me-1"></i>@Model.KhoaHoc?.TrangThai
+                            <i class="bi bi-lock-fill me-1"></i>@dk.KhoaHoc?.TrangThai
                         </span>
                     }
                 </div>
 
-                @if (Model.KhoaHoc != null)
+                @if (dk.KhoaHoc != null)
                 {
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="text-muted small d-block">Tên khóa học:</label>
-                            <span class="fw-bold text-primary fs-6">@Model.KhoaHoc.TenKhoaHoc</span>
+                            <span class="fw-bold text-primary fs-6">@dk.KhoaHoc.TenKhoaHoc</span>
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Môn học trực thuộc:</label>
-                            <span class="fw-semibold text-dark">@(Model.KhoaHoc.MonHoc?.TenMonHoc ?? "Chưa phân bổ")</span>
-                            <small class="text-muted d-block">Số tín chỉ: @(Model.KhoaHoc.MonHoc?.SoTinChi ?? 0) TC</small>
+                            <span class="fw-semibold text-dark">@(dk.KhoaHoc.MonHoc?.TenMonHoc ?? "Chưa phân bổ")</span>
+                            <small class="text-muted d-block">Số tín chỉ: @(dk.KhoaHoc.MonHoc?.SoTinChi ?? 0) TC</small>
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Giảng viên giảng dạy:</label>
-                            <span class="fw-semibold text-dark">@(Model.KhoaHoc.GiangVien?.HoTen ?? "Chưa phân công")</span>
-                            <small class="text-muted d-block">Học vị: @(Model.KhoaHoc.GiangVien?.HocVi ?? "N/A")</small>
+                            <span class="fw-semibold text-dark">@(dk.KhoaHoc.GiangVien?.HoTen ?? "Chưa phân công")</span>
+                            <small class="text-muted d-block">Học vị: @(dk.KhoaHoc.GiangVien?.HocVi ?? "N/A")</small>
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Thời gian đào tạo:</label>
-                            <span class="text-dark">@Model.KhoaHoc.NgayBatDau.ToString("dd/MM/yyyy") &rarr; @Model.KhoaHoc.NgayKetThuc.ToString("dd/MM/yyyy")</span>
+                            <span class="text-dark">@dk.KhoaHoc.NgayBatDau.ToString("dd/MM/yyyy") &rarr; @dk.KhoaHoc.NgayKetThuc.ToString("dd/MM/yyyy")</span>
                         </div>
                         <div class="col-sm-6">
                             <label class="text-muted small d-block">Sĩ số khóa học:</label>
@@ -238,7 +239,7 @@
                         </div>
                         <div class="col-12">
                             <label class="text-muted small d-block">Hình thức đào tạo:</label>
-                            <span class="badge bg-light text-dark border">@Model.KhoaHoc.HinhThuc</span>
+                            <span class="badge bg-light text-dark border">@dk.KhoaHoc.HinhThuc</span>
                         </div>
                     </div>
                 }
@@ -253,7 +254,7 @@
                     <h6 class="fw-bold text-dark mb-0 small text-uppercase">
                         <i class="bi bi-wallet2 text-success me-2"></i>Đối soát tài chính học phí
                     </h6>
-                    <span class="badge bg-success-subtle text-success">Biên lai thu</span>
+                    <span class="badge bg-success-subtle text-success">@Model.TrangThaiThanhToan</span>
                 </div>
 
                 <div class="p-3 bg-light rounded-3 mb-3">
@@ -264,6 +265,9 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-success fw-semibold small">Số tiền đã thu:</span>
                         <strong class="text-success fs-6">@daDong.ToString("N0") đ</strong>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @Model.TyLeDongHocPhi%;" aria-valuenow="@Model.TyLeDongHocPhi" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <hr class="my-2" />
                     <div class="d-flex justify-content-between align-items-center">
@@ -277,14 +281,14 @@
                 <div class="mb-3">
                     <label class="text-muted small d-block">Ngày duyệt / xác nhận:</label>
                     <span class="fw-semibold text-dark">
-                        @(Model.NgayXacNhan.HasValue ? Model.NgayXacNhan.Value.ToString("dd/MM/yyyy HH:mm") : "Chưa có ngày xác nhận")
+                        @(dk.NgayXacNhan.HasValue ? dk.NgayXacNhan.Value.ToString("dd/MM/yyyy HH:mm") : "Chưa có ngày xác nhận")
                     </span>
                 </div>
 
                 <div class="mb-3">
                     <label class="text-muted small d-block">Ghi chú giao dịch:</label>
                     <div class="p-2 bg-white rounded border small text-secondary" style="min-height: 48px;">
-                        @(string.IsNullOrWhiteSpace(Model.GhiChu) ? "Không có ghi chú" : Model.GhiChu)
+                        @(string.IsNullOrWhiteSpace(dk.GhiChu) ? "Không có ghi chú" : dk.GhiChu)
                     </div>
                 </div>
             </div>
@@ -297,15 +301,15 @@
                 @if (cacDangKyKhac.Any())
                 {
                     <div class="list-group list-group-flush small">
-                        @foreach (var dk in cacDangKyKhac)
+                        @foreach (var other in cacDangKyKhac)
                         {
                             <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="fw-semibold text-dark">@dk.KhoaHoc?.TenKhoaHoc</div>
-                                    <small class="text-muted">Đăng ký ngày: @dk.NgayDangKy.ToString("dd/MM/yyyy")</small>
+                                    <div class="fw-semibold text-dark">@other.KhoaHoc?.TenKhoaHoc</div>
+                                    <small class="text-muted">Đăng ký ngày: @other.NgayDangKy.ToString("dd/MM/yyyy")</small>
                                 </div>
-                                <span class="badge @(dk.TrangThai == "HoanThanh" ? "bg-success" : (dk.TrangThai == "BiHuy" ? "bg-danger" : "bg-warning text-dark"))">
-                                    @dk.TrangThai
+                                <span class="badge @(other.TrangThai == "HoanThanh" ? "bg-success" : (other.TrangThai == "BiHuy" ? "bg-danger" : "bg-warning text-dark"))">
+                                    @other.TrangThai
                                 </span>
                             </div>
                         }
