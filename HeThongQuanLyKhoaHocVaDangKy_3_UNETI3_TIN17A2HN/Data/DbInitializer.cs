@@ -193,6 +193,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     TrangThai = true,
                     NgayTao = DateTime.Now
                 });
+            }
+
             if (!context.TaiKhoans.Any(t => t.TenDangNhap == "admin_tonghop"))
             {
                 context.TaiKhoans.Add(new TaiKhoan
