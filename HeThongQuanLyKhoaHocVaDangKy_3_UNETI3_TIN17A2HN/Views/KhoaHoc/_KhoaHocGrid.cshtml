@@ -1,0 +1,423 @@
+@*
+    Họ và tên: Nguyễn Văn Mạnh
+    Mã sinh viên: 23103100096
+    Nội dung thực hiện: Module 2 - Partial View hiển thị danh sách khóa học (Grid/List Card), Phân trang LINQ & Trạng thái khả dụng giao dịch
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.KhoaHocFilterViewModel
+@{
+    var userRole = Context.Session.GetString("VaiTro");
+    var isLoggedIn = Context.Session.GetInt32("MaTaiKhoan") != null;
+    var isHocVien = userRole == "HocVien";
+    var isStaffOrAdmin = userRole == "Admin" || userRole == "NhanVien";
+}
+
+@functions {
+    public static Microsoft.AspNetCore.Html.IHtmlContent HighlightText(string? text, string? query)
+    {
+        if (string.IsNullOrEmpty(text)) return Microsoft.AspNetCore.Html.HtmlString.Empty;
+        if (string.IsNullOrWhiteSpace(query)) return new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(text));
+
+        var escapedText = System.Net.WebUtility.HtmlEncode(text);
+        var escapedQuery = System.Net.WebUtility.HtmlEncode(query.Trim());
+
+        var index = escapedText.IndexOf(escapedQuery, System.StringComparison.OrdinalIgnoreCase);
+        if (index < 0) return new Microsoft.AspNetCore.Html.HtmlString(escapedText);
+
+        var sb = new System.Text.StringBuilder();
+        int lastPos = 0;
+        while (index >= 0)
+        {
+            sb.Append(escapedText.Substring(lastPos, index - lastPos));
+            sb.Append("<mark class=\"bg-warning-subtle text-dark px-1 rounded-1 fw-bold\">");
+            sb.Append(escapedText.Substring(index, escapedQuery.Length));
+            sb.Append("</mark>");
+            lastPos = index + escapedQuery.Length;
+            index = escapedText.IndexOf(escapedQuery, lastPos, System.StringComparison.OrdinalIgnoreCase);
+        }
+        sb.Append(escapedText.Substring(lastPos));
+        return new Microsoft.AspNetCore.Html.HtmlString(sb.ToString());
+    }
+}
+
+<!-- Thanh trạng thái kết quả tra cứu -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 px-1 gap-2">
+    <div class="d-flex align-items-center flex-wrap gap-2 small">
+        <span class="text-muted">
+            Hiển thị <strong class="text-dark">@Model.DanhSachKhoaHoc.Count</strong> / <strong>@Model.TotalItems</strong> khóa học phù hợp (Tổng @Model.TongSoKhoaHoc khóa)
+        </span>
+
+        @if (!string.IsNullOrWhiteSpace(Model.SearchString))
+        {
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill">
+                <i class="bi bi-search me-1"></i>Từ khóa: "@Model.SearchString"
+            </span>
+        }
+        @if (Model.MaMonHoc.HasValue)
+        {
+            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">
+                <i class="bi bi-journal-text me-1"></i>Môn học đã chọn
+            </span>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.HinhThuc))
+        {
+            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 rounded-pill">
+                <i class="bi bi-building me-1"></i>@Model.HinhThuc
+            </span>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.TrangThai))
+        {
+            var stLabel = HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers.KhoaHocController.GetStatusLabel(Model.TrangThai);
+            <span class="badge bg-light text-dark border px-2 py-1 rounded-pill">
+                <i class="bi bi-circle-fill me-1 text-primary" style="font-size: 7px;"></i>@stLabel
+            </span>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.KhoangHocPhi))
+        {
+            var hpText = Model.KhoangHocPhi switch
+            {
+                "duoi_2tr" => "Dưới 2 triệu",
+                "2tr_4tr" => "2 - 4 triệu",
+                "4tr_6tr" => "4 - 6 triệu",
+                "tren_6tr" => "Trên 6 triệu",
+                _ => Model.KhoangHocPhi
+            };
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill">
+                <i class="bi bi-cash me-1"></i>@hpText
+            </span>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.TinhTrangCho))
+        {
+            <span class="badge @(Model.TinhTrangCho == "con_cho" ? "bg-success-subtle text-success border-success-subtle" : "bg-danger-subtle text-danger border-danger-subtle") border px-2 py-1 rounded-pill">
+                <i class="bi @(Model.TinhTrangCho == "con_cho" ? "bi-check2-circle" : "bi-x-circle") me-1"></i>
+                @(Model.TinhTrangCho == "con_cho" ? "Còn chỗ" : "Đã hết chỗ")
+            </span>
+        }
+
+        @if (Model.HasActiveFilter)
+        {
+            <button type="button" class="btn btn-link text-danger text-decoration-none p-0 ms-1 fw-semibold small js-clear-filters">
+                <i class="bi bi-x-circle me-1"></i>Bỏ lọc
+            </button>
+        }
+    </div>
+
+    <!-- Nút chuyển Lưới / Danh sách -->
+    <div class="d-flex align-items-center gap-2">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Chế độ hiển thị">
+            <button type="button" class="btn btn-outline-secondary js-view-mode active" data-view="grid" title="Xem dạng lưới (Grid)">
+                <i class="bi bi-grid-fill"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary js-view-mode" data-view="list" title="Xem danh sách (List)">
+                <i class="bi bi-list-ul"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- LƯỚI DANH SÁCH KHÓA HỌC -->
+<div id="khoaHocCardList" class="row g-4 view-grid">
+    @if (Model.DanhSachKhoaHoc == null || !Model.DanhSachKhoaHoc.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="uneti-card p-5 mx-auto" style="max-width: 540px;">
+                <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                </svg>
+                <h5 class="fw-bold text-dark mb-2">Không tìm thấy khóa học phù hợp</h5>
+                <p class="text-muted small mb-4">
+                    Không có khóa học nào khớp với các điều kiện tìm kiếm và bộ lọc hiện tại. Hãy thử chọn môn học khác, đổi từ khóa hoặc đặt lại bộ lọc.
+                </p>
+                <button type="button" class="btn uneti-btn-primary btn-sm px-4 py-2 rounded-3 js-clear-filters">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa bộ lọc & Xem tất cả
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        var itemIdx = 0;
+        foreach (var item in Model.DanhSachKhoaHoc)
+        {
+            var percent = item.SoLuongToiDa > 0 ? (item.SoLuongDaDangKy * 100 / item.SoLuongToiDa) : 0;
+            var progressColor = percent >= 100 ? "bg-danger" : (percent >= 80 ? "bg-warning" : "bg-success");
+
+            var (statusBadge, statusIcon, statusLabel) = item.TrangThai switch
+            {
+                "SapMo" => ("uneti-badge-warning", "bi-clock", "Sắp mở"),
+                "DangMo" => ("uneti-badge-success", "bi-door-open", "Đang mở"),
+                "DangHoc" => ("uneti-badge-primary", "bi-play-circle", "Đang học"),
+                "DaKetThuc" => ("uneti-badge-secondary", "bi-check-circle", "Kết thúc"),
+                "BiHuy" => ("uneti-badge-danger", "bi-x-circle", "Đã hủy"),
+                _ => ("uneti-badge-secondary", "bi-question-circle", item.TrangThai)
+            };
+
+            var hinhThucBadge = item.HinhThuc switch
+            {
+                "Trực tuyến" => "bg-info-subtle text-info border-info-subtle",
+                "Kết hợp" => "bg-warning-subtle text-warning-emphasis border-warning-subtle",
+                _ => "bg-secondary-subtle text-secondary border-secondary-subtle"
+            };
+
+            <div class="col-12 col-md-6 col-lg-4 khoa-hoc-col reveal" style="--i: @(itemIdx % 6);">
+                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column uneti-card-surface position-relative" data-tilt>
+                    
+                    <!-- Hàng 1: Mã khóa học, Hình thức & Trạng thái -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 gap-1">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="badge bg-light text-secondary border px-2 py-1 fw-semibold uneti-fs-12">
+                                #KH0@item.MaKhoaHoc
+                            </span>
+                            <span class="badge @hinhThucBadge border px-2 py-1 uneti-fs-11">
+                                @item.HinhThuc
+                            </span>
+                        </div>
+                        <span class="@statusBadge">
+                            <i class="bi @statusIcon me-1"></i>@statusLabel
+                        </span>
+                    </div>
+
+                    <!-- Môn học liên kết (Dữ liệu nền) -->
+                    <div class="small text-muted mb-1 d-flex align-items-center gap-1">
+                        <i class="bi bi-journal-text text-primary"></i>
+                        <span class="fw-semibold text-truncate">@HighlightText(item.TenMonHoc, Model.SearchString)</span>
+                        <span class="badge bg-light text-muted border ms-auto" style="font-size: 10px;">@item.SoTinChi TC</span>
+                    </div>
+
+                    <!-- Tên khóa học -->
+                    <h5 class="fw-bold text-dark mb-2 lh-sm khoa-hoc-title" style="font-size: 1.08rem;">
+                        @HighlightText(item.TenKhoaHoc, Model.SearchString)
+                    </h5>
+
+                    <!-- Giảng viên phụ trách -->
+                    <div class="small text-secondary mb-2 d-flex align-items-center gap-1">
+                        <i class="bi bi-person-badge text-primary"></i>
+                        <span>GV: <strong>@HighlightText(item.TenGiangVien, Model.SearchString)</strong></span>
+                        @if (!string.IsNullOrEmpty(item.HocVi))
+                        {
+                            <span class="text-muted">(@item.HocVi)</span>
+                        }
+                    </div>
+
+                    <!-- Thời gian khóa học -->
+                    <div class="small text-muted mb-3 d-flex align-items-center gap-1">
+                        <i class="bi bi-calendar3 text-primary"></i>
+                        <span>@item.NgayBatDau.ToString("dd/MM/yyyy") &rarr; @item.NgayKetThuc.ToString("dd/MM/yyyy")</span>
+                    </div>
+
+                    <!-- Thanh tiến độ sĩ số & Số chỗ còn lại -->
+                    <div class="mb-3 p-2.5 rounded-3 bg-light border small">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-secondary" style="font-size: 12px;">Sĩ số đăng ký:</span>
+                            <strong class="text-dark">@item.SoLuongDaDangKy / @item.SoLuongToiDa</strong>
+                        </div>
+                        <div class="progress mb-1" style="height: 6px; border-radius: 4px;">
+                            <div class="progress-bar @progressColor" role="progressbar" style="width: @percent%;" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center" style="font-size: 11px;">
+                            <span class="text-muted">Đã lấp đầy @percent%</span>
+                            @if (item.ConCho)
+                            {
+                                <span class="text-success fw-bold">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Còn <strong>@item.SoLuongConLai</strong> chỗ
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-danger fw-bold">
+                                    <i class="bi bi-exclamation-circle-fill me-1"></i>Hết chỗ
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Học phí khóa học -->
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto mb-3">
+                        <span class="text-muted small">Học phí trọn gói:</span>
+                        <div class="text-end">
+                            <span class="fw-bold fs-5 text-primary" data-count-to="@item.HocPhi" data-format="currency">
+                                @item.HocPhi.ToString("N0") đ
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- MỤC 6.7: HIỂN THỊ RÕ TRẠNG THÁI KHẢ DỤNG / KHÔNG KHẢ DỤNG & ĐIỀU KIỆN GIAO DỊCH -->
+                    <div class="mb-3">
+                        @if (item.KhaDungGiaoDich)
+                        {
+                            <div class="p-2 rounded-2 bg-success-subtle text-success border border-success-subtle text-center small fw-semibold">
+                                <i class="bi bi-patch-check-fill me-1"></i>Khóa học KHẢ DỤNG & Sẵn sàng đăng ký
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="p-2 rounded-2 bg-danger-subtle text-danger border border-danger-subtle text-center small fw-semibold" title="@item.LyDoKhongKhaDung">
+                                <i class="bi bi-lock-fill me-1"></i>KHÔNG KHẢ DỤNG GIAO DỊCH
+                                <div class="uneti-fs-xs fw-normal mt-0.5 text-danger-emphasis">(@item.LyDoKhongKhaDung)</div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Cụm nút hành động người dùng -->
+                    <div class="d-flex gap-2">
+                        <a asp-action="Details" asp-route-id="@item.MaKhoaHoc" class="btn btn-outline-secondary flex-grow-1 rounded-3 fw-semibold py-2 d-flex align-items-center justify-content-center uneti-fs-13 bg-light border text-decoration-none">
+                            <i class="bi bi-info-circle me-1"></i>Xem chi tiết
+                        </a>
+
+                        @if (item.KhaDungGiaoDich)
+                        {
+                            if (isLoggedIn && isHocVien)
+                            {
+                                <!-- Đã đăng nhập vai trò Học viên: Đăng ký trực tiếp -->
+                                <a href="#module3" onclick="thongBaoModule(3); return false;" class="btn uneti-btn-primary rounded-3 fw-semibold py-2 px-3 d-flex align-items-center justify-content-center uneti-fs-13 text-decoration-none shadow-sm" title="Đăng ký tham gia khóa học ngay">
+                                    <i class="bi bi-pencil-square me-1"></i>Đăng ký
+                                </a>
+                            }
+                            else if (!isLoggedIn)
+                            {
+                                <!-- Khách chưa đăng nhập: Yêu cầu đăng nhập trước khi đăng ký -->
+                                <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "KhoaHoc")" class="btn uneti-btn-primary rounded-3 fw-semibold py-2 px-3 d-flex align-items-center justify-content-center uneti-fs-13 text-decoration-none shadow-sm" title="Đăng nhập để đăng ký khóa học">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng ký
+                                </a>
+                            }
+                            else
+                            {
+                                <!-- Cán bộ / Admin: Ghi danh tại quầy cho học viên -->
+                                <a asp-controller="TiepNhanDangKy" asp-action="Create" asp-route-maKhoaHoc="@item.MaKhoaHoc" class="btn btn-success rounded-3 fw-semibold py-2 px-3 d-flex align-items-center justify-content-center uneti-fs-13 text-decoration-none shadow-sm" title="Ghi danh học viên tại quầy">
+                                    <i class="bi bi-person-plus-fill me-1"></i>Ghi danh
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <!-- Không khả dụng: Khóa nút giao dịch -->
+                            <button type="button" class="btn btn-secondary rounded-3 py-2 px-3 uneti-fs-13 fw-semibold opacity-50" disabled title="@item.LyDoKhongKhaDung">
+                                <i class="bi bi-slash-circle me-1"></i>Khóa ĐK
+                            </button>
+                        }
+                    </div>
+
+                </div>
+            </div>
+            itemIdx++;
+        }
+    }
+</div>
+
+<!-- MỤC 6.6: PHÂN TRANG LINQ Skip()/Take() KẾT HỢP GIỮ NGUYÊN BỘ LỌC, TÌM KIẾM & SẮP XẾP -->
+@if (Model.TotalPages > 1)
+{
+    <div class="mt-5 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div class="text-muted small">
+            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-xs">
+                <i class="bi bi-layers text-primary me-1"></i>Trang <strong>@Model.PageIndex</strong> / <strong>@Model.TotalPages</strong> (Tổng <strong>@Model.TotalItems</strong> khóa học sau lọc)
+            </span>
+        </div>
+        <nav aria-label="Phân trang khóa học">
+            <ul class="pagination uneti-pagination mb-0">
+                <!-- Trang đầu -->
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")" title="Trang đầu">
+                    <a class="page-link js-page-link"
+                       asp-action="Index"
+                       asp-route-pageIndex="1"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-searchString="@Model.SearchString"
+                       asp-route-maMonHoc="@Model.MaMonHoc"
+                       asp-route-hinhThuc="@Model.HinhThuc"
+                       asp-route-trangThai="@Model.TrangThai"
+                       asp-route-khoangHocPhi="@Model.KhoangHocPhi"
+                       asp-route-tinhTrangCho="@Model.TinhTrangCho"
+                       asp-route-sortBy="@Model.SortBy"
+                       data-page="1">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+
+                <!-- Trang trước -->
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")" title="Trang trước">
+                    <a class="page-link js-page-link"
+                       asp-action="Index"
+                       asp-route-pageIndex="@(Model.PageIndex - 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-searchString="@Model.SearchString"
+                       asp-route-maMonHoc="@Model.MaMonHoc"
+                       asp-route-hinhThuc="@Model.HinhThuc"
+                       asp-route-trangThai="@Model.TrangThai"
+                       asp-route-khoangHocPhi="@Model.KhoangHocPhi"
+                       asp-route-tinhTrangCho="@Model.TinhTrangCho"
+                       asp-route-sortBy="@Model.SortBy"
+                       data-page="@(Model.PageIndex - 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                <!-- Danh sách số trang -->
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    if (Model.TotalPages > 7 && Math.Abs(p - Model.PageIndex) > 2 && p != 1 && p != Model.TotalPages)
+                    {
+                        if (p == Model.PageIndex - 3 || p == Model.PageIndex + 3)
+                        {
+                            <li class="page-item disabled"><span class="page-ellipsis">…</span></li>
+                        }
+                        continue;
+                    }
+                    <li class="page-item @(p == Model.PageIndex ? "active" : "")">
+                        <a class="page-link js-page-link"
+                           asp-action="Index"
+                           asp-route-pageIndex="@p"
+                           asp-route-pageSize="@Model.PageSize"
+                           asp-route-searchString="@Model.SearchString"
+                           asp-route-maMonHoc="@Model.MaMonHoc"
+                           asp-route-hinhThuc="@Model.HinhThuc"
+                           asp-route-trangThai="@Model.TrangThai"
+                           asp-route-khoangHocPhi="@Model.KhoangHocPhi"
+                           asp-route-tinhTrangCho="@Model.TinhTrangCho"
+                           asp-route-sortBy="@Model.SortBy"
+                           data-page="@p">
+                            @p
+                        </a>
+                    </li>
+                }
+
+                <!-- Trang sau -->
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")" title="Trang tiếp">
+                    <a class="page-link js-page-link"
+                       asp-action="Index"
+                       asp-route-pageIndex="@(Model.PageIndex + 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-searchString="@Model.SearchString"
+                       asp-route-maMonHoc="@Model.MaMonHoc"
+                       asp-route-hinhThuc="@Model.HinhThuc"
+                       asp-route-trangThai="@Model.TrangThai"
+                       asp-route-khoangHocPhi="@Model.KhoangHocPhi"
+                       asp-route-tinhTrangCho="@Model.TinhTrangCho"
+                       asp-route-sortBy="@Model.SortBy"
+                       data-page="@(Model.PageIndex + 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+
+                <!-- Trang cuối -->
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")" title="Trang cuối">
+                    <a class="page-link js-page-link"
+                       asp-action="Index"
+                       asp-route-pageIndex="@Model.TotalPages"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-searchString="@Model.SearchString"
+                       asp-route-maMonHoc="@Model.MaMonHoc"
+                       asp-route-hinhThuc="@Model.HinhThuc"
+                       asp-route-trangThai="@Model.TrangThai"
+                       asp-route-khoangHocPhi="@Model.KhoangHocPhi"
+                       asp-route-tinhTrangCho="@Model.TinhTrangCho"
+                       asp-route-sortBy="@Model.SortBy"
+                       data-page="@Model.TotalPages">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}

@@ -16,10 +16,26 @@
     int dangHocCount = ViewBag.DangHocCount ?? 0;
     int daKetThucCount = ViewBag.DaKetThucCount ?? 0;
     long avgHocPhi = ViewBag.AvgHocPhi ?? 0;
+
     string? currentSearch = ViewBag.CurrentSearch;
+    int? currentMaMonHoc = ViewBag.CurrentMaMonHoc;
     string? currentTrangThai = ViewBag.CurrentTrangThai;
     string? currentHinhThuc = ViewBag.CurrentHinhThuc;
-    bool hasActiveFilter = !string.IsNullOrWhiteSpace(currentSearch) || !string.IsNullOrWhiteSpace(currentTrangThai) || !string.IsNullOrWhiteSpace(currentHinhThuc);
+    string? currentKhoangHocPhi = ViewBag.CurrentKhoangHocPhi;
+    string? currentTinhTrangCho = ViewBag.CurrentTinhTrangCho;
+    string? currentSortBy = ViewBag.CurrentSortBy ?? "id_desc";
+
+    int pageIndex = ViewBag.PageIndex ?? 1;
+    int pageSize = ViewBag.PageSize ?? 5;
+    int totalItems = ViewBag.TotalItems ?? (Model?.Count() ?? 0);
+    int totalPages = ViewBag.TotalPages ?? 1;
+
+    bool hasActiveFilter = !string.IsNullOrWhiteSpace(currentSearch) ||
+                           currentMaMonHoc.HasValue ||
+                           !string.IsNullOrWhiteSpace(currentTrangThai) ||
+                           !string.IsNullOrWhiteSpace(currentHinhThuc) ||
+                           !string.IsNullOrWhiteSpace(currentKhoangHocPhi) ||
+                           !string.IsNullOrWhiteSpace(currentTinhTrangCho);
 }
 
 <div class="container py-4">
@@ -121,47 +137,147 @@
         </div>
     }
 
-    <!-- THANH TÌM KIẾM ĐA TIÊU CHÍ & BỘ LỌC -->
-    <div class="uneti-card p-3 mb-4 shadow-sm">
-        <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-search text-primary"></i>
-            <span class="fw-bold small text-dark">Tìm kiếm đa tiêu chí</span>
-            <span class="badge bg-light text-muted border small" style="font-size: 10px;">Tên khóa học • Tên môn học • Tên giảng viên</span>
-        </div>
-        <form method="get" asp-action="QuanLy" class="row g-2 align-items-center">
-            <div class="col-lg-5 col-md-12">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" name="searchString" value="@currentSearch" class="form-control border-start-0 ps-0" placeholder="Nhập tên khóa học, môn học hoặc giảng viên..." />
+    <!-- THANH TÌM KIẾM ĐA TIÊU CHÍ & BỘ LỌC KẾT HỢP (MỤC 6.3, 6.4, 6.5) -->
+    <div class="uneti-card p-3 p-md-4 mb-4 shadow-sm border">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
+            <div class="d-flex align-items-center gap-2">
+                <span class="uneti-icon-box-32 bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-funnel-fill"></i>
+                </span>
+                <div>
+                    <span class="fw-bold text-dark fs-6">Tìm kiếm & Lọc kết hợp khóa học</span>
+                    <span class="d-block text-muted uneti-fs-xs">Kết hợp đa tiêu chí: Từ khóa, Môn học, Sắp xếp, Hình thức, Trạng thái, Học phí & Sĩ số</span>
                 </div>
             </div>
-            <div class="col-lg-3 col-sm-6">
-                <select name="trangThai" class="form-select">
-                    <option value="">-- Tất cả trạng thái --</option>
-                    <option value="SapMo" selected="@(currentTrangThai == "SapMo")">Sắp mở</option>
-                    <option value="DangMo" selected="@(currentTrangThai == "DangMo")">Đang mở đăng ký</option>
-                    <option value="DangHoc" selected="@(currentTrangThai == "DangHoc")">Đang giảng dạy</option>
-                    <option value="DaKetThuc" selected="@(currentTrangThai == "DaKetThuc")">Đã kết thúc</option>
-                    <option value="BiHuy" selected="@(currentTrangThai == "BiHuy")">Đã hủy</option>
-                </select>
-            </div>
-            <div class="col-lg-2 col-sm-6">
-                <select name="hinhThuc" class="form-select">
-                    <option value="">-- Hình thức --</option>
-                    <option value="Trực tiếp" selected="@(currentHinhThuc == "Trực tiếp")">Trực tiếp</option>
-                    <option value="Trực tuyến" selected="@(currentHinhThuc == "Trực tuyến")">Trực tuyến</option>
-                    <option value="Kết hợp" selected="@(currentHinhThuc == "Kết hợp")">Kết hợp</option>
-                </select>
-            </div>
-            <div class="col-lg-2 d-flex gap-2">
-                <button type="submit" class="btn uneti-btn-primary flex-grow-1">
-                    <i class="bi bi-funnel me-1"></i>Tìm kiếm
-                </button>
-                <a asp-action="QuanLy" class="btn uneti-btn-outline" title="Xóa bộ lọc">
-                    <i class="bi bi-arrow-counterclockwise"></i>
+            @if (hasActiveFilter)
+            {
+                <a asp-action="QuanLy" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 uneti-fs-xs fw-semibold">
+                    <i class="bi bi-x-circle me-1"></i>Xóa bộ lọc
                 </a>
+            }
+        </div>
+
+        <form method="get" asp-action="QuanLy" id="quanLyFilterForm">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="pageSize" value="@pageSize" />
+
+            <!-- KHỐI 1: TỪ KHÓA, MÔN HỌC, SẮP XẾP VÀ NÚT TÌM KIẾM -->
+            <div class="row g-2 align-items-end mb-3">
+                <!-- 1. Từ khóa tìm kiếm -->
+                <div class="col-12 col-md-5 col-lg-4">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-search me-1 text-primary"></i>Từ khóa tìm kiếm
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="searchString" value="@currentSearch" class="form-control border-start-0 ps-1" placeholder="Nhập tên khóa học, môn học, giảng viên..." />
+                    </div>
+                </div>
+
+                <!-- 2. Lọc môn học -->
+                <div class="col-12 col-sm-6 col-md-3 col-lg-3">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-journal-text me-1 text-primary"></i>Môn học đào tạo
+                    </label>
+                    <select name="maMonHoc" class="form-select" asp-items="ViewBag.MonHocList">
+                        <option value="">-- Tất cả môn học --</option>
+                    </select>
+                </div>
+
+                <!-- 3. Sắp xếp: Hiện rõ chữ Sắp xếp -->
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-arrow-down-up me-1 text-primary"></i>Sắp xếp danh sách
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted px-2 small">
+                            <span class="fw-semibold text-dark uneti-fs-xs">Sắp xếp:</span>
+                        </span>
+                        <select name="sortBy" class="form-select border-start-0 ps-1">
+                            <option value="id_desc" selected="@(currentSortBy == "id_desc")">Mới nhất (Mặc định)</option>
+                            <option value="ten_asc" selected="@(currentSortBy == "ten_asc")">Tên khóa học: A &rarr; Z</option>
+                            <option value="ten_desc" selected="@(currentSortBy == "ten_desc")">Tên khóa học: Z &rarr; A</option>
+                            <option value="ngay_asc" selected="@(currentSortBy == "ngay_asc")">Ngày bắt đầu: Tăng dần (Sớm nhất)</option>
+                            <option value="ngay_desc" selected="@(currentSortBy == "ngay_desc")">Ngày bắt đầu: Giảm dần (Muộn nhất)</option>
+                            <option value="hocphi_asc" selected="@(currentSortBy == "hocphi_asc")">Học phí: Thấp &rarr; Cao</option>
+                            <option value="hocphi_desc" selected="@(currentSortBy == "hocphi_desc")">Học phí: Cao &rarr; Thấp</option>
+                            <option value="cho_desc" selected="@(currentSortBy == "cho_desc")">Chỗ trống còn lại: Nhiều &rarr; Ít</option>
+                            <option value="cho_asc" selected="@(currentSortBy == "cho_asc")">Chỗ trống còn lại: Ít &rarr; Nhiều</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4. Nút Thao tác -->
+                <div class="col-12 col-md-12 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn uneti-btn-primary flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-1">
+                        <i class="bi bi-funnel-fill"></i>
+                        <span>Lọc</span>
+                    </button>
+                    <a asp-action="QuanLy" class="btn uneti-btn-outline px-3 d-flex align-items-center justify-content-center" title="Làm mới & Xóa bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- KHỐI 2: CÁC TIÊU CHÍ LỌC CHI TIẾT (CÓ LABEL RÕ RÀNG DỄ NHẬN BIẾT) -->
+            <div class="p-3 bg-light rounded-3 border">
+                <div class="row g-2 align-items-center">
+                    <!-- Hình thức -->
+                    <div class="col-6 col-md-3">
+                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
+                            <i class="bi bi-building me-1"></i>Hình thức đào tạo
+                        </label>
+                        <select name="hinhThuc" class="form-select form-select-sm bg-white">
+                            <option value="">-- Tất cả hình thức --</option>
+                            <option value="Trực tiếp" selected="@(currentHinhThuc == "Trực tiếp")">Trực tiếp (Tại lớp)</option>
+                            <option value="Trực tuyến" selected="@(currentHinhThuc == "Trực tuyến")">Trực tuyến (Online)</option>
+                            <option value="Kết hợp" selected="@(currentHinhThuc == "Kết hợp")">Kết hợp (Hybrid)</option>
+                        </select>
+                    </div>
+
+                    <!-- Trạng thái -->
+                    <div class="col-6 col-md-3">
+                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
+                            <i class="bi bi-activity me-1"></i>Trạng thái khóa học
+                        </label>
+                        <select name="trangThai" class="form-select form-select-sm bg-white">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            <option value="DangMo" selected="@(currentTrangThai == "DangMo")">Đang mở đăng ký</option>
+                            <option value="SapMo" selected="@(currentTrangThai == "SapMo")">Sắp mở</option>
+                            <option value="DangHoc" selected="@(currentTrangThai == "DangHoc")">Đang giảng dạy</option>
+                            <option value="DaKetThuc" selected="@(currentTrangThai == "DaKetThuc")">Đã kết thúc</option>
+                            <option value="BiHuy" selected="@(currentTrangThai == "BiHuy")">Đã hủy</option>
+                        </select>
+                    </div>
+
+                    <!-- Khoảng học phí -->
+                    <div class="col-6 col-md-3">
+                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
+                            <i class="bi bi-cash-stack me-1"></i>Khoảng học phí
+                        </label>
+                        <select name="khoangHocPhi" class="form-select form-select-sm bg-white">
+                            <option value="">-- Tất cả khoảng giá --</option>
+                            <option value="duoi_2tr" selected="@(currentKhoangHocPhi == "duoi_2tr")">Dưới 2.000.000 đ</option>
+                            <option value="2tr_4tr" selected="@(currentKhoangHocPhi == "2tr_4tr")">Từ 2.000.000 - 4.000.000 đ</option>
+                            <option value="4tr_6tr" selected="@(currentKhoangHocPhi == "4tr_6tr")">Từ 4.000.000 - 6.000.000 đ</option>
+                            <option value="tren_6tr" selected="@(currentKhoangHocPhi == "tren_6tr")">Trên 6.000.000 đ</option>
+                        </select>
+                    </div>
+
+                    <!-- Tình trạng chỗ -->
+                    <div class="col-6 col-md-3">
+                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
+                            <i class="bi bi-people me-1"></i>Tình trạng chỗ ngồi
+                        </label>
+                        <select name="tinhTrangCho" class="form-select form-select-sm bg-white">
+                            <option value="">-- Tất cả tình trạng --</option>
+                            <option value="con_cho" selected="@(currentTinhTrangCho == "con_cho")">Còn chỗ đăng ký</option>
+                            <option value="het_cho" selected="@(currentTinhTrangCho == "het_cho")">Đã hết chỗ (Đủ sĩ số)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -171,12 +287,18 @@
     {
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3 px-1 small">
             <span class="text-muted">
-                Tìm thấy <strong class="text-dark">@Model.Count()</strong> khóa học
+                Tìm thấy <strong class="text-dark">@totalItems</strong> / <strong>@totalCount</strong> khóa học
             </span>
             @if (!string.IsNullOrWhiteSpace(currentSearch))
             {
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill">
                     <i class="bi bi-search me-1"></i>Từ khóa: "@currentSearch"
+                </span>
+            }
+            @if (currentMaMonHoc.HasValue)
+            {
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">
+                    <i class="bi bi-journal-text me-1"></i>Môn học đã lọc
                 </span>
             }
             @if (!string.IsNullOrWhiteSpace(currentTrangThai))
@@ -189,6 +311,19 @@
             {
                 <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 rounded-pill">
                     <i class="bi bi-display me-1"></i>@currentHinhThuc
+                </span>
+            }
+            @if (!string.IsNullOrWhiteSpace(currentKhoangHocPhi))
+            {
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill">
+                    <i class="bi bi-cash me-1"></i>Học phí đã lọc
+                </span>
+            }
+            @if (!string.IsNullOrWhiteSpace(currentTinhTrangCho))
+            {
+                <span class="badge @(currentTinhTrangCho == "con_cho" ? "bg-success-subtle text-success border-success-subtle" : "bg-danger-subtle text-danger border-danger-subtle") border px-2 py-1 rounded-pill">
+                    <i class="bi @(currentTinhTrangCho == "con_cho" ? "bi-check2-circle" : "bi-x-circle") me-1"></i>
+                    @(currentTinhTrangCho == "con_cho" ? "Còn chỗ" : "Hết chỗ")
                 </span>
             }
             <a asp-action="QuanLy" class="text-danger text-decoration-none ms-1 fw-semibold small">
@@ -216,7 +351,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (!Model.Any())
+                    @if (Model == null || !Model.Any())
                     {
                         <tr>
                             <td colspan="10" class="text-center py-5 text-muted">
@@ -366,9 +501,106 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted">
-            <span>Hiển thị <strong>@Model.Count()</strong> trên tổng số <strong>@totalCount</strong> khóa học trong hệ thống</span>
-            <span>Hệ thống Quản lý Khóa học & Đăng ký - UNETI 2025-2026</span>
+        <div class="p-3 bg-light border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-muted">
+            <span>Hiển thị <strong>@(Model?.Count() ?? 0)</strong> / <strong>@totalItems</strong> khóa học sau lọc (Trang @pageIndex/@(totalPages == 0 ? 1 : totalPages))</span>
+            
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Phân trang quản lý khóa học">
+                    <ul class="pagination uneti-pagination mb-0">
+                        <li class="page-item @(pageIndex <= 1 ? "disabled" : "")" title="Trang đầu">
+                            <a class="page-link"
+                               asp-action="QuanLy"
+                               asp-route-page="1"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-searchString="@currentSearch"
+                               asp-route-maMonHoc="@currentMaMonHoc"
+                               asp-route-trangThai="@currentTrangThai"
+                               asp-route-hinhThuc="@currentHinhThuc"
+                               asp-route-khoangHocPhi="@currentKhoangHocPhi"
+                               asp-route-tinhTrangCho="@currentTinhTrangCho"
+                               asp-route-sortBy="@currentSortBy">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+
+                        <li class="page-item @(pageIndex <= 1 ? "disabled" : "")" title="Trang trước">
+                            <a class="page-link"
+                               asp-action="QuanLy"
+                               asp-route-page="@(pageIndex - 1)"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-searchString="@currentSearch"
+                               asp-route-maMonHoc="@currentMaMonHoc"
+                               asp-route-trangThai="@currentTrangThai"
+                               asp-route-hinhThuc="@currentHinhThuc"
+                               asp-route-khoangHocPhi="@currentKhoangHocPhi"
+                               asp-route-tinhTrangCho="@currentTinhTrangCho"
+                               asp-route-sortBy="@currentSortBy">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        @for (int p = 1; p <= totalPages; p++)
+                        {
+                            if (totalPages > 7 && Math.Abs(p - pageIndex) > 2 && p != 1 && p != totalPages)
+                            {
+                                if (p == pageIndex - 3 || p == pageIndex + 3)
+                                {
+                                    <li class="page-item disabled"><span class="page-ellipsis">…</span></li>
+                                }
+                                continue;
+                            }
+                            <li class="page-item @(p == pageIndex ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="QuanLy"
+                                   asp-route-page="@p"
+                                   asp-route-pageSize="@pageSize"
+                                   asp-route-searchString="@currentSearch"
+                                   asp-route-maMonHoc="@currentMaMonHoc"
+                                   asp-route-trangThai="@currentTrangThai"
+                                   asp-route-hinhThuc="@currentHinhThuc"
+                                   asp-route-khoangHocPhi="@currentKhoangHocPhi"
+                                   asp-route-tinhTrangCho="@currentTinhTrangCho"
+                                   asp-route-sortBy="@currentSortBy">
+                                    @p
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(pageIndex >= totalPages ? "disabled" : "")" title="Trang tiếp">
+                            <a class="page-link"
+                               asp-action="QuanLy"
+                               asp-route-page="@(pageIndex + 1)"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-searchString="@currentSearch"
+                               asp-route-maMonHoc="@currentMaMonHoc"
+                               asp-route-trangThai="@currentTrangThai"
+                               asp-route-hinhThuc="@currentHinhThuc"
+                               asp-route-khoangHocPhi="@currentKhoangHocPhi"
+                               asp-route-tinhTrangCho="@currentTinhTrangCho"
+                               asp-route-sortBy="@currentSortBy">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+
+                        <li class="page-item @(pageIndex >= totalPages ? "disabled" : "")" title="Trang cuối">
+                            <a class="page-link"
+                               asp-action="QuanLy"
+                               asp-route-page="@totalPages"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-searchString="@currentSearch"
+                               asp-route-maMonHoc="@currentMaMonHoc"
+                               asp-route-trangThai="@currentTrangThai"
+                               asp-route-hinhThuc="@currentHinhThuc"
+                               asp-route-khoangHocPhi="@currentKhoangHocPhi"
+                               asp-route-tinhTrangCho="@currentTinhTrangCho"
+                               asp-route-sortBy="@currentSortBy">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
         </div>
     </div>
 </div>

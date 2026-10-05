@@ -6,11 +6,16 @@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.KhoaHoc
 @{
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    ViewData["Title"] = "Chi tiết khóa học - " + Model.TenKhoaHoc;
-    var dangKyCount = Model.DangKyKhoaHocs?.Count ?? 0;
     var userRole = Context.Session.GetString("VaiTro");
     var isAdmin = userRole == "Admin";
+    var isStaffOrAdmin = isAdmin || userRole == "NhanVien";
+    var isLoggedIn = Context.Session.GetInt32("MaTaiKhoan") != null;
+
+    Layout = isStaffOrAdmin ? "~/Views/Shared/_LayoutAdmin.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chi tiết khóa học - " + Model.TenKhoaHoc;
+    var dangKyCount = Model.DangKyKhoaHocs?.Count(dk => dk.TrangThai != "BiHuy") ?? 0;
+    var conCho = (Model.SoLuongToiDa - dangKyCount) > 0;
+    var khaDung = Model.TrangThai == "DangMo" && conCho && Model.NgayBatDau.Date >= DateTime.Today;
 }
 
 <div class="container py-4">
@@ -19,8 +24,16 @@
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Bảng điều khiển</a></li>
-                    <li class="breadcrumb-item"><a asp-action="QuanLy" class="text-decoration-none" style="color: var(--uneti-primary);">Quản lý khóa học</a></li>
+                    @if (isStaffOrAdmin)
+                    {
+                        <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Bảng điều khiển</a></li>
+                        <li class="breadcrumb-item"><a asp-action="QuanLy" class="text-decoration-none" style="color: var(--uneti-primary);">Quản lý khóa học</a></li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-primary">Danh mục khóa học</a></li>
+                    }
                     <li class="breadcrumb-item active" aria-current="page">Chi tiết khóa học #KH0@Model.MaKhoaHoc</li>
                 </ol>
             </nav>
@@ -30,12 +43,21 @@
             <p class="text-muted mb-0 small">Hồ sơ thông số kỹ thuật, tiến độ giảng dạy và giảng viên phụ trách khóa học</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
-            <a asp-action="Edit" asp-route-id="@Model.MaKhoaHoc" class="btn uneti-btn-primary shadow-sm text-decoration-none">
-                <i class="bi bi-pencil me-1"></i>Chỉnh sửa khóa học
-            </a>
-            <a asp-action="QuanLy" class="btn uneti-btn-outline shadow-sm text-decoration-none">
-                <i class="bi bi-arrow-left me-1"></i>Quay lại
-            </a>
+            @if (isStaffOrAdmin)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.MaKhoaHoc" class="btn uneti-btn-primary shadow-sm text-decoration-none">
+                    <i class="bi bi-pencil me-1"></i>Chỉnh sửa khóa học
+                </a>
+                <a asp-action="QuanLy" class="btn uneti-btn-outline shadow-sm text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+                </a>
+            }
+            else
+            {
+                <a asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i>Quay lại danh mục
+                </a>
+            }
         </div>
     </div>
 
@@ -160,23 +182,80 @@
                 </div>
             </div>
 
-            <!-- Tác vụ nhanh -->
-            <div class="uneti-card p-4 shadow-sm">
+            <!-- MỤC 6.7: TRẠNG THÁI KHẢ DỤNG GIAO DỊCH -->
+            <div class="uneti-card p-4 shadow-sm mb-4">
                 <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
-                    <i class="bi bi-gear me-2 text-primary"></i>Tác vụ quản trị
+                    <i class="bi bi-shield-check me-2 text-primary"></i>Khả dụng giao dịch
                 </h6>
-                <div class="d-grid gap-2">
-                    <a asp-action="Edit" asp-route-id="@Model.MaKhoaHoc" class="btn uneti-btn-primary fw-semibold">
-                        <i class="bi bi-pencil me-1"></i>Chỉnh sửa thông tin
-                    </a>
-                    @if (isAdmin)
+                @if (khaDung)
+                {
+                    <div class="alert alert-success border-0 py-3 mb-3 rounded-3 small">
+                        <i class="bi bi-check-circle-fill me-1 fs-5 align-middle"></i>
+                        <span class="align-middle fw-semibold">Khóa học ĐỦ ĐIỀU KIỆN tiếp nhận học viên</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-danger border-0 py-3 mb-3 rounded-3 small">
+                        <i class="bi bi-exclamation-octagon-fill me-1 fs-5 align-middle"></i>
+                        <span class="align-middle fw-semibold">Khóa học KHÔNG KHẢ DỤNG giao dịch</span>
+                        <div class="mt-1 uneti-fs-xs">
+                            @if (Model.TrangThai != "DangMo") { <div>&bull; Trạng thái không phải 'Đang mở đăng ký'</div> }
+                            @if (!conCho) { <div>&bull; Khóa học đã đủ sĩ số tối đa</div> }
+                            @if (Model.NgayBatDau.Date < DateTime.Today) { <div>&bull; Đã quá hạn ngày bắt đầu khóa học</div> }
+                        </div>
+                    </div>
+                }
+
+                @if (!isStaffOrAdmin)
+                {
+                    if (khaDung)
                     {
-                        <a asp-action="Delete" asp-route-id="@Model.MaKhoaHoc" class="btn btn-outline-danger fw-semibold">
-                            <i class="bi bi-trash me-1"></i>Xóa khóa học
-                        </a>
+                        if (isLoggedIn && userRole == "HocVien")
+                        {
+                            <a href="#module3" onclick="thongBaoModule(3); return false;" class="btn uneti-btn-primary w-100 fw-semibold py-2">
+                                <i class="bi bi-pencil-square me-1"></i>Đăng ký khóa học này
+                            </a>
+                        }
+                        else if (!isLoggedIn)
+                        {
+                            <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "KhoaHoc", new { id = Model.MaKhoaHoc })" class="btn uneti-btn-primary w-100 fw-semibold py-2">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập để đăng ký
+                            </a>
+                        }
                     }
-                </div>
+                    else
+                    {
+                        <button type="button" class="btn btn-secondary w-100 py-2 opacity-50" disabled>
+                            <i class="bi bi-slash-circle me-1"></i>Đã đóng giao dịch đăng ký
+                        </button>
+                    }
+                }
             </div>
+
+            <!-- Tác vụ nhanh (Dành cho Quản trị viên / Nhân viên) -->
+            @if (isStaffOrAdmin)
+            {
+                <div class="uneti-card p-4 shadow-sm">
+                    <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-gear me-2 text-primary"></i>Tác vụ quản trị
+                    </h6>
+                    <div class="d-grid gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.MaKhoaHoc" class="btn uneti-btn-primary fw-semibold">
+                            <i class="bi bi-pencil me-1"></i>Chỉnh sửa thông tin
+                        </a>
+                        <a asp-controller="TiepNhanDangKy" asp-action="Create" asp-route-maKhoaHoc="@Model.MaKhoaHoc" class="btn btn-success fw-semibold">
+                            <i class="bi bi-person-plus-fill me-1"></i>Ghi danh học viên tại quầy
+                        </a>
+                        @if (isAdmin)
+                        {
+                            <a asp-action="Delete" asp-route-id="@Model.MaKhoaHoc" class="btn btn-outline-danger fw-semibold">
+                                <i class="bi bi-trash me-1"></i>Xóa khóa học
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>

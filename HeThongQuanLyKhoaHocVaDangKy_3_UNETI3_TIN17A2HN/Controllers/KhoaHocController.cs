@@ -9,6 +9,8 @@ using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
 
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels;
+
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 {
     public class KhoaHocController : Controller
@@ -21,16 +23,214 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // =========================================================================
-        // 1. TRANG QUẢN TRỊ KHÓA HỌC (ADMIN & NHÂN VIÊN)
+        // 1. CỔNG SINH VIÊN & KHÁCH HÀNG (PUBLIC COURSE PORTAL)
+        // 6.3 Tìm kiếm: Tên khóa học, Tên môn học, Tên giảng viên
+        // 6.4 Lọc kết hợp: Môn học, Hình thức, Trạng thái, Khoảng học phí, Còn chỗ/Hết chỗ
+        // 6.5 Sắp xếp: Tên A->Z, Z->A, Ngày BĐ tăng/giảm, Học phí tăng/giảm, Số lượng còn lại tăng/giảm
+        // 6.6 Phân trang: EF Core Skip(), Take(), giữ nguyên điều kiện khi chuyển trang
+        // 6.7 Hiển thị cho người dùng: Rõ ràng khả dụng / không khả dụng theo nghiệp vụ
+        // =========================================================================
+
+        // GET: /KhoaHoc or /KhoaHoc/Index
+        [HttpGet]
+        public async Task<IActionResult> Index(KhoaHocFilterViewModel filter)
+        {
+            // Dropdown môn học cho bộ lọc
+            ViewBag.MonHocList = new SelectList(
+                await _context.MonHocs
+                    .Where(m => m.TrangThai)
+                    .OrderBy(m => m.TenMonHoc)
+                    .Select(m => new { m.MaMonHoc, Display = m.TenMonHoc + " (" + m.SoTinChi + " TC)" })
+                    .ToListAsync(),
+                "MaMonHoc", "Display", filter.MaMonHoc);
+
+            // Thống kê tổng thể cho Stat Cards
+            var allCoursesQuery = _context.KhoaHocs
+                .Include(k => k.DangKyKhoaHocs)
+                .AsNoTracking();
+
+            filter.TongSoKhoaHoc = await allCoursesQuery.CountAsync();
+            filter.SoKhoaDangMo = await allCoursesQuery.CountAsync(k => k.TrangThai == "DangMo");
+            filter.SoKhoaConCho = await allCoursesQuery.CountAsync(k =>
+                k.SoLuongToiDa > k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"));
+            filter.SoKhoaKhaDung = await allCoursesQuery.CountAsync(k =>
+                k.TrangThai == "DangMo" &&
+                k.NgayBatDau >= DateTime.Today &&
+                k.SoLuongToiDa > k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"));
+            filter.HocPhiThapNhat = await allCoursesQuery.AnyAsync()
+                ? await allCoursesQuery.MinAsync(k => k.HocPhi)
+                : 0m;
+            filter.HocPhiCaoNhat = await allCoursesQuery.AnyAsync()
+                ? await allCoursesQuery.MaxAsync(k => k.HocPhi)
+                : 0m;
+
+            // Truy vấn cơ sở với Include
+            var query = _context.KhoaHocs
+                .Include(k => k.MonHoc)
+                .Include(k => k.GiangVien)
+                .Include(k => k.DangKyKhoaHocs)
+                .AsNoTracking()
+                .AsQueryable();
+
+            // -------------------------------------------------------------
+            // BƯỚC 1: TÌM KIẾM ĐA TIÊU CHÍ (Mục 6.3)
+            // Tên khóa học, Tên môn học, Tên giảng viên
+            // -------------------------------------------------------------
+            if (!string.IsNullOrWhiteSpace(filter.SearchString))
+            {
+                var keyword = filter.SearchString.Trim().ToLower();
+                query = query.Where(k =>
+                    k.TenKhoaHoc.ToLower().Contains(keyword) ||
+                    (k.MonHoc != null && k.MonHoc.TenMonHoc.ToLower().Contains(keyword)) ||
+                    (k.GiangVien != null && k.GiangVien.HoTen.ToLower().Contains(keyword))
+                );
+            }
+
+            // -------------------------------------------------------------
+            // BƯỚC 2: BỘ LỌC KẾT HỢP (Mục 6.4)
+            // • Môn học
+            // • Hình thức
+            // • Trạng thái
+            // • Khoảng học phí
+            // • Còn chỗ / Hết chỗ
+            // -------------------------------------------------------------
+
+            // Lọc theo Môn học
+            if (filter.MaMonHoc.HasValue && filter.MaMonHoc.Value > 0)
+            {
+                query = query.Where(k => k.MaMonHoc == filter.MaMonHoc.Value);
+            }
+
+            // Lọc theo Hình thức (Trực tiếp, Trực tuyến, Kết hợp)
+            if (!string.IsNullOrWhiteSpace(filter.HinhThuc))
+            {
+                query = query.Where(k => k.HinhThuc == filter.HinhThuc);
+            }
+
+            // Lọc theo Trạng thái (SapMo, DangMo, DangHoc, DaKetThuc, BiHuy)
+            if (!string.IsNullOrWhiteSpace(filter.TrangThai))
+            {
+                query = query.Where(k => k.TrangThai == filter.TrangThai);
+            }
+
+            // Lọc theo Khoảng học phí
+            if (!string.IsNullOrWhiteSpace(filter.KhoangHocPhi))
+            {
+                query = filter.KhoangHocPhi switch
+                {
+                    "duoi_2tr" => query.Where(k => k.HocPhi < 2000000),
+                    "2tr_4tr" => query.Where(k => k.HocPhi >= 2000000 && k.HocPhi <= 4000000),
+                    "4tr_6tr" => query.Where(k => k.HocPhi > 4000000 && k.HocPhi <= 6000000),
+                    "tren_6tr" => query.Where(k => k.HocPhi > 6000000),
+                    _ => query
+                };
+            }
+
+            // Lọc theo Còn chỗ / Hết chỗ (Số lượng còn lại = SoLuongToiDa - SoLuongDaDangKy)
+            if (!string.IsNullOrWhiteSpace(filter.TinhTrangCho))
+            {
+                if (filter.TinhTrangCho == "con_cho")
+                {
+                    query = query.Where(k => k.SoLuongToiDa > k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"));
+                }
+                else if (filter.TinhTrangCho == "het_cho")
+                {
+                    query = query.Where(k => k.SoLuongToiDa <= k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"));
+                }
+            }
+
+            // -------------------------------------------------------------
+            // BƯỚC 3: SẮP XẾP LINQ (Mục 6.5)
+            // • Tên khóa học A -> Z
+            // • Tên khóa học Z -> A
+            // • Ngày bắt đầu tăng / giảm
+            // • Học phí tăng / giảm
+            // • Số lượng còn lại tăng / giảm
+            // -------------------------------------------------------------
+            query = filter.SortBy switch
+            {
+                "ten_asc" => query.OrderBy(k => k.TenKhoaHoc),
+                "ten_desc" => query.OrderByDescending(k => k.TenKhoaHoc),
+                "ngay_asc" => query.OrderBy(k => k.NgayBatDau).ThenBy(k => k.TenKhoaHoc),
+                "ngay_desc" => query.OrderByDescending(k => k.NgayBatDau).ThenBy(k => k.TenKhoaHoc),
+                "hocphi_asc" => query.OrderBy(k => k.HocPhi).ThenBy(k => k.TenKhoaHoc),
+                "hocphi_desc" => query.OrderByDescending(k => k.HocPhi).ThenBy(k => k.TenKhoaHoc),
+                "cho_asc" => query.OrderBy(k => (k.SoLuongToiDa - k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"))).ThenBy(k => k.TenKhoaHoc),
+                "cho_desc" => query.OrderByDescending(k => (k.SoLuongToiDa - k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"))).ThenBy(k => k.TenKhoaHoc),
+                _ => query.OrderByDescending(k => k.MaKhoaHoc)
+            };
+
+            // -------------------------------------------------------------
+            // BƯỚC 4: PHÂN TRANG BẰNG EF CORE Skip() & Take() (Mục 6.6)
+            // -------------------------------------------------------------
+            filter.TotalItems = await query.CountAsync();
+
+            if (filter.PageIndex < 1) filter.PageIndex = 1;
+            if (filter.PageSize < 1) filter.PageSize = 5;
+
+            var rawList = await query
+                .Skip((filter.PageIndex - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToListAsync();
+
+            // Ánh xạ sang ViewModel để tính toán nghiệp vụ khả dụng (Mục 6.7)
+            filter.DanhSachKhoaHoc = rawList.Select(k => new KhoaHocItemViewModel
+            {
+                MaKhoaHoc = k.MaKhoaHoc,
+                TenKhoaHoc = k.TenKhoaHoc,
+                MaMonHoc = k.MaMonHoc,
+                TenMonHoc = k.MonHoc?.TenMonHoc ?? "Chưa xác định",
+                SoTinChi = k.MonHoc?.SoTinChi ?? 0,
+                MaGiangVien = k.MaGiangVien,
+                TenGiangVien = k.GiangVien?.HoTen ?? "Chưa phân công",
+                HocVi = k.GiangVien?.HocVi,
+                ChuyenMon = k.GiangVien?.ChuyenMon,
+                NgayBatDau = k.NgayBatDau,
+                NgayKetThuc = k.NgayKetThuc,
+                SoLuongToiDa = k.SoLuongToiDa,
+                SoLuongDaDangKy = k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"),
+                HocPhi = k.HocPhi,
+                HinhThuc = k.HinhThuc,
+                TrangThai = k.TrangThai,
+                MoTa = k.MoTa
+            }).ToList();
+
+            // Phản hồi AJAX nếu có yêu cầu partial
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_KhoaHocGrid", filter);
+            }
+
+            return View(filter);
+        }
+
+        // =========================================================================
+        // 2. TRANG QUẢN TRỊ KHÓA HỌC (ADMIN & NHÂN VIÊN)
+        // Hỗ trợ tìm kiếm, lọc, sắp xếp, phân trang Skip/Take
         // =========================================================================
 
         // GET: /KhoaHoc/QuanLy
-        // Quyền: Chỉ Admin và Nhân viên đào tạo mới được phép truy cập
-        // Tìm kiếm theo: Tên khóa học, Tên môn học, Tên giảng viên
-        // Lọc theo: Trạng thái, Hình thức đào tạo
         [AuthorizeRole("Admin", "NhanVien")]
-        public async Task<IActionResult> QuanLy(string? searchString, string? trangThai, string? hinhThuc)
+        public async Task<IActionResult> QuanLy(
+            string? searchString,
+            int? maMonHoc,
+            string? trangThai,
+            string? hinhThuc,
+            string? khoangHocPhi,
+            string? tinhTrangCho,
+            string? sortBy = "id_desc",
+            int page = 1,
+            int pageSize = 5)
         {
+            // Dropdown môn học cho bộ lọc quản trị
+            ViewBag.MonHocList = new SelectList(
+                await _context.MonHocs
+                    .Where(m => m.TrangThai)
+                    .OrderBy(m => m.TenMonHoc)
+                    .Select(m => new { m.MaMonHoc, Display = m.TenMonHoc + " (" + m.SoTinChi + " TC)" })
+                    .ToListAsync(),
+                "MaMonHoc", "Display", maMonHoc);
+
             // Thống kê số liệu tổng thể phục vụ 4 thẻ Stat Cards
             ViewBag.TotalCount = await _context.KhoaHocs.CountAsync();
             ViewBag.DangMoCount = await _context.KhoaHocs.CountAsync(k => k.TrangThai == "DangMo");
@@ -44,9 +244,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 .Include(k => k.MonHoc)
                 .Include(k => k.GiangVien)
                 .Include(k => k.DangKyKhoaHocs)
+                .AsNoTracking()
                 .AsQueryable();
 
-            // LINQ Tìm kiếm đa tiêu chí: Tên khóa học, Tên môn học, Tên giảng viên
+            // 6.3 Tìm kiếm đa tiêu chí: Tên khóa học, Tên môn học, Tên giảng viên
             if (!string.IsNullOrWhiteSpace(searchString))
             {
                 var keyword = searchString.Trim().ToLower();
@@ -58,21 +259,89 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 ViewBag.CurrentSearch = searchString;
             }
 
-            // LINQ Lọc theo trạng thái khóa học
+            // 6.4 Lọc môn học
+            if (maMonHoc.HasValue && maMonHoc.Value > 0)
+            {
+                query = query.Where(k => k.MaMonHoc == maMonHoc.Value);
+                ViewBag.CurrentMaMonHoc = maMonHoc.Value;
+            }
+
+            // 6.4 Lọc trạng thái
             if (!string.IsNullOrWhiteSpace(trangThai))
             {
                 query = query.Where(k => k.TrangThai == trangThai);
                 ViewBag.CurrentTrangThai = trangThai;
             }
 
-            // LINQ Lọc theo hình thức đào tạo
+            // 6.4 Lọc hình thức đào tạo
             if (!string.IsNullOrWhiteSpace(hinhThuc))
             {
                 query = query.Where(k => k.HinhThuc == hinhThuc);
                 ViewBag.CurrentHinhThuc = hinhThuc;
             }
 
-            var list = await query.OrderByDescending(k => k.MaKhoaHoc).ToListAsync();
+            // 6.4 Lọc khoảng học phí
+            if (!string.IsNullOrWhiteSpace(khoangHocPhi))
+            {
+                query = khoangHocPhi switch
+                {
+                    "duoi_2tr" => query.Where(k => k.HocPhi < 2000000),
+                    "2tr_4tr" => query.Where(k => k.HocPhi >= 2000000 && k.HocPhi <= 4000000),
+                    "4tr_6tr" => query.Where(k => k.HocPhi > 4000000 && k.HocPhi <= 6000000),
+                    "tren_6tr" => query.Where(k => k.HocPhi > 6000000),
+                    _ => query
+                };
+                ViewBag.CurrentKhoangHocPhi = khoangHocPhi;
+            }
+
+            // 6.4 Lọc còn chỗ / hết chỗ
+            if (!string.IsNullOrWhiteSpace(tinhTrangCho))
+            {
+                if (tinhTrangCho == "con_cho")
+                {
+                    query = query.Where(k => k.SoLuongToiDa > k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"));
+                }
+                else if (tinhTrangCho == "het_cho")
+                {
+                    query = query.Where(k => k.SoLuongToiDa <= k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"));
+                }
+                ViewBag.CurrentTinhTrangCho = tinhTrangCho;
+            }
+
+            // 6.5 Sắp xếp
+            ViewBag.CurrentSortBy = sortBy;
+            query = sortBy switch
+            {
+                "ten_asc" => query.OrderBy(k => k.TenKhoaHoc),
+                "ten_desc" => query.OrderByDescending(k => k.TenKhoaHoc),
+                "ngay_asc" => query.OrderBy(k => k.NgayBatDau).ThenBy(k => k.TenKhoaHoc),
+                "ngay_desc" => query.OrderByDescending(k => k.NgayBatDau).ThenBy(k => k.TenKhoaHoc),
+                "hocphi_asc" => query.OrderBy(k => k.HocPhi).ThenBy(k => k.TenKhoaHoc),
+                "hocphi_desc" => query.OrderByDescending(k => k.HocPhi).ThenBy(k => k.TenKhoaHoc),
+                "cho_asc" => query.OrderBy(k => (k.SoLuongToiDa - k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"))).ThenBy(k => k.TenKhoaHoc),
+                "cho_desc" => query.OrderByDescending(k => (k.SoLuongToiDa - k.DangKyKhoaHocs.Count(dk => dk.TrangThai != "BiHuy"))).ThenBy(k => k.TenKhoaHoc),
+                "id_asc" => query.OrderBy(k => k.MaKhoaHoc),
+                _ => query.OrderByDescending(k => k.MaKhoaHoc)
+            };
+
+            // 6.6 Phân trang Skip(), Take()
+            int totalFiltered = await query.CountAsync();
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 5;
+            int totalPages = (int)Math.Ceiling(totalFiltered / (double)pageSize);
+            if (totalPages < 1) totalPages = 1;
+            if (page > totalPages) page = totalPages;
+
+            ViewBag.PageIndex = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = totalFiltered;
+            ViewBag.TotalPages = totalPages;
+
+            var list = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             return View(list);
         }
 
