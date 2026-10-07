@@ -21,6 +21,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public string? TrinhDo { get; set; }
         public DateTime NgayDangKy { get; set; }
         public bool TrangThai { get; set; }
+        public string? HinhAnh { get; set; }
         public string? GhiChu { get; set; }
         public int SoKhoaHocDaDangKy { get; set; }
         public int SoKhoaHocHoanThanh { get; set; }

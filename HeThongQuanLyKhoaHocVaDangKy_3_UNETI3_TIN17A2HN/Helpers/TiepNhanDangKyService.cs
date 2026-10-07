@@ -39,21 +39,66 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                     .ThenInclude(k => k!.MonHoc)
                 .AsQueryable();
 
-            // 3. LINQ Tìm kiếm từ khóa tổng hợp
+            // 3. LINQ Tìm kiếm từ khóa tổng hợp (Hỗ trợ Mã đơn, Mã học viên dạng 1, #1, 31, #HV031, tên, SĐT, Email, tên khóa học)
             if (!string.IsNullOrWhiteSpace(filter.SearchString))
             {
                 var keyword = filter.SearchString.Trim();
-                query = query.Where(d =>
-                    (d.HocVien != null && (d.HocVien.HoTen.Contains(keyword) || d.HocVien.SoDienThoai.Contains(keyword) || d.HocVien.Email.Contains(keyword))) ||
-                    (d.KhoaHoc != null && d.KhoaHoc.TenKhoaHoc.Contains(keyword)) ||
-                    d.MaDangKy.ToString() == keyword);
+
+                int? parsedId = null;
+                var digits = System.Text.RegularExpressions.Regex.Replace(keyword, @"\D", "");
+                if (int.TryParse(digits, out int numVal) && numVal > 0)
+                {
+                    parsedId = numVal;
+                }
+
+                if (parsedId.HasValue)
+                {
+                    int id = parsedId.Value;
+                    query = query.Where(d =>
+                        d.MaDangKy == id ||
+                        d.MaHocVien == id ||
+                        (d.HocVien != null && (
+                            d.HocVien.MaHocVien == id ||
+                            d.HocVien.HoTen.Contains(keyword) ||
+                            d.HocVien.SoDienThoai.Contains(keyword) ||
+                            d.HocVien.Email.Contains(keyword)
+                        )) ||
+                        (d.KhoaHoc != null && d.KhoaHoc.TenKhoaHoc.Contains(keyword))
+                    );
+                }
+                else
+                {
+                    query = query.Where(d =>
+                        (d.HocVien != null && (
+                            d.HocVien.HoTen.Contains(keyword) ||
+                            d.HocVien.SoDienThoai.Contains(keyword) ||
+                            d.HocVien.Email.Contains(keyword)
+                        )) ||
+                        (d.KhoaHoc != null && d.KhoaHoc.TenKhoaHoc.Contains(keyword))
+                    );
+                }
             }
 
-            // 4. LINQ Lọc theo Tên học viên
+            // 4. LINQ Lọc theo Tên/Mã học viên
             if (!string.IsNullOrWhiteSpace(filter.SearchHocVien))
             {
                 var hvKeyword = filter.SearchHocVien.Trim();
-                query = query.Where(d => d.HocVien != null && d.HocVien.HoTen.Contains(hvKeyword));
+                int? hvParsedId = null;
+                var hvDigits = System.Text.RegularExpressions.Regex.Replace(hvKeyword, @"\D", "");
+                if (int.TryParse(hvDigits, out int hvVal) && hvVal > 0)
+                {
+                    hvParsedId = hvVal;
+                }
+
+                if (hvParsedId.HasValue)
+                {
+                    int hvId = hvParsedId.Value;
+                    query = query.Where(d => d.HocVien != null && (d.HocVien.HoTen.Contains(hvKeyword) || d.HocVien.MaHocVien == hvId));
+                }
+                else
+                {
+                    query = query.Where(d => d.HocVien != null && d.HocVien.HoTen.Contains(hvKeyword));
+                }
             }
 
             // 5. LINQ Lọc theo Tên khóa học

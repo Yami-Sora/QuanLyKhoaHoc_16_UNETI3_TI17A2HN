@@ -53,6 +53,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         [Display(Name = "Ghi chú thêm")]
         public string? GhiChu { get; set; }
 
+        [StringLength(255)]
+        [Display(Name = "Đường dẫn ảnh đại diện")]
+        public string? HinhAnh { get; set; }
+
+        [Display(Name = "Tải lên ảnh đại diện")]
+        public IFormFile? FileAnh { get; set; }
+
         // Tùy chọn khi Thêm mới học viên
         [Display(Name = "Tự động tạo tài khoản đăng nhập")]
         public bool TaoTaiKhoan { get; set; } = true;

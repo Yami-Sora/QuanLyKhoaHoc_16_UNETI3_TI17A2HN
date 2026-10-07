@@ -298,14 +298,31 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 .AsNoTracking()
                 .AsQueryable();
 
-            // 3. Lọc theo từ khóa khóa học / môn học
+            // 3. Lọc theo từ khóa khóa học / môn học / mã đơn (hỗ trợ dạng 1, #1, 01, ĐK1...)
             if (!string.IsNullOrWhiteSpace(filter.SearchKhoaHoc))
             {
                 var keyword = filter.SearchKhoaHoc.Trim();
-                query = query.Where(d =>
-                    (d.KhoaHoc != null && d.KhoaHoc.TenKhoaHoc.Contains(keyword)) ||
-                    (d.KhoaHoc != null && d.KhoaHoc.MonHoc != null && d.KhoaHoc.MonHoc.TenMonHoc.Contains(keyword)) ||
-                    d.MaDangKy.ToString() == keyword);
+                int? parsedId = null;
+                var digits = System.Text.RegularExpressions.Regex.Replace(keyword, @"\D", "");
+                if (int.TryParse(digits, out int numVal) && numVal > 0)
+                {
+                    parsedId = numVal;
+                }
+
+                if (parsedId.HasValue)
+                {
+                    int id = parsedId.Value;
+                    query = query.Where(d =>
+                        d.MaDangKy == id ||
+                        (d.KhoaHoc != null && d.KhoaHoc.TenKhoaHoc.Contains(keyword)) ||
+                        (d.KhoaHoc != null && d.KhoaHoc.MonHoc != null && d.KhoaHoc.MonHoc.TenMonHoc.Contains(keyword)));
+                }
+                else
+                {
+                    query = query.Where(d =>
+                        (d.KhoaHoc != null && d.KhoaHoc.TenKhoaHoc.Contains(keyword)) ||
+                        (d.KhoaHoc != null && d.KhoaHoc.MonHoc != null && d.KhoaHoc.MonHoc.TenMonHoc.Contains(keyword)));
+                }
             }
 
             // 4. Lọc theo trạng thái đơn

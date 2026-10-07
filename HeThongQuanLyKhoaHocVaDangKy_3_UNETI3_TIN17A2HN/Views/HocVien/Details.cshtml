@@ -62,10 +62,14 @@
             <!-- Thẻ lý lịch học viên -->
             <div class="uneti-card p-4 shadow-sm mb-4">
                 <div class="text-center pb-3 border-bottom mb-3">
-                    <div class="text-white rounded-circle uneti-icon-box-64 fw-bold mx-auto mb-3 shadow"
-                         style="background: linear-gradient(135deg, #1d4ed8, #2563eb); font-size: 24px;">
-                        @(string.IsNullOrEmpty(Model.HocVien.HoTen) ? "H" : Model.HocVien.HoTen.Substring(0, 1).ToUpper())
-                    </div>
+                    @{
+                        var avatarUrl = !string.IsNullOrEmpty(Model.HocVien.HinhAnh) 
+                            ? Model.HocVien.HinhAnh 
+                            : "/images/avatars/default.svg";
+                    }
+                    <img src="@avatarUrl" alt="@Model.HocVien.HoTen"
+                         class="rounded-circle shadow object-fit-cover border border-3 border-white mx-auto mb-3 d-block"
+                         style="width: 80px; height: 80px;" />
                     <h5 class="fw-bold text-dark mb-1">@Model.HocVien.HoTen</h5>
                     <span class="badge bg-light text-secondary border px-2 py-1 mb-2">Mã HV: #HV@(Model.HocVien.MaHocVien.ToString("D3"))</span>
                     <div>
@@ -86,44 +90,58 @@
 
                 <div class="d-flex flex-column gap-2.5 small">
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-gender-ambiguous me-1.5 text-primary"></i>Giới tính:</span>
+                        <span class="text-muted d-inline-flex align-items-center">
+                            <i class="bi bi-gender-ambiguous text-primary me-2" style="width: 20px; text-align: center;"></i>Giới tính:
+                        </span>
                         <strong class="text-dark">@(Model.HocVien.GioiTinh ?? "Nam")</strong>
                     </div>
 
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-calendar-event me-1.5 text-primary"></i>Ngày sinh:</span>
+                        <span class="text-muted d-inline-flex align-items-center">
+                            <i class="bi bi-calendar-event text-primary me-2" style="width: 20px; text-align: center;"></i>Ngày sinh:
+                        </span>
                         <strong class="text-dark">@(Model.HocVien.NgaySinh.HasValue ? Model.HocVien.NgaySinh.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")</strong>
                     </div>
 
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-telephone me-1.5 text-primary"></i>Số điện thoại:</span>
+                        <span class="text-muted d-inline-flex align-items-center">
+                            <i class="bi bi-telephone text-primary me-2" style="width: 20px; text-align: center;"></i>Số điện thoại:
+                        </span>
                         <a href="tel:@Model.HocVien.SoDienThoai" class="fw-semibold text-primary text-decoration-none">@Model.HocVien.SoDienThoai</a>
                     </div>
 
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-envelope me-1.5 text-primary"></i>Email:</span>
+                        <span class="text-muted d-inline-flex align-items-center">
+                            <i class="bi bi-envelope text-primary me-2" style="width: 20px; text-align: center;"></i>Email:
+                        </span>
                         <a href="mailto:@Model.HocVien.Email" class="fw-semibold text-dark text-decoration-none text-truncate" style="max-width: 170px;" title="@Model.HocVien.Email">@Model.HocVien.Email</a>
                     </div>
 
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-mortarboard me-1.5 text-primary"></i>Trình độ:</span>
+                        <span class="text-muted d-inline-flex align-items-center">
+                            <i class="bi bi-mortarboard text-primary me-2" style="width: 20px; text-align: center;"></i>Trình độ:
+                        </span>
                         <span class="badge bg-light text-dark border">@(Model.HocVien.TrinhDo ?? "Đại học")</span>
                     </div>
 
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-geo-alt me-1.5 text-primary"></i>Địa chỉ:</span>
+                        <span class="text-muted d-inline-flex align-items-center">
+                            <i class="bi bi-geo-alt text-primary me-2" style="width: 20px; text-align: center;"></i>Địa chỉ:
+                        </span>
                         <strong class="text-dark text-end">@(string.IsNullOrEmpty(Model.HocVien.DiaChi) ? "Chưa cập nhật" : Model.HocVien.DiaChi)</strong>
                     </div>
 
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted"><i class="bi bi-clock-history me-1.5 text-primary"></i>Ngày tham gia:</span>
+                        <span class="text-muted d-inline-flex align-items-center">
+                            <i class="bi bi-clock-history text-primary me-2" style="width: 20px; text-align: center;"></i>Ngày tham gia:
+                        </span>
                         <strong class="text-dark">@Model.HocVien.NgayDangKy.ToString("dd/MM/yyyy")</strong>
                     </div>
 
                     @if (!string.IsNullOrEmpty(Model.HocVien.GhiChu))
                     {
                         <div class="pt-2">
-                            <span class="text-muted d-block mb-1"><i class="bi bi-info-circle me-1 text-primary"></i>Ghi chú:</span>
+                            <span class="text-muted d-block mb-1"><i class="bi bi-info-circle me-2 text-primary"></i>Ghi chú:</span>
                             <div class="p-2.5 bg-light rounded border text-secondary" style="font-size: 12.5px;">@Model.HocVien.GhiChu</div>
                         </div>
                     }
@@ -184,10 +202,10 @@
                     </div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-danger">
+                    <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 @(Model.TongCongNoConLai > 0 ? "border-danger" : "border-secondary")">
                         <span class="text-muted small fw-medium text-uppercase d-block">Học phí còn lại</span>
-                        <h4 class="fw-bold text-danger mt-1 mb-0">@Model.TongCongNoConLai.ToString("N0") đ</h4>
-                        <small class="text-muted uneti-fs-xs">Công nợ cần nộp</small>
+                        <h4 class="fw-bold @(Model.TongCongNoConLai > 0 ? "text-danger" : "text-dark") mt-1 mb-0">@Model.TongCongNoConLai.ToString("N0") đ</h4>
+                        <small class="text-muted uneti-fs-xs">@(Model.TongCongNoConLai > 0 ? "Công nợ cần nộp" : "Không có công nợ")</small>
                     </div>
                 </div>
             </div>

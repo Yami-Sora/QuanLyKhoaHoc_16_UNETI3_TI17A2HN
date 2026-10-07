@@ -1,4 +1,4 @@
-﻿// Họ và tên: Trần Văn Thành
+// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Entity Học viên
 
@@ -57,6 +57,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
 
         [Display(Name = "Trạng thái hồ sơ")]
         public bool TrangThai { get; set; } = true; // true: Hoạt động, false: Khóa/Nghỉ
+
+        [StringLength(255)]
+        [Display(Name = "Ảnh đại diện")]
+        public string? HinhAnh { get; set; }
 
         [Display(Name = "Ghi chú thêm")]
         public string? GhiChu { get; set; }

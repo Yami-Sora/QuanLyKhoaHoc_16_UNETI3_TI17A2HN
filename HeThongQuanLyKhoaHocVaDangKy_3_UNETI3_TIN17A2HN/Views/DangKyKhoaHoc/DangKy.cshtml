@@ -25,7 +25,7 @@
             <h3 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-pencil-square me-2" style="color: var(--uneti-primary);"></i>XÁC NHẬN ĐĂNG KÝ KHÓA HỌC
             </h3>
-            <p class="text-muted mb-0 small">Mục 7.3: Kiểm tra điều kiện sĩ số, thời gian, chống trùng giao dịch và tiếp nhận yêu cầu học viên</p>
+            <p class="text-muted mb-0 small">Kiểm tra điều kiện sĩ số, thời gian, chống trùng giao dịch và tiếp nhận yêu cầu học viên</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
             <a asp-controller="KhoaHoc" asp-action="Details" asp-route-id="@Model.MaKhoaHoc" class="btn uneti-btn-outline shadow-sm text-decoration-none d-flex align-items-center gap-1">
@@ -55,7 +55,7 @@
                         <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">@Model.TrangThaiDangKyCu</span>.
                     </p>
                     <p class="mb-3 text-muted small">
-                        Theo quy định tại Mục 7.3 Đề 16: <em>"Một học viên không được đăng ký trùng cùng khóa học"</em>. Để tránh trùng lặp giao dịch, bạn không thể tạo thêm đơn đăng ký mới cho khóa học này.
+                        Theo quy định đào tạo: <em>"Một học viên không được đăng ký trùng cùng khóa học"</em>. Để tránh trùng lặp giao dịch, bạn không thể tạo thêm đơn đăng ký mới cho khóa học này.
                     </p>
                     @if (Model.MaDangKyCu.HasValue)
                     {

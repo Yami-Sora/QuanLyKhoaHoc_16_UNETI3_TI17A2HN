@@ -33,3 +33,7 @@ de16_extracted.txt
 
 ## Image Backups
 **/wwwroot/images/_original/
+
+## User Uploads
+**/wwwroot/uploads/**/*
+!**/wwwroot/uploads/**/.gitkeep

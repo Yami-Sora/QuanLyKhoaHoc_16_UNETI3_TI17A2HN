@@ -42,11 +42,12 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="uneti-card p-4 shadow-sm mb-4">
-                <form asp-action="Edit" asp-route-id="@Model.MaHocVien" method="post">
+                <form asp-action="Edit" asp-route-id="@Model.MaHocVien" method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="MaHocVien" />
                     <input type="hidden" asp-for="MaTaiKhoan" />
                     <input type="hidden" asp-for="TenDangNhap" />
+                    <input type="hidden" asp-for="HinhAnh" />
 
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4" role="alert"></div>
 
@@ -112,6 +113,24 @@
                                 <option value="Khác">Khác</option>
                             </select>
                             <span asp-validation-for="TrinhDo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="FileAnh" class="form-label small fw-semibold text-secondary">
+                                <i class="bi bi-image me-1 text-primary"></i>Ảnh đại diện học viên
+                            </label>
+                            <div class="d-flex align-items-center gap-3 p-2.5 bg-light rounded border">
+                                @{
+                                    var avatarUrl = !string.IsNullOrEmpty(Model.HinhAnh) 
+                                        ? Model.HinhAnh 
+                                        : "/images/avatars/default.svg";
+                                }
+                                <img src="@avatarUrl" alt="@Model.HoTen" class="rounded-circle shadow-sm object-fit-cover flex-shrink-0" style="width: 52px; height: 52px;" />
+                                <div class="flex-grow-1">
+                                    <input asp-for="FileAnh" type="file" class="form-control form-control-sm" accept="image/*" />
+                                    <small class="text-muted uneti-fs-xs">Chọn ảnh chân dung mới nếu muốn thay đổi ảnh đại diện (.jpg, .png, .webp)</small>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-12">

@@ -189,10 +189,12 @@
                                             <td class="ps-3 fw-bold text-muted small">#@dk.MaDangKy</td>
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <div class="text-white rounded-circle fw-bold flex-shrink-0 shadow-sm d-inline-flex align-items-center justify-content-center"
-                                                         style="background: linear-gradient(135deg, #1d4ed8, #3b82f6); font-size: 13px; width: 36px; height: 36px;">
-                                                        @(string.IsNullOrEmpty(hv?.HoTen) ? "H" : hv.HoTen.Substring(0, 1).ToUpper())
-                                                    </div>
+                                                    @{
+                                                        var avatarUrl = !string.IsNullOrEmpty(hv?.HinhAnh) 
+                                                            ? hv.HinhAnh 
+                                                            : "/images/avatars/default.svg";
+                                                    }
+                                                    <img src="@avatarUrl" alt="@(hv?.HoTen ?? "Học viên")" class="rounded-circle shadow-sm object-fit-cover flex-shrink-0" style="width: 36px; height: 36px;" />
                                                     <div>
                                                         @if (hv != null)
                                                         {

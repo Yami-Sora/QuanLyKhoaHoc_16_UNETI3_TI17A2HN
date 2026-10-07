@@ -25,7 +25,7 @@
             <h3 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-person-circle me-2" style="color: var(--uneti-primary);"></i>HỒ SƠ CÁ NHÂN HỌC VIÊN
             </h3>
-            <p class="text-muted mb-0 small">Mục 7.2: Quản lý thông tin lý lịch cá nhân, thông tin liên lạc và theo dõi tiến độ đào tạo</p>
+            <p class="text-muted mb-0 small">Quản lý thông tin lý lịch cá nhân, thông tin liên lạc và theo dõi tiến độ đào tạo</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
             <a asp-controller="DangKyKhoaHoc" asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none d-flex align-items-center gap-1">
@@ -96,10 +96,14 @@
         <!-- CỘT TRÁI: THẺ TỔNG QUAN HỒ SƠ -->
         <div class="col-lg-4">
             <div class="uneti-card p-4 shadow-sm mb-4 text-center">
-                <div class="text-white rounded-circle uneti-icon-box-64 fw-bold mx-auto mb-3 shadow"
-                     style="background: linear-gradient(135deg, #1d4ed8, #2563eb); font-size: 26px;">
-                    @(string.IsNullOrEmpty(Model.HoTen) ? "H" : Model.HoTen.Substring(0, 1).ToUpper())
-                </div>
+                @{
+                    var avatarUrl = !string.IsNullOrEmpty(Model.HinhAnh) 
+                        ? Model.HinhAnh 
+                        : "/images/avatars/default.svg";
+                }
+                <img src="@avatarUrl" alt="@Model.HoTen"
+                     class="rounded-circle shadow object-fit-cover border border-3 border-white mx-auto mb-3 d-block"
+                     style="width: 80px; height: 80px;" />
                 <h5 class="fw-bold text-dark mb-1">@Model.HoTen</h5>
                 <p class="text-muted small mb-2">@@@Model.TenDangNhap</p>
                 <div class="mb-3">
@@ -141,7 +145,7 @@
                 <h6 class="fw-bold text-dark mb-2 small"><i class="bi bi-info-circle-fill text-primary me-1"></i>Lưu ý về hồ sơ cá nhân:</h6>
                 <ul class="text-secondary small mb-0 ps-3" style="line-height: 1.6; font-size: 12.5px;">
                     <li>Vui lòng nhập chính xác <strong>Số điện thoại</strong> và <strong>Email</strong> để nhận thông báo tiếp nhận đơn đăng ký.</li>
-                    <li>Theo Mục 7.2 Đề 16, mỗi học viên chỉ được xem và cập nhật hồ sơ của chính mình.</li>
+                    <li>Mỗi học viên chỉ được xem và cập nhật hồ sơ của chính mình.</li>
                     <li>Nếu cần đổi tên đăng nhập hoặc chuyển đổi thông tin đặc biệt, vui lòng liên hệ Văn phòng Đào tạo.</li>
                 </ul>
             </div>
@@ -157,13 +161,14 @@
                     <span class="text-muted small"><span class="text-danger">*</span> Trường bắt buộc</span>
                 </div>
 
-                <form asp-action="CapNhatHoSo" method="post">
+                <form asp-action="CapNhatHoSo" method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="MaHocVien" />
                     <input type="hidden" asp-for="MaTaiKhoan" />
                     <input type="hidden" asp-for="TenDangNhap" />
                     <input type="hidden" asp-for="NgayDangKy" />
                     <input type="hidden" asp-for="TrangThai" />
+                    <input type="hidden" asp-for="HinhAnh" />
 
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3" role="alert"></div>
 
@@ -219,6 +224,14 @@
                                 <option value="Khác">Khác</option>
                             </select>
                             <span asp-validation-for="TrinhDo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="FileAnh" class="form-label small fw-semibold text-secondary">
+                                <i class="bi bi-image me-1 text-primary"></i>Tải lên ảnh đại diện mới
+                            </label>
+                            <input asp-for="FileAnh" type="file" class="form-control" accept="image/*" />
+                            <small class="text-muted uneti-fs-xs">Hỗ trợ các định dạng: .jpg, .jpeg, .png, .webp (Dung lượng tối đa 5MB)</small>
                         </div>
 
                         <div class="col-12">

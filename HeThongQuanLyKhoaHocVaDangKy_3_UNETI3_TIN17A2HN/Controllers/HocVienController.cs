@@ -45,16 +45,36 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 .AsNoTracking()
                 .AsQueryable();
 
-            // 3. Tìm kiếm từ khóa tổng hợp (Họ tên, SĐT, Email, Mã học viên)
+            // 3. Tìm kiếm từ khóa tổng hợp (Họ tên, SĐT, Email, Tên đăng nhập, Mã học viên dạng 31, #HV031, HV31...)
             if (!string.IsNullOrWhiteSpace(filter.SearchString))
             {
                 var keyword = filter.SearchString.Trim();
-                query = query.Where(h =>
-                    h.HoTen.Contains(keyword) ||
-                    h.SoDienThoai.Contains(keyword) ||
-                    h.Email.Contains(keyword) ||
-                    (h.TaiKhoan != null && h.TaiKhoan.TenDangNhap.Contains(keyword)) ||
-                    h.MaHocVien.ToString() == keyword);
+
+                int? parsedId = null;
+                var digits = System.Text.RegularExpressions.Regex.Replace(keyword, @"\D", "");
+                if (int.TryParse(digits, out int numVal) && numVal > 0)
+                {
+                    parsedId = numVal;
+                }
+
+                if (parsedId.HasValue)
+                {
+                    int id = parsedId.Value;
+                    query = query.Where(h =>
+                        h.MaHocVien == id ||
+                        h.HoTen.Contains(keyword) ||
+                        h.SoDienThoai.Contains(keyword) ||
+                        h.Email.Contains(keyword) ||
+                        (h.TaiKhoan != null && h.TaiKhoan.TenDangNhap.Contains(keyword)));
+                }
+                else
+                {
+                    query = query.Where(h =>
+                        h.HoTen.Contains(keyword) ||
+                        h.SoDienThoai.Contains(keyword) ||
+                        h.Email.Contains(keyword) ||
+                        (h.TaiKhoan != null && h.TaiKhoan.TenDangNhap.Contains(keyword)));
+                }
             }
 
             // 4. Lọc theo Trạng thái hồ sơ
@@ -106,6 +126,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     TrinhDo = h.TrinhDo,
                     NgayDangKy = h.NgayDangKy,
                     TrangThai = h.TrangThai,
+                    HinhAnh = h.HinhAnh,
                     GhiChu = h.GhiChu,
                     SoKhoaHocDaDangKy = h.DangKyKhoaHocs.Count(d => d.TrangThai != "BiHuy"),
                     SoKhoaHocHoanThanh = h.DangKyKhoaHocs.Count(d => d.TrangThai == "HoanThanh"),
@@ -271,6 +292,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                         DiaChi = model.DiaChi?.Trim(),
                         TrinhDo = model.TrinhDo?.Trim(),
                         TrangThai = model.TrangThai,
+                        HinhAnh = await ProcessAvatarUploadAsync(model.FileAnh, model.HinhAnh),
                         GhiChu = model.GhiChu?.Trim(),
                         NgayDangKy = DateTime.Now
                     };
@@ -311,6 +333,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 DiaChi = hocVien.DiaChi,
                 TrinhDo = hocVien.TrinhDo ?? "Đại học",
                 TrangThai = hocVien.TrangThai,
+                HinhAnh = hocVien.HinhAnh,
                 GhiChu = hocVien.GhiChu,
                 TaoTaiKhoan = false,
                 TenDangNhap = hocVien.TaiKhoan?.TenDangNhap
@@ -359,6 +382,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 hocVien.DiaChi = model.DiaChi?.Trim();
                 hocVien.TrinhDo = model.TrinhDo?.Trim();
                 hocVien.TrangThai = model.TrangThai;
+                hocVien.HinhAnh = await ProcessAvatarUploadAsync(model.FileAnh, model.HinhAnh ?? hocVien.HinhAnh);
                 hocVien.GhiChu = model.GhiChu?.Trim();
 
                 // Đồng bộ sang tài khoản đăng nhập liên kết (nếu có)
@@ -503,6 +527,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 TrinhDo = hocVien.TrinhDo ?? "Đại học",
                 NgayDangKy = hocVien.NgayDangKy,
                 TrangThai = hocVien.TrangThai,
+                HinhAnh = hocVien.HinhAnh,
                 GhiChu = hocVien.GhiChu,
                 TongKhoaHocDaDangKy = hocVien.DangKyKhoaHocs?.Count(d => d.TrangThai != "BiHuy") ?? 0,
                 SoKhoaHocHoanThanh = hocVien.DangKyKhoaHocs?.Count(d => d.TrangThai == "HoanThanh") ?? 0,
@@ -567,6 +592,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 hocVien.Email = cleanEmail;
                 hocVien.DiaChi = model.DiaChi?.Trim();
                 hocVien.TrinhDo = model.TrinhDo?.Trim();
+                hocVien.HinhAnh = await ProcessAvatarUploadAsync(model.FileAnh, model.HinhAnh ?? hocVien.HinhAnh);
                 hocVien.GhiChu = model.GhiChu?.Trim();
 
                 // Đồng bộ sang TaiKhoan
@@ -598,6 +624,38 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             model.TongHocPhiConLai = hocVien.DangKyKhoaHocs?.Where(d => d.TrangThai != "BiHuy").Sum(d => d.SoTienConLai) ?? 0;
 
             return View("HoSoCaNhan", model);
+        }
+
+        /// <summary>
+        /// Xử lý tải lên tệp ảnh đại diện cho học viên
+        /// </summary>
+        private async Task<string?> ProcessAvatarUploadAsync(IFormFile? file, string? currentAvatar)
+        {
+            if (file != null && file.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "avatars");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg" };
+                if (allowedExtensions.Contains(extension))
+                {
+                    var uniqueFileName = $"hv_{Guid.NewGuid():N}{extension}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(fileStream);
+                    }
+
+                    return $"/uploads/avatars/{uniqueFileName}";
+                }
+            }
+
+            return currentAvatar;
         }
     }
 }

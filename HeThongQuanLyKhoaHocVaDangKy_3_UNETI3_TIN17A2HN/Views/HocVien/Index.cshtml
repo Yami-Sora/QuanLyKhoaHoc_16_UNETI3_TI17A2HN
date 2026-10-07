@@ -23,7 +23,7 @@
             <h3 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-people-fill me-2" style="color: var(--uneti-primary);"></i>QUẢN LÝ HỒ SƠ HỌC VIÊN
             </h3>
-            <p class="text-muted mb-0 small">Module 3: Quản lý lý lịch cá nhân, thông tin liên lạc, trạng thái hoạt động và lịch sử đăng ký học tập</p>
+            <p class="text-muted mb-0 small">Quản lý lý lịch cá nhân, thông tin liên lạc, trạng thái hoạt động và lịch sử đăng ký học tập</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
             <a asp-action="Create" class="btn uneti-btn-primary shadow-sm text-decoration-none d-flex align-items-center gap-1">
@@ -203,10 +203,12 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2.5">
-                                        <div class="text-white rounded-circle uneti-icon-box-38 fw-bold flex-shrink-0 shadow-sm"
-                                             style="background: linear-gradient(135deg, #1d4ed8, #3b82f6); font-size: 14px;">
-                                            @(string.IsNullOrEmpty(item.HoTen) ? "H" : item.HoTen.Substring(0, 1).ToUpper())
-                                        </div>
+                                        @{
+                                            var avatarUrl = !string.IsNullOrEmpty(item.HinhAnh) 
+                                                ? item.HinhAnh 
+                                                : "/images/avatars/default.svg";
+                                        }
+                                        <img src="@avatarUrl" alt="@item.HoTen" class="rounded-circle shadow-sm object-fit-cover flex-shrink-0" style="width: 38px; height: 38px;" />
                                         <div>
                                             <a asp-action="Details" asp-route-id="@item.MaHocVien" class="fw-bold text-dark text-decoration-none d-block lh-sm">
                                                 @item.HoTen
