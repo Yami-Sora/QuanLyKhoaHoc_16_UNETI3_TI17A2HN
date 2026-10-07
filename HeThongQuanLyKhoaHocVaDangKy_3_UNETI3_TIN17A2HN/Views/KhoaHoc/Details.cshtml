@@ -137,12 +137,159 @@
                     </p>
                 </div>
             </div>
+
+            @if (isStaffOrAdmin)
+            {
+                <!-- BẢNG DANH SÁCH HỌC VIÊN ĐÃ ĐĂNG KÝ (DÀNH CHO QUẢN TRỊ VIÊN & NHÂN VIÊN) -->
+                <div class="uneti-card shadow-sm overflow-hidden mb-4">
+                    <div class="p-3 bg-white border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="uneti-icon-box-38 bg-primary-subtle text-primary rounded-3 d-inline-flex align-items-center justify-content-center">
+                                <i class="bi bi-people-fill fs-5"></i>
+                            </span>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0">DANH SÁCH HỌC VIÊN ĐÃ ĐĂNG KÝ KHÓA HỌC</h6>
+                                <small class="text-muted">Theo dõi danh sách ghi danh, tiến độ nộp học phí và liên hệ học vụ</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5">
+                                <i class="bi bi-person-check-fill me-1"></i>@dangKyCount học viên hợp lệ
+                            </span>
+                            @if (Model.DangKyKhoaHocs != null && Model.DangKyKhoaHocs.Any(dk => dk.TrangThai == "BiHuy"))
+                            {
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1.5">
+                                    @Model.DangKyKhoaHocs.Count(dk => dk.TrangThai == "BiHuy") đã hủy
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light border-bottom">
+                                <tr class="small text-secondary text-uppercase fw-semibold" style="letter-spacing: 0.03em;">
+                                    <th class="ps-3" style="width: 60px;">Mã ĐK</th>
+                                    <th>Học viên</th>
+                                    <th>Thông tin liên hệ</th>
+                                    <th>Ngày đăng ký</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-end">Đã nộp</th>
+                                    <th class="text-end">Còn lại</th>
+                                    <th class="text-end pe-3" style="width: 100px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.DangKyKhoaHocs != null && Model.DangKyKhoaHocs.Any())
+                                {
+                                    foreach (var dk in Model.DangKyKhoaHocs.OrderByDescending(d => d.NgayDangKy))
+                                    {
+                                        var hv = dk.HocVien;
+                                        <tr>
+                                            <td class="ps-3 fw-bold text-muted small">#@dk.MaDangKy</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="text-white rounded-circle fw-bold flex-shrink-0 shadow-sm d-inline-flex align-items-center justify-content-center"
+                                                         style="background: linear-gradient(135deg, #1d4ed8, #3b82f6); font-size: 13px; width: 36px; height: 36px;">
+                                                        @(string.IsNullOrEmpty(hv?.HoTen) ? "H" : hv.HoTen.Substring(0, 1).ToUpper())
+                                                    </div>
+                                                    <div>
+                                                        @if (hv != null)
+                                                        {
+                                                            <a asp-controller="HocVien" asp-action="Details" asp-route-id="@hv.MaHocVien" class="fw-bold text-dark text-decoration-none d-block lh-sm">
+                                                                @hv.HoTen
+                                                            </a>
+                                                            <small class="text-muted uneti-fs-xs">#HV@(hv.MaHocVien.ToString("D3")) &bull; @(hv.GioiTinh ?? "Nam")</small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted small">Chưa rõ thông tin</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (hv != null)
+                                                {
+                                                    <div class="small">
+                                                        <a href="tel:@hv.SoDienThoai" class="text-decoration-none text-dark d-block">
+                                                            <i class="bi bi-telephone me-1 text-primary"></i>@hv.SoDienThoai
+                                                        </a>
+                                                        <a href="mailto:@hv.Email" class="text-decoration-none text-muted uneti-fs-xs text-truncate d-block" style="max-width: 180px;">
+                                                            <i class="bi bi-envelope me-1"></i>@hv.Email
+                                                        </a>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small">N/A</span>
+                                                }
+                                            </td>
+                                            <td class="small text-secondary">
+                                                @dk.NgayDangKy.ToString("dd/MM/yyyy")
+                                            </td>
+                                            <td class="text-center">
+                                                @switch (dk.TrangThai)
+                                                {
+                                                    case "ChoXuLy":
+                                                        <span class="uneti-badge-warning px-2.5 py-1 small">Chờ xử lý</span>
+                                                        break;
+                                                    case "DangXuLy":
+                                                        <span class="uneti-badge-primary px-2.5 py-1 small">Đang xử lý</span>
+                                                        break;
+                                                    case "HoanThanh":
+                                                        <span class="uneti-badge-success px-2.5 py-1 small">Hoàn thành</span>
+                                                        break;
+                                                    case "BiHuy":
+                                                        <span class="uneti-badge-danger px-2.5 py-1 small">Đã hủy</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@dk.TrangThai</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td class="text-end fw-semibold text-success small">
+                                                @dk.SoTienDaDong.ToString("N0") đ
+                                            </td>
+                                            <td class="text-end fw-semibold @(dk.TrangThai != "BiHuy" && dk.SoTienConLai > 0 ? "text-danger" : "text-muted") small">
+                                                @(dk.TrangThai == "BiHuy" ? "0 đ" : dk.SoTienConLai.ToString("N0") + " đ")
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <div class="d-flex justify-content-end gap-1">
+                                                    <a asp-controller="TiepNhanDangKy" asp-action="Details" asp-route-id="@dk.MaDangKy" class="btn btn-sm btn-outline-primary" title="Xem chi tiết đơn đăng ký">
+                                                        <i class="bi bi-file-earmark-text"></i>
+                                                    </a>
+                                                    @if (hv != null)
+                                                    {
+                                                        <a asp-controller="HocVien" asp-action="Details" asp-route-id="@hv.MaHocVien" class="btn btn-sm btn-outline-secondary" title="Xem hồ sơ học viên">
+                                                            <i class="bi bi-person-badge"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4 text-muted">
+                                            <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                            <span>Chưa có học viên nào đăng ký khóa học này.</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
         </div>
 
-        <!-- CỘT PHẢI: THỐNG KÊ SĨ SỐ & HỌC PHÍ -->
+        <!-- CỘT PHẢI: THỐNG KÊ SĨ SỐ, HỌC PHÍ & TÁC VỤ QUẢN TRỊ -->
         <div class="col-lg-4">
             <!-- Thẻ Sĩ số học viên -->
-            <div class="uneti-card p-4 shadow-sm mb-4">
+            <div class="uneti-card p-3.5 shadow-sm mb-3">
                 <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
                     <i class="bi bi-people-fill me-2 text-primary"></i>Tình trạng đăng ký học viên
                 </h6>
@@ -167,7 +314,7 @@
             </div>
 
             <!-- Thẻ Học phí -->
-            <div class="uneti-card p-4 shadow-sm mb-4">
+            <div class="uneti-card p-3.5 shadow-sm mb-3">
                 <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
                     <i class="bi bi-cash-stack me-2 text-primary"></i>Định mức học phí khóa học
                 </h6>
@@ -183,20 +330,20 @@
             </div>
 
             <!-- MỤC 6.7: TRẠNG THÁI KHẢ DỤNG GIAO DỊCH -->
-            <div class="uneti-card p-4 shadow-sm mb-4">
+            <div class="uneti-card p-3.5 shadow-sm mb-3">
                 <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
                     <i class="bi bi-shield-check me-2 text-primary"></i>Khả dụng giao dịch
                 </h6>
                 @if (khaDung)
                 {
-                    <div class="alert alert-success border-0 py-3 mb-3 rounded-3 small">
+                    <div class="alert alert-success border-0 py-2.5 px-3 mb-0 rounded-3 small">
                         <i class="bi bi-check-circle-fill me-1 fs-5 align-middle"></i>
                         <span class="align-middle fw-semibold">Khóa học ĐỦ ĐIỀU KIỆN tiếp nhận học viên</span>
                     </div>
                 }
                 else
                 {
-                    <div class="alert alert-danger border-0 py-3 mb-3 rounded-3 small">
+                    <div class="alert alert-danger border-0 py-2.5 px-3 mb-0 rounded-3 small">
                         <i class="bi bi-exclamation-octagon-fill me-1 fs-5 align-middle"></i>
                         <span class="align-middle fw-semibold">Khóa học KHÔNG KHẢ DỤNG giao dịch</span>
                         <div class="mt-1 uneti-fs-xs">
@@ -213,20 +360,20 @@
                     {
                         if (isLoggedIn && userRole == "HocVien")
                         {
-                            <a href="#module3" onclick="thongBaoModule(3); return false;" class="btn uneti-btn-primary w-100 fw-semibold py-2">
+                            <a asp-controller="DangKyKhoaHoc" asp-action="DangKy" asp-route-maKhoaHoc="@Model.MaKhoaHoc" class="btn uneti-btn-primary w-100 fw-semibold py-2 mt-3">
                                 <i class="bi bi-pencil-square me-1"></i>Đăng ký khóa học này
                             </a>
                         }
                         else if (!isLoggedIn)
                         {
-                            <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "KhoaHoc", new { id = Model.MaKhoaHoc })" class="btn uneti-btn-primary w-100 fw-semibold py-2">
+                            <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "KhoaHoc", new { id = Model.MaKhoaHoc })" class="btn uneti-btn-primary w-100 fw-semibold py-2 mt-3">
                                 <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập để đăng ký
                             </a>
                         }
                     }
                     else
                     {
-                        <button type="button" class="btn btn-secondary w-100 py-2 opacity-50" disabled>
+                        <button type="button" class="btn btn-secondary w-100 py-2 mt-3 opacity-50" disabled>
                             <i class="bi bi-slash-circle me-1"></i>Đã đóng giao dịch đăng ký
                         </button>
                     }
@@ -236,7 +383,7 @@
             <!-- Tác vụ nhanh (Dành cho Quản trị viên / Nhân viên) -->
             @if (isStaffOrAdmin)
             {
-                <div class="uneti-card p-4 shadow-sm">
+                <div class="uneti-card p-3.5 shadow-sm mb-3">
                     <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
                         <i class="bi bi-gear me-2 text-primary"></i>Tác vụ quản trị
                     </h6>

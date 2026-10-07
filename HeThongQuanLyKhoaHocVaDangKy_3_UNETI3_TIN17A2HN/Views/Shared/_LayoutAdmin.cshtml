@@ -96,14 +96,10 @@
                     <span>Quản lý khóa học</span>
                 </a>
 
-                <!-- 4. QUẢN TRỊ HỌC VIÊN -->
+                <!-- 4. QUẢN TRỊ HỌC VIÊN (Module 3 - Ngọc Tùng Lâm - 23103100098) -->
                 <div class="admin-menu-header mt-2">Quản trị học viên</div>
 
-                <a href="#module-pending" role="button" class="admin-nav-item module-placeholder-link"
-                   title="Quản lý hồ sơ học viên"
-                   data-module="Module 3 (Quản lý học viên & Hồ sơ)"
-                   data-feature="Quản lý hồ sơ học viên & Lịch sử học tập"
-                   data-desc="Bao gồm: Quản lý danh sách học viên, hồ sơ lý lịch cá nhân, thông tin liên lạc và theo dõi lịch sử tham gia khóa học theo Mục 7 Đề tài 16.">
+                <a asp-controller="HocVien" asp-action="Index" class="admin-nav-item @(currentController == "HocVien" ? "active" : "")" title="Quản lý hồ sơ học viên">
                     <i class="bi bi-person-lines-fill"></i>
                     <span>Quản lý hồ sơ học viên</span>
                 </a>

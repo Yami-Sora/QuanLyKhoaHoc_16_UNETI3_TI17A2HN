@@ -296,10 +296,9 @@
                         <div class="text-secondary"><i class="bi bi-clock-history text-success me-2"></i>Thông tin lớp học phần & giảng viên <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 10px;">Sắp ra mắt</span></div>
                     </div>
 
-                    <button type="button" class="btn uneti-btn-outline btn-sm w-100 mt-auto rounded-3" 
-                            onclick="thongBaoModule(2)">
-                        <i class="bi bi-calendar-check me-1"></i>Xem kế hoạch mở lớp
-                    </button>
+                    <a asp-controller="KhoaHoc" asp-action="Index" class="btn uneti-btn-outline btn-sm w-100 mt-auto rounded-3 text-decoration-none">
+                        <i class="bi bi-calendar-check me-1"></i>Xem danh mục khóa học
+                    </a>
                 </div>
             </div>
 
@@ -324,14 +323,13 @@
                     </p>
 
                     <div class="p-3 rounded-3 mb-3 small bg-light border">
-                        <div class="mb-1 text-secondary"><i class="bi bi-clock-history text-warning me-2"></i>Đăng ký học trực tuyến <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 10px;">Sắp ra mắt</span></div>
-                        <div class="text-secondary"><i class="bi bi-clock-history text-warning me-2"></i>Theo dõi tiến độ & thời khóa biểu cá nhân <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 10px;">Sắp ra mắt</span></div>
+                        <div class="mb-1 text-secondary"><i class="bi bi-calendar-plus text-success me-2"></i>Đăng ký học phần trực tuyến <span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size: 10px;">Khả dụng</span></div>
+                        <div class="text-secondary"><i class="bi bi-clock-history text-primary me-2"></i>Theo dõi tiến độ & thời khóa biểu cá nhân <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size: 10px;">Khả dụng</span></div>
                     </div>
 
-                    <button type="button" class="btn uneti-btn-primary btn-sm w-100 mt-auto rounded-3" 
-                            onclick="thongBaoModule(4)">
+                    <a asp-controller="KhoaHoc" asp-action="Index" class="btn uneti-btn-primary btn-sm w-100 mt-auto rounded-3 text-decoration-none">
                         <i class="bi bi-arrow-right-circle me-1"></i>Đăng ký học trực tuyến
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

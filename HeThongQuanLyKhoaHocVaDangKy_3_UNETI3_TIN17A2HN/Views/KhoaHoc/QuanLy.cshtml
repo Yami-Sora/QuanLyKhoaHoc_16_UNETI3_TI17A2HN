@@ -371,7 +371,7 @@
                     {
                         @foreach (var item in Model)
                         {
-                            var dangKyCount = item.DangKyKhoaHocs?.Count ?? 0;
+                            var dangKyCount = item.DangKyKhoaHocs?.Count(dk => dk.TrangThai != "BiHuy") ?? 0;
                             <tr>
                                 <td class="ps-3 fw-bold text-muted">#KH0@(item.MaKhoaHoc)</td>
                                 <td>

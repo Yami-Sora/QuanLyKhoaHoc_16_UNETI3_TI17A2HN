@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Thanh trạng thái đăng nhập
@@ -80,6 +80,21 @@
                 <li><hr class="dropdown-divider my-2"></li>
             }
 
+            <li>
+                <a class="dropdown-item uneti-dropdown-item-btn text-dark" asp-controller="HocVien" asp-action="HoSoCaNhan">
+                    <i class="bi bi-person-circle text-primary fs-5"></i>
+                    <span>Hồ sơ cá nhân</span>
+                </a>
+            </li>
+            @if (vaiTro == "HocVien")
+            {
+                <li>
+                    <a class="dropdown-item uneti-dropdown-item-btn text-dark" asp-controller="DangKyKhoaHoc" asp-action="Index">
+                        <i class="bi bi-journal-check text-success fs-5"></i>
+                        <span>Khóa học của tôi</span>
+                    </a>
+                </li>
+            }
             <li>
                 <a class="dropdown-item uneti-dropdown-item-btn text-dark" asp-controller="TaiKhoan" asp-action="ChangePassword">
                     <i class="bi bi-shield-lock text-warning fs-5"></i>

@@ -356,6 +356,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 .Include(k => k.MonHoc)
                 .Include(k => k.GiangVien)
                 .Include(k => k.DangKyKhoaHocs)
+                    .ThenInclude(dk => dk.HocVien)
                 .FirstOrDefaultAsync(k => k.MaKhoaHoc == id);
 
             if (khoaHoc == null) return NotFound();

@@ -1,0 +1,240 @@
+@*
+    Họ và tên: Ngọc Tùng Lâm
+    Mã sinh viên: 23103100098
+    Nội dung thực hiện: Module 3 - Giao diện Đăng ký Khóa học trực tuyến
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.DangKyKhoaHocViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Đăng ký khóa học - " + Model.TenKhoaHoc;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="KhoaHoc" asp-action="Index" class="text-decoration-none text-primary">Danh mục khóa học</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="KhoaHoc" asp-action="Details" asp-route-id="@Model.MaKhoaHoc" class="text-decoration-none text-primary">#KH0@(Model.MaKhoaHoc)</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Đăng ký</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-pencil-square me-2" style="color: var(--uneti-primary);"></i>XÁC NHẬN ĐĂNG KÝ KHÓA HỌC
+            </h3>
+            <p class="text-muted mb-0 small">Mục 7.3: Kiểm tra điều kiện sĩ số, thời gian, chống trùng giao dịch và tiếp nhận yêu cầu học viên</p>
+        </div>
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            <a asp-controller="KhoaHoc" asp-action="Details" asp-route-id="@Model.MaKhoaHoc" class="btn uneti-btn-outline shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-arrow-left"></i>
+                <span>Xem lại khóa học</span>
+            </a>
+            <a asp-action="Index" class="btn btn-light border shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-journal-check"></i>
+                <span>Khóa học của tôi</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Thông báo lỗi/thành công -->
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2.5 small mb-4" role="alert"></div>
+
+    @if (Model.DaDangKy)
+    {
+        <!-- CẢNH BÁO TRÙNG GIAO DỊCH (MỤC 7.3 & 8.3 ĐỀ 16) -->
+        <div class="alert alert-warning uneti-card border-warning-subtle p-4 mb-4">
+            <div class="d-flex gap-3">
+                <i class="bi bi-exclamation-diamond-fill text-warning fs-1 flex-shrink-0"></i>
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">BẠN ĐÃ ĐĂNG KÝ KHÓA HỌC NÀY TRƯỚC ĐÓ</h5>
+                    <p class="mb-2 text-secondary">
+                        Hệ thống ghi nhận bạn đã có đơn đăng ký mã <strong>#@Model.MaDangKyCu</strong> cho khóa học <strong>"@Model.TenKhoaHoc"</strong> với trạng thái hiện tại là 
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">@Model.TrangThaiDangKyCu</span>.
+                    </p>
+                    <p class="mb-3 text-muted small">
+                        Theo quy định tại Mục 7.3 Đề 16: <em>"Một học viên không được đăng ký trùng cùng khóa học"</em>. Để tránh trùng lặp giao dịch, bạn không thể tạo thêm đơn đăng ký mới cho khóa học này.
+                    </p>
+                    @if (Model.MaDangKyCu.HasValue)
+                    {
+                        <a asp-action="ChiTiet" asp-route-id="@Model.MaDangKyCu.Value" class="btn uneti-btn-primary fw-semibold btn-sm">
+                            <i class="bi bi-eye me-1"></i>Xem chi tiết đơn đăng ký hiện có
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else if (!Model.KhaDungGiaoDich)
+    {
+        <!-- CẢNH BÁO KHÔNG ĐỦ ĐIỀU KIỆN GIAO DỊCH -->
+        <div class="alert alert-danger uneti-card border-danger-subtle p-4 mb-4">
+            <div class="d-flex gap-3">
+                <i class="bi bi-x-octagon-fill text-danger fs-1 flex-shrink-0"></i>
+                <div>
+                    <h5 class="fw-bold text-danger mb-1">KHÓA HỌC KHÔNG KHẢ DỤNG GIAO DỊCH</h5>
+                    <p class="mb-2 text-dark">
+                        Khóa học <strong>"@Model.TenKhoaHoc"</strong> hiện không đủ điều kiện để tiếp nhận học viên mới:
+                    </p>
+                    <div class="p-2.5 bg-white rounded border border-danger-subtle text-danger small fw-semibold mb-3">
+                        &bull; @Model.LyDoKhongKhaDung
+                    </div>
+                    <a asp-controller="KhoaHoc" asp-action="Index" class="btn uneti-btn-outline btn-sm">
+                        <i class="bi bi-search me-1"></i>Khám phá các khóa học khác đang mở
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- CỘT TRÁI: THÔNG TIN KHÓA HỌC & HỌC PHÍ -->
+        <div class="col-lg-7">
+            <div class="uneti-card p-4 shadow-sm mb-4">
+                <span class="badge bg-light text-secondary border px-2 py-1 mb-2">MÃ KHÓA HỌC: #KH0@(Model.MaKhoaHoc)</span>
+                <h4 class="fw-bold text-dark mb-3">@Model.TenKhoaHoc</h4>
+
+                <!-- Bảng tóm tắt thông số khóa học -->
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <div class="row g-2.5 small">
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Môn học đào tạo:</span>
+                            <strong class="text-dark"><i class="bi bi-book me-1 text-primary"></i>@Model.TenMonHoc (@Model.SoTinChi TC)</strong>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Giảng viên phụ trách:</span>
+                            <strong class="text-dark"><i class="bi bi-person-badge me-1 text-primary"></i>@(Model.TenGiangVien ?? "Đang cập nhật")</strong>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Thời gian khóa học:</span>
+                            <strong class="text-dark"><i class="bi bi-calendar-event me-1 text-primary"></i>@Model.NgayBatDau.ToString("dd/MM/yyyy") &rarr; @Model.NgayKetThuc.ToString("dd/MM/yyyy")</strong>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Hình thức đào tạo:</span>
+                            <strong class="text-dark"><i class="bi bi-building me-1 text-primary"></i>@Model.HinhThuc</strong>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Sĩ số tiếp nhận:</span>
+                            <strong class="text-dark">@Model.SiSoHienTai / @Model.SoLuongToiDa học viên</strong>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <span class="text-muted d-block">Số chỗ còn lại:</span>
+                            <span class="badge @(Model.SoChoConLai > 0 ? "bg-success" : "bg-danger") px-2 py-1">
+                                Còn @Model.SoChoConLai chỗ
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thẻ Học phí nổi bật -->
+                <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between" style="background-color: var(--uneti-primary-light); border-color: var(--uneti-primary-border) !important;">
+                    <div>
+                        <span class="small text-muted d-block">Định mức học phí trọn gói</span>
+                        <strong class="text-dark small">Miễn phí giáo trình & tài liệu điện tử</strong>
+                    </div>
+                    <div class="text-end">
+                        <h3 class="fw-bold mb-0" style="color: var(--uneti-primary);">@Model.HocPhi.ToString("N0") đ</h3>
+                        <small class="text-muted">Thanh toán sau khi đơn được duyệt</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thẻ Thông tin người đăng ký -->
+            <div class="uneti-card p-4 shadow-sm mb-4">
+                <div class="d-flex justify-content-between align-items-center pb-2 mb-3 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-person-check-fill me-2 text-primary"></i>Thông tin học viên đăng ký
+                    </h6>
+                    <a asp-controller="HocVien" asp-action="HoSoCaNhan" class="text-decoration-none small text-primary">
+                        <i class="bi bi-pencil me-1"></i>Sửa hồ sơ
+                    </a>
+                </div>
+
+                <div class="row g-2 small">
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Họ và tên:</span>
+                        <strong class="text-dark">@Model.HoTenHocVien</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Mã học viên:</span>
+                        <strong class="text-dark">#HV@(Model.MaHocVien.ToString("D3"))</strong>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Số điện thoại:</span>
+                        <span class="text-dark">@(string.IsNullOrEmpty(Model.SoDienThoaiHocVien) ? "Chưa có (nên cập nhật)" : Model.SoDienThoaiHocVien)</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Email:</span>
+                        <span class="text-dark">@Model.EmailHocVien</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: FORM XÁC NHẬN ĐĂNG KÝ -->
+        <div class="col-lg-5">
+            <div class="uneti-card p-4 shadow-sm mb-4 sticky-top" style="top: 80px;">
+                <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                    <i class="bi bi-card-checklist me-2 text-primary"></i>Cam kết & Hoàn tất đăng ký
+                </h5>
+
+                @if (!Model.DaDangKy && Model.KhaDungGiaoDich)
+                {
+                    <form asp-action="DangKy" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="MaKhoaHoc" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="GhiChu" class="form-label small fw-semibold text-secondary">
+                                Ghi chú / Nguyện vọng đặc biệt (nếu có)
+                            </label>
+                            <textarea asp-for="GhiChu" class="form-control" rows="3" placeholder="Ví dụ: Đăng ký học lớp buổi tối, nguyện vọng nhận chứng chỉ sớm..."></textarea>
+                            <span asp-validation-for="GhiChu" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Cam kết quy chế -->
+                        <div class="form-check p-3 bg-light rounded-3 border mb-3">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" asp-for="DongYQuyChe" id="chkDongY" required />
+                            <label class="form-check-label small text-dark fw-medium" for="chkDongY">
+                                Tôi cam kết thông tin cá nhân là chính xác, chấp hành nội quy lớp học và quy chế nộp học phí của Nhà trường theo quy định.
+                            </label>
+                            <span asp-validation-for="DongYQuyChe" class="text-danger d-block small mt-1"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn uneti-btn-primary fw-semibold py-2.5 shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i>Xác nhận đăng ký ngay
+                            </button>
+                            <a asp-controller="KhoaHoc" asp-action="Details" asp-route-id="@Model.MaKhoaHoc" class="btn btn-light border py-2 text-muted small">
+                                Quay lại xem chi tiết khóa
+                            </a>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-slash-circle fs-1 text-secondary d-block mb-2"></i>
+                        <p class="text-muted small mb-3">Không thể thực hiện giao dịch đăng ký vào lúc này.</p>
+                        <a asp-controller="KhoaHoc" asp-action="Index" class="btn uneti-btn-primary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách khóa học
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

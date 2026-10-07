@@ -325,6 +325,113 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                 }
             }
             context.SaveChanges();
+
+            // 6. Nạp Khóa học mẫu (Module 2) nếu chưa có dữ liệu
+            if (!context.KhoaHocs.Any())
+            {
+                var allMonHocs = context.MonHocs.ToList();
+                var allGiangViens = context.GiangViens.ToList();
+
+                if (allMonHocs.Any() && allGiangViens.Any())
+                {
+                    var m1 = allMonHocs.ElementAtOrDefault(0) ?? allMonHocs.First();
+                    var m2 = allMonHocs.ElementAtOrDefault(1) ?? allMonHocs.First();
+                    var m3 = allMonHocs.ElementAtOrDefault(2) ?? allMonHocs.First();
+                    var m4 = allMonHocs.ElementAtOrDefault(3) ?? allMonHocs.First();
+                    var m5 = allMonHocs.ElementAtOrDefault(5) ?? allMonHocs.First();
+                    var m6 = allMonHocs.ElementAtOrDefault(6) ?? allMonHocs.First();
+
+                    var g1 = allGiangViens.ElementAtOrDefault(0) ?? allGiangViens.First();
+                    var g2 = allGiangViens.ElementAtOrDefault(1) ?? allGiangViens.First();
+                    var g3 = allGiangViens.ElementAtOrDefault(2) ?? allGiangViens.First();
+                    var g4 = allGiangViens.ElementAtOrDefault(3) ?? allGiangViens.First();
+
+                    var dsKhoaHocMau = new List<KhoaHoc>
+                    {
+                        new KhoaHoc
+                        {
+                            TenKhoaHoc = "Lập trình C# và .NET Core MVC - Lớp K17A",
+                            MaMonHoc = m1.MaMonHoc,
+                            MaGiangVien = g1.MaGiangVien,
+                            NgayBatDau = DateTime.Today.AddDays(7),
+                            NgayKetThuc = DateTime.Today.AddMonths(3),
+                            SoLuongToiDa = 30,
+                            HocPhi = 3500000,
+                            HinhThuc = "Trực tiếp",
+                            TrangThai = "DangMo",
+                            MoTa = "Khóa đào tạo chuyên sâu kiến trúc ASP.NET Core MVC 10, Entity Framework Core và lập trình Web doanh nghiệp."
+                        },
+                        new KhoaHoc
+                        {
+                            TenKhoaHoc = "Cơ sở Dữ liệu & SQL Server Nâng cao",
+                            MaMonHoc = m2.MaMonHoc,
+                            MaGiangVien = g2.MaGiangVien,
+                            NgayBatDau = DateTime.Today.AddDays(10),
+                            NgayKetThuc = DateTime.Today.AddMonths(3),
+                            SoLuongToiDa = 25,
+                            HocPhi = 3000000,
+                            HinhThuc = "Kết hợp",
+                            TrangThai = "DangMo",
+                            MoTa = "Thiết kế CSDL quan hệ, T-SQL, Stored Procedure, Trigger, Transaction và kỹ thuật tối ưu hóa truy vấn Indexing."
+                        },
+                        new KhoaHoc
+                        {
+                            TenKhoaHoc = "Lập trình Web Frontend với ReactJS & Redux",
+                            MaMonHoc = m3.MaMonHoc,
+                            MaGiangVien = g3.MaGiangVien,
+                            NgayBatDau = DateTime.Today.AddDays(14),
+                            NgayKetThuc = DateTime.Today.AddMonths(3),
+                            SoLuongToiDa = 35,
+                            HocPhi = 3800000,
+                            HinhThuc = "Trực tuyến",
+                            TrangThai = "DangMo",
+                            MoTa = "Xây dựng Single Page Application hiện đại với React, Redux Toolkit, Tailwind CSS và kết nối RESTful API."
+                        },
+                        new KhoaHoc
+                        {
+                            TenKhoaHoc = "Lập trình Di động Đa nền tảng Flutter & Dart",
+                            MaMonHoc = m4.MaMonHoc,
+                            MaGiangVien = g1.MaGiangVien,
+                            NgayBatDau = DateTime.Today.AddDays(20),
+                            NgayKetThuc = DateTime.Today.AddMonths(4),
+                            SoLuongToiDa = 25,
+                            HocPhi = 4200000,
+                            HinhThuc = "Trực tiếp",
+                            TrangThai = "DangMo",
+                            MoTa = "Phát triển ứng dụng di động cho cả iOS và Android trên cùng một codebase, quản lý state và tích hợp Firebase."
+                        },
+                        new KhoaHoc
+                        {
+                            TenKhoaHoc = "Lập trình Hướng đối tượng & Mẫu thiết kế",
+                            MaMonHoc = m5.MaMonHoc,
+                            MaGiangVien = g2.MaGiangVien,
+                            NgayBatDau = DateTime.Today.AddDays(5),
+                            NgayKetThuc = DateTime.Today.AddMonths(2),
+                            SoLuongToiDa = 40,
+                            HocPhi = 3200000,
+                            HinhThuc = "Trực tiếp",
+                            TrangThai = "DangMo",
+                            MoTa = "Tư duy thiết kế phần mềm hướng đối tượng theo nguyên lý SOLID, áp dụng các mẫu thiết kế Creational, Structural và Behavioral."
+                        },
+                        new KhoaHoc
+                        {
+                            TenKhoaHoc = "Cấu trúc Dữ liệu & Giải thuật Ứng dụng",
+                            MaMonHoc = m6.MaMonHoc,
+                            MaGiangVien = g4.MaGiangVien,
+                            NgayBatDau = DateTime.Today.AddDays(8),
+                            NgayKetThuc = DateTime.Today.AddMonths(3),
+                            SoLuongToiDa = 30,
+                            HocPhi = 3200000,
+                            HinhThuc = "Trực tuyến",
+                            TrangThai = "DangMo",
+                            MoTa = "Cấu trúc dữ liệu tuyến tính và phi tuyến, các thuật toán sắp xếp và tìm kiếm nâng cao phục vụ phỏng vấn lập trình viên."
+                        }
+                    };
+
+                    context.KhoaHocs.AddRange(dsKhoaHocMau);
+                    context.SaveChanges();
+                }
+            }
         }
     }
 }

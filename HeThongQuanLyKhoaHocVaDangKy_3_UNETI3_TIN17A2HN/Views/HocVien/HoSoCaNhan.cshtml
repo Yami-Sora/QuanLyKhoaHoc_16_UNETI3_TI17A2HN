@@ -1,0 +1,245 @@
+@*
+    Họ và tên: Ngọc Tùng Lâm
+    Mã sinh viên: 23103100098
+    Nội dung thực hiện: Module 3 - Giao diện Hồ sơ Cá nhân của Học viên
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.HoSoCaNhanViewModel
+@{
+    var userRole = Context.Session.GetString("VaiTro");
+    var isStaffOrAdmin = userRole == "Admin" || userRole == "NhanVien";
+    Layout = isStaffOrAdmin ? "~/Views/Shared/_LayoutAdmin.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Hồ sơ cá nhân - " + Model.HoTen;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Hồ sơ cá nhân</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-person-circle me-2" style="color: var(--uneti-primary);"></i>HỒ SƠ CÁ NHÂN HỌC VIÊN
+            </h3>
+            <p class="text-muted mb-0 small">Mục 7.2: Quản lý thông tin lý lịch cá nhân, thông tin liên lạc và theo dõi tiến độ đào tạo</p>
+        </div>
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            <a asp-controller="DangKyKhoaHoc" asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-journal-check"></i>
+                <span>Khóa học của tôi</span>
+            </a>
+            <a asp-controller="KhoaHoc" asp-action="Index" class="btn uneti-btn-primary shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-search"></i>
+                <span>Tìm khóa học mới</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Thông báo TempData phản hồi -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
+            <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-4 py-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- 4 THẺ THỐNG KÊ TIẾN ĐỘ CÁ NHÂN -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-primary">
+                <span class="text-muted small fw-medium text-uppercase d-block">Khóa học đã đăng ký</span>
+                <h3 class="fw-bold text-primary mt-1 mb-0">@Model.TongKhoaHocDaDangKy</h3>
+                <small class="text-muted uneti-fs-xs">Tổng số khóa tham gia</small>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-success">
+                <span class="text-muted small fw-medium text-uppercase d-block">Khóa đã hoàn thành</span>
+                <h3 class="fw-bold text-success mt-1 mb-0">@Model.SoKhoaHocHoanThanh</h3>
+                <small class="text-muted uneti-fs-xs">Đã ghi nhận học tập</small>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-warning">
+                <span class="text-muted small fw-medium text-uppercase d-block">Đang chờ xử lý</span>
+                <h3 class="fw-bold text-warning-emphasis mt-1 mb-0">@Model.SoKhoaHocChoXuLy</h3>
+                <small class="text-muted uneti-fs-xs">Đơn mới đăng ký</small>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-info">
+                <span class="text-muted small fw-medium text-uppercase d-block">Học phí đã đóng</span>
+                <h3 class="fw-bold text-info mt-1 mb-0">@Model.TongHocPhiDaDong.ToString("N0") đ</h3>
+                <small class="text-muted uneti-fs-xs">Còn nợ: @Model.TongHocPhiConLai.ToString("N0") đ</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- CỘT TRÁI: THẺ TỔNG QUAN HỒ SƠ -->
+        <div class="col-lg-4">
+            <div class="uneti-card p-4 shadow-sm mb-4 text-center">
+                <div class="text-white rounded-circle uneti-icon-box-64 fw-bold mx-auto mb-3 shadow"
+                     style="background: linear-gradient(135deg, #1d4ed8, #2563eb); font-size: 26px;">
+                    @(string.IsNullOrEmpty(Model.HoTen) ? "H" : Model.HoTen.Substring(0, 1).ToUpper())
+                </div>
+                <h5 class="fw-bold text-dark mb-1">@Model.HoTen</h5>
+                <p class="text-muted small mb-2">@@@Model.TenDangNhap</p>
+                <div class="mb-3">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1">
+                        <i class="bi bi-mortarboard-fill me-1"></i>Học viên chính quy
+                    </span>
+                    @if (Model.TrangThai)
+                    {
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1">
+                            <i class="bi bi-check-circle me-1"></i>Đang hoạt động
+                        </span>
+                    }
+                </div>
+
+                <div class="text-start border-top pt-3 small">
+                    <div class="d-flex justify-content-between py-1.5 border-bottom">
+                        <span class="text-muted">Mã học viên:</span>
+                        <strong class="text-dark">#HV@(Model.MaHocVien.ToString("D3"))</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1.5 border-bottom">
+                        <span class="text-muted">Ngày tham gia:</span>
+                        <strong class="text-dark">@Model.NgayDangKy.ToString("dd/MM/yyyy")</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1.5">
+                        <span class="text-muted">Trình độ:</span>
+                        <span class="badge bg-light text-dark border">@(Model.TrinhDo ?? "Đại học")</span>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <a asp-controller="TaiKhoan" asp-action="ChangePassword" class="btn btn-outline-warning btn-sm fw-semibold">
+                        <i class="bi bi-shield-lock me-1"></i>Đổi mật khẩu tài khoản
+                    </a>
+                </div>
+            </div>
+
+            <!-- Hộp mẹo quy chế đào tạo -->
+            <div class="uneti-card p-3 shadow-sm bg-light border-0">
+                <h6 class="fw-bold text-dark mb-2 small"><i class="bi bi-info-circle-fill text-primary me-1"></i>Lưu ý về hồ sơ cá nhân:</h6>
+                <ul class="text-secondary small mb-0 ps-3" style="line-height: 1.6; font-size: 12.5px;">
+                    <li>Vui lòng nhập chính xác <strong>Số điện thoại</strong> và <strong>Email</strong> để nhận thông báo tiếp nhận đơn đăng ký.</li>
+                    <li>Theo Mục 7.2 Đề 16, mỗi học viên chỉ được xem và cập nhật hồ sơ của chính mình.</li>
+                    <li>Nếu cần đổi tên đăng nhập hoặc chuyển đổi thông tin đặc biệt, vui lòng liên hệ Văn phòng Đào tạo.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: FORM CHỈNH SỬA HỒ SƠ -->
+        <div class="col-lg-8">
+            <div class="uneti-card p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-pencil-square me-2 text-primary"></i>Cập nhật thông tin cá nhân
+                    </h5>
+                    <span class="text-muted small"><span class="text-danger">*</span> Trường bắt buộc</span>
+                </div>
+
+                <form asp-action="CapNhatHoSo" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="MaHocVien" />
+                    <input type="hidden" asp-for="MaTaiKhoan" />
+                    <input type="hidden" asp-for="TenDangNhap" />
+                    <input type="hidden" asp-for="NgayDangKy" />
+                    <input type="hidden" asp-for="TrangThai" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="HoTen" class="form-label small fw-semibold text-secondary">Họ và tên học viên <span class="text-danger">*</span></label>
+                            <input asp-for="HoTen" class="form-control" />
+                            <span asp-validation-for="HoTen" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="NgaySinh" class="form-label small fw-semibold text-secondary">Ngày sinh</label>
+                            <input asp-for="NgaySinh" type="date" class="form-control" />
+                            <span asp-validation-for="NgaySinh" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="GioiTinh" class="form-label small fw-semibold text-secondary">Giới tính</label>
+                            <select asp-for="GioiTinh" class="form-select">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <span asp-validation-for="GioiTinh" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SoDienThoai" class="form-label small fw-semibold text-secondary">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                            <input asp-for="SoDienThoai" class="form-control" placeholder="10 chữ số, ví dụ 0987654321" />
+                            <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label small fw-semibold text-secondary">Địa chỉ Email <span class="text-danger">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-8">
+                            <label asp-for="DiaChi" class="form-label small fw-semibold text-secondary">Địa chỉ cư trú</label>
+                            <input asp-for="DiaChi" class="form-control" placeholder="Số nhà, đường phố, tỉnh/thành phố..." />
+                            <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="TrinhDo" class="form-label small fw-semibold text-secondary">Trình độ học vấn</label>
+                            <select asp-for="TrinhDo" class="form-select">
+                                <option value="Đại học">Đại học</option>
+                                <option value="Cao đẳng">Cao đẳng</option>
+                                <option value="Cử nhân">Cử nhân</option>
+                                <option value="Kỹ sư">Kỹ sư</option>
+                                <option value="Thạc sĩ">Thạc sĩ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <span asp-validation-for="TrinhDo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="GhiChu" class="form-label small fw-semibold text-secondary">Giới thiệu bản thân / Nguyện vọng học tập</label>
+                            <textarea asp-for="GhiChu" class="form-control" rows="3" placeholder="Chia sẻ mục tiêu học tập, định hướng nghề nghiệp..."></textarea>
+                            <span asp-validation-for="GhiChu" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-4 mt-3 border-top">
+                        <button type="reset" class="btn btn-light border px-4">Đặt lại</button>
+                        <button type="submit" class="btn uneti-btn-primary px-4 fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i>Lưu thay đổi hồ sơ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

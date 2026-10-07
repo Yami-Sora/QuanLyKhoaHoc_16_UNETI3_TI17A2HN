@@ -1,0 +1,175 @@
+@*
+    Họ và tên: Ngọc Tùng Lâm
+    Mã sinh viên: 23103100098
+    Nội dung thực hiện: Module 3 - Giao diện Thêm mới Học viên
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.HocVienFormViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Thêm mới học viên";
+}
+
+<div class="container-fluid py-3 px-4">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Quản trị</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Quản lý học viên</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Thêm mới</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-person-plus-fill me-2" style="color: var(--uneti-primary);"></i>THÊM MỚI HỒ SƠ HỌC VIÊN
+            </h3>
+            <p class="text-muted mb-0 small">Nhập lý lịch cá nhân và tùy chọn khởi tạo tài khoản đăng nhập cho học viên</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-arrow-left"></i>
+                <span>Quay lại danh sách</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="uneti-card p-4 shadow-sm mb-4">
+                <form asp-action="Create" method="post" id="formCreateHocVien">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4" role="alert"></div>
+
+                    <!-- PHẦN 1: THÔNG TIN CÁ NHÂN -->
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-person-lines-fill me-2 text-primary"></i>1. Thông tin lý lịch cá nhân
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="HoTen" class="form-label small fw-semibold text-secondary">Họ và tên học viên <span class="text-danger">*</span></label>
+                            <input asp-for="HoTen" class="form-control" placeholder="Ví dụ: Nguyễn Văn An" />
+                            <span asp-validation-for="HoTen" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="NgaySinh" class="form-label small fw-semibold text-secondary">Ngày sinh</label>
+                            <input asp-for="NgaySinh" type="date" class="form-control" />
+                            <span asp-validation-for="NgaySinh" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label asp-for="GioiTinh" class="form-label small fw-semibold text-secondary">Giới tính</label>
+                            <select asp-for="GioiTinh" class="form-select">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <span asp-validation-for="GioiTinh" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SoDienThoai" class="form-label small fw-semibold text-secondary">Số điện thoại <span class="text-danger">*</span></label>
+                            <input asp-for="SoDienThoai" class="form-control" placeholder="Ví dụ: 0987654321" />
+                            <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label small fw-semibold text-secondary">Địa chỉ Email <span class="text-danger">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="Ví dụ: an.nv@gmail.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-8">
+                            <label asp-for="DiaChi" class="form-label small fw-semibold text-secondary">Địa chỉ cư trú</label>
+                            <input asp-for="DiaChi" class="form-control" placeholder="Số nhà, đường phố, quận/huyện, tỉnh/thành phố" />
+                            <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="TrinhDo" class="form-label small fw-semibold text-secondary">Trình độ học vấn</label>
+                            <select asp-for="TrinhDo" class="form-select">
+                                <option value="Đại học">Đại học</option>
+                                <option value="Cao đẳng">Cao đẳng</option>
+                                <option value="Cử nhân">Cử nhân</option>
+                                <option value="Kỹ sư">Kỹ sư</option>
+                                <option value="Thạc sĩ">Thạc sĩ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <span asp-validation-for="TrinhDo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="GhiChu" class="form-label small fw-semibold text-secondary">Ghi chú thêm</label>
+                            <textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="Ghi chú về học viên, sở trường, nguyện vọng..."></textarea>
+                            <span asp-validation-for="GhiChu" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" asp-for="TrangThai" id="swTrangThai" />
+                                <label class="form-check-label fw-semibold small" for="swTrangThai">
+                                    Kích hoạt trạng thái hồ sơ hoạt động ngay sau khi tạo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: TÙY CHỌN TẠO TÀI KHOẢN -->
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-shield-lock-fill me-2 text-primary"></i>2. Cấp tài khoản đăng nhập hệ thống
+                    </h5>
+
+                    <div class="p-3 bg-light rounded-3 border mb-4">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" asp-for="TaoTaiKhoan" id="swTaoTaiKhoan" onchange="toggleAccountFields()" />
+                            <label class="form-check-label fw-bold text-dark small" for="swTaoTaiKhoan">
+                                Tự động tạo tài khoản đăng nhập (Vai trò: Học viên)
+                            </label>
+                        </div>
+
+                        <div id="accountFields" class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="TenDangNhap" class="form-label small fw-semibold text-secondary">Tên đăng nhập <span class="text-danger">*</span></label>
+                                <input asp-for="TenDangNhap" class="form-control bg-white" placeholder="Ví dụ: sv_nguyenvanan" />
+                                <span asp-validation-for="TenDangNhap" class="text-danger small"></span>
+                                <small class="text-muted uneti-fs-xs">Từ 3 đến 50 ký tự, không dấu</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="MatKhau" class="form-label small fw-semibold text-secondary">Mật khẩu khởi tạo <span class="text-danger">*</span></label>
+                                <input asp-for="MatKhau" type="password" class="form-control bg-white" value="User@123" />
+                                <span asp-validation-for="MatKhau" class="text-danger small"></span>
+                                <small class="text-muted uneti-fs-xs">Mặc định: User@123</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút thao tác -->
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-light border px-4">Hủy bỏ</a>
+                        <button type="submit" class="btn uneti-btn-primary px-4 fw-semibold shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i>Lưu hồ sơ học viên
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function toggleAccountFields() {
+            var chk = document.getElementById('swTaoTaiKhoan');
+            var fields = document.getElementById('accountFields');
+            if (chk && fields) {
+                fields.style.display = chk.checked ? 'flex' : 'none';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', toggleAccountFields);
+    </script>
+}

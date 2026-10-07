@@ -28,6 +28,7 @@ bld/
 ## Local History / Temp
 *.tmp
 *~
+~$*
 de16_extracted.txt
 
 ## Image Backups

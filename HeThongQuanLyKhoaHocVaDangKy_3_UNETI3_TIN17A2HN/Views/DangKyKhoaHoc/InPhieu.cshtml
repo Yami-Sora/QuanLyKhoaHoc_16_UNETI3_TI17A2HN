@@ -1,0 +1,229 @@
+@*
+    Họ và tên: Ngọc Tùng Lâm
+    Mã sinh viên: 23103100098
+    Nội dung thực hiện: Module 3 - Mẫu In Phiếu Đăng Ký Khóa Học Cá Nhân
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.DangKyKhoaHoc
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phiếu đăng ký #@Model.MaDangKy - @(Model.HocVien?.HoTen)</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 24px;
+        }
+        .print-container {
+            max-width: 820px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 40px 48px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .uneti-logo {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .uneti-title {
+            color: #1d4ed8;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+        .table-custom th, .table-custom td {
+            padding: 9px 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .table-custom th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+        }
+        @@media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            .print-container {
+                box-shadow: none;
+                padding: 20px;
+                max-width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <!-- Nút in phiếu trên đầu màn hình -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom no-print">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Quay lại
+            </a>
+            <button onclick="window.print()" class="btn btn-primary btn-sm fw-semibold px-3">
+                <i class="bi bi-printer-fill me-1"></i>In phiếu đăng ký
+            </button>
+        </div>
+
+        <!-- TIÊU ĐỀ ĐƠN VỊ ĐÀO TẠO -->
+        <div class="row align-items-center mb-4 pb-3 border-bottom">
+            <div class="col-7">
+                <div class="uneti-logo text-uppercase">
+                    TRƯỜNG ĐẠI HỌC KINH TẾ - KỸ THUẬT CÔNG NGHIỆP<br />
+                    <span class="text-primary fw-bold">KHOA CÔNG NGHỆ THÔNG TIN</span><br />
+                    <small class="text-muted text-capitalize fw-normal">Trung tâm Đào tạo & Khảo thí Phần mềm</small>
+                </div>
+            </div>
+            <div class="col-5 text-end small">
+                <strong>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</strong><br />
+                <em>Độc lập - Tự do - Hạnh phúc</em><br />
+                <span class="text-muted">---o0o---</span>
+            </div>
+        </div>
+
+        <!-- TÊN PHIẾU -->
+        <div class="text-center my-4">
+            <h3 class="uneti-title mb-1">PHIẾU TIẾP NHẬN ĐĂNG KÝ KHÓA HỌC</h3>
+            <p class="text-muted small mb-0">Mã đơn đăng ký: <strong>#DK-@Model.MaDangKy.ToString("D5")</strong> | Ngày lập: @Model.NgayDangKy.ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+
+        <!-- PHẦN 1: THÔNG TIN HỌC VIÊN -->
+        <h6 class="fw-bold text-dark text-uppercase small mb-2 border-bottom pb-1" style="color: #1d4ed8 !important;">
+            I. Thông tin học viên đăng ký
+        </h6>
+        <table class="table table-custom mb-4 small">
+            <tr>
+                <th style="width: 20%;">Họ và tên:</th>
+                <td style="width: 30%;" class="fw-bold text-dark">@(Model.HocVien?.HoTen)</td>
+                <th style="width: 20%;">Mã học viên:</th>
+                <td style="width: 30%;">#HV@(Model.HocVien?.MaHocVien.ToString("D3"))</td>
+            </tr>
+            <tr>
+                <th>Ngày sinh:</th>
+                <td>@(Model.HocVien?.NgaySinh.HasValue == true ? Model.HocVien.NgaySinh.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")</td>
+                <th>Giới tính:</th>
+                <td>@(Model.HocVien?.GioiTinh ?? "Nam")</td>
+            </tr>
+            <tr>
+                <th>Số điện thoại:</th>
+                <td>@(Model.HocVien?.SoDienThoai)</td>
+                <th>Email liên hệ:</th>
+                <td>@(Model.HocVien?.Email)</td>
+            </tr>
+            <tr>
+                <th>Địa chỉ:</th>
+                <td colspan="3">@(string.IsNullOrEmpty(Model.HocVien?.DiaChi) ? "Chưa cập nhật" : Model.HocVien.DiaChi)</td>
+            </tr>
+        </table>
+
+        <!-- PHẦN 2: THÔNG TIN KHÓA HỌC -->
+        <h6 class="fw-bold text-dark text-uppercase small mb-2 border-bottom pb-1" style="color: #1d4ed8 !important;">
+            II. Thông tin khóa học ghi danh
+        </h6>
+        <table class="table table-custom mb-4 small">
+            <tr>
+                <th style="width: 20%;">Tên khóa học:</th>
+                <td style="width: 80%;" colspan="3" class="fw-bold text-primary">@(Model.KhoaHoc?.TenKhoaHoc)</td>
+            </tr>
+            <tr>
+                <th style="width: 20%;">Môn học đào tạo:</th>
+                <td style="width: 30%;">@(Model.KhoaHoc?.MonHoc?.TenMonHoc) (@(Model.KhoaHoc?.MonHoc?.SoTinChi) Tín chỉ)</td>
+                <th style="width: 20%;">Giảng viên:</th>
+                <td style="width: 30%;">@(Model.KhoaHoc?.GiangVien?.HoTen ?? "Đang phân công")</td>
+            </tr>
+            <tr>
+                <th>Thời gian học:</th>
+                <td>@(Model.KhoaHoc?.NgayBatDau.ToString("dd/MM/yyyy")) &rarr; @(Model.KhoaHoc?.NgayKetThuc.ToString("dd/MM/yyyy"))</td>
+                <th>Hình thức học:</th>
+                <td>@(Model.KhoaHoc?.HinhThuc)</td>
+            </tr>
+            <tr>
+                <th>Trạng thái đơn:</th>
+                <td class="fw-bold">
+                    @switch (Model.TrangThai)
+                    {
+                        case "ChoXuLy":
+                            <span>Đang chờ duyệt hồ sơ</span>
+                            break;
+                        case "DangXuLy":
+                            <span>Đang kiểm tra và xử lý</span>
+                            break;
+                        case "HoanThanh":
+                            <span class="text-success">Đã hoàn thành ghi danh chính thức</span>
+                            break;
+                        case "BiHuy":
+                            <span class="text-danger">Đơn đã bị hủy</span>
+                            break;
+                        default:
+                            <span>@Model.TrangThai</span>
+                            break;
+                    }
+                </td>
+                <th>Ngày xác nhận:</th>
+                <td>@(Model.NgayXacNhan.HasValue ? Model.NgayXacNhan.Value.ToString("dd/MM/yyyy HH:mm") : "Chưa xác nhận")</td>
+            </tr>
+        </table>
+
+        <!-- PHẦN 3: TÌNH TRẠNG HỌC PHÍ -->
+        <h6 class="fw-bold text-dark text-uppercase small mb-2 border-bottom pb-1" style="color: #1d4ed8 !important;">
+            III. Quyết toán học phí
+        </h6>
+        <table class="table table-custom mb-4 small">
+            <thead>
+                <tr class="text-center">
+                    <th>Học phí khóa học</th>
+                    <th>Số tiền đã nộp</th>
+                    <th>Học phí còn lại</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="text-center fs-6">
+                    <td class="fw-bold">@(Model.KhoaHoc?.HocPhi.ToString("N0")) đ</td>
+                    <td class="fw-bold text-success">@Model.SoTienDaDong.ToString("N0") đ</td>
+                    <td class="fw-bold @(Model.SoTienConLai > 0 ? "text-danger" : "text-muted")">@Model.SoTienConLai.ToString("N0") đ</td>
+                </tr>
+            </tbody>
+        </table>
+
+        @if (!string.IsNullOrEmpty(Model.GhiChu))
+        {
+            <div class="mb-4 small">
+                <strong>Ghi chú / Nguyện vọng:</strong> <em>@Model.GhiChu</em>
+            </div>
+        }
+
+        <!-- CHỮ KÝ VÀ XÁC NHẬN -->
+        <div class="row text-center mt-5 pt-3 small">
+            <div class="col-4">
+                <strong>HỌC VIÊN ĐĂNG KÝ</strong><br />
+                <em class="text-muted">(Ký và ghi rõ họ tên)</em>
+                <div style="height: 70px;"></div>
+                <strong class="text-dark">@(Model.HocVien?.HoTen)</strong>
+            </div>
+            <div class="col-4">
+                <strong>BỘ PHẬN THU NGÂN</strong><br />
+                <em class="text-muted">(Ký và ghi rõ họ tên)</em>
+                <div style="height: 70px;"></div>
+            </div>
+            <div class="col-4">
+                <strong>BỘ PHẬN ĐÀO TẠO</strong><br />
+                <em class="text-muted">(Ký, đóng dấu xác nhận)</em>
+                <div style="height: 70px;"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,145 @@
+@*
+    Họ và tên: Ngọc Tùng Lâm
+    Mã sinh viên: 23103100098
+    Nội dung thực hiện: Module 3 - Giao diện Xác nhận Xóa Hồ sơ Học viên
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.HocVien
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["Title"] = "Xóa hồ sơ học viên - " + Model.HoTen;
+    var coLichSuDangKy = Model.DangKyKhoaHocs != null && Model.DangKyKhoaHocs.Any();
+}
+
+<div class="container-fluid py-3 px-4">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Quản trị</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Quản lý học viên</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Xóa học viên</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-danger">
+                <i class="bi bi-trash-fill me-2"></i>XÁC NHẬN XÓA HỒ SƠ HỌC VIÊN
+            </h3>
+            <p class="text-muted mb-0 small">Kiểm tra ràng buộc dữ liệu liên kết và xác nhận yêu cầu xóa hồ sơ học viên</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <a asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-arrow-left"></i>
+                <span>Quay lại</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (coLichSuDangKy)
+            {
+                <div class="alert alert-danger uneti-card border-danger-subtle p-4 mb-4">
+                    <div class="d-flex gap-3">
+                        <i class="bi bi-shield-x text-danger fs-1 flex-shrink-0"></i>
+                        <div>
+                            <h5 class="fw-bold text-danger mb-2">CẢNH BÁO RÀNG BUỘC TOÀN VẸN DỮ LIỆU (MỤC 6.2 & 10 ĐỀ 16)</h5>
+                            <p class="mb-2 text-dark">
+                                Học viên <strong>@Model.HoTen</strong> (Mã HV: #HV@(Model.MaHocVien.ToString("D3"))) hiện đã có <strong>@(Model.DangKyKhoaHocs?.Count ?? 0)</strong> lịch sử đơn đăng ký khóa học và giao dịch tài chính trong hệ thống.
+                            </p>
+                            <p class="mb-3 text-secondary small">
+                                Để bảo đảm tính toàn vẹn dữ liệu, quan hệ giữa Học viên và Đơn đăng ký được thiết lập ràng buộc <code>Restrict</code> (chặn xóa). Hệ thống <strong>không cho phép xóa vĩnh viễn</strong> học viên này.
+                            </p>
+                            <div class="p-3 bg-white rounded border border-danger-subtle small text-dark">
+                                <i class="bi bi-lightbulb-fill text-warning me-1"></i><strong>Giải pháp thay thế khuyến nghị:</strong>
+                                Bạn hãy chuyển trạng thái hồ sơ của học viên sang <strong>"Khóa/Nghỉ"</strong>. Khi đó, học viên sẽ không thể đăng ký khóa mới hay thao tác hệ thống, trong khi lịch sử học tập vẫn được lưu trữ phục vụ báo cáo và kiểm toán.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning uneti-card border-warning-subtle p-3 mb-4 d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-triangle-fill text-warning fs-2 flex-shrink-0"></i>
+                    <div>
+                        <strong class="text-dark">Xác nhận thao tác xóa:</strong> Thao tác này sẽ xóa vĩnh viễn hồ sơ học viên <strong>@Model.HoTen</strong> cùng tài khoản đăng nhập liên kết (nếu có). Hành động không thể hoàn tác!
+                    </div>
+                </div>
+            }
+
+            <!-- THÔNG TIN HỌC VIÊN CẦN XÓA -->
+            <div class="uneti-card p-4 shadow-sm mb-4">
+                <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                    <i class="bi bi-person-badge me-2 text-primary"></i>Thông tin học viên sẽ xóa
+                </h6>
+
+                <div class="row g-3 small">
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Mã học viên:</span>
+                        <strong class="text-dark">#HV@(Model.MaHocVien.ToString("D3"))</strong>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Họ và tên:</span>
+                        <strong class="text-dark fs-6">@Model.HoTen</strong>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Số điện thoại:</span>
+                        <span class="text-dark">@Model.SoDienThoai</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Email:</span>
+                        <span class="text-dark">@Model.Email</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Trình độ học vấn:</span>
+                        <span class="text-dark">@(Model.TrinhDo ?? "Đại học")</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Ngày tham gia:</span>
+                        <span class="text-dark">@Model.NgayDangKy.ToString("dd/MM/yyyy")</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Tài khoản liên kết:</span>
+                        <span class="text-dark">@(Model.TaiKhoan != null ? "@" + Model.TaiKhoan.TenDangNhap : "Không có")</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Số đơn đăng ký:</span>
+                        <span class="badge @(coLichSuDangKy ? "bg-danger" : "bg-light text-muted border")">
+                            @(Model.DangKyKhoaHocs?.Count ?? 0) đơn
+                        </span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-4 mt-4 border-top">
+                    <a asp-action="Index" class="btn btn-light border px-4">Hủy thao tác</a>
+                    @if (coLichSuDangKy)
+                    {
+                        <form asp-action="ToggleTrangThai" asp-route-id="@Model.MaHocVien" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-warning px-4 fw-semibold shadow-sm">
+                                <i class="bi bi-lock me-1"></i>Khóa hồ sơ thay vì xóa
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" asp-route-id="@Model.MaHocVien" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger px-4 fw-semibold shadow-sm">
+                                <i class="bi bi-trash-fill me-1"></i>Xác nhận xóa vĩnh viễn
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

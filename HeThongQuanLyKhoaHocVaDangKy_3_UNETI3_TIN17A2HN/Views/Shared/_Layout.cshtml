@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Bố cục chung hệ thống
@@ -54,7 +54,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="uneti-nav-link text-decoration-none" href="#module2" onclick="thongBaoModule(2); return false;">
+                            <a class="uneti-nav-link text-decoration-none @(currentCtrl == "KhoaHoc" ? "active" : "")" asp-controller="KhoaHoc" asp-action="Index">
                                 <i class="bi bi-journal-album"></i>Khóa học
                             </a>
                         </li>
@@ -70,7 +70,7 @@
                         else if (userRole == "HocVien")
                         {
                             <li class="nav-item">
-                                <a class="uneti-nav-link text-decoration-none" href="#module3" onclick="thongBaoModule(3); return false;">
+                                <a class="uneti-nav-link text-decoration-none @(currentCtrl == "DangKyKhoaHoc" ? "active" : "")" asp-controller="DangKyKhoaHoc" asp-action="Index">
                                     <i class="bi bi-journal-check"></i>Khóa học của tôi
                                 </a>
                             </li>

@@ -1,0 +1,317 @@
+@*
+    Họ và tên: Ngọc Tùng Lâm
+    Mã sinh viên: 23103100098
+    Nội dung thực hiện: Module 3 - Giao diện Chi tiết Đơn đăng ký Khóa học của Học viên
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.DangKyKhoaHoc
+@{
+    var userRole = Context.Session.GetString("VaiTro");
+    var isStaffOrAdmin = userRole == "Admin" || userRole == "NhanVien";
+    Layout = isStaffOrAdmin ? "~/Views/Shared/_LayoutAdmin.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chi tiết đơn đăng ký #" + Model.MaDangKy;
+    var duocPhepTuhuy = Model.TrangThai == "ChoXuLy";
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Tiêu đề -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    @if (isStaffOrAdmin)
+                    {
+                        <li class="breadcrumb-item"><a asp-controller="QuanTri" asp-action="Dashboard" class="text-decoration-none" style="color: var(--uneti-primary);">Quản trị</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="TiepNhanDangKy" asp-action="Index" class="text-decoration-none" style="color: var(--uneti-primary);">Tiếp nhận đăng ký</a></li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-primary">Khóa học của tôi</a></li>
+                    }
+                    <li class="breadcrumb-item active" aria-current="page">Đơn #@Model.MaDangKy</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-file-earmark-check-fill me-2" style="color: var(--uneti-primary);"></i>CHI TIẾT ĐƠN ĐĂNG KÝ #@Model.MaDangKy
+            </h3>
+            <p class="text-muted mb-0 small">Mục 7.5: Tiến độ xét duyệt, thông tin khóa học, định mức học phí và chứng từ ghi danh</p>
+        </div>
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            <a asp-action="InPhieu" asp-route-id="@Model.MaDangKy" class="btn btn-outline-secondary shadow-sm text-decoration-none d-flex align-items-center gap-1" target="_blank">
+                <i class="bi bi-printer"></i>
+                <span>In phiếu xác nhận</span>
+            </a>
+            <a asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none d-flex align-items-center gap-1">
+                <i class="bi bi-arrow-left"></i>
+                <span>Quay lại</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Phản hồi TempData -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
+            <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-4 py-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- KHỐI TIẾN TRÌNH TRẠNG THÁI (STEPPER TIMELINE) -->
+    <div class="uneti-card p-4 shadow-sm mb-4">
+        <h6 class="fw-bold text-dark mb-4 text-center text-uppercase small" style="letter-spacing: 0.05em;">
+            Tiến trình luồng xử lý đơn đăng ký
+        </h6>
+
+        @if (Model.TrangThai == "BiHuy")
+        {
+            <div class="alert alert-danger py-3 px-4 rounded-3 d-flex align-items-center gap-3 mb-0">
+                <i class="bi bi-x-circle-fill fs-2 text-danger"></i>
+                <div>
+                    <h6 class="fw-bold text-danger mb-1">ĐƠN ĐĂNG KÝ NÀY ĐÃ BỊ HỦY</h6>
+                    <div class="small text-dark">
+                        Giao dịch đã đóng. Chỗ trong khóa học đã được hoàn trả.
+                        @if (!string.IsNullOrEmpty(Model.GhiChu))
+                        {
+                            <div class="mt-1 text-muted"><strong>Chi tiết ghi nhận:</strong> @Model.GhiChu</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex justify-content-between align-items-center position-relative px-2 px-md-5">
+                <!-- Bước 1: Gửi đơn -->
+                <div class="text-center position-relative" style="z-index: 2;">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-2 shadow"
+                         style="width: 44px; height: 44px; background: #10b981;">
+                        <i class="bi bi-check-lg fs-5"></i>
+                    </div>
+                    <strong class="d-block text-dark small">Gửi đơn đăng ký</strong>
+                    <small class="text-muted uneti-fs-xs">@Model.NgayDangKy.ToString("dd/MM/yyyy HH:mm")</small>
+                </div>
+
+                <div class="flex-grow-1 border-top border-2 @(Model.TrangThai == "DangXuLy" || Model.TrangThai == "HoanThanh" ? "border-success" : "border-secondary-subtle") mx-2" style="margin-top: -20px;"></div>
+
+                <!-- Bước 2: Tiếp nhận & Kiểm tra -->
+                <div class="text-center position-relative" style="z-index: 2;">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-2 shadow"
+                         style="width: 44px; height: 44px; background: @(Model.TrangThai == "DangXuLy" || Model.TrangThai == "HoanThanh" ? "#10b981" : "#f59e0b");">
+                        <i class="bi @(Model.TrangThai == "DangXuLy" || Model.TrangThai == "HoanThanh" ? "bi-check-lg" : "bi-hourglass-split") fs-5"></i>
+                    </div>
+                    <strong class="d-block text-dark small">Bộ phận Đào tạo duyệt</strong>
+                    <small class="text-muted uneti-fs-xs">
+                        @(Model.TrangThai == "ChoXuLy" ? "Đang chờ duyệt" : "Đã tiếp nhận")
+                    </small>
+                </div>
+
+                <div class="flex-grow-1 border-top border-2 @(Model.TrangThai == "HoanThanh" ? "border-success" : "border-secondary-subtle") mx-2" style="margin-top: -20px;"></div>
+
+                <!-- Bước 3: Hoàn thành ghi danh -->
+                <div class="text-center position-relative" style="z-index: 2;">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-2 shadow"
+                         style="width: 44px; height: 44px; background: @(Model.TrangThai == "HoanThanh" ? "#10b981" : "#94a3b8");">
+                        <i class="bi @(Model.TrangThai == "HoanThanh" ? "bi-check-lg" : "bi-mortarboard") fs-5"></i>
+                    </div>
+                    <strong class="d-block text-dark small">Ghi danh chính thức</strong>
+                    <small class="text-muted uneti-fs-xs">
+                        @(Model.TrangThai == "HoanThanh" ? (Model.NgayXacNhan.HasValue ? Model.NgayXacNhan.Value.ToString("dd/MM/yyyy") : "Đã hoàn thành") : "Chưa hoàn tất")
+                    </small>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row g-4">
+        <!-- CỘT TRÁI: THÔNG TIN KHÓA HỌC & TIẾN TRÌNH -->
+        <div class="col-lg-7">
+            <!-- Thẻ Khóa học -->
+            <div class="uneti-card p-4 shadow-sm mb-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="badge bg-light text-secondary border px-2 py-1 mb-2">MÃ KHÓA: #KH0@(Model.MaKhoaHoc)</span>
+                        <h4 class="fw-bold text-dark mb-1">@(Model.KhoaHoc?.TenKhoaHoc ?? "N/A")</h4>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1">
+                        @(Model.KhoaHoc?.HinhThuc ?? "Trực tiếp")
+                    </span>
+                </div>
+
+                <div class="row g-3 py-3 border-top border-bottom my-2 small">
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Môn học:</span>
+                        <strong class="text-dark"><i class="bi bi-journal-text me-1 text-primary"></i>@(Model.KhoaHoc?.MonHoc?.TenMonHoc ?? "N/A")</strong>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Số tín chỉ:</span>
+                        <strong class="text-dark">@(Model.KhoaHoc?.MonHoc?.SoTinChi ?? 0) tín chỉ</strong>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Giảng viên phụ trách:</span>
+                        <strong class="text-dark"><i class="bi bi-person-badge me-1 text-primary"></i>@(Model.KhoaHoc?.GiangVien?.HoTen ?? "Đang cập nhật")</strong>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-block">Thời gian khóa học:</span>
+                        <strong class="text-dark"><i class="bi bi-calendar-event me-1 text-primary"></i>@(Model.KhoaHoc?.NgayBatDau.ToString("dd/MM/yyyy")) &rarr; @(Model.KhoaHoc?.NgayKetThuc.ToString("dd/MM/yyyy"))</strong>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.KhoaHoc?.MoTa))
+                {
+                    <div class="mt-3 small">
+                        <span class="text-muted d-block mb-1">Mô tả khóa học:</span>
+                        <p class="text-secondary p-2.5 bg-light rounded border mb-0">@Model.KhoaHoc.MoTa</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Thẻ Kết quả học tập (nếu có) -->
+            @if (Model.KetQuaHocTap != null)
+            {
+                <div class="uneti-card p-4 shadow-sm mb-4 border-start border-4 border-success">
+                    <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-award-fill me-2 text-success"></i>Kết quả học tập & Điểm số
+                    </h6>
+                    <div class="row g-3 small">
+                        <div class="col-sm-3 text-center">
+                            <span class="text-muted d-block">Điểm chuyên cần</span>
+                            <strong class="fs-5 text-dark">@Model.KetQuaHocTap.DiemChuyenCan.ToString("0.0")</strong>
+                        </div>
+                        <div class="col-sm-3 text-center">
+                            <span class="text-muted d-block">Điểm giữa kỳ</span>
+                            <strong class="fs-5 text-dark">@Model.KetQuaHocTap.DiemGiuaKy.ToString("0.0")</strong>
+                        </div>
+                        <div class="col-sm-3 text-center">
+                            <span class="text-muted d-block">Điểm cuối kỳ</span>
+                            <strong class="fs-5 text-dark">@Model.KetQuaHocTap.DiemCuoiKy.ToString("0.0")</strong>
+                        </div>
+                        <div class="col-sm-3 text-center">
+                            <span class="text-muted d-block">Điểm tổng kết</span>
+                            <strong class="fs-4 text-success">@Model.KetQuaHocTap.DiemTongKet.ToString("0.0")</strong>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center small">
+                        <span>Xếp loại: <strong>@(Model.KetQuaHocTap.XepLoai ?? "Chưa xếp loại")</strong></span>
+                        <span class="badge @(Model.KetQuaHocTap.KetQua == "Dat" ? "bg-success" : "bg-warning")">
+                            @(Model.KetQuaHocTap.KetQua == "Dat" ? "ĐẠT YÊU CẦU" : (Model.KetQuaHocTap.KetQua ?? "Chưa đánh giá"))
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- CỘT PHẢI: TÀI CHÍNH & THAO TÁC -->
+        <div class="col-lg-5">
+            <!-- Thẻ Tài chính học phí -->
+            <div class="uneti-card p-4 shadow-sm mb-4">
+                <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                    <i class="bi bi-cash-stack me-2 text-primary"></i>Tình trạng thanh toán học phí
+                </h6>
+
+                <div class="d-flex flex-column gap-2 small">
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Định mức học phí:</span>
+                        <strong class="text-dark">@(Model.KhoaHoc?.HocPhi.ToString("N0") ?? "0") đ</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Số tiền đã nộp:</span>
+                        <strong class="text-success fs-6">@Model.SoTienDaDong.ToString("N0") đ</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Học phí còn lại:</span>
+                        <strong class="@(Model.SoTienConLai > 0 ? "text-danger" : "text-muted") fs-6">@Model.SoTienConLai.ToString("N0") đ</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Ngày xác nhận duyệt:</span>
+                        <span class="text-dark">@(Model.NgayXacNhan.HasValue ? Model.NgayXacNhan.Value.ToString("dd/MM/yyyy HH:mm") : "Đang chờ xác nhận")</span>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.GhiChu))
+                {
+                    <div class="mt-3 pt-3 border-top small">
+                        <span class="text-muted d-block mb-1">Ghi chú giao dịch:</span>
+                        <div class="p-2.5 bg-light rounded border text-secondary" style="font-size: 12.5px;">@Model.GhiChu</div>
+                    </div>
+                }
+            </div>
+
+            <!-- Thẻ Thao tác giao dịch & Hủy đơn (Mục 7.4) -->
+            <div class="uneti-card p-4 shadow-sm mb-4">
+                <h6 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                    <i class="bi bi-gear-wide-connected me-2 text-primary"></i>Thao tác & Hỗ trợ
+                </h6>
+
+                <div class="d-grid gap-2">
+                    <a asp-action="InPhieu" asp-route-id="@Model.MaDangKy" class="btn btn-light border fw-semibold" target="_blank">
+                        <i class="bi bi-printer me-1"></i>In phiếu xác nhận đăng ký
+                    </a>
+
+                    @if (duocPhepTuhuy)
+                    {
+                        <!-- Nút kích hoạt modal hủy theo Mục 7.4 -->
+                        <button type="button" class="btn btn-outline-danger fw-semibold" data-bs-toggle="modal" data-bs-target="#modalHuyDonChiTiet">
+                            <i class="bi bi-x-circle me-1"></i>Hủy đơn đăng ký này
+                        </button>
+
+                        <!-- Modal Hủy Đơn -->
+                        <div class="modal fade" id="modalHuyDonChiTiet" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form asp-action="HuyDangKy" asp-route-id="@Model.MaDangKy" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="modal-header border-bottom">
+                                            <h6 class="modal-title fw-bold text-danger">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Xác nhận hủy đơn #@Model.MaDangKy
+                                            </h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body small">
+                                            <p class="mb-2 text-dark">
+                                                Bạn có chắc chắn muốn hủy đơn đăng ký khóa học này không?
+                                            </p>
+                                            <div class="alert alert-warning py-2 small mb-3">
+                                                Theo Mục 7.4 Đề 16: Chỉ được hủy đơn khi đang ở trạng thái <em>Chờ xử lý</em>. Sau khi hủy, đơn không thể khôi phục lại.
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold text-secondary">Lý do hủy đơn:</label>
+                                                <textarea name="lyDoHuy" class="form-control" rows="2" placeholder="Nhập lý do học viên hủy..."></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-top">
+                                            <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Đóng</button>
+                                            <button type="submit" class="btn btn-danger fw-semibold">Xác nhận hủy</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (Model.TrangThai != "BiHuy")
+                    {
+                        <div class="alert alert-light border py-2 px-3 small text-muted mb-0">
+                            <i class="bi bi-info-circle me-1"></i>Đơn ở trạng thái <strong>@Model.TrangThai</strong> không được tự hủy trực tuyến theo quy chế. Nếu cần hỗ trợ, vui lòng liên hệ Văn phòng Đào tạo.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
