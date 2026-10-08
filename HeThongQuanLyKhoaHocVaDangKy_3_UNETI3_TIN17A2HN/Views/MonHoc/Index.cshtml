@@ -22,15 +22,8 @@
 }
 
 <div class="container py-4">
-    <!-- 1. BREADCRUMB & TIÊU ĐỀ TRANG GỌN GÀNG, TINH TẾ -->
+    <!-- 1. TIÊU ĐỀ TRANG GỌN GÀNG, TINH TẾ -->
     <div class="mb-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-2 small">
-                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
-                <li class="breadcrumb-item active text-muted" aria-current="page">Danh mục môn học</li>
-            </ol>
-        </nav>
-        
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <h3 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
@@ -77,28 +70,60 @@
 
     <!-- Thanh tìm kiếm & bộ lọc -->
     <div class="uneti-card p-3 mb-3 shadow-sm rounded-4">
+        <style>
+            /* Triệt tiêu hoàn toàn vệt kẻ xanh, outline, viền và shadow bên trong các input-group của bộ lọc */
+            #filterForm .input-group {
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+            #filterForm .input-group:focus-within {
+                border-color: #3b82f6 !important;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+            }
+            #filterForm .input-group .form-select,
+            #filterForm .input-group .form-select:focus,
+            #filterForm .input-group .form-select:focus-visible,
+            #filterForm .input-group .form-select:active,
+            #filterForm .input-group .form-control,
+            #filterForm .input-group .form-control:focus,
+            #filterForm .input-group .form-control:focus-visible,
+            #filterForm .input-group .form-control:active {
+                border: none !important;
+                border-left: none !important;
+                border-right: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+                background-color: transparent !important;
+            }
+            #filterForm .input-group-text {
+                border: none !important;
+                border-right: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+            }
+        </style>
         <form id="filterForm" method="get" asp-action="Index" class="row g-2 align-items-center">
             <!-- Ô tìm kiếm tức thì (Debounced) -->
-            <div class="col-lg-4 col-md-12">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+            <div class="col-lg-3 col-md-12">
+                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
+                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
                         <i class="bi bi-search"></i>
                     </span>
                     <input type="text" id="searchString" name="searchString" value="@ViewBag.CurrentSearch" 
-                           class="form-control border-start-0 ps-2" 
-                           placeholder="Tìm kiếm theo tên môn hoặc mã môn..." 
-                           autocomplete="off" />
+                           class="form-control border-0 bg-transparent shadow-none px-1" 
+                           placeholder="Tìm kiếm theo tên môn học, mã môn..." 
+                           autocomplete="off" style="font-size: 0.85rem; outline: none; box-shadow: none;" />
                 </div>
             </div>
 
             <!-- Lọc số tín chỉ -->
             <div class="col-lg-2 col-sm-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted">
-                        <i class="bi bi-journal-text"></i>
+                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
+                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
+                        <i class="bi bi-circle-square"></i> <!-- Hoặc icon phù hợp -->
                     </span>
-                    <select id="soTinChi" name="soTinChi" class="form-select border-start-0 ps-2">
-                        <option value="">-- Tất cả tín chỉ --</option>
+                    <select id="soTinChi" name="soTinChi" class="form-select border-0 bg-transparent shadow-none px-1 text-muted" style="font-size: 0.85rem; outline: none; border: none; box-shadow: none;">
+                        <option value="">Tất cả tín chỉ</option>
                         <option value="2" selected="@(currentTinChi == 2)">2 Tín chỉ</option>
                         <option value="3" selected="@(currentTinChi == 3)">3 Tín chỉ</option>
                         <option value="4" selected="@(currentTinChi == 4)">4 Tín chỉ</option>
@@ -109,12 +134,12 @@
 
             <!-- Lọc trạng thái -->
             <div class="col-lg-2 col-sm-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted">
+                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
+                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
                         <i class="bi bi-activity"></i>
                     </span>
-                    <select id="trangThai" name="trangThai" class="form-select border-start-0 ps-2">
-                        <option value="">-- Trạng thái --</option>
+                    <select id="trangThai" name="trangThai" class="form-select border-0 bg-transparent shadow-none px-1 text-muted" style="font-size: 0.85rem; outline: none; border: none; box-shadow: none;">
+                        <option value="">Trạng thái</option>
                         <option value="true" selected="@(currentTrangThai == true)">Đang mở</option>
                         <option value="false" selected="@(currentTrangThai == false)">Tạm dừng</option>
                     </select>
@@ -123,11 +148,11 @@
 
             <!-- Sắp xếp danh mục -->
             <div class="col-lg-2 col-sm-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-muted">
+                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
+                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
                         <i class="bi bi-sort-down"></i>
                     </span>
-                    <select id="sortBy" name="sortBy" class="form-select border-start-0 ps-2">
+                    <select id="sortBy" name="sortBy" class="form-select border-0 bg-transparent shadow-none px-1 text-muted" style="font-size: 0.85rem; outline: none; border: none; box-shadow: none;">
                         <option value="" selected="@(string.IsNullOrEmpty(sortBy))">Mã môn (Mặc định)</option>
                         <option value="ten_asc" selected="@(sortBy == "ten_asc")">Tên môn: A &rarr; Z</option>
                         <option value="ten_desc" selected="@(sortBy == "ten_desc")">Tên môn: Z &rarr; A</option>
@@ -139,41 +164,40 @@
                 </div>
             </div>
 
-            <!-- Cụm nút hành động -->
-            <div class="col-lg-2 col-md-12 d-flex gap-2">
-                <button type="submit" class="btn uneti-btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1 shadow-sm">
+            <!-- Nút hành động Lọc môn -->
+            <div class="col-lg-3 col-md-12">
+                <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-pill fw-semibold" style="height: 42px; font-size: 0.9rem;">
                     <i class="bi bi-funnel-fill"></i>
-                    <span>Lọc môn</span>
-                </button>
-                <button type="button" class="btn uneti-btn-outline px-3 d-flex align-items-center justify-content-center js-clear-filters rounded-3" title="Xóa bộ lọc & Làm mới">
-                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Lọc môn
                 </button>
             </div>
         </form>
 
         <!-- 3. CHIP LỌC NHANH (QUICK FILTER CHIPS) -->
-        <div class="d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top">
-            <span class="small text-muted fw-semibold me-1"><i class="bi bi-tags me-1"></i>Lọc nhanh:</span>
-            <button type="button" class="uneti-filter-chip @(!hasActiveFilter ? "active" : "")" data-type="all">
-                Tất cả
+        <div class="d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top border-light">
+            <span class="small text-primary fw-semibold me-2 d-flex align-items-center gap-1">
+                <i class="bi bi-tags"></i> Lọc nhanh:
+            </span>
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(!hasActiveFilter ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="all">
+                <i class="bi bi-grid-fill me-1 small"></i> Tất cả
             </button>
-            <button type="button" class="uneti-filter-chip @(currentTinChi == 2 ? "active" : "")" data-type="tinchi" data-value="2">
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 2 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="2">
                 2 Tín chỉ
             </button>
-            <button type="button" class="uneti-filter-chip @(currentTinChi == 3 ? "active" : "")" data-type="tinchi" data-value="3">
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 3 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="3">
                 3 Tín chỉ
             </button>
-            <button type="button" class="uneti-filter-chip @(currentTinChi == 4 ? "active" : "")" data-type="tinchi" data-value="4">
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 4 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="4">
                 4 Tín chỉ
             </button>
-            <button type="button" class="uneti-filter-chip @(currentTinChi == 5 ? "active" : "")" data-type="tinchi" data-value="5">
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 5 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="5">
                 5 Tín chỉ
             </button>
-            <button type="button" class="uneti-filter-chip @(currentTrangThai == true ? "active" : "")" data-type="trangthai" data-value="true">
-                <i class="bi bi-check-circle-fill text-success"></i> Đang mở
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTrangThai == true ? "btn-success" : "bg-success-subtle text-success border-0")" data-type="trangthai" data-value="true">
+                <i class="bi bi-check-circle-fill me-1"></i> Đang mở
             </button>
-            <button type="button" class="uneti-filter-chip @(currentTrangThai == false ? "active" : "")" data-type="trangthai" data-value="false">
-                <i class="bi bi-pause-circle-fill text-danger"></i> Tạm dừng
+            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTrangThai == false ? "btn-danger" : "bg-danger-subtle text-danger border-0")" data-type="trangthai" data-value="false">
+                <i class="bi bi-pause-circle-fill me-1"></i> Tạm dừng
             </button>
         </div>
     </div>
@@ -275,7 +299,11 @@
                         window.UnetiEffects.refresh();
                     }
 
-                    // Giữ nguyên vị trí cuộn khi chuyển trang (không cuộn lên đầu)
+                    // Nếu chuyển trang thì cuộn mượt nhẹ lên đầu danh sách môn học
+                    if (isPageChange) {
+                        const targetY = gridContainer.getBoundingClientRect().top + window.pageYOffset - 90;
+                        window.scrollTo({ top: targetY, behavior: 'smooth' });
+                    }
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
@@ -309,7 +337,7 @@
             });
 
             // 3. Xử lý Chip lọc nhanh
-            document.querySelectorAll('.uneti-filter-chip').forEach(chip => {
+            document.querySelectorAll('.js-filter-chip-new').forEach(chip => {
                 chip.addEventListener('click', function () {
                     const type = this.getAttribute('data-type');
                     const val = this.getAttribute('data-value');
@@ -323,16 +351,36 @@
                         selectTrangThai.value = selectTrangThai.value === val ? '' : val;
                     }
 
-                    // Đồng bộ class active trên các chips
-                    document.querySelectorAll('.uneti-filter-chip').forEach(c => {
+                    // Đồng bộ class trên các chips
+                    document.querySelectorAll('.js-filter-chip-new').forEach(c => {
                         const cType = c.getAttribute('data-type');
                         const cVal = c.getAttribute('data-value');
+                        let isActive = false;
                         if (cType === 'all') {
-                            c.classList.toggle('active', !selectTinChi.value && selectTrangThai.value === '');
+                            isActive = !selectTinChi.value && selectTrangThai.value === '';
                         } else if (cType === 'tinchi') {
-                            c.classList.toggle('active', selectTinChi.value === cVal);
+                            isActive = selectTinChi.value === cVal;
                         } else if (cType === 'trangthai') {
-                            c.classList.toggle('active', selectTrangThai.value === cVal);
+                            isActive = selectTrangThai.value === cVal;
+                        }
+
+                        // Reset class
+                        if (isActive) {
+                            if (cType === 'trangthai' && cVal === 'true') {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-success';
+                            } else if (cType === 'trangthai' && cVal === 'false') {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-danger';
+                            } else {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-primary';
+                            }
+                        } else {
+                            if (cType === 'trangthai' && cVal === 'true') {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-success-subtle text-success border-0';
+                            } else if (cType === 'trangthai' && cVal === 'false') {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-danger-subtle text-danger border-0';
+                            } else {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-primary-subtle text-primary border-0';
+                            }
                         }
                     });
 
@@ -359,8 +407,20 @@
                     selectTinChi.value = '';
                     selectTrangThai.value = '';
                     selectSortBy.value = '';
-                    document.querySelectorAll('.uneti-filter-chip').forEach(c => {
-                        c.classList.toggle('active', c.getAttribute('data-type') === 'all');
+                    document.querySelectorAll('.js-filter-chip-new').forEach(c => {
+                        const cType = c.getAttribute('data-type');
+                        const cVal = c.getAttribute('data-value');
+                        if (cType === 'all') {
+                            c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-primary';
+                        } else {
+                            if (cType === 'trangthai' && cVal === 'true') {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-success-subtle text-success border-0';
+                            } else if (cType === 'trangthai' && cVal === 'false') {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-danger-subtle text-danger border-0';
+                            } else {
+                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-primary-subtle text-primary border-0';
+                            }
+                        }
                     });
                     fetchResults(false, 1);
                     return;
@@ -380,3 +440,4 @@
         });
     </script>
 }
+

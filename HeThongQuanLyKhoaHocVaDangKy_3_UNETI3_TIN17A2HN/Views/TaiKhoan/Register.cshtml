@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Đăng ký tài khoản học viên
@@ -152,6 +152,27 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
     <script>
+        // Đăng ký adapter jQuery Validate Unobtrusive cho rule [MustBeTrue]
+        if (window.jQuery && window.jQuery.validator) {
+            if (window.jQuery.validator.unobtrusive) {
+                window.jQuery.validator.addMethod("mustbetrue", function (value, element, param) {
+                    return element.checked;
+                });
+                window.jQuery.validator.unobtrusive.adapters.addBool("mustbetrue");
+            }
+
+            // Khắc phục triệt để lỗi so sánh Range của jQuery Validate với Checkbox
+            if (window.jQuery.validator.methods.range) {
+                var origRange = window.jQuery.validator.methods.range;
+                window.jQuery.validator.methods.range = function (value, element, param) {
+                    if (element.type === 'checkbox') {
+                        return element.checked;
+                    }
+                    return origRange.call(this, value, element, param);
+                };
+            }
+        }
+
         function checkPasswordStrength(val) {
             const bar = document.getElementById('pwdStrengthBar');
             const txt = document.getElementById('pwdStrengthText');
@@ -263,6 +284,7 @@
                     $chk.removeClass('input-validation-error');
                     $('span[data-valmsg-for="DongYDieuKhoan"]').removeClass('field-validation-error').addClass('field-validation-valid').text('');
                 }
+                $chk.valid();
             });
         });
     </script>

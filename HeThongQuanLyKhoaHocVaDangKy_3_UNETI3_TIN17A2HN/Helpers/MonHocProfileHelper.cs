@@ -38,7 +38,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
         public string LecturerEmail { get; set; } = "nguyenvanan@uneti.edu.vn";
         public string LecturerPhone { get; set; } = "0987 654 321";
         public string LecturerQuote { get; set; } = "Kiến thức hôm nay – Thành công ngày mai";
-        public string LecturerBio { get; set; } = "Giảng viên có nhiều năm kinh nghiệm giảng dạy tại Trường ĐH Kinh tế - Kỹ thuật Công nghiệp (UNETI).";
+        public string LecturerBio { get; set; } = "Giảng viên có nhiều năm kinh nghiệm giảng dạy và nghiên cứu chuyên sâu.";
 
         // Tài liệu tham khảo
         public List<DocItem> ReferenceDocs { get; set; } = new();
@@ -465,7 +465,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
 
                 p.TechStack = new List<TechChip>
                 {
-                    new TechChip { Name = "Hệ thống LMS UNETI", IconClass = "bi bi-laptop", ColorClass = "text-primary" },
+                    new TechChip { Name = "Hệ thống học tập LMS", IconClass = "bi bi-laptop", ColorClass = "text-primary" },
                     new TechChip { Name = "Giáo trình Chuẩn Bộ GD&ĐT", IconClass = "bi bi-book", ColorClass = "text-info" },
                     new TechChip { Name = "Công cụ Phần mềm Chuyên môn", IconClass = "bi bi-tools", ColorClass = "text-warning" },
                     new TechChip { Name = "Tài liệu Trực tuyến", IconClass = "bi bi-cloud-arrow-down", ColorClass = "text-success" },

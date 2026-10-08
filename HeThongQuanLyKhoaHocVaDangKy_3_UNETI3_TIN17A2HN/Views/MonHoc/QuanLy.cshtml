@@ -11,7 +11,7 @@
     var isAdmin = userRole == "Admin";
     var isManager = userRole == "Admin" || userRole == "NhanVien";
 
-    ViewData["Title"] = "Quản lý môn học (Dữ liệu nền)";
+    ViewData["Title"] = "Quản lý môn học";
     int totalCount = ViewBag.TotalCount ?? (Model?.Count() ?? 0);
     int activeCount = ViewBag.ActiveCount ?? (Model?.Count(m => m.TrangThai) ?? 0);
     int inactiveCount = ViewBag.InactiveCount ?? (Model?.Count(m => !m.TrangThai) ?? 0);
@@ -29,14 +29,8 @@
     <!-- Header trang Quản lý cho Admin & Nhân viên -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Quản lý môn học (Dữ liệu nền)</li>
-                </ol>
-            </nav>
             <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-book-half me-2 text-primary"></i>DANH MỤC MÔN HỌC (DỮ LIỆU NỀN)
+                <i class="bi bi-book-half me-2 text-primary"></i>DANH MỤC MÔN HỌC
             </h3>
             <p class="text-muted mb-0 small">Hệ thống quản lý dữ liệu môn học, định mức học phí và trạng thái mở lớp đào tạo theo học chế tín chỉ</p>
         </div>
@@ -108,7 +102,7 @@
                 </div>
                 <div class="overflow-hidden">
                     <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Học phí trung bình</span>
-                    <h4 class="fw-bold text-dark mb-0"><span data-count-to="@avgHocPhi" data-format="currency">@avgHocPhi.ToString("N0")</span> <small class="fs-6 fw-normal text-muted">đ</small></h4>
+                    <h4 class="fw-bold text-dark mb-0"><span data-count-to="@avgHocPhi" data-format="number">@avgHocPhi.ToString("N0")</span> <small class="fs-6 fw-normal text-muted">đ</small></h4>
                     <small class="text-secondary uneti-fs-xs">Tổng tích lũy: <strong>@totalTinChi</strong> tín chỉ</small>
                 </div>
             </div>

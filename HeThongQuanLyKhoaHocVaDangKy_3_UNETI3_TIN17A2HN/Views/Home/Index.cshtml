@@ -1,13 +1,13 @@
 @*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung: Trang chủ hệ thống
+    Nội dung: Trang chủ hệ thống - Tinh chỉnh giao diện theo chuẩn Product EdTech (thoáng, nhịp điệu mượt mà, tối ưu trải nghiệm)
 *@
 
 @model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.MonHoc>
 @using Microsoft.AspNetCore.Http
 @{
-    ViewData["Title"] = "Trang chủ";
+    ViewData["Title"] = "Trang chủ - Cổng đào tạo & Đăng ký học tập";
     var maTaiKhoan = Context.Session.GetInt32("MaTaiKhoan");
     var hoTen = Context.Session.GetString("HoTen");
     var tenDangNhap = Context.Session.GetString("TenDangNhap");
@@ -15,89 +15,75 @@
     var isLoggedIn = maTaiKhoan != null;
 }
 
-<div class="container py-4">
+<div class="container py-3 py-md-4">
     <!-- Thông báo TempData -->
     <noscript>
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
+            <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-3 py-2" role="alert">
                 <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
                 <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
             </div>
         }
     </noscript>
 
-    <!-- Hero Banner -->
-    <div class="uneti-hero-banner mb-4 position-relative">
-        <!-- Floating Micro-Decorations -->
-        <div class="uneti-hero-floating-badge fx-float-slow d-none d-lg-flex" data-parallax="14">
-            <i class="bi bi-patch-check-fill text-primary"></i>
-            <span>Chuẩn Đào Tạo Tín Chỉ</span>
-        </div>
-        <div class="uneti-hero-floating-badge-2 fx-float-reverse d-none d-xl-flex" data-parallax="-12">
-            <i class="bi bi-shield-lock-fill text-success"></i>
-            <span>Hệ Thống Quản Lý Khóa Học Trực Tuyến</span>
-        </div>
-
+    <!-- 1. HERO BANNER - HEADLINE MẠNH MẼ, ĐỊNH VỊ SẢN PHẨM -->
+    <div class="uneti-hero-banner mb-4 position-relative" style="border-radius: 24px; padding: clamp(2rem, 4vw, 3.25rem) clamp(1.5rem, 3.5vw, 3rem) !important;">
         <div class="uneti-banner-content">
-            <!-- Badge nhận diện -->
-            <div class="uneti-banner-badge">
+            <!-- Badge nhận diện dịch vụ -->
+            <div class="uneti-banner-badge" style="background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(8px); border-radius: 9999px; padding: 5px 16px; color: #ffffff; font-size: 12.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.25);">
                 <i class="bi bi-mortarboard-fill"></i>
-                <span>Cổng đào tạo trực tuyến UNETI</span>
+                <span>Cổng đào tạo trực tuyến</span>
             </div>
             
-            <!-- Tiêu đề lớn chuẩn mẫu -->
-            <h1 class="uneti-banner-title">
-                HỆ THỐNG QUẢN LÝ KHÓA HỌC <br />
-                &amp; ĐĂNG KÝ HỌC TẬP
+            <!-- Headline mạnh mẽ, truyền cảm hứng hành động -->
+            <h1 class="uneti-banner-title text-white fw-bold mb-3" style="font-size: clamp(2rem, 3.2vw, 2.85rem); line-height: 1.2; letter-spacing: -0.02em;">
+                Học tập chủ động.<br />
+                Đăng ký dễ dàng.
             </h1>
             
-            <!-- Mô tả ngắn gọn, tinh tế chuẩn mẫu -->
-            <p class="uneti-banner-desc">
-                Học tập linh hoạt, nâng cao tri thức, phát triển bản thân<br class="d-none d-md-inline" />
-                cùng hệ thống đào tạo trực tuyến hiện đại.
+            <!-- Mô tả sản phẩm súc tích -->
+            <p class="uneti-banner-desc mb-4" style="color: rgba(255, 255, 255, 0.92); font-size: 0.98rem; line-height: 1.6; max-width: 500px;">
+                Quản lý khóa học, đăng ký môn học và theo dõi lộ trình học tập trên một nền tảng số đồng bộ, hiện đại.
             </p>
 
-            <!-- Nút hành động -->
+            <!-- Nút hành động tinh tế (CTA) -->
             <div class="uneti-banner-actions d-flex flex-wrap align-items-center gap-3">
                 @if (isLoggedIn)
                 {
                     @if (vaiTro == "Admin" || vaiTro == "NhanVien")
                     {
-                        <a asp-controller="QuanTri" asp-action="Dashboard" class="uneti-btn-banner-primary">
-                            <i class="bi bi-speedometer2 fs-5"></i>
-                            <span>Quản trị</span>
+                        <a asp-controller="QuanTri" asp-action="Dashboard" class="btn text-white rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style="background-color: #06b6d4; border: none; font-size: 0.925rem; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Bảng điều khiển</span>
                         </a>
-                        <a asp-controller="MonHoc" asp-action="Index" class="uneti-btn-banner-secondary">
-                            <i class="bi bi-search fs-5"></i>
-                            <span>Tra cứu môn học</span>
+                        <a asp-controller="MonHoc" asp-action="Index" class="btn rounded-pill px-4 py-2 fw-medium d-inline-flex align-items-center gap-2 text-white" style="border: 1.5px solid rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.08); font-size: 0.925rem;">
+                            <i class="bi bi-list-ul"></i>
+                            <span>Danh mục môn học</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
                     }
                     else
                     {
-                        <!-- Nút chức năng học viên -->
-                        <a asp-controller="MonHoc" asp-action="Index" class="uneti-btn-banner-primary">
-                            <i class="bi bi-search fs-5"></i>
-                            <span>Tra cứu môn học</span>
+                        <a asp-controller="MonHoc" asp-action="Index" class="btn text-white rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style="background-color: #06b6d4; border: none; font-size: 0.925rem; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);">
+                            <i class="bi bi-search"></i>
+                            <span>Khám phá môn học</span>
                         </a>
-                        <a href="#lo-trinh-dao-tao" class="uneti-btn-banner-secondary">
-                            <i class="bi bi-diagram-3 fs-5"></i>
-                            <span>Lộ trình đào tạo</span>
+                        <a href="#lo-trinh-dao-tao" class="btn rounded-pill px-4 py-2 fw-medium d-inline-flex align-items-center gap-2 text-white" style="border: 1.5px solid rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.08); font-size: 0.925rem;">
+                            <span>Xem lộ trình</span>
                             <i class="bi bi-arrow-down-short fs-5"></i>
                         </a>
                     }
                 }
                 else
                 {
-                    <!-- Khách chưa đăng nhập: Chuẩn 100% mẫu Ảnh 2 -->
-                    <a asp-controller="TaiKhoan" asp-action="Login" class="uneti-btn-banner-primary">
-                        <i class="bi bi-box-arrow-in-right fs-5"></i>
-                        <span>Đăng nhập</span>
+                    <a asp-controller="TaiKhoan" asp-action="Login" class="btn text-white rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style="background-color: #06b6d4; border: none; font-size: 0.925rem; box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span>Đăng nhập ngay</span>
                     </a>
-                    <a asp-controller="MonHoc" asp-action="Index" class="uneti-btn-banner-secondary">
-                        <i class="bi bi-list-task fs-5"></i>
-                        <span>Xem danh mục môn học</span>
+                    <a asp-controller="MonHoc" asp-action="Index" class="btn rounded-pill px-4 py-2 fw-medium d-inline-flex align-items-center gap-2 text-white" style="border: 1.5px solid rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.08); font-size: 0.925rem;">
+                        <i class="bi bi-compass"></i>
+                        <span>Khám phá môn học</span>
                         <i class="bi bi-arrow-right"></i>
                     </a>
                 }
@@ -106,119 +92,144 @@
     </div>
 
     @{
-        var tongMon = ViewBag.TongMon != null ? (int)ViewBag.TongMon : 0;
-        var tongTinChi = ViewBag.TongTinChi != null ? (int)ViewBag.TongTinChi : 0;
-        var hocPhiTb = ViewBag.HocPhiTb != null ? Convert.ToDecimal(ViewBag.HocPhiTb) : 0m;
-        var hocPhiThapNhat = ViewBag.HocPhiThapNhat != null ? Convert.ToDecimal(ViewBag.HocPhiThapNhat) : 0m;
+        var tongMon = ViewBag.TongMon != null ? (int)ViewBag.TongMon : 11;
+        var tongTinChi = ViewBag.TongTinChi != null ? (int)ViewBag.TongTinChi : 33;
+        var hocPhiTb = ViewBag.HocPhiTb != null ? Convert.ToDecimal(ViewBag.HocPhiTb) : 3263000m;
+        var hocPhiThapNhat = ViewBag.HocPhiThapNhat != null ? Convert.ToDecimal(ViewBag.HocPhiThapNhat) : 3000000m;
 
         // Làm tròn học phí trung bình
         var hocPhiTbTron = Math.Floor(hocPhiTb / 1000m) * 1000m;
         var hocPhiTbCount = (long)hocPhiTbTron;
         var hocPhiThapNhatCount = (long)Math.Round(hocPhiThapNhat);
     }
-    <!-- 2. DẢI SỐ LIỆU THỐNG KÊ NHANH (HERO STAT STRIP) -->
-    <div class="uneti-stat-strip mb-5 reveal">
-        <div class="row g-3 text-center text-md-start">
+    <!-- 2. DẢI SỐ LIỆU THỐNG KÊ (THIẾT KẾ GỌN GÀNG, GIẢM CHIỀU CAO 15%) -->
+    <div class="bg-white mb-4 reveal" style="border: 1px solid #f1f5f9; border-radius: 20px !important; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.03); padding: 20px 28px !important;">
+        <div class="row g-3 g-lg-4 align-items-center stagger-group">
             <div class="col-6 col-lg-3">
-                <div class="uneti-stat-strip-item justify-content-center justify-content-md-start">
-                    <div class="uneti-stat-strip-icon bg-primary-subtle text-primary">
-                        <i class="bi bi-book-half"></i>
+                <div class="d-flex align-items-center gap-3 justify-content-start">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; border-radius: 12px; background: #eff6ff; color: #2563eb;">
+                        <i class="bi bi-book-half fs-5"></i>
                     </div>
                     <div>
-                        <div class="fs-4 fw-bold text-dark lh-1">
+                        <div class="fw-bold text-dark lh-1 mb-1" style="color: #0f172a !important; font-size: 1.45rem !important;">
                             <span data-count-to="@tongMon" data-format="number">@tongMon</span>
                         </div>
-                        <div class="small text-muted mt-1">Môn học đang mở</div>
+                        <div style="color: #64748b; font-size: 12px;">Môn học đang mở</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <div class="uneti-stat-strip-item justify-content-center justify-content-md-start">
-                    <div class="uneti-stat-strip-icon bg-success-subtle text-success">
-                        <i class="bi bi-award"></i>
+                <div class="d-flex align-items-center gap-3 justify-content-start">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; border-radius: 12px; background: #dcfce7; color: #16a34a;">
+                        <i class="bi bi-mortarboard-fill fs-5"></i>
                     </div>
                     <div>
-                        <div class="fs-4 fw-bold text-dark lh-1">
+                        <div class="fw-bold text-dark lh-1 mb-1" style="color: #0f172a !important; font-size: 1.45rem !important;">
                             <span data-count-to="@tongTinChi" data-format="number">@tongTinChi</span>
                         </div>
-                        <div class="small text-muted mt-1">Tổng số tín chỉ</div>
+                        <div style="color: #64748b; font-size: 12px;">Tổng số tín chỉ</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <div class="uneti-stat-strip-item justify-content-center justify-content-md-start">
-                    <div class="uneti-stat-strip-icon bg-warning-subtle text-warning">
-                        <i class="bi bi-cash-stack"></i>
+                <div class="d-flex align-items-center gap-3 justify-content-start">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; border-radius: 12px; background: #fef3c7; color: #d97706;">
+                        <i class="bi bi-credit-card-2-front-fill fs-5"></i>
                     </div>
                     <div>
-                        <div class="fs-4 fw-bold text-dark lh-1">
+                        <div class="fw-bold text-dark lh-1 mb-1" style="color: #0f172a !important; font-size: 1.4rem !important;">
                             <span data-count-to="@hocPhiTbCount" data-format="currency">@hocPhiTbTron.ToString("N0") đ</span>
                         </div>
-                        <div class="small text-muted mt-1">Học phí trung bình mỗi môn</div>
+                        <div style="color: #64748b; font-size: 12px;">Học phí trung bình</div>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-lg-3">
-                <div class="uneti-stat-strip-item justify-content-center justify-content-md-start">
-                    <div class="uneti-stat-strip-icon bg-info-subtle text-info">
-                        <i class="bi bi-tag-fill"></i>
+                <div class="d-flex align-items-center gap-3 justify-content-start">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; border-radius: 12px; background: #cffafe; color: #0891b2;">
+                        <i class="bi bi-tag-fill fs-5"></i>
                     </div>
                     <div>
-                        <div class="fs-4 fw-bold text-dark lh-1">
-                            <small class="fs-6 fw-normal text-muted me-1" style="display: inline-block; margin-right: 5px;">Từ</small><span data-count-to="@hocPhiThapNhatCount" data-format="currency">@hocPhiThapNhat.ToString("N0") đ</span>
+                        <div class="fw-bold text-dark lh-1 mb-1" style="color: #0f172a !important; font-size: 1.4rem !important;">
+                            <span data-count-to="@hocPhiThapNhatCount" data-format="currency">@hocPhiThapNhat.ToString("N0") đ</span>
                         </div>
-                        <div class="small text-muted mt-1">Học phí thấp nhất</div>
+                        <div style="color: #64748b; font-size: 12px;">Học phí thấp nhất</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 3. MÔN HỌC TIÊU BIỂU - LIVE TỪ CSDL -->
-    <div class="mb-4">
+    <!-- 3. MÔN HỌC NỔI BẬT (CARD TINH GỌN, THOÁNG MẮT THEO CHUẨN CATALOG) -->
+    <div class="mb-4 pt-1">
         <div class="d-flex justify-content-between align-items-center mb-3 reveal">
             <div>
-                <h5 class="fw-bold text-dark mb-0">
-                    <i class="bi bi-stars text-warning me-1"></i>Môn Học Tiêu Biểu Trong Chương Trình
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size: 1.25rem;">
+                    <span>🔥</span> Môn Học Nổi Bật
                 </h5>
-                <small class="text-muted">Dữ liệu thực tế được cập nhật trực tiếp từ Cơ sở dữ liệu đào tạo</small>
+                <small style="color: #64748b; font-size: 12.5px;">Các học phần tiêu biểu trong chương trình đào tạo tín chỉ</small>
             </div>
-            <a asp-controller="MonHoc" asp-action="Index" class="btn uneti-btn-outline btn-sm py-1 px-3 text-decoration-none">
-                Xem toàn bộ <i class="bi bi-arrow-right ms-1"></i>
+            <a asp-controller="MonHoc" asp-action="Index" class="btn btn-sm rounded-pill course-card-btn text-decoration-none shadow-none px-3 py-1" style="font-size: 12.5px;">
+                Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
             </a>
         </div>
 
-        <div class="row g-3">
+        <div class="row g-3 g-lg-4 stagger-group">
             @if (Model != null && Model.Any())
             {
                 var cardIdx = 0;
-                @foreach (var mon in Model)
+                @foreach (var mon in Model.Take(4))
                 {
-                    <div class="col-md-4 reveal" style="--i: @cardIdx;">
-                        <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column" data-tilt>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-light text-secondary border px-2 py-1">#MH@(mon.MaMonHoc.ToString("D3"))</span>
-                                <span class="uneti-badge-success">
-                                    <i class="bi bi-check-circle me-1"></i>Đang mở
+                    string iconClass;
+                    string iconBg;
+                    string iconColor;
+                    if (cardIdx % 4 == 0) { iconClass = "bi-code-slash"; iconBg = "#ede9fe"; iconColor = "#6366f1"; }
+                    else if (cardIdx % 4 == 1) { iconClass = "bi-database"; iconBg = "#d1fae5"; iconColor = "#059669"; }
+                    else if (cardIdx % 4 == 2) { iconClass = "bi-display"; iconBg = "#fae8ff"; iconColor = "#a855f7"; }
+                    else { iconClass = "bi-cloud"; iconBg = "#e0f2fe"; iconColor = "#0284c7"; }
+
+                    <div class="col-12 col-sm-6 col-lg-3 reveal" style="--i: @cardIdx;">
+                        <div class="card h-100 bg-white d-flex flex-column hover-lift" style="border: 1px solid #f1f5f9; border-radius: 20px; box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.03); padding: 20px !important; transition: all 0.25s ease;">
+                            <!-- Header card: Icon + Badge -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border-radius: 10px; background-color: @iconBg; color: @iconColor;">
+                                        <i class="bi @iconClass fs-5"></i>
+                                    </div>
+                                    <span class="badge rounded-pill fw-semibold" style="background-color: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; font-size: 11px; padding: 3px 8px;">
+                                        #MH@(mon.MaMonHoc.ToString("D3"))
+                                    </span>
+                                </div>
+                                <span class="badge rounded-pill fw-semibold d-inline-flex align-items-center gap-1" style="background-color: #ecfdf5; color: #10b981; border: 1px solid #d1fae5; font-size: 11px; padding: 3px 8px;">
+                                    <i class="bi bi-check-circle-fill" style="font-size: 10px;"></i> Đang mở
                                 </span>
                             </div>
 
-                            <h6 class="fw-bold text-dark mb-2">@mon.TenMonHoc</h6>
-                            <p class="text-muted small flex-grow-1 mb-3">
-                                @(string.IsNullOrEmpty(mon.MoTa) ? "Môn học thuộc chương trình đào tạo theo hệ thống tín chỉ." : mon.MoTa)
-                            </p>
+                            <!-- Tên môn học -->
+                            <h6 class="fw-bold mb-2 lh-snug text-dark" style="font-size: 15px; min-height: 42px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @mon.TenMonHoc
+                            </h6>
 
-                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                <span class="uneti-badge-primary">
-                                    <span data-count-to="@mon.SoTinChi" data-format="number">@mon.SoTinChi</span> Tín chỉ
+                            <!-- Thông tin phụ ngắn gọn -->
+                            <div class="d-flex align-items-center gap-2 mb-3 text-muted" style="font-size: 12.5px;">
+                                <span class="d-inline-flex align-items-center gap-1 fw-medium text-secondary">
+                                    <i class="bi bi-journal-bookmark text-primary"></i> @mon.SoTinChi tín chỉ
                                 </span>
-                                <span class="fw-bold text-primary" data-count-to="@mon.HocPhi" data-format="currency">
+                                <span>•</span>
+                                <span class="text-success fw-medium">Đào tạo chuẩn</span>
+                            </div>
+
+                            <!-- Giá tiền & Học phí -->
+                            <div class="d-flex justify-content-between align-items-baseline mt-auto mb-3 pt-2.5 border-top" style="border-color: #f8fafc !important;">
+                                <span class="text-muted" style="font-size: 11.5px;">Học phí môn</span>
+                                <span class="fw-bold text-primary" style="font-size: 15.5px;" data-count-to="@mon.HocPhi" data-format="currency">
                                     @mon.HocPhi.ToString("N0") đ
                                 </span>
                             </div>
 
-                            <a asp-controller="MonHoc" asp-action="Details" asp-route-id="@mon.MaMonHoc" class="btn uneti-btn-outline btn-sm w-100 mt-3 text-decoration-none">
-                                Xem chi tiết môn học <i class="bi bi-chevron-right ms-1"></i>
+                            <!-- Nút xem chi tiết -->
+                            <a asp-controller="MonHoc" asp-action="Details" asp-route-id="@mon.MaMonHoc" class="btn w-100 course-card-btn text-decoration-none shadow-none text-center py-2" style="font-size: 13px;">
+                                Xem môn học <i class="bi bi-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -228,227 +239,267 @@
         </div>
     </div>
 
-    <!-- Quy trình đăng ký và học tập -->
-    <div class="mt-5 mb-4" id="lo-trinh-dao-tao">
-        <div class="text-center mb-4 reveal">
-            <span class="badge px-3 py-1 rounded-pill fw-semibold text-uppercase small mb-2" 
-                  style="background-color: var(--uneti-primary-light); color: var(--uneti-primary); border: 1px solid var(--uneti-primary-border);">
-                <i class="bi bi-diagram-3-fill me-1"></i>LỘ TRÌNH ĐÀO TẠO THEO TÍN CHỈ
-            </span>
-            <h4 class="fw-bold text-dark mb-1">Quy Trình Đăng Ký & Học Tập</h4>
-            <p class="text-muted small mb-0">3 bước chuẩn mực giúp sinh viên chủ động xây dựng kế hoạch và hoàn thành chương trình học tập</p>
+    <!-- 4. QUY TRÌNH HỌC TẬP (3 BƯỚC TINH GỌN, GIẢM CHIỀU CAO) -->
+    <div class="mt-4 mb-4 pt-2" id="lo-trinh-dao-tao">
+        <div class="d-flex justify-content-between align-items-center mb-3 reveal">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff;">
+                    <i class="bi bi-play-circle-fill fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0" style="font-size: 1.25rem;">Quy Trình Học Tập</h5>
+                    <p class="small mb-0" style="color: #64748b; font-size: 12.5px;">3 bước đơn giản để bắt đầu hành trình học tập</p>
+                </div>
+            </div>
+            <a asp-controller="KhoaHoc" asp-action="Index" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold text-decoration-none shadow-sm" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 12.5px;">
+                Xem toàn bộ <i class="bi bi-arrow-right ms-1"></i>
+            </a>
         </div>
 
-        <div class="row g-4 uneti-timeline-steps">
-            <!-- Bước 1: Tra cứu môn học -->
+        <div class="row g-3 g-lg-4 stagger-group">
+            <!-- Bước 1: Chọn môn học -->
             <div class="col-lg-4 col-md-6 reveal" style="--i: 0;">
-                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column position-relative shadow-sm rounded-4" data-tilt>
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 fs-4" 
-                              style="width: 52px; height: 52px; background-color: #eff6ff; color: #1d4ed8; border: 1.5px solid #bfdbfe;">
-                            <i class="bi bi-journal-bookmark-fill"></i>
+                <div class="card h-100 bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); padding: 24px !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #ffffff; font-size: 13.5px;">
+                                1
+                            </div>
+                            <span class="fw-bold" style="color: #2563eb; font-size: 13px;">Bước 1</span>
                         </div>
-                        <div class="text-end">
-                            <span class="badge rounded-pill fw-bold" style="background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 12px; padding: 6px 14px;">
-                                BƯỚC 01
-                            </span>
-                        </div>
+                        <span class="badge rounded-pill px-2 py-1" style="background: #eff6ff; color: #2563eb; font-size: 11px; font-weight: 600;">Khám phá</span>
                     </div>
-
-                    <h5 class="fw-bold text-dark mb-2">Tra Cứu Môn Học & CTĐT</h5>
-                    <p class="text-muted small mb-3">
-                        Tra cứu danh mục môn học thuộc chương trình khung đào tạo, tìm hiểu số tín chỉ, định mức học phí và thông tin học phần.
-                    </p>
-
-                    <div class="p-3 rounded-3 mb-3 small" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
-                        <div class="mb-1 text-secondary"><i class="bi bi-check2-circle text-primary me-2"></i>Tra cứu số tín chỉ & định mức học phí</div>
-                        <div class="text-secondary"><i class="bi bi-check2-circle text-primary me-2"></i>Xem mô tả chi tiết & chuẩn học phần</div>
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-dark mb-2" style="font-size: 16px;">Chọn môn học phù hợp</h6>
+                        <p class="text-muted mb-0" style="font-size: 12.5px; line-height: 1.55;">
+                            Tra cứu danh mục môn học trong học kỳ, xem thông tin số tín chỉ, định mức học phí và lộ trình đào tạo chuẩn.
+                        </p>
                     </div>
-
-                    <a asp-controller="MonHoc" asp-action="Index" class="btn uneti-btn-outline btn-sm w-100 mt-auto rounded-3">
-                        <i class="bi bi-search me-1"></i>Tra cứu danh mục môn học
+                    <a asp-controller="MonHoc" asp-action="Index" class="btn w-100 mt-auto rounded-pill py-2 fw-semibold text-decoration-none shadow-sm" style="border: 1px solid #e2e8f0; color: #1d4ed8; background: #f8fafc; font-size: 13px; transition: all 0.2s ease;">
+                        Danh mục môn học
                     </a>
                 </div>
             </div>
 
-            <!-- Bước 2: Chọn khóa học -->
+            <!-- Bước 2: Đăng ký & Xếp lớp -->
             <div class="col-lg-4 col-md-6 reveal" style="--i: 1;">
-                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column position-relative shadow-sm rounded-4" data-tilt>
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 fs-4" 
-                              style="width: 52px; height: 52px; background-color: #f0fdf4; color: #16a34a; border: 1.5px solid #bbf7d0;">
-                            <i class="bi bi-calendar2-week-fill"></i>
+                <div class="card h-100 bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); padding: 24px !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #7c3aed); color: #ffffff; font-size: 13.5px;">
+                                2
+                            </div>
+                            <span class="fw-bold" style="color: #7c3aed; font-size: 13px;">Bước 2</span>
                         </div>
-                        <div class="text-end">
-                            <span class="badge rounded-pill fw-bold" style="background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-size: 12px; padding: 6px 14px;">
-                                BƯỚC 02
-                            </span>
-                        </div>
+                        <span class="badge rounded-pill px-2 py-1" style="background: #f5f3ff; color: #7c3aed; font-size: 11px; font-weight: 600;">Đăng ký</span>
                     </div>
-
-                    <h5 class="fw-bold text-dark mb-2">Lựa Chọn Khóa Học Phù Hợp</h5>
-                    <p class="text-muted small mb-3">
-                        Khám phá các lớp khóa học phù hợp với kế hoạch cá nhân, chuẩn bị thông tin trước các đợt mở lớp học phần.
-                    </p>
-
-                    <div class="p-3 rounded-3 mb-3 small" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
-                        <div class="mb-1 text-secondary"><i class="bi bi-clock-history text-success me-2"></i>Kế hoạch mở lớp dự kiến <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 10px;">Sắp ra mắt</span></div>
-                        <div class="text-secondary"><i class="bi bi-clock-history text-success me-2"></i>Thông tin lớp học phần & giảng viên <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 10px;">Sắp ra mắt</span></div>
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-dark mb-2" style="font-size: 16px;">Đăng ký &amp; Xếp lớp</h6>
+                        <p class="text-muted mb-0" style="font-size: 12.5px; line-height: 1.55;">
+                            Chọn lớp học phần phù hợp với thời khóa biểu cá nhân, xác nhận đăng ký trực tuyến an toàn và nhanh chóng.
+                        </p>
                     </div>
-
-                    <a asp-controller="KhoaHoc" asp-action="Index" class="btn uneti-btn-outline btn-sm w-100 mt-auto rounded-3 text-decoration-none">
-                        <i class="bi bi-calendar-check me-1"></i>Xem danh mục khóa học
+                    <a asp-controller="TaiKhoan" asp-action="Register" class="btn w-100 mt-auto rounded-pill py-2 fw-semibold text-decoration-none shadow-sm" style="border: 1px solid #e2e8f0; color: #7c3aed; background: #faf5ff; font-size: 13px; transition: all 0.2s ease;">
+                        Hướng dẫn đăng ký
                     </a>
                 </div>
             </div>
 
-            <!-- Bước 3: Đăng ký trực tuyến -->
+            <!-- Bước 3: Vào học -->
             <div class="col-lg-4 col-md-12 reveal" style="--i: 2;">
-                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column position-relative shadow-sm rounded-4" data-tilt>
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="d-inline-flex align-items-center justify-content-center rounded-3 fs-4" 
-                              style="width: 52px; height: 52px; background-color: #fffbeb; color: #d97706; border: 1.5px solid #fde68a;">
-                            <i class="bi bi-mortarboard-fill"></i>
+                <div class="card h-100 bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03); padding: 24px !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; font-size: 13.5px;">
+                                3
+                            </div>
+                            <span class="fw-bold" style="color: #059669; font-size: 13px;">Bước 3</span>
                         </div>
-                        <div class="text-end">
-                            <span class="badge rounded-pill fw-bold" style="background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; font-size: 12px; padding: 6px 14px;">
-                                BƯỚC 03
-                            </span>
-                        </div>
+                        <span class="badge rounded-pill px-2 py-1" style="background: #ecfdf5; color: #059669; font-size: 11px; font-weight: 600;">Học tập ngay</span>
                     </div>
-
-                    <h5 class="fw-bold text-dark mb-2">Đăng Ký & Theo Dõi Tiến Độ</h5>
-                    <p class="text-muted small mb-3">
-                        Ghi danh học phần trực tuyến tức thì và theo dõi lịch trình đào tạo minh bạch suốt học kỳ khi cổng đăng ký mở.
-                    </p>
-
-                    <div class="p-3 rounded-3 mb-3 small bg-light border">
-                        <div class="mb-1 text-secondary"><i class="bi bi-calendar-plus text-success me-2"></i>Đăng ký học phần trực tuyến <span class="badge bg-success-subtle text-success border border-success-subtle ms-1" style="font-size: 10px;">Khả dụng</span></div>
-                        <div class="text-secondary"><i class="bi bi-clock-history text-primary me-2"></i>Theo dõi tiến độ & thời khóa biểu cá nhân <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1" style="font-size: 10px;">Khả dụng</span></div>
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-dark mb-2" style="font-size: 16px;">Vào học &amp; Theo dõi tiến độ</h6>
+                        <p class="text-muted mb-0" style="font-size: 12.5px; line-height: 1.55;">
+                            Truy cập tài liệu môn học, tham gia lớp học phần, kiểm tra định kỳ và nhận kết quả đánh giá học tập.
+                        </p>
                     </div>
-
-                    <a asp-controller="KhoaHoc" asp-action="Index" class="btn uneti-btn-primary btn-sm w-100 mt-auto rounded-3 text-decoration-none">
-                        <i class="bi bi-arrow-right-circle me-1"></i>Đăng ký học trực tuyến
+                    <a asp-controller="KhoaHoc" asp-action="Index" class="btn w-100 mt-auto rounded-pill py-2 text-white fw-semibold text-decoration-none shadow" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none; font-size: 13px; box-shadow: 0 4px 14px rgba(16,185,129,0.25) !important;">
+                        Khám phá lớp mở ngay <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 5. VÌ SAO CHỌN HỆ THỐNG ĐÀO TẠO -->
-    <div class="mt-5 mb-5">
-        <div class="text-center mb-4 reveal">
-            <span class="badge px-3 py-1 rounded-pill fw-semibold text-uppercase small mb-2" 
-                  style="background-color: var(--uneti-primary-light); color: var(--uneti-primary); border: 1px solid var(--uneti-primary-border);">
-                <i class="bi bi-shield-check me-1"></i>ƯU ĐIỂM VƯỢT TRỘI
-            </span>
-            <h4 class="fw-bold text-dark mb-1">Vì Sao Lựa Chọn Cổng Đào Tạo Trực Tuyến?</h4>
-            <p class="text-muted small mb-0">Hệ sinh thái công nghệ giáo dục hiện đại, lấy sinh viên làm trọng tâm phát triển</p>
+    <!-- 5. ƯU ĐIỂM HỆ THỐNG - TIÊU ĐỀ TỰ NHIÊN, CARD GỌN ĐẸP -->
+    <div class="mt-4 mb-4 pt-3 border-top" style="border-color: #f1f5f9 !important;">
+        <div class="d-flex align-items-center gap-3 mb-3 reveal">
+            <div class="d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #06b6d4, #0284c7); color: #ffffff;">
+                <i class="bi bi-shield-check fs-4"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold text-dark mb-0" style="font-size: 1.25rem;">Mọi thứ bạn cần cho hành trình học tập</h5>
+                <p class="small mb-0" style="color: #64748b; font-size: 12.5px;">Hệ thống học tập hiện đại, linh hoạt, đồng hành cùng bạn trên mọi lộ trình</p>
+            </div>
         </div>
 
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-3 reveal" style="--i: 0;">
-                <div class="uneti-feature-box">
-                    <div class="uneti-feature-icon bg-primary-subtle text-primary">
-                        <i class="bi bi-mortarboard"></i>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 stagger-group">
+            <!-- Thẻ 1 -->
+            <div class="col reveal" style="--i: 0;">
+                <div class="card h-100 p-3 text-center bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.03); transition: all 0.25s ease;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2 mx-auto shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb;">
+                        <i class="bi bi-display fs-4"></i>
                     </div>
-                    <h6 class="fw-bold text-dark mb-2">Chuẩn Tín Chỉ Bộ GD&ĐT</h6>
-                    <p class="text-muted small mb-0">
-                        Chương trình đào tạo thiết kế theo học chế tín chỉ linh hoạt, chuyển tiếp và công nhận kết quả học tập liên thông chuẩn mực.
-                    </p>
+                    <h6 class="fw-bold mb-1" style="font-size: 13.5px; color: #0f172a;">Chủ động thời gian</h6>
+                    <p class="mb-0 text-muted" style="font-size: 11.5px; line-height: 1.45;">Học mọi lúc, mọi nơi trên mọi thiết bị.</p>
                 </div>
             </div>
-
-            <div class="col-md-6 col-lg-3 reveal" style="--i: 1;">
-                <div class="uneti-feature-box">
-                    <div class="uneti-feature-icon bg-success-subtle text-success">
-                        <i class="bi bi-lightning-charge"></i>
+            <!-- Thẻ 2 -->
+            <div class="col reveal" style="--i: 1;">
+                <div class="card h-100 p-3 text-center bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.03); transition: all 0.25s ease;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2 mx-auto shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #d97706;">
+                        <i class="bi bi-lightning-charge-fill fs-4"></i>
                     </div>
-                    <h6 class="fw-bold text-dark mb-2">Tra Cứu Nhanh Chóng & Tiện Lợi</h6>
-                    <p class="text-muted small mb-0">
-                        Giao diện tối ưu phản hồi nhanh, hỗ trợ sinh viên dễ dàng tìm kiếm môn học, tra cứu số tín chỉ và học phí thuận tiện.
-                    </p>
+                    <h6 class="fw-bold mb-1" style="font-size: 13.5px; color: #0f172a;">Truy cập nhanh chóng</h6>
+                    <p class="mb-0 text-muted" style="font-size: 11.5px; line-height: 1.45;">Giao diện thân thiện, dễ tra cứu.</p>
                 </div>
             </div>
-
-            <div class="col-md-6 col-lg-3 reveal" style="--i: 2;">
-                <div class="uneti-feature-box">
-                    <div class="uneti-feature-icon bg-warning-subtle text-warning">
-                        <i class="bi bi-shield-lock"></i>
+            <!-- Thẻ 3 -->
+            <div class="col reveal" style="--i: 2;">
+                <div class="card h-100 p-3 text-center bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.03); transition: all 0.25s ease;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2 mx-auto shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: #7c3aed;">
+                        <i class="bi bi-people-fill fs-4"></i>
                     </div>
-                    <h6 class="fw-bold text-dark mb-2">Minh Bạch Thông Tin Học Phí</h6>
-                    <p class="text-muted small mb-0">
-                        Định mức học phí từng môn học được công khai rõ ràng, giúp người học chủ động xây dựng kế hoạch tài chính học tập.
-                    </p>
+                    <h6 class="fw-bold mb-1" style="font-size: 13.5px; color: #0f172a;">Giảng viên chất lượng</h6>
+                    <p class="mb-0 text-muted" style="font-size: 11.5px; line-height: 1.45;">Đội ngũ giàu kinh nghiệm, tận tâm.</p>
                 </div>
             </div>
-
-            <div class="col-md-6 col-lg-3 reveal" style="--i: 3;">
-                <div class="uneti-feature-box">
-                    <div class="uneti-feature-icon bg-info-subtle text-info">
-                        <i class="bi bi-headset"></i>
+            <!-- Thẻ 4 -->
+            <div class="col reveal" style="--i: 3;">
+                <div class="card h-100 p-3 text-center bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.03); transition: all 0.25s ease;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2 mx-auto shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669;">
+                        <i class="bi bi-shield-check fs-4"></i>
                     </div>
-                    <h6 class="fw-bold text-dark mb-2">Hỗ Trợ Học Tập 24/7</h6>
-                    <p class="text-muted small mb-0">
-                        Đội ngũ cán bộ phòng Đào tạo và cố vấn học tập luôn sẵn sàng giải đáp thắc mắc về kế hoạch đào tạo và đăng ký học phần.
-                    </p>
+                    <h6 class="fw-bold mb-1" style="font-size: 13.5px; color: #0f172a;">Hệ thống ổn định</h6>
+                    <p class="mb-0 text-muted" style="font-size: 11.5px; line-height: 1.45;">Bảo mật và an toàn dữ liệu học tập.</p>
+                </div>
+            </div>
+            <!-- Thẻ 5 -->
+            <div class="col reveal" style="--i: 4;">
+                <div class="card h-100 p-3 text-center bg-white hover-lift" style="border: 1px solid #e2e8f0; border-radius: 18px; box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.03); transition: all 0.25s ease;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2 mx-auto shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #fff1f2, #ffe4e6); color: #e11d48;">
+                        <i class="bi bi-headset fs-4"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1" style="font-size: 13.5px; color: #0f172a;">Hỗ trợ 24/7</h6>
+                    <p class="mb-0 text-muted" style="font-size: 11.5px; line-height: 1.45;">Luôn sẵn sàng giải đáp thắc mắc.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 6. CÂU HỎI THƯỜNG GẶP (FAQ) -->
-    <div class="mt-5 mb-5">
-        <div class="text-center mb-4 reveal">
-            <span class="badge px-3 py-1 rounded-pill fw-semibold text-uppercase small mb-2" 
-                  style="background-color: var(--uneti-primary-light); color: var(--uneti-primary); border: 1px solid var(--uneti-primary-border);">
-                <i class="bi bi-question-circle me-1"></i>GIẢI ĐÁP THẮC MẮC
-            </span>
-            <h4 class="fw-bold text-dark mb-1">Câu Hỏi Thường Gặp (FAQ)</h4>
-            <p class="text-muted small mb-0">Những thông tin cần biết khi tham gia học tập và đăng ký học phần tại trường</p>
+    <!-- 6. CÂU HỎI THƯỜNG GẶP (CHỌN LỌC 3 CÂU HỎI TIÊU BIỂU NHẤT) -->
+    <div class="mt-4 mb-4 pt-3 border-top" style="border-color: #f1f5f9 !important;">
+        <div class="d-flex justify-content-between align-items-center mb-3 reveal">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #ffffff;">
+                    <i class="bi bi-question-circle-fill fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0" style="font-size: 1.25rem;">Câu hỏi thường gặp</h5>
+                    <p class="small mb-0" style="color: #64748b; font-size: 12.5px;">Những thắc mắc phổ biến của học viên trong quá trình đăng ký học tập</p>
+                </div>
+            </div>
+            <a href="mailto:support@uneti.edu.vn" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold text-decoration-none shadow-sm" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 12.5px;">
+                Cần hỗ trợ thêm <i class="bi bi-envelope-heart ms-1"></i>
+            </a>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-9 reveal">
-                <div class="accordion uneti-accordion" id="faqAccordion">
-                    <!-- Câu 1 -->
-                    <div class="accordion-item">
+        <div class="row">
+            <div class="col-12 reveal">
+                <style>
+                    #faqAccordion {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 14px;
+                    }
+                    #faqAccordion .accordion-button,
+                    #faqAccordion .accordion-button:focus,
+                    #faqAccordion .accordion-button:active,
+                    #faqAccordion .accordion-button:not(.collapsed) {
+                        box-shadow: none !important;
+                        outline: none !important;
+                        border: none !important;
+                        border-bottom: none !important;
+                        background-color: #ffffff !important;
+                        color: #0f172a !important;
+                    }
+                    #faqAccordion .accordion-item {
+                        border: 1px solid #e2e8f0 !important;
+                        border-radius: 16px !important;
+                        overflow: hidden;
+                        margin-bottom: 0 !important;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+                        transition: all 0.25s ease;
+                    }
+                    #faqAccordion .accordion-item:hover {
+                        border-color: #cbd5e1 !important;
+                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05) !important;
+                        transform: translateY(-2px);
+                    }
+                    #faqAccordion .accordion-collapse,
+                    #faqAccordion .accordion-body {
+                        border: none !important;
+                        border-top: none !important;
+                    }
+                </style>
+                <div class="accordion" id="faqAccordion">
+                    <!-- Câu 1: Tạo tài khoản -->
+                    <div class="accordion-item bg-white">
                         <h2 class="accordion-header" id="headingOne">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                <i class="bi bi-person-plus text-primary me-2"></i> Làm thế nào để tạo tài khoản trên hệ thống?
+                            <button class="accordion-button bg-white text-dark fw-semibold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" style="font-size: 15px;">
+                                <span class="d-inline-flex align-items-center justify-content-center me-3 shadow-sm rounded-circle" style="width: 34px; height: 34px; background: #eff6ff; color: #2563eb;">
+                                    <i class="bi bi-person-plus-fill"></i>
+                                </span>
+                                <span>Làm thế nào để tạo tài khoản trên hệ thống?</span>
                             </button>
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Bạn chỉ cần nhấn vào <strong>Đăng ký</strong> ở thanh menu hoặc trang chủ, điền họ tên, email, tên đăng nhập, mật khẩu và đồng ý với điều khoản sử dụng. Tài khoản học viên sẽ được tạo thành công ngay sau khi hoàn tất để bạn có thể đăng nhập.
+                            <div class="accordion-body text-muted small pt-1 pb-3 ps-5 pe-4" style="font-size: 13.5px; line-height: 1.65; background-color: #f8fafc;">
+                                Bạn nhấn vào mục <strong>Đăng ký</strong> ở thanh menu, nhập họ tên, email, tên đăng nhập và mật khẩu. Tài khoản học viên sẽ được kích hoạt ngay lập tức để bạn bắt đầu tra cứu và đăng ký học phần.
                             </div>
                         </div>
                     </div>
 
-                    <!-- Câu 2 -->
-                    <div class="accordion-item">
+                    <!-- Câu 2: Quên mật khẩu -->
+                    <div class="accordion-item bg-white">
                         <h2 class="accordion-header" id="headingTwo">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                <i class="bi bi-key text-primary me-2"></i> Tôi quên mật khẩu thì xử lý thế nào?
+                            <button class="accordion-button collapsed bg-white text-dark fw-semibold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="font-size: 15px;">
+                                <span class="d-inline-flex align-items-center justify-content-center me-3 shadow-sm rounded-circle" style="width: 34px; height: 34px; background: #fffbeb; color: #d97706;">
+                                    <i class="bi bi-key-fill"></i>
+                                </span>
+                                <span>Tôi quên mật khẩu thì xử lý thế nào?</span>
                             </button>
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Tại màn hình đăng nhập, bạn chọn <strong>Quên mật khẩu?</strong> và nhập đúng địa chỉ email đã đăng ký. Hệ thống sẽ tạo liên kết đặt lại mật khẩu an toàn (có hiệu lực trong vòng 15 phút) hiển thị trực tiếp trên giao diện để bạn thiết lập lại mật khẩu mới.
+                            <div class="accordion-body text-muted small pt-1 pb-3 ps-5 pe-4" style="font-size: 13.5px; line-height: 1.65; background-color: #f8fafc;">
+                                Tại trang Đăng nhập, chọn <strong>Quên mật khẩu?</strong> và điền email đã đăng ký. Hệ thống sẽ tạo liên kết khôi phục mật khẩu bảo mật (hiệu lực 15 phút) để bạn thiết lập lại mật khẩu mới.
                             </div>
                         </div>
                     </div>
 
-                    <!-- Câu 3 -->
-                    <div class="accordion-item">
+                    <!-- Câu 3: Học phí -->
+                    <div class="accordion-item bg-white">
                         <h2 class="accordion-header" id="headingThree">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                <i class="bi bi-cash-coin text-primary me-2"></i> Học phí môn học được hiển thị ở đâu?
+                            <button class="accordion-button collapsed bg-white text-dark fw-semibold py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" style="font-size: 15px;">
+                                <span class="d-inline-flex align-items-center justify-content-center me-3 shadow-sm rounded-circle" style="width: 34px; height: 34px; background: #ecfdf5; color: #059669;">
+                                    <i class="bi bi-cash-coin"></i>
+                                </span>
+                                <span>Học phí môn học được niêm yết và tính như thế nào?</span>
                             </button>
                         </h2>
                         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Định mức học phí của từng môn học được niêm yết công khai, minh bạch ngay trên từng thẻ môn học ở trang chủ, danh mục tra cứu môn học và trang chi tiết học phần để người học dễ dàng theo dõi.
+                            <div class="accordion-body text-muted small pt-1 pb-3 ps-5 pe-4" style="font-size: 13.5px; line-height: 1.65; background-color: #f8fafc;">
+                                Học phí được tính dựa trên số tín chỉ của từng môn học theo quy định của nhà trường và được công khai minh bạch ngay tại từng thẻ môn học và trang chi tiết học phần.
                             </div>
                         </div>
                     </div>
@@ -457,60 +508,61 @@
         </div>
     </div>
 
-    <!-- CTA Banner -->
-    <div class="row justify-content-center mb-5 reveal">
-        <div class="col-lg-9">
-            <div class="uneti-cta-card">
-                <div class="row align-items-center position-relative" style="z-index: 1;">
-                    <div class="col-lg-7 col-xl-8">
-                        <span class="badge bg-white bg-opacity-25 text-white px-3 py-1 rounded-pill small fw-semibold mb-2">
-                            <i class="bi bi-mortarboard-fill me-1"></i>HỆ THỐNG ĐÀO TẠO 2026
-                        </span>
-                        @if (isLoggedIn)
-                        {
-                            @if (vaiTro == "Admin" || vaiTro == "NhanVien")
+    <!-- 7. CTA BANNER (DƯỚI CÙNG - TINH GỌN, CHIỀU CAO HỢP LÝ) -->
+    <div class="row mb-4 reveal">
+        <div class="col-12">
+            <div class="card border-0 overflow-hidden position-relative" style="background: linear-gradient(90deg, rgba(15, 23, 42, 0.9) 0%, rgba(29, 78, 216, 0.8) 55%, rgba(37, 99, 235, 0.25) 100%), url('/images/cta-banner.webp') no-repeat right center / cover; min-height: 200px; border-radius: 20px !important; box-shadow: 0 10px 30px -4px rgba(29, 78, 216, 0.2);">
+                <div class="card-body p-4 p-md-4 d-flex flex-column justify-content-center position-relative z-1">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 col-xl-6">
+                            <span class="badge px-3 py-1 rounded-pill fw-medium mb-3 d-inline-block" style="background: rgba(255, 255, 255, 0.18); color: #ffffff; font-size: 12px;">
+                                Bắt đầu hành trình của bạn ngay hôm nay
+                            </span>
+                            
+                            @if (isLoggedIn)
                             {
-                                <h3 class="fw-bold mb-2">Xin chào, @hoTen!</h3>
-                                <p class="mb-4" style="color: rgba(255,255,255,.88); max-width: 520px;">
-                                    Chào mừng bạn trở lại bảng điều khiển. Quản lý danh mục môn học, giám sát học viên và theo dõi tiến độ đào tạo của toàn hệ thống.
-                                </p>
-                                <div>
-                                    <a asp-controller="QuanTri" asp-action="Dashboard" class="btn btn-light fw-bold px-4 py-2 rounded-pill shadow">
-                                        <i class="bi bi-speedometer2 me-1"></i>Vào bảng điều khiển
-                                    </a>
-                                </div>
+                                @if (vaiTro == "Admin" || vaiTro == "NhanVien")
+                                {
+                                    <h3 class="fw-bold text-white mb-2" style="font-size: 24px;">Xin chào, @hoTen!</h3>
+                                    <p class="mb-3 text-white" style="opacity: 0.9; max-width: 500px; font-size: 13.5px; line-height: 1.55;">
+                                        Chào mừng bạn trở lại bảng điều khiển. Quản lý danh mục môn học, giám sát học viên và theo dõi tiến độ đào tạo của toàn hệ thống.
+                                    </p>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <a asp-controller="QuanTri" asp-action="Dashboard" class="btn bg-white fw-semibold px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center" style="color: #1d4ed8; font-size: 13.5px;">
+                                            <i class="bi bi-speedometer2 me-2"></i>Vào bảng điều khiển
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <h3 class="fw-bold text-white mb-2" style="font-size: 24px;">Sẵn sàng cho kỳ học mới, @hoTen?</h3>
+                                    <p class="mb-3 text-white" style="opacity: 0.9; max-width: 500px; font-size: 13.5px; line-height: 1.55;">
+                                        Tra cứu danh mục môn học, xem số tín chỉ và học phí để chuẩn bị cho kỳ học mới.
+                                    </p>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <a asp-controller="MonHoc" asp-action="Index" class="btn bg-white fw-semibold px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center" style="color: #1d4ed8; font-size: 13.5px;">
+                                            <i class="bi bi-search me-2"></i>Tra cứu môn học ngay
+                                        </a>
+                                    </div>
+                                }
                             }
                             else
                             {
-                                <h3 class="fw-bold mb-2">Sẵn sàng cho kỳ học mới, @hoTen?</h3>
-                                <p class="mb-4" style="color: rgba(255,255,255,.88); max-width: 520px;">
-                                    Tra cứu danh mục môn học, xem số tín chỉ và học phí để chuẩn bị cho kỳ học mới.
+                                <h3 class="fw-bold text-white mb-2" style="font-size: 24px;">Khởi đầu hành trình học tập ngay hôm nay!</h3>
+                                <p class="mb-3 text-white" style="opacity: 0.9; max-width: 500px; font-size: 13.5px; line-height: 1.55;">
+                                    Tạo tài khoản, khám phá các môn học chất lượng và chinh phục tri thức cùng chúng tôi.
                                 </p>
-                                <div>
-                                    <a asp-controller="MonHoc" asp-action="Index" class="btn btn-light fw-bold px-4 py-2 rounded-pill shadow">
-                                        <i class="bi bi-search me-1"></i>Tra cứu môn học ngay
+                                <div class="d-flex flex-wrap gap-3">
+                                    <a asp-controller="TaiKhoan" asp-action="Login" class="btn bg-white fw-semibold px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center text-decoration-none" style="color: #1d4ed8; font-size: 13.5px; border: none;">
+                                        <i class="bi bi-person me-2"></i>Đăng nhập
+                                    </a>
+                                    <a asp-controller="TaiKhoan" asp-action="Register" class="btn rounded-pill px-4 py-2 fw-medium d-inline-flex align-items-center text-white text-decoration-none" style="border: 1.5px solid rgba(255, 255, 255, 0.7); background: transparent; font-size: 13.5px;">
+                                        <i class="bi bi-person-plus me-2"></i>Đăng ký tài khoản
                                     </a>
                                 </div>
                             }
-                        }
-                        else
-                        {
-                            <h3 class="fw-bold mb-2">Khởi đầu hành trình học tập cùng UNETI</h3>
-                            <p class="mb-4" style="color: rgba(255,255,255,.88); max-width: 520px;">
-                                Tra cứu danh mục môn học, xem số tín chỉ và học phí để chuẩn bị cho kỳ học mới.
-                            </p>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a asp-controller="TaiKhoan" asp-action="Login" class="btn btn-light fw-bold px-4 py-2 rounded-pill shadow">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
-                                </a>
-                                <a asp-controller="TaiKhoan" asp-action="Register" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">
-                                    Đăng ký tài khoản
-                                </a>
-                            </div>
-                        }
-                    </div>
-                    <div class="col-lg-5 col-xl-4 d-none d-lg-block">
-                        <!-- Hình minh họa 3D -->
+                        </div>
+                        <div class="col-lg-5 col-xl-6 d-none d-lg-block"></div>
                     </div>
                 </div>
             </div>

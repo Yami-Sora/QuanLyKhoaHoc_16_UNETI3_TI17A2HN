@@ -50,7 +50,7 @@
 
     // 3. Cuộn hiển thị (Scroll Reveal bằng IntersectionObserver)
     function initScrollReveal() {
-        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-zoom');
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-zoom, .stagger-card, .stagger-group > *');
         if (!revealElements.length) return;
 
         if (prefersReducedMotion || !('IntersectionObserver' in window)) {
@@ -67,11 +67,20 @@
             });
         }, {
             root: null,
-            rootMargin: '0px 0px -40px 0px',
-            threshold: 0.12
+            rootMargin: '0px 0px -10px 0px',
+            threshold: 0.05
         });
 
-        revealElements.forEach(el => revealObserver.observe(el));
+        revealElements.forEach(el => {
+            if (!el.classList.contains('is-visible')) {
+                revealObserver.observe(el);
+            }
+        });
+
+        // Dự phòng an toàn: sau 1.4s tự động hiện các thẻ phòng trường hợp scroll chưa chạm
+        setTimeout(function () {
+            revealElements.forEach(el => el.classList.add('is-visible'));
+        }, 1400);
     }
 
     // 4. Đếm số động (Count-up Animation với easing cubic)

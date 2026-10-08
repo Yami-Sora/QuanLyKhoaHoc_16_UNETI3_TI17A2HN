@@ -1,11 +1,34 @@
-﻿// Họ và tên: Trần Văn Thành
+// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: ViewModel đăng ký học viên
 
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+    public class MustBeTrueAttribute : ValidationAttribute, IClientModelValidator
+    {
+        public override bool IsValid(object? value)
+        {
+            return value is bool b && b;
+        }
+
+        public void AddValidation(ClientModelValidationContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            MergeAttribute(context.Attributes, "data-val", "true");
+            MergeAttribute(context.Attributes, "data-val-mustbetrue", FormatErrorMessage(context.ModelMetadata.GetDisplayName()));
+        }
+
+        private static void MergeAttribute(IDictionary<string, string> attributes, string key, string value)
+        {
+            attributes.TryAdd(key, value);
+        }
+    }
+
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Họ và tên không được để trống")]
@@ -43,7 +66,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         [RegularExpression(@"^0[35789][0-9]{8}$", ErrorMessage = "Số điện thoại phải là số di động Việt Nam hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09)")]
         public string SoDienThoai { get; set; } = string.Empty;
 
-        [Range(typeof(bool), "true", "true", ErrorMessage = "Vui lòng tích chọn đồng ý với quy chế đào tạo và điều khoản")]
+        [MustBeTrue(ErrorMessage = "Vui lòng tích chọn đồng ý với quy chế đào tạo và điều khoản")]
         [Display(Name = "Đồng ý điều khoản")]
         public bool DongYDieuKhoan { get; set; } = false;
     }

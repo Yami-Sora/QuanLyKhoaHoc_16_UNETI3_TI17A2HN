@@ -49,7 +49,7 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 px-1 gap-2">
     <div class="d-flex align-items-center flex-wrap gap-2 small">
         <span class="text-muted">
-            Hiển thị <strong class="text-dark">@totalFiltered</strong> / <strong>@totalCount</strong> môn học
+            Hiển thị <strong class="text-dark">@(Model?.Count() ?? 0)</strong> / <strong>@totalFiltered</strong> môn học phù hợp (Tổng <strong>@totalCount</strong> môn)
         </span>
 
         @if (!string.IsNullOrWhiteSpace(currentSearch))
@@ -92,7 +92,7 @@
 </div>
 
 <!-- LƯỚI / DANH SÁCH MÔN HỌC -->
-<div id="monHocCardList" class="row g-4 view-grid">
+<div id="monHocCardList" class="row g-4 view-grid stagger-group">
     @if (Model == null || !Model.Any())
     {
         <div class="col-12 text-center py-5">
@@ -118,56 +118,84 @@
         @foreach (var item in Model)
         {
             <div class="col-12 col-md-6 col-lg-4 mon-hoc-col reveal" style="--i: @(itemIdx % 6);">
-                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column uneti-card-surface" data-tilt>
-                    <!-- Hàng trên: Mã môn & Trạng thái -->
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge bg-light text-secondary border px-2 py-1 fw-semibold uneti-fs-12">
-                            @($"#MH{item.MaMonHoc:D3}")
-                        </span>
-                        @if (item.TrangThai)
+                @{
+                    // Phân bổ icon và màu nền gradient ngẫu nhiên để thẻ trông mềm mại, sinh động
+                    var designList = new[] { 
+                        ("bi-code-slash", "bg-primary-subtle text-primary", "rgba(13, 110, 253, 0.15)"), // Xanh dương
+                        ("bi-database", "bg-success-subtle text-success", "rgba(25, 135, 84, 0.15)"),   // Xanh lá
+                        ("bi-display", "bg-primary-subtle text-primary", "rgba(111, 66, 193, 0.15)"),    // Tím (React)
+                        ("bi-phone", "bg-warning-subtle text-warning", "rgba(253, 126, 20, 0.15)"),      // Cam (Flutter)
+                        ("bi-bezier2", "bg-info-subtle text-info", "rgba(13, 202, 240, 0.15)")           // Xanh lơ (Python)
+                    };
+                    var design = designList[item.MaMonHoc % designList.Length];
+                }
+                <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column bg-white shadow-sm rounded-4 position-relative overflow-hidden" style="border: 1px solid rgba(0,0,0,0.08);" data-tilt>
+                    
+                    <!-- Hiệu ứng màu nền dạng Blob (vệt màu mờ ở góc dưới cùng bên phải) -->
+                    <div class="position-absolute" style="width: 320px; height: 320px; background: radial-gradient(circle, @design.Item3 0%, rgba(255,255,255,0) 70%); bottom: -80px; right: -80px; border-radius: 50%; z-index: 0; pointer-events: none;"></div>
+
+                    <!-- Bọc nội dung bằng position-relative và z-index để không bị màu đè lên -->
+                    <div class="position-relative z-1 d-flex flex-column h-100 w-100">
+                        <!-- Hàng trên: Icon, Mã môn & Trạng thái -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="d-flex align-items-center justify-content-center rounded-3 @design.Item2" style="width: 48px; height: 48px;">
+                                    <i class="bi @design.Item1 fs-4"></i>
+                                </div>
+                                <span class="badge bg-primary-subtle text-primary border-0 px-3 py-1 fw-bold" style="border-radius: 20px; font-size: 0.8rem;">
+                                    @($"#MH{item.MaMonHoc:D3}")
+                                </span>
+                            </div>
+                            
+                            @if (item.TrangThai)
                         {
-                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-semibold d-inline-flex align-items-center uneti-fs-12">
-                                <i class="bi bi-check-circle me-1"></i>Đang mở
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 fw-semibold d-inline-flex align-items-center" style="border-radius: 20px; font-size: 0.75rem;">
+                                <i class="bi bi-check-circle-fill me-1"></i>Đang mở
                             </span>
                         }
                         else
                         {
-                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-semibold d-inline-flex align-items-center uneti-fs-12">
-                                <i class="bi bi-pause-circle me-1"></i>Tạm dừng
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 fw-semibold d-inline-flex align-items-center" style="border-radius: 20px; font-size: 0.75rem;">
+                                <i class="bi bi-pause-circle-fill me-1"></i>Tạm dừng
                             </span>
                         }
                     </div>
 
                     <!-- Tên môn học (có highlight từ khóa tìm kiếm) -->
-                    <h5 class="fw-bold text-dark mb-2 lh-sm mon-hoc-title" style="font-size: 1.08rem;">
+                    <h5 class="fw-bold text-dark mb-2 lh-sm mon-hoc-title mt-2" style="font-size: 1.15rem;">
                         @HighlightText(item.TenMonHoc, currentSearch)
                     </h5>
 
                     <!-- Mô tả tóm tắt -->
-                    <p class="text-muted small flex-grow-1 mb-3 mon-hoc-desc" style="line-height: 1.5; min-height: 44px;">
-                        @(string.IsNullOrEmpty(item.MoTa) ? "Học phần đào tạo theo hệ thống tín chỉ." : item.MoTa)
+                    <p class="text-muted small flex-grow-1 mb-4 mon-hoc-desc" style="line-height: 1.6; min-height: 48px; font-size: 0.85rem;">
+                        @(string.IsNullOrEmpty(item.MoTa) ? "Học phần đào tạo theo hệ thống tín chỉ của nhà trường." : item.MoTa)
                     </p>
 
                     <!-- Số tín chỉ & Định mức học phí -->
-                    <div class="d-flex justify-content-between align-items-center pt-2 border-top mon-hoc-meta">
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-bold uneti-fs-13">
-                            <span data-count-to="@item.SoTinChi" data-format="number">@item.SoTinChi</span> Tín chỉ
-                        </span>
-                        <div class="text-end">
-                            <span class="fw-bold fs-5 text-primary" data-count-to="@item.HocPhi" data-format="currency">
-                                @item.HocPhi.ToString("N0") đ
-                            </span>
-                            <div class="text-muted small uneti-fs-xs">
-                                ~@((item.SoTinChi > 0 ? Math.Round((item.HocPhi / item.SoTinChi) / 1000m, MidpointRounding.AwayFromZero) * 1000m : 0m).ToString("N0")) đ/tín
+                    <div class="d-flex justify-content-between align-items-end mb-4 pt-1">
+                        <div class="d-flex gap-4">
+                            <div class="text-primary fw-semibold d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                                <i class="bi bi-mortarboard-fill"></i> 
+                                <span><span data-count-to="@item.SoTinChi" data-format="number">@item.SoTinChi</span> Tín chỉ</span>
                             </div>
+                            <div class="text-info fw-semibold d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                                <i class="bi bi-cash-stack"></i> 
+                                <span>@((item.SoTinChi > 0 ? Math.Round((item.HocPhi / item.SoTinChi) / 1000m, MidpointRounding.AwayFromZero) * 1000m : 0m).ToString("N0")) đ/tín</span>
+                            </div>
+                        </div>
+                        <div class="text-primary fw-bold" style="font-size: 1.25rem;">
+                            <span data-count-to="@item.HocPhi" data-format="currency">@item.HocPhi.ToString("N0") đ</span>
                         </div>
                     </div>
 
-                    <!-- Nút xem chi tiết -->
-                    <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn btn-outline-secondary w-100 rounded-3 mt-3 fw-semibold text-dark text-decoration-none py-2 d-flex align-items-center justify-content-center uneti-fs-13-5 bg-light border">
-                        <span>Xem chi tiết môn học</span>
-                        <i class="bi bi-chevron-right ms-1 small"></i>
-                    </a>
+                    <!-- Cụm nút hành động -->
+                    <div class="mt-auto">
+                        <a asp-action="Details" asp-route-id="@item.MaMonHoc" class="btn w-100 rounded-3 py-2 fw-semibold d-flex align-items-center justify-content-center bg-primary-subtle text-primary border-0" style="font-size: 0.85rem;">
+                            <span>Xem chi tiết môn học</span>
+                            <i class="bi bi-arrow-right ms-2" style="font-size: 0.9rem;"></i>
+                        </a>
+                    </div>
+                    </div> <!-- Đóng thẻ position-relative z-1 -->
                 </div>
             </div>
             itemIdx++;
@@ -178,26 +206,50 @@
 <!-- PHÂN TRANG (PAGINATION) -->
 @if (totalPages > 1)
 {
+    <style>
+        .uneti-pagination-new .page-link {
+            border: none;
+            color: #6b7280;
+            background: transparent;
+            border-radius: 50% !important;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 4px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        .uneti-pagination-new .page-link:hover {
+            background-color: #f3f4f6;
+            color: #2563eb;
+        }
+        .uneti-pagination-new .page-item.active .page-link {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+        .uneti-pagination-new .page-item.disabled .page-link {
+            color: #d1d5db;
+            background: transparent;
+        }
+    </style>
+
     <div class="mt-5 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
         <div class="text-muted small">
-            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-xs">
-                <i class="bi bi-layers text-primary me-1"></i>Trang <strong>@currentPage</strong> / <strong>@totalPages</strong> (Tổng <strong>@totalFiltered</strong> môn học)
+            <span class="badge bg-white text-primary border px-4 py-2 rounded-pill shadow-sm" style="font-size: 0.85rem; font-weight: 500;">
+                <i class="bi bi-layers-fill me-2"></i>Trang <strong class="text-dark">@currentPage / @totalPages</strong> <span class="text-muted ms-1">(Tổng @totalFiltered môn học)</span>
             </span>
         </div>
         <nav aria-label="Phân trang môn học">
-            <ul class="pagination uneti-pagination mb-0">
-                <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang đầu">
-                    <a class="page-link js-page-link" 
-                       href="?searchString=@currentSearch&soTinChi=@currentTinChi&trangThai=@currentTrangThai&sortBy=@sortBy&page=1" 
-                       data-page="1">
-                        <i class="bi bi-chevron-double-left"></i>
-                    </a>
-                </li>
+            <ul class="pagination uneti-pagination-new mb-0">
                 <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang trước">
                     <a class="page-link js-page-link" 
                        href="?searchString=@currentSearch&soTinChi=@currentTinChi&trangThai=@currentTrangThai&sortBy=@sortBy&page=@(currentPage - 1)" 
                        data-page="@(currentPage - 1)">
-                        <i class="bi bi-chevron-left"></i>
+                        <i class="bi bi-chevron-left small"></i>
                     </a>
                 </li>
 
@@ -207,7 +259,7 @@
                     {
                         if (p == currentPage - 3 || p == currentPage + 3)
                         {
-                            <li class="page-item disabled"><span class="page-ellipsis">…</span></li>
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
                         }
                         continue;
                     }
@@ -224,17 +276,18 @@
                     <a class="page-link js-page-link" 
                        href="?searchString=@currentSearch&soTinChi=@currentTinChi&trangThai=@currentTrangThai&sortBy=@sortBy&page=@(currentPage + 1)" 
                        data-page="@(currentPage + 1)">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang cuối">
-                    <a class="page-link js-page-link" 
-                       href="?searchString=@currentSearch&soTinChi=@currentTinChi&trangThai=@currentTrangThai&sortBy=@sortBy&page=@totalPages" 
-                       data-page="@totalPages">
-                        <i class="bi bi-chevron-double-right"></i>
+                        <i class="bi bi-chevron-right small"></i>
                     </a>
                 </li>
             </ul>
         </nav>
     </div>
 }
+
+<style>
+.btn-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+</style>
+

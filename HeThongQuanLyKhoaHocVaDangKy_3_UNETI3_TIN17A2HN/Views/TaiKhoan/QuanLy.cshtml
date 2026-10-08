@@ -21,22 +21,16 @@
     bool? currentTrangThai = ViewBag.CurrentTrangThai;
 
     var totalAccounts = totalCount;
-    var totalAdmins = Model?.Count(t => t.VaiTro == "Admin") ?? 0;
-    var totalNhanViens = Model?.Count(t => t.VaiTro == "NhanVien") ?? 0;
-    var totalHocViens = Model?.Count(t => t.VaiTro == "HocVien") ?? 0;
-    var totalLocked = Model?.Count(t => !t.TrangThai) ?? 0;
+    var totalAdmins = ViewBag.TotalAdmins ?? 0;
+    var totalNhanViens = ViewBag.TotalNhanViens ?? 0;
+    var totalHocViens = ViewBag.TotalHocViens ?? 0;
+    var totalLocked = ViewBag.TotalLocked ?? 0;
 }
 
 <div class="container py-4">
     <!-- Header trang -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-1 small">
-                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-primary">Trang chủ</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Quản trị tài khoản</li>
-                </ol>
-            </nav>
             <h3 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-people-fill me-2 text-primary"></i>QUẢN LÝ TÀI KHOẢN & PHÂN QUYỀN
             </h3>
@@ -157,16 +151,16 @@
             <div class="col-md-3">
                 <select name="role" class="form-select">
                     <option value="">-- Tất cả vai trò --</option>
-                    <!option value="Admin" @(ViewBag.CurrentRole == "Admin" ? "selected" : "")>Quản trị viên (Admin)</!option>
-                    <!option value="NhanVien" @(ViewBag.CurrentRole == "NhanVien" ? "selected" : "")>Nhân viên quản lý</!option>
-                    <!option value="HocVien" @(ViewBag.CurrentRole == "HocVien" ? "selected" : "")>Học viên</!option>
+                    @if (ViewBag.CurrentRole == "Admin") { <option value="Admin" selected>Quản trị viên (Admin)</option> } else { <option value="Admin">Quản trị viên (Admin)</option> }
+                    @if (ViewBag.CurrentRole == "NhanVien") { <option value="NhanVien" selected>Nhân viên quản lý</option> } else { <option value="NhanVien">Nhân viên quản lý</option> }
+                    @if (ViewBag.CurrentRole == "HocVien") { <option value="HocVien" selected>Học viên</option> } else { <option value="HocVien">Học viên</option> }
                 </select>
             </div>
             <div class="col-md-2">
                 <select name="trangThai" class="form-select">
                     <option value="">-- Tất cả trạng thái --</option>
-                    <!option value="true" @(ViewBag.CurrentTrangThai != null && (bool)ViewBag.CurrentTrangThai ? "selected" : "")>Đang hoạt động</!option>
-                    <!option value="false" @(ViewBag.CurrentTrangThai != null && !(bool)ViewBag.CurrentTrangThai ? "selected" : "")>Đã bị khóa</!option>
+                    @if (ViewBag.CurrentTrangThai != null && (bool)ViewBag.CurrentTrangThai) { <option value="true" selected>Đang hoạt động</option> } else { <option value="true">Đang hoạt động</option> }
+                    @if (ViewBag.CurrentTrangThai != null && !(bool)ViewBag.CurrentTrangThai) { <option value="false" selected>Đã bị khóa</option> } else { <option value="false">Đã bị khóa</option> }
                 </select>
             </div>
             <div class="col-md-2 d-flex gap-2">
@@ -654,3 +648,4 @@
         })();
     </script>
 }
+

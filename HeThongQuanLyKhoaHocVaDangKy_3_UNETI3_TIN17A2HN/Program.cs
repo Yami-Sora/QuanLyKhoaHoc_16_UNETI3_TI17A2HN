@@ -1,4 +1,4 @@
-﻿// Họ và tên: Trần Văn Thành
+// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Cấu hình ứng dụng
 
@@ -37,6 +37,23 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         // Tự động áp dụng Migration tạo Database & bảng nếu chưa có
         context.Database.Migrate();
+
+        // Đảm bảo cột HinhAnh trong bảng HocVien luôn tồn tại cho mọi máy clone và mọi môi trường DB
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (
+                    SELECT * FROM sys.columns 
+                    WHERE object_id = OBJECT_ID(N'[dbo].[HocVien]') 
+                    AND name = 'HinhAnh'
+                )
+                BEGIN
+                    ALTER TABLE [dbo].[HocVien] ADD [HinhAnh] nvarchar(255) NULL;
+                END
+            ");
+        }
+        catch { }
+
         // Tự động nạp dữ liệu mẫu ban đầu
         DbInitializer.Seed(context);
     }
