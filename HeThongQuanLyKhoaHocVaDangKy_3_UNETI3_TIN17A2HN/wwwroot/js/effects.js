@@ -1,4 +1,4 @@
-﻿// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
+// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
 // Module 1: Hiệu ứng giao diện (Scroll, Count-up, Navbar)
 
 (function () {
@@ -86,9 +86,20 @@
 
     function animateCountUp(element) {
         const targetValue = parseFloat(element.getAttribute('data-count-to') || '0');
-        const format = element.getAttribute('data-format') || 'number';
+        let format = element.getAttribute('data-format') || 'number';
         const suffix = element.getAttribute('data-suffix') || '';
         const duration = parseInt(element.getAttribute('data-duration') || '1200', 10);
+
+        // Tự động kiểm tra tránh lặp hai chữ 'đ đ' nếu đã có ký hiệu đơn vị tiền tệ bên ngoài
+        if (format === 'currency') {
+            const nextNode = element.nextSibling;
+            const nextElement = element.nextElementSibling;
+            const hasAdjacentDong = (nextNode && nextNode.nodeType === Node.TEXT_NODE && nextNode.textContent.trim().startsWith('đ')) ||
+                                    (nextElement && nextElement.textContent.trim().toLowerCase() === 'đ');
+            if (hasAdjacentDong) {
+                format = 'number';
+            }
+        }
 
         if (prefersReducedMotion) {
             element.textContent = formatNumber(targetValue, format) + suffix;

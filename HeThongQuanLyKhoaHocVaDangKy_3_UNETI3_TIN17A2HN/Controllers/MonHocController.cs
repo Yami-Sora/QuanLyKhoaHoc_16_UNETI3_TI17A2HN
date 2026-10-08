@@ -21,9 +21,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         // 1. CỔNG SINH VIÊN & KHÁCH (PUBLIC PORTAL - CARD GRID)
 
         // GET: /MonHoc
-        // Danh sách môn học công khai (hỗ trợ AJAX)
-        public async Task<IActionResult> Index(string? searchString, int? soTinChi, bool? trangThai, string? sortBy = null, int page = 1, int pageSize = 12)
+        // Danh sách môn học công khai (hỗ trợ AJAX - Phân trang 6 môn/trang)
+        public async Task<IActionResult> Index(string? searchString, int? soTinChi, bool? trangThai, string? sortBy = null, int page = 1, int pageSize = 6, int? pageIndex = null)
         {
+            if (pageIndex.HasValue && pageIndex.Value > 0) page = pageIndex.Value;
             var query = _context.MonHocs.AsQueryable();
 
             // Tìm kiếm theo tên môn học hoặc mã môn học
@@ -104,9 +105,45 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             var monHoc = await _context.MonHocs
                 .Include(m => m.KhoaHocs)
+                    .ThenInclude(k => k.GiangVien)
+                .Include(m => m.KhoaHocs)
+                    .ThenInclude(k => k.DangKyKhoaHocs)
                 .FirstOrDefaultAsync(m => m.MaMonHoc == id);
 
             if (monHoc == null) return NotFound();
+
+            // 1. Kiểm tra danh sách khóa học mà sinh viên đang đăng nhập đã đăng ký
+            var maTaiKhoan = HttpContext.Session.GetInt32("MaTaiKhoan");
+            var registeredKhoaHocIds = new List<int>();
+            if (maTaiKhoan.HasValue)
+            {
+                var hocVien = await _context.HocViens.FirstOrDefaultAsync(h => h.MaTaiKhoan == maTaiKhoan.Value);
+                if (hocVien != null)
+                {
+                    registeredKhoaHocIds = await _context.DangKyKhoaHocs
+                        .Where(d => d.MaHocVien == hocVien.MaHocVien && d.TrangThai != "BiHuy")
+                        .Select(d => d.MaKhoaHoc)
+                        .ToListAsync();
+                }
+            }
+            ViewBag.RegisteredKhoaHocIds = registeredKhoaHocIds;
+
+            // 2. Giảng viên phụ trách tiêu biểu của môn học
+            var giangVienTieuBieu = monHoc.KhoaHocs
+                .Where(k => k.GiangVien != null)
+                .Select(k => k.GiangVien)
+                .FirstOrDefault();
+
+            if (giangVienTieuBieu == null)
+            {
+                giangVienTieuBieu = await _context.GiangViens.FirstOrDefaultAsync(g => g.TrangThai);
+            }
+            ViewBag.GiangVienTieuBieu = giangVienTieuBieu;
+
+            // 3. Đếm số lớp mở và kiểm tra còn chỗ
+            var openClasses = monHoc.KhoaHocs.Where(k => k.TrangThai == "DangMo").ToList();
+            ViewBag.OpenClassesCount = openClasses.Count;
+            ViewBag.HasAvailableSeats = openClasses.Any(k => k.DangKyKhoaHocs.Count(d => d.TrangThai != "BiHuy") < k.SoLuongToiDa);
 
             return View(monHoc);
         }

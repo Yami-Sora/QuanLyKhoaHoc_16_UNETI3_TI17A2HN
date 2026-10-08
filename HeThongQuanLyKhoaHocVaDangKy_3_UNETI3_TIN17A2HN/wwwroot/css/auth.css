@@ -408,3 +408,94 @@ body:has(.change-card) {
     0% { background-color: #dbeafe; }
     100% { background-color: #f8fafc; }
 }
+
+/* ===== 13. Trang Đăng nhập: nền riêng + thẻ rộng hơn ===== */
+body:has(.login-card) {
+    background-image:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(239, 246, 255, 0.20) 100%),
+        url('/images/login-bg.webp');
+    background-position: center center;
+    background-size: cover;
+}
+
+.login-card {
+    max-width: 520px;
+    padding: 2.75rem 2.5rem;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow:
+        0 30px 60px -20px rgba(15, 23, 42, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+/* Chip tài khoản mẫu: không xuống dòng */
+.login-card .demo-pill {
+    white-space: nowrap;
+    padding: 0 4px;
+    gap: 4px;
+    font-size: 12.5px;
+}
+
+/* Mobile */
+@media (max-width: 575.98px) {
+    body:has(.login-card) {
+        background-attachment: scroll;
+        padding: 1.25rem 0.75rem;
+    }
+    .login-card {
+        max-width: 100%;
+        padding: 2rem 1.25rem;
+    }
+}
+
+/* ===== 14. Các trang xác thực còn lại: nền chung + kích thước thẻ ===== */
+body:has(.register-card),
+body:has(.forgot-card),
+body:has(.reset-card),
+body:has(.change-card) {
+    background-image:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(239, 246, 255, 0.20) 100%),
+        url('/images/login-bg.webp');
+    background-position: center center;
+    background-size: cover;
+}
+
+.register-card,
+.forgot-card,
+.reset-card,
+.change-card {
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow:
+        0 30px 60px -20px rgba(15, 23, 42, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+.register-card {
+    max-width: 620px;
+    padding: 2.25rem 2.5rem;
+}
+
+.forgot-card,
+.reset-card,
+.change-card {
+    max-width: 480px;
+    padding: 2.5rem 2.25rem;
+}
+
+@media (max-width: 575.98px) {
+    body:has(.register-card),
+    body:has(.forgot-card),
+    body:has(.reset-card),
+    body:has(.change-card) {
+        background-attachment: scroll;
+        padding: 1.25rem 0.75rem;
+    }
+    .register-card,
+    .forgot-card,
+    .reset-card,
+    .change-card {
+        max-width: 100%;
+        padding: 2rem 1.25rem;
+    }
+}
+
+

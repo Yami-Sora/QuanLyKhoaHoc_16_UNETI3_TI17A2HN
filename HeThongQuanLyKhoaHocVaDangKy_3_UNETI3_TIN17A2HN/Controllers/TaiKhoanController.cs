@@ -506,6 +506,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             }
 
             ViewBag.TotalCount = await _context.TaiKhoans.CountAsync();
+            ViewBag.TotalAdmins = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "Admin");
+            ViewBag.TotalNhanViens = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "NhanVien");
+            ViewBag.TotalHocViens = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "HocVien");
+            ViewBag.TotalLocked = await _context.TaiKhoans.CountAsync(t => !t.TrangThai);
+            
             var totalFiltered = await query.CountAsync();
             ViewBag.TotalFilteredItems = totalFiltered;
 

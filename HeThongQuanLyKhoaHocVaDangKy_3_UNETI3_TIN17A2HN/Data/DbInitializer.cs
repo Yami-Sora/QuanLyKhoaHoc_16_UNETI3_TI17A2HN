@@ -1,6 +1,6 @@
 // Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Module 1: Khởi tạo dữ liệu mẫu (Chuẩn Mục 16 Đề 16: 05 môn học, 02 Admin, 03 Nhân viên, 30 Học viên)
+// Module 1: Khởi tạo dữ liệu mẫu
 
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
@@ -11,7 +11,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
     {
         public static void Seed(ApplicationDbContext context)
         {
-            // 1. Nạp môn học mẫu (12 môn học theo khung đào tạo CNTT UNETI)
+            // 1. Nạp môn học mẫu
             var monHocs = new List<MonHoc>
             {
                 new MonHoc
@@ -209,7 +209,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                 });
             }
 
-            // 4. Nạp 03 tài khoản Nhân viên (Mục 16 Đề 16)
+            // 4. Nạp 03 tài khoản Nhân viên
             if (!context.TaiKhoans.Any(t => t.TenDangNhap == "nv_daotao"))
             {
                 context.TaiKhoans.Add(new TaiKhoan
@@ -253,7 +253,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
             }
             context.SaveChanges();
 
-            // 5. Nạp 30 Học viên đầy đủ kèm tài khoản TaiKhoan (Mục 16 Đề 16)
+            // 5. Nạp 30 Học viên đầy đủ kèm tài khoản TaiKhoan
             var dsHocVienMau = new List<(string Username, string HoTen, string NgaySinh, string GioiTinh, string Sdt, string Email, string DiaChi, string TrinhDo, bool TrangThai)>
             {
                 ("sv_nguyenvana", "Nguyễn Văn An", "2003-05-15", "Nam", "0987654321", "an.nv@gmail.com", "Hà Nội", "Đại học", true),
@@ -285,7 +285,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                 ("sv_nguyenkhanhlinh", "Nguyễn Khánh Linh", "2004-09-15", "Nữ", "0929876516", "linh.nk@gmail.com", "Hà Nội", "Đại học", true),
                 ("sv_hoangtrongnam", "Hoàng Trọng Nam", "2003-03-28", "Nam", "0938765427", "nam.ht@gmail.com", "Hưng Yên", "Đại học", true),
                 ("sv_quachanhhoa", "Quách Ánh Hoa", "2004-11-19", "Nữ", "0947654338", "hoa.qa@gmail.com", "Hải Phòng", "Đại học", true),
-                ("sv_dogiakhoa", "Đỗ Gia Khóa", "2003-01-01", "Nam", "0956543249", "khoa.dg@gmail.com", "Hà Nội", "Đại học", false)
+                ("sv_dogiakhoa", "Đỗ Gia Khóa", "2003-01-01", "Nam", "0956543249", "khoa.dg@gmail.com", "Hà Nội", "Đại học", false),
+                ("sv_bitaikhoa", "Sinh Viên Bị Khóa", "2003-01-01", "Nam", "0999999999", "bitaikhoa@sv.uneti.edu.vn", "Hà Nội", "Đại học", false)
             };
 
             foreach (var item in dsHocVienMau)

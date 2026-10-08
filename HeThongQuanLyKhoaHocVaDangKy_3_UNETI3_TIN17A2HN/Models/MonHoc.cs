@@ -1,4 +1,4 @@
-﻿// Họ và tên: Trần Văn Thành
+// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Entity Môn học
 

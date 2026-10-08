@@ -1491,3 +1491,95 @@ body {
     transform: translateY(-1px);
 }
 
+/* FAQ Accordion - Xóa bỏ hoàn toàn viền xanh/dòng kẻ xanh khi click */
+.accordion-button,
+#faqAccordion .accordion-button {
+    box-shadow: none !important;
+    outline: none !important;
+    border-bottom: none !important;
+}
+
+.accordion-button:focus,
+.accordion-button:active,
+#faqAccordion .accordion-button:focus,
+#faqAccordion .accordion-button:active {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: transparent !important;
+}
+
+.accordion-button:not(.collapsed),
+#faqAccordion .accordion-button:not(.collapsed) {
+    box-shadow: none !important;
+    outline: none !important;
+    border-bottom: none !important;
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+}
+
+.accordion-collapse,
+.accordion-body,
+#faqAccordion .accordion-collapse,
+#faqAccordion .accordion-body {
+    border: none !important;
+    border-top: none !important;
+}
+
+/* Card Môn Học Tiêu Biểu & Button Hover */
+.course-card-btn {
+    background-color: #f0f7ff !important;
+    color: #0284c7 !important;
+    border: none !important;
+    padding: 9px 16px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 50px !important;
+    transition: all 0.2s ease !important;
+}
+.course-card-btn:hover {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    transform: translateY(-1px);
+}
+
+/* Triệt tiêu hoàn toàn vệt kẻ xanh/outline/border bên trong khi focus combobox hoặc input trong input-group */
+.input-group.rounded-pill:focus-within,
+.input-group.rounded-4:focus-within {
+    border-color: var(--uneti-primary) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+}
+
+.input-group.rounded-pill .input-group-text,
+.input-group.rounded-4 .input-group-text {
+    border: none !important;
+    border-right: none !important;
+    background-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.input-group.rounded-pill .form-select,
+.input-group.rounded-pill .form-select:focus,
+.input-group.rounded-pill .form-select:focus-visible,
+.input-group.rounded-pill .form-select:active,
+.input-group.rounded-pill .form-control,
+.input-group.rounded-pill .form-control:focus,
+.input-group.rounded-pill .form-control:focus-visible,
+.input-group.rounded-pill .form-control:active,
+.input-group.rounded-4 .form-select,
+.input-group.rounded-4 .form-select:focus,
+.input-group.rounded-4 .form-select:focus-visible,
+.input-group.rounded-4 .form-select:active,
+.input-group.rounded-4 .form-control,
+.input-group.rounded-4 .form-control:focus,
+.input-group.rounded-4 .form-control:focus-visible,
+.input-group.rounded-4 .form-control:active {
+    border: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    background-color: transparent !important;
+}
+
