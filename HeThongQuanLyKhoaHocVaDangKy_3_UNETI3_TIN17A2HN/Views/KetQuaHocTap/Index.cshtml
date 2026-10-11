@@ -1,0 +1,357 @@
+@*
+    Họ và tên: Nguyễn Công Thành
+    Mã sinh viên: 23103100102
+    Nội dung thực hiện: Module 5 - Giao diện Quản lý Kết quả học tập & Chọn khóa học nhập điểm
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.KetQuaFilterViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Quản lý Kết quả học tập & Nhập điểm";
+}
+
+<div class="container-fluid px-0">
+    <!-- Tiêu đề trang & Thanh tác vụ -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-award-fill me-2 text-primary"></i>QUẢN LÝ KẾT QUẢ ĐÀO TẠO & NHẬP ĐIỂM
+            </h3>
+            <p class="text-muted mb-0 small">Phân hệ theo dõi điểm số, bảng điểm khóa học và cập nhật kết quả học tập cho học viên</p>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-sm-0">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm shadow-sm d-flex align-items-center gap-1">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Tải lại</span>
+            </a>
+            <a asp-controller="ThongKe" asp-action="Index" class="btn btn-primary btn-sm shadow-sm d-flex align-items-center gap-1">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>Báo cáo thống kê</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Thông báo phản hồi TempData -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-success-subtle mb-4 py-3 shadow-sm rounded-3" role="alert">
+            <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-danger-subtle mb-4 py-3 shadow-sm rounded-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- 4 THẺ THỐNG KÊ (STAT CARDS) -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Tổng số khóa học -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Tổng khóa học</span>
+                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-mortarboard-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-dark mb-0">@Model.TongSoKhoaHoc</h3>
+                <small class="text-secondary" style="font-size: 11px;">Quy mô đào tạo</small>
+            </div>
+        </div>
+
+        <!-- 2. Khóa học đã hoàn tất nhập điểm -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Đã hoàn tất điểm</span>
+                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-check-all fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-success mb-0">@Model.SoKhoaHocDaNhapDiem</h3>
+                <small class="text-success" style="font-size: 11px;">100% học viên có điểm</small>
+            </div>
+        </div>
+
+        <!-- 3. Khóa học chưa nhập điểm -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-warning bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Chưa nhập điểm</span>
+                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-circle p-2"><i class="bi bi-hourglass-split fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-warning-emphasis mb-0">@Model.SoKhoaHocChuaNhapDiem</h3>
+                <small class="text-muted" style="font-size: 11px;">Cần cập nhật điểm</small>
+            </div>
+        </div>
+
+        <!-- 4. Học viên chờ chấm điểm -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-danger bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Học viên chờ điểm</span>
+                    <span class="badge bg-danger-subtle text-danger rounded-circle p-2"><i class="bi bi-person-exclamation fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-danger mb-0">@Model.TongSoHocVienCanNhapDiem</h3>
+                <small class="text-danger" style="font-size: 11px;">Đã hoàn thành thủ tục</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM BỘ LỌC ĐA TIÊU CHÍ VÀ TÌM KIẾM -->
+    <div class="uneti-card p-3 mb-4 shadow-sm bg-white rounded-3 border">
+        <form method="get" asp-action="Index" id="filterForm">
+            <div class="row g-2 align-items-end">
+                <!-- Từ khóa tìm kiếm -->
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-search me-1"></i>Từ khóa tìm kiếm
+                    </label>
+                    <input type="text" name="searchString" value="@Model.SearchString" class="form-control form-control-sm" placeholder="Tên khóa học, môn học, GV..." />
+                </div>
+
+                <!-- Lọc môn học -->
+                <div class="col-6 col-md-2">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-book me-1"></i>Môn học
+                    </label>
+                    <select name="maMonHoc" asp-items="ViewBag.MonHocList" class="form-select form-select-sm">
+                        <option value="">-- Tất cả môn học --</option>
+                    </select>
+                </div>
+
+                <!-- Lọc tình trạng điểm -->
+                <div class="col-6 col-md-2">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-funnel me-1"></i>Tiến độ điểm
+                    </label>
+                    <select name="tinhTrangDiem" class="form-select form-select-sm">
+                        <option value="TatCa" selected="@(string.IsNullOrEmpty(Model.TinhTrangDiem) || Model.TinhTrangDiem == "TatCa")">-- Tất cả tiến độ --</option>
+                        <option value="DaNhapDiem" selected="@(Model.TinhTrangDiem == "DaNhapDiem")">Đã đủ 100% điểm</option>
+                        <option value="NhapMotPhan" selected="@(Model.TinhTrangDiem == "NhapMotPhan")">Đang nhập dở</option>
+                        <option value="ChuaNhapDiem" selected="@(Model.TinhTrangDiem == "ChuaNhapDiem")">Chưa nhập điểm nào</option>
+                        <option value="ChuaCoHocVien" selected="@(Model.TinhTrangDiem == "ChuaCoHocVien")">Chưa có học viên hoàn thành</option>
+                    </select>
+                </div>
+
+                <!-- Sắp xếp -->
+                <div class="col-6 col-md-2">
+                    <label class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-sort-down me-1"></i>Sắp xếp
+                    </label>
+                    <select name="sortBy" class="form-select form-select-sm">
+                        <option value="ten_asc" selected="@(Model.SortBy == "ten_asc")">Tên khóa học: A &rarr; Z</option>
+                        <option value="ten_desc" selected="@(Model.SortBy == "ten_desc")">Tên khóa học: Z &rarr; A</option>
+                        <option value="tiendo_desc" selected="@(Model.SortBy == "tiendo_desc")">Tiến độ điểm: Cao &rarr; Thấp</option>
+                        <option value="diem_desc" selected="@(Model.SortBy == "diem_desc")">Điểm trung bình: Cao &rarr; Thấp</option>
+                        <option value="ngay_desc" selected="@(Model.SortBy == "ngay_desc")">Ngày khai giảng: Mới nhất</option>
+                        <option value="ngay_asc" selected="@(Model.SortBy == "ngay_asc")">Ngày khai giảng: Cũ nhất</option>
+                    </select>
+                </div>
+
+                <!-- Nút thao tác -->
+                <div class="col-12 col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1 shadow-sm">
+                        <i class="bi bi-filter"></i> Lọc dữ liệu
+                    </button>
+                    <a asp-action="Index" class="btn btn-sm btn-light border px-3" title="Xóa bộ lọc">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- BẢNG DANH SÁCH KHÓA HỌC -->
+    <div class="uneti-card shadow-sm overflow-hidden mb-4 bg-white rounded-3 border">
+        <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark small text-uppercase">
+                <i class="bi bi-table me-1 text-primary"></i>Danh sách khóa học đào tạo (@Model.TotalItems kết quả)
+            </span>
+            <div class="small text-muted">
+                Trang <strong>@Model.PageIndex</strong> / <strong>@(Model.TotalPages == 0 ? 1 : Model.TotalPages)</strong>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 13.5px;">
+                <thead class="table-light text-secondary border-bottom">
+                    <tr>
+                        <th class="text-center" style="width: 70px;">Mã</th>
+                        <th>Khóa học &amp; Môn học</th>
+                        <th>Giảng viên phụ trách</th>
+                        <th class="text-center">Sĩ số hoàn tất</th>
+                        <th style="min-width: 170px;">Tiến độ nhập điểm</th>
+                        <th class="text-center">Điểm TB lớp</th>
+                        <th class="text-center" style="width: 150px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.DanhSachKhoaHoc != null && Model.DanhSachKhoaHoc.Any())
+                    {
+                        foreach (var item in Model.DanhSachKhoaHoc)
+                        {
+                            var hasCompletedStudents = item.SoDangKyHoanThanh > 0;
+                            var isFullScore = hasCompletedStudents && item.SoDaCoKetQua == item.SoDangKyHoanThanh;
+
+                            <tr>
+                                <!-- Mã khóa -->
+                                <td class="text-center fw-bold text-secondary">
+                                    #KH@item.MaKhoaHoc.ToString("D2")
+                                </td>
+
+                                <!-- Khóa học & Môn học -->
+                                <td>
+                                    <div class="fw-bold text-dark">
+                                        <a asp-action="BangDiem" asp-route-maKhoaHoc="@item.MaKhoaHoc" class="text-decoration-none text-dark hover-primary">
+                                            @item.TenKhoaHoc
+                                        </a>
+                                    </div>
+                                    <div class="small text-muted mt-0.5 d-flex align-items-center gap-2">
+                                        <span><i class="bi bi-journal-text text-primary me-1"></i>@(item.TenMonHoc ?? "Chưa gán môn")</span>
+                                        <span>•</span>
+                                        <span class="badge bg-light text-secondary border" style="font-size: 10.5px;">@item.HinhThuc</span>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 10.5px;">@item.TrangThai</span>
+                                    </div>
+                                </td>
+
+                                <!-- Giảng viên -->
+                                <td>
+                                    <div class="text-dark fw-medium">
+                                        <i class="bi bi-person-badge text-primary me-1"></i>@(item.TenGiangVien ?? "Chưa phân công")
+                                    </div>
+                                    <small class="text-muted" style="font-size: 11px;">
+                                        @item.NgayBatDau.ToString("dd/MM/yyyy") &rarr; @item.NgayKetThuc.ToString("dd/MM/yyyy")
+                                    </small>
+                                </td>
+
+                                <!-- Sĩ số học viên hoàn thành -->
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border px-2.5 py-1.5 fw-semibold fs-6">
+                                        @item.SoDangKyHoanThanh
+                                    </span>
+                                    <div class="text-muted uneti-fs-xs mt-0.5">học viên</div>
+                                </td>
+
+                                <!-- Tiến độ nhập điểm -->
+                                <td>
+                                    <div class="d-flex justify-content-between align-items-center mb-1 small">
+                                        <span class="fw-medium text-dark">@item.SoDaCoKetQua/@item.SoDangKyHoanThanh HV</span>
+                                        <span class="fw-bold @(isFullScore ? "text-success" : (item.SoDaCoKetQua > 0 ? "text-primary" : "text-muted"))">
+                                            @item.TienDoNhapDiem%
+                                        </span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar @(isFullScore ? "bg-success" : (item.SoDaCoKetQua > 0 ? "bg-primary" : "bg-secondary"))" 
+                                             role="progressbar" 
+                                             style="width: @item.TienDoNhapDiem%;" 
+                                             aria-valuenow="@item.TienDoNhapDiem" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100"></div>
+                                    </div>
+                                </td>
+
+                                <!-- Điểm TB lớp -->
+                                <td class="text-center">
+                                    @if (item.DiemTBLop.HasValue)
+                                    {
+                                        <span class="fw-bold fs-6 @(item.DiemTBLop.Value >= 8.0m ? "text-success" : (item.DiemTBLop.Value >= 5.0m ? "text-primary" : "text-danger"))">
+                                            @item.DiemTBLop.Value.ToString("0.00")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fst-italic small">--</span>
+                                    }
+                                </td>
+
+                                <!-- Thao tác -->
+                                <td class="text-center">
+                                    @if (hasCompletedStudents)
+                                    {
+                                        <a asp-action="BangDiem" asp-route-maKhoaHoc="@item.MaKhoaHoc" class="btn btn-sm @(isFullScore ? "btn-outline-primary" : "btn-primary") px-3 py-1 shadow-sm d-inline-flex align-items-center gap-1">
+                                            <i class="bi @(isFullScore ? "bi-eye" : "bi-pencil-square")"></i>
+                                            <span>@(isFullScore ? "Bảng điểm" : "Nhập điểm")</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-light border px-2 py-1 text-muted" disabled title="Khóa chưa có học viên nào hoàn thành đăng ký">
+                                            <i class="bi bi-slash-circle me-1"></i>Trống
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <div class="mb-2"><i class="bi bi-inbox fs-1 text-secondary opacity-50"></i></div>
+                                <div class="fw-semibold">Không tìm thấy khóa học nào phù hợp</div>
+                                <small class="text-muted">Vui lòng điều chỉnh lại từ khóa hoặc bộ lọc tìm kiếm.</small>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PHÂN TRANG CHUẨN LINQ (Skip / Take) -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="p-3 bg-light border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="small text-muted">
+                    Hiển thị từ <strong>@((Model.PageIndex - 1) * Model.PageSize + 1)</strong> đến <strong>@(Math.Min(Model.PageIndex * Model.PageSize, Model.TotalItems))</strong> trong tổng số <strong>@Model.TotalItems</strong> khóa học
+                </div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0">
+                        <!-- Nút Trước -->
+                        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-pageIndex="@(Model.PageIndex - 1)"
+                               asp-route-searchString="@Model.SearchString"
+                               asp-route-maMonHoc="@Model.MaMonHoc"
+                               asp-route-tinhTrangDiem="@Model.TinhTrangDiem"
+                               asp-route-sortBy="@Model.SortBy">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        @for (int p = 1; p <= Model.TotalPages; p++)
+                        {
+                            <li class="page-item @(p == Model.PageIndex ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-pageIndex="@p"
+                                   asp-route-searchString="@Model.SearchString"
+                                   asp-route-maMonHoc="@Model.MaMonHoc"
+                                   asp-route-tinhTrangDiem="@Model.TinhTrangDiem"
+                                   asp-route-sortBy="@Model.SortBy">
+                                    @p
+                                </a>
+                            </li>
+                        }
+
+                        <!-- Nút Sau -->
+                        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-pageIndex="@(Model.PageIndex + 1)"
+                               asp-route-searchString="@Model.SearchString"
+                               asp-route-maMonHoc="@Model.MaMonHoc"
+                               asp-route-tinhTrangDiem="@Model.TinhTrangDiem"
+                               asp-route-sortBy="@Model.SortBy">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>

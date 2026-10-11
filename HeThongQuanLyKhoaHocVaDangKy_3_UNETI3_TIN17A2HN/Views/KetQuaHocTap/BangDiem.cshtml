@@ -1,0 +1,419 @@
+@*
+    Họ và tên: Nguyễn Công Thành
+    Mã sinh viên: 23103100102
+    Nội dung thực hiện: Module 5 - Giao diện Bảng điểm khóa học & Nhập điểm hàng loạt
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.BangDiemKhoaHocViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Bảng điểm & Nhập điểm - " + Model.TenKhoaHoc;
+}
+
+<div class="container-fluid px-0">
+    <!-- Tiêu đề trang & Điều hướng -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <a asp-action="Index" class="btn btn-sm btn-light border text-secondary shadow-none px-2 py-1">
+                    <i class="bi bi-arrow-left me-1"></i>Danh sách khóa học
+                </a>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1">
+                    Mã khóa: #KH@Model.MaKhoaHoc.ToString("D2")
+                </span>
+            </div>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-journal-check me-2 text-primary"></i>BẢNG ĐIỂM KHÓA HỌC: @Model.TenKhoaHoc
+            </h3>
+            <p class="text-muted mb-0 small">
+                Môn học: <strong>@Model.TenMonHoc</strong> (@Model.SoTinChi tín chỉ) • Giảng viên: <strong>@(Model.TenGiangVien ?? "Chưa phân công")</strong>
+            </p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <button type="submit" form="formBangDiem" class="btn btn-success btn-sm shadow-sm d-flex align-items-center gap-1 px-3 py-2 fw-semibold">
+                <i class="bi bi-floppy2-fill"></i>
+                <span>Lưu toàn bộ bảng điểm</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Thông báo TempData phản hồi -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-success-subtle mb-4 py-3 shadow-sm rounded-3" role="alert">
+            <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-danger-subtle mb-4 py-3 shadow-sm rounded-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- THẺ TỔNG HỢP THỐNG KÊ LỚP HỌC -->
+    <div class="row g-3 mb-4">
+        <!-- Sĩ số học viên -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Sĩ số hoàn thành</span>
+                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-people-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-dark mb-0" id="statTongHV">@Model.TongSoDangKyHoanThanh</h3>
+                <small class="text-secondary" style="font-size: 11px;">Đã hoàn tất thủ tục</small>
+            </div>
+        </div>
+
+        <!-- Đã có điểm -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-info bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Đã chấm điểm</span>
+                    <span class="badge bg-info-subtle text-info-emphasis rounded-circle p-2"><i class="bi bi-check2-circle fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-primary mb-0" id="statDaCham">@Model.SoDaCoKetQua</h3>
+                <small class="text-muted" style="font-size: 11px;">Còn lại: <span id="statChuaCham">@Model.SoChuaCoKetQua</span> HV</small>
+            </div>
+        </div>
+
+        <!-- Điểm trung bình lớp -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-warning bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Điểm TB cả lớp</span>
+                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-circle p-2"><i class="bi bi-bar-chart-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-warning-emphasis mb-0" id="statDiemTB">
+                    @(Model.DiemTBLop.HasValue ? Model.DiemTBLop.Value.ToString("0.00") : "--")
+                </h3>
+                <small class="text-muted" style="font-size: 11px;">Thang điểm 10</small>
+            </div>
+        </div>
+
+        <!-- Tỷ lệ Đạt -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Tỷ lệ Đạt yêu cầu</span>
+                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-award-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-success mb-0" id="statTyLeDat">@Model.TyLeDat%</h3>
+                <small class="text-success" style="font-size: 11px;"><span id="statSoDat">@Model.SoDat</span> Đạt / <span id="statSoKhongDat">@Model.SoKhongDat</span> Hỏng</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- HƯỚNG DẪN CÔNG THỨC TÍNH ĐIỂM -->
+    <div class="alert alert-light border rounded-3 p-3 mb-4 small d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+            <div>
+                <strong>Quy chế tính điểm:</strong>
+                <span>Điểm tổng kết = <code>Chuyên cần (10%)</code> + <code>Giữa kỳ (40%)</code> + <code>Cuối kỳ (50%)</code>.</span>
+                <span class="ms-2">Điểm &ge; 5.0 xếp loại <strong>ĐẠT</strong>.</span>
+            </div>
+        </div>
+        <div class="text-secondary">
+            <span class="badge bg-success-subtle text-success me-1">&ge; 9.0: Xuất sắc</span>
+            <span class="badge bg-primary-subtle text-primary me-1">&ge; 8.0: Giỏi</span>
+            <span class="badge bg-info-subtle text-info-emphasis me-1">&ge; 6.5: Khá</span>
+            <span class="badge bg-warning-subtle text-warning-emphasis me-1">&ge; 5.0: Trung bình</span>
+            <span class="badge bg-danger-subtle text-danger">&lt; 5.0: Yếu</span>
+        </div>
+    </div>
+
+    <!-- BẢNG NHẬP ĐIỂM HÀNG LOẠT -->
+    <div class="uneti-card shadow-sm overflow-hidden mb-4 bg-white rounded-3 border">
+        <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark small text-uppercase">
+                <i class="bi bi-pencil-square me-1 text-primary"></i>Danh sách học viên và bảng điểm (@Model.DanhSachDiem.Count học viên)
+            </span>
+            <div class="small text-muted">
+                <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Hệ thống tự động tính điểm tổng kết &amp; xếp loại tức thì
+            </div>
+        </div>
+
+        <form asp-action="LuuDiem" method="post" id="formBangDiem">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="MaKhoaHoc" />
+            <input type="hidden" asp-for="TenKhoaHoc" />
+            <input type="hidden" asp-for="TenMonHoc" />
+            <input type="hidden" asp-for="SoTinChi" />
+            <input type="hidden" asp-for="TenGiangVien" />
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="tableDiem" style="font-size: 13.5px;">
+                    <thead class="table-light text-secondary border-bottom">
+                        <tr>
+                            <th class="text-center" style="width: 50px;">STT</th>
+                            <th style="min-width: 180px;">Họ và tên học viên</th>
+                            <th style="width: 120px;" class="text-center">Chuyên cần<br /><small class="fw-normal text-muted">(10%)</small></th>
+                            <th style="width: 120px;" class="text-center">Giữa kỳ<br /><small class="fw-normal text-muted">(40%)</small></th>
+                            <th style="width: 120px;" class="text-center">Cuối kỳ<br /><small class="fw-normal text-muted">(50%)</small></th>
+                            <th style="width: 120px;" class="text-center">Tổng kết</th>
+                            <th style="width: 120px;" class="text-center">Xếp loại</th>
+                            <th style="width: 110px;" class="text-center">Kết quả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DanhSachDiem != null && Model.DanhSachDiem.Any())
+                        {
+                            for (int i = 0; i < Model.DanhSachDiem.Count; i++)
+                            {
+                                var item = Model.DanhSachDiem[i];
+                                var isDat = item.KetQua == "Dat";
+
+                                <tr class="diem-row" data-index="@i">
+                                    <!-- STT -->
+                                    <td class="text-center text-muted fw-semibold">
+                                        @(i + 1)
+                                        <input type="hidden" name="DanhSachDiem[@i].MaDangKy" value="@item.MaDangKy" />
+                                        <input type="hidden" name="DanhSachDiem[@i].MaHocVien" value="@item.MaHocVien" />
+                                        <input type="hidden" name="DanhSachDiem[@i].HoTenHocVien" value="@item.HoTenHocVien" />
+                                        <input type="hidden" name="DanhSachDiem[@i].EmailHocVien" value="@item.EmailHocVien" />
+                                        <input type="hidden" name="DanhSachDiem[@i].MaKetQua" value="@item.MaKetQua" />
+                                    </td>
+
+                                    <!-- Học viên -->
+                                    <td>
+                                        <div class="fw-bold text-dark">@item.HoTenHocVien</div>
+                                        <div class="text-muted uneti-fs-xs">
+                                            <span>#ĐK: @item.MaDangKy</span>
+                                            @if (!string.IsNullOrEmpty(item.EmailHocVien))
+                                            {
+                                                <span> • @item.EmailHocVien</span>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <!-- Điểm chuyên cần (10%) -->
+                                    <td class="text-center">
+                                        <input type="number" 
+                                               step="0.1" 
+                                               min="0" 
+                                               max="10" 
+                                               name="DanhSachDiem[@i].DiemChuyenCan" 
+                                               value="@item.DiemChuyenCan.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" 
+                                               class="form-control form-control-sm text-center fw-semibold diem-input input-cc" 
+                                               data-index="@i" 
+                                               placeholder="0.0" />
+                                    </td>
+
+                                    <!-- Điểm giữa kỳ (40%) -->
+                                    <td class="text-center">
+                                        <input type="number" 
+                                               step="0.1" 
+                                               min="0" 
+                                               max="10" 
+                                               name="DanhSachDiem[@i].DiemGiuaKy" 
+                                               value="@item.DiemGiuaKy.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" 
+                                               class="form-control form-control-sm text-center fw-semibold diem-input input-gk" 
+                                               data-index="@i" 
+                                               placeholder="0.0" />
+                                    </td>
+
+                                    <!-- Điểm cuối kỳ (50%) -->
+                                    <td class="text-center">
+                                        <input type="number" 
+                                               step="0.1" 
+                                               min="0" 
+                                               max="10" 
+                                               name="DanhSachDiem[@i].DiemCuoiKy" 
+                                               value="@item.DiemCuoiKy.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" 
+                                               class="form-control form-control-sm text-center fw-semibold diem-input input-ck" 
+                                               data-index="@i" 
+                                               placeholder="0.0" />
+                                    </td>
+
+                                    <!-- Điểm tổng kết tự động -->
+                                    <td class="text-center">
+                                        <span class="fw-bold fs-6 label-tongket @(item.DiemTongKet >= 8.0m ? "text-success" : (item.DiemTongKet >= 5.0m ? "text-primary" : "text-danger"))" 
+                                              id="tongket_@i">
+                                            @item.DiemTongKet.ToString("0.00")
+                                        </span>
+                                    </td>
+
+                                    <!-- Xếp loại -->
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border px-2 py-1 label-xeploai" id="xeploai_@i">
+                                            @TranslateXepLoai(item.XepLoai)
+                                        </span>
+                                    </td>
+
+                                    <!-- Kết quả -->
+                                    <td class="text-center">
+                                        <span class="badge @(isDat ? "bg-success" : (item.KetQua == "KhongDat" ? "bg-danger" : "bg-secondary")) px-2.5 py-1 rounded-pill label-ketqua" 
+                                              id="ketqua_@i">
+                                            @(isDat ? "ĐẠT" : (item.KetQua == "KhongDat" ? "HỎNG" : "Chưa có"))
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-5 text-muted">
+                                    <div class="mb-2"><i class="bi bi-people fs-1 text-secondary opacity-50"></i></div>
+                                    <div class="fw-semibold">Khóa học này chưa có học viên nào hoàn thành đăng ký</div>
+                                    <small class="text-muted">Chỉ các đơn đăng ký ở trạng thái 'Hoàn thành' mới được lập danh sách nhập điểm.</small>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="p-3 bg-light border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+                </a>
+                <div class="d-flex gap-2">
+                    <button type="reset" class="btn btn-light border btn-sm">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Khôi phục giá trị cũ
+                    </button>
+                    <button type="submit" class="btn btn-success btn-sm shadow-sm fw-semibold px-4">
+                        <i class="bi bi-floppy2-fill me-1"></i>Lưu toàn bộ bảng điểm
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@functions {
+    public static string TranslateXepLoai(string? xl)
+    {
+        return xl switch
+        {
+            "XuatSac" => "Xuất sắc",
+            "Gioi" => "Giỏi",
+            "Kha" => "Khá",
+            "TrungBinh" => "Trung bình",
+            "Yeu" => "Yếu",
+            _ => xl ?? "Chưa xếp loại"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            // Lắng nghe sự kiện gõ điểm để tự động tính toán tổng kết và xếp loại realtime
+            const table = document.getElementById('tableDiem');
+            if (!table) return;
+
+            function tinhDiemDong(row) {
+                const idx = row.getAttribute('data-index');
+                const ccInput = row.querySelector('.input-cc');
+                const gkInput = row.querySelector('.input-gk');
+                const ckInput = row.querySelector('.input-ck');
+
+                let cc = parseFloat(ccInput?.value) || 0;
+                let gk = parseFloat(gkInput?.value) || 0;
+                let ck = parseFloat(ckInput?.value) || 0;
+
+                // Giới hạn [0, 10]
+                cc = Math.max(0, Math.min(10, cc));
+                gk = Math.max(0, Math.min(10, gk));
+                ck = Math.max(0, Math.min(10, ck));
+
+                // Công thức: CC*0.1 + GK*0.4 + CK*0.5
+                const tongKet = Math.round((cc * 0.1 + gk * 0.4 + ck * 0.5) * 100) / 100;
+
+                // Xếp loại
+                let xepLoai = "Yếu";
+                let badgeClass = "text-danger";
+                if (tongKet >= 9.0) {
+                    xepLoai = "Xuất sắc";
+                    badgeClass = "text-success";
+                } else if (tongKet >= 8.0) {
+                    xepLoai = "Giỏi";
+                    badgeClass = "text-success";
+                } else if (tongKet >= 6.5) {
+                    xepLoai = "Khá";
+                    badgeClass = "text-primary";
+                } else if (tongKet >= 5.0) {
+                    xepLoai = "Trung bình";
+                    badgeClass = "text-primary";
+                }
+
+                const isDat = tongKet >= 5.0;
+
+                // Cập nhật DOM trên dòng
+                const labelTongKet = document.getElementById('tongket_' + idx);
+                const labelXepLoai = document.getElementById('xeploai_' + idx);
+                const labelKetQua = document.getElementById('ketqua_' + idx);
+
+                if (labelTongKet) {
+                    labelTongKet.textContent = tongKet.toFixed(2);
+                    labelTongKet.className = 'fw-bold fs-6 label-tongket ' + badgeClass;
+                }
+
+                if (labelXepLoai) {
+                    labelXepLoai.textContent = xepLoai;
+                }
+
+                if (labelKetQua) {
+                    labelKetQua.textContent = isDat ? 'ĐẠT' : 'HỎNG';
+                    labelKetQua.className = 'badge px-2.5 py-1 rounded-pill label-ketqua ' + (isDat ? 'bg-success' : 'bg-danger');
+                }
+            }
+
+            function capNhatThongKeLop() {
+                const rows = document.querySelectorAll('.diem-row');
+                if (rows.length === 0) return;
+
+                let tongDiem = 0;
+                let countCham = 0;
+                let countDat = 0;
+                let countKhongDat = 0;
+
+                rows.forEach(r => {
+                    const idx = r.getAttribute('data-index');
+                    const labelTongKet = document.getElementById('tongket_' + idx);
+                    if (labelTongKet) {
+                        const tk = parseFloat(labelTongKet.textContent) || 0;
+                        tongDiem += tk;
+                        countCham++;
+                        if (tk >= 5.0) countDat++;
+                        else countKhongDat++;
+                    }
+                });
+
+                const dtb = countCham > 0 ? (tongDiem / countCham).toFixed(2) : "--";
+                const tyLeDat = countCham > 0 ? Math.round((countDat / countCham) * 1000) / 10 : 0;
+
+                const elDiemTB = document.getElementById('statDiemTB');
+                const elTyLeDat = document.getElementById('statTyLeDat');
+                const elSoDat = document.getElementById('statSoDat');
+                const elSoKhongDat = document.getElementById('statSoKhongDat');
+                const elDaCham = document.getElementById('statDaCham');
+                const elChuaCham = document.getElementById('statChuaCham');
+
+                if (elDiemTB) elDiemTB.textContent = dtb;
+                if (elTyLeDat) elTyLeDat.textContent = tyLeDat + '%';
+                if (elSoDat) elSoDat.textContent = countDat;
+                if (elSoKhongDat) elSoKhongDat.textContent = countKhongDat;
+                if (elDaCham) elDaCham.textContent = countCham;
+                if (elChuaCham) elChuaCham.textContent = Math.max(0, rows.length - countCham);
+            }
+
+            // Gán event listener oninput cho mọi input điểm
+            table.addEventListener('input', function (e) {
+                if (e.target.classList.contains('diem-input')) {
+                    const row = e.target.closest('.diem-row');
+                    if (row) {
+                        tinhDiemDong(row);
+                        capNhatThongKeLop();
+                    }
+                }
+            });
+        })();
+    </script>
+}
