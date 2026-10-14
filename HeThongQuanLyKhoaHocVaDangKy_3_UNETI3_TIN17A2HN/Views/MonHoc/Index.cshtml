@@ -21,138 +21,69 @@
     bool hasActiveFilter = !string.IsNullOrWhiteSpace(currentSearch) || currentTinChi.HasValue || currentTrangThai.HasValue;
 }
 
+<link rel="stylesheet" href="~/css/monhoc-v2.css" asp-append-version="true" />
+
 <div class="container py-4">
-    <!-- 1. TIÊU ĐỀ TRANG GỌN GÀNG, TINH TẾ -->
-    <div class="mb-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <h3 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
-                    <i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>DANH MỤC MÔN HỌC ĐÀO TẠO
-                </h3>
-                <p class="text-muted mb-0 small">
-                    Hệ thống học phần đào tạo theo học chế tín chỉ &bull; Trường Đại học Kinh tế - Kỹ thuật Công nghiệp
-                </p>
+    <!-- 1. BANNER TIÊU ĐỀ -->
+    <div class="mh2-page-banner mb-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="mh2-banner-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <h1 class="mh2-banner-title">DANH MỤC MÔN HỌC ĐÀO TẠO</h1>
+                    <p class="mh2-banner-sub">
+                        Hệ thống học phần đào tạo theo học chế tín chỉ &bull; Trường Đại học Kinh tế - Kỹ thuật Công nghiệp (UNETI)
+                    </p>
+                </div>
             </div>
 
             <!-- Cụm thông tin & hành động góc phải -->
             <div class="d-flex align-items-center gap-2">
-                @if (isStaffOrAdmin)
+                @if (userRole == "Admin")
                 {
-                    <a asp-action="QuanLy" class="btn btn-warning text-dark fw-bold shadow-sm text-decoration-none rounded-3 btn-sm py-2 px-3">
-                        <i class="bi bi-gear-fill me-1"></i>Vào Console Quản trị (Admin)
+                    <a asp-action="QuanLy" class="btn btn-sm py-2 px-3 rounded-pill fw-semibold shadow-sm mh2-admin-btn text-decoration-none">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Quản trị môn học
                     </a>
                 }
                 else if (!isLoggedIn)
                 {
-                    <a asp-controller="TaiKhoan" asp-action="Login" class="btn uneti-btn-primary btn-sm py-2 px-3 rounded-3 shadow-sm text-decoration-none">
+                    <a asp-controller="TaiKhoan" asp-action="Login" class="btn btn-light btn-sm py-2 px-3 rounded-pill shadow-sm text-decoration-none fw-bold text-primary">
                         <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập học viên
                     </a>
                 }
-                <span class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-semibold shadow-sm small">
-                    <i class="bi bi-collection text-primary me-1"></i><strong>@totalCount</strong> môn học
+                <span class="mh2-badge-count">
+                    <i class="bi bi-journal-check text-primary"></i><strong>@totalCount</strong> môn học
                 </span>
             </div>
         </div>
     </div>
 
-    @if (isStaffOrAdmin)
-    {
-        <div class="alert alert-info border-0 shadow-sm py-2 px-3 rounded-3 small d-flex align-items-center justify-content-between mb-4 bg-primary-subtle text-primary border border-primary-subtle">
-            <div>
-                <i class="bi bi-info-circle-fill me-2 fs-6 align-middle"></i>
-                <span class="align-middle">Bạn đang xem chế độ <strong>Giao diện Học viên & Khách tra cứu (Card Grid)</strong>. Để thêm, sửa hoặc xóa môn học, vui lòng vào trang Quản trị.</span>
-            </div>
-            <a asp-action="QuanLy" class="btn btn-sm btn-primary fw-semibold ms-3 text-nowrap rounded-2 py-1 px-3" style="font-size: 12px;">
-                Quản trị môn học <i class="bi bi-arrow-right ms-1"></i>
-            </a>
-        </div>
-    }
+    <!-- 2. HỘP CÔNG CỤ TÌM KIẾM & BỘ LỌC HIỆN ĐẠI (2 TẦNG MẠCH LẠC) -->
+    <div class="mh2-filter-card">
+        <form id="filterForm" method="get" asp-action="Index">
+            <!-- Hidden inputs điều khiển bởi chip lọc -->
+            <input type="hidden" id="soTinChi" name="soTinChi" value="@(currentTinChi?.ToString() ?? "")" />
+            <input type="hidden" id="trangThai" name="trangThai" value="@(currentTrangThai.HasValue ? currentTrangThai.Value.ToString().ToLower() : "")" />
 
-    <!-- Thanh tìm kiếm & bộ lọc -->
-    <div class="uneti-card p-3 mb-3 shadow-sm rounded-4">
-        <style>
-            /* Triệt tiêu hoàn toàn vệt kẻ xanh, outline, viền và shadow bên trong các input-group của bộ lọc */
-            #filterForm .input-group {
-                transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            }
-            #filterForm .input-group:focus-within {
-                border-color: #3b82f6 !important;
-                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
-            }
-            #filterForm .input-group .form-select,
-            #filterForm .input-group .form-select:focus,
-            #filterForm .input-group .form-select:focus-visible,
-            #filterForm .input-group .form-select:active,
-            #filterForm .input-group .form-control,
-            #filterForm .input-group .form-control:focus,
-            #filterForm .input-group .form-control:focus-visible,
-            #filterForm .input-group .form-control:active {
-                border: none !important;
-                border-left: none !important;
-                border-right: none !important;
-                outline: none !important;
-                box-shadow: none !important;
-                -webkit-box-shadow: none !important;
-                background-color: transparent !important;
-            }
-            #filterForm .input-group-text {
-                border: none !important;
-                border-right: none !important;
-                outline: none !important;
-                box-shadow: none !important;
-            }
-        </style>
-        <form id="filterForm" method="get" asp-action="Index" class="row g-2 align-items-center">
-            <!-- Ô tìm kiếm tức thì (Debounced) -->
-            <div class="col-lg-3 col-md-12">
-                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
-                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" id="searchString" name="searchString" value="@ViewBag.CurrentSearch" 
-                           class="form-control border-0 bg-transparent shadow-none px-1" 
-                           placeholder="Tìm kiếm theo tên môn học, mã môn..." 
-                           autocomplete="off" style="font-size: 0.85rem; outline: none; box-shadow: none;" />
+            <!-- Tầng 1: Ô tìm kiếm rộng rãi & Dropdown sắp xếp & Nút đặt lại -->
+            <div class="mh2-search-row">
+                <!-- Ô tìm kiếm tức thì -->
+                <div class="mh2-search-input-wrap">
+                    <i class="bi bi-search mh2-search-icon"></i>
+                    <input type="text" id="searchString" name="searchString" value="@ViewBag.CurrentSearch"
+                           class="form-control" placeholder="Tìm kiếm theo tên môn học, mã môn (MH001, C#, SQL...)"
+                           autocomplete="off" />
+                    <button type="button" class="mh2-search-clear-btn @(string.IsNullOrWhiteSpace(currentSearch) ? "d-none" : "")" id="btnSearchClear" title="Xóa tìm kiếm">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
                 </div>
-            </div>
 
-            <!-- Lọc số tín chỉ -->
-            <div class="col-lg-2 col-sm-6">
-                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
-                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
-                        <i class="bi bi-circle-square"></i> <!-- Hoặc icon phù hợp -->
-                    </span>
-                    <select id="soTinChi" name="soTinChi" class="form-select border-0 bg-transparent shadow-none px-1 text-muted" style="font-size: 0.85rem; outline: none; border: none; box-shadow: none;">
-                        <option value="">Tất cả tín chỉ</option>
-                        <option value="2" selected="@(currentTinChi == 2)">2 Tín chỉ</option>
-                        <option value="3" selected="@(currentTinChi == 3)">3 Tín chỉ</option>
-                        <option value="4" selected="@(currentTinChi == 4)">4 Tín chỉ</option>
-                        <option value="5" selected="@(currentTinChi == 5)">5 Tín chỉ</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Lọc trạng thái -->
-            <div class="col-lg-2 col-sm-6">
-                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
-                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
-                        <i class="bi bi-activity"></i>
-                    </span>
-                    <select id="trangThai" name="trangThai" class="form-select border-0 bg-transparent shadow-none px-1 text-muted" style="font-size: 0.85rem; outline: none; border: none; box-shadow: none;">
-                        <option value="">Trạng thái</option>
-                        <option value="true" selected="@(currentTrangThai == true)">Đang mở</option>
-                        <option value="false" selected="@(currentTrangThai == false)">Tạm dừng</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Sắp xếp danh mục -->
-            <div class="col-lg-2 col-sm-6">
-                <div class="input-group rounded-pill border bg-white shadow-sm overflow-hidden" style="height: 42px;">
-                    <span class="input-group-text bg-transparent border-0 text-primary ps-3 pe-2">
-                        <i class="bi bi-sort-down"></i>
-                    </span>
-                    <select id="sortBy" name="sortBy" class="form-select border-0 bg-transparent shadow-none px-1 text-muted" style="font-size: 0.85rem; outline: none; border: none; box-shadow: none;">
+                <!-- Dropdown Sắp xếp danh mục -->
+                <div class="mh2-sort-control">
+                    <i class="bi bi-arrow-down-up mh2-sort-icon"></i>
+                    <select id="sortBy" name="sortBy" class="form-select mh2-sort-select">
                         <option value="" selected="@(string.IsNullOrEmpty(sortBy))">Mã môn (Mặc định)</option>
                         <option value="ten_asc" selected="@(sortBy == "ten_asc")">Tên môn: A &rarr; Z</option>
                         <option value="ten_desc" selected="@(sortBy == "ten_desc")">Tên môn: Z &rarr; A</option>
@@ -162,44 +93,57 @@
                         <option value="hocphi_desc" selected="@(sortBy == "hocphi_desc")">Học phí: Cao &rarr; Thấp</option>
                     </select>
                 </div>
-            </div>
 
-            <!-- Nút hành động Lọc môn -->
-            <div class="col-lg-3 col-md-12">
-                <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-pill fw-semibold" style="height: 42px; font-size: 0.9rem;">
-                    <i class="bi bi-funnel-fill"></i>
-                    Lọc môn
+                <!-- Nút đặt lại toàn bộ bộ lọc -->
+                <button type="button" class="mh2-reset-btn js-clear-filters @(!hasActiveFilter ? "d-none" : "")" id="btnResetFilters" title="Đặt lại bộ lọc">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span>Đặt lại</span>
                 </button>
             </div>
-        </form>
 
-        <!-- 3. CHIP LỌC NHANH (QUICK FILTER CHIPS) -->
-        <div class="d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top border-light">
-            <span class="small text-primary fw-semibold me-2 d-flex align-items-center gap-1">
-                <i class="bi bi-tags"></i> Lọc nhanh:
-            </span>
-            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(!hasActiveFilter ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="all">
-                <i class="bi bi-grid-fill me-1 small"></i> Tất cả
-            </button>
-            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 2 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="2">
-                2 Tín chỉ
-            </button>
-            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 3 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="3">
-                3 Tín chỉ
-            </button>
-            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 4 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="4">
-                4 Tín chỉ
-            </button>
-            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTinChi == 5 ? "btn-primary" : "bg-primary-subtle text-primary border-0")" data-type="tinchi" data-value="5">
-                5 Tín chỉ
-            </button>
-            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTrangThai == true ? "btn-success" : "bg-success-subtle text-success border-0")" data-type="trangthai" data-value="true">
-                <i class="bi bi-check-circle-fill me-1"></i> Đang mở
-            </button>
-            <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new @(currentTrangThai == false ? "btn-danger" : "bg-danger-subtle text-danger border-0")" data-type="trangthai" data-value="false">
-                <i class="bi bi-pause-circle-fill me-1"></i> Tạm dừng
-            </button>
-        </div>
+            <!-- Tầng 2: Hệ thống Chip lọc 1 chạm (Segmented Filter Chips) -->
+            <div class="mh2-chips-container">
+                <!-- Nhóm Tín chỉ -->
+                <div class="mh2-chip-cluster">
+                    <span class="mh2-chip-label">
+                        <i class="bi bi-mortarboard"></i> Tín chỉ:
+                    </span>
+                    <button type="button" class="mh2-chip js-filter-chip-new @(!currentTinChi.HasValue ? "active" : "")" data-type="tinchi" data-value="">
+                        Tất cả
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip-new @(currentTinChi == 2 ? "active" : "")" data-type="tinchi" data-value="2">
+                        2 Tín chỉ
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip-new @(currentTinChi == 3 ? "active" : "")" data-type="tinchi" data-value="3">
+                        3 Tín chỉ
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip-new @(currentTinChi == 4 ? "active" : "")" data-type="tinchi" data-value="4">
+                        4 Tín chỉ
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip-new @(currentTinChi == 5 ? "active" : "")" data-type="tinchi" data-value="5">
+                        5 Tín chỉ
+                    </button>
+                </div>
+
+                <div class="mh2-chip-separator d-none d-md-block" aria-hidden="true"></div>
+
+                <!-- Nhóm Trạng thái -->
+                <div class="mh2-chip-cluster">
+                    <span class="mh2-chip-label">
+                        <i class="bi bi-activity"></i> Trạng thái:
+                    </span>
+                    <button type="button" class="mh2-chip js-filter-chip-new @(!currentTrangThai.HasValue ? "active" : "")" data-type="trangthai" data-value="">
+                        Tất cả
+                    </button>
+                    <button type="button" class="mh2-chip mh2-chip-status-open js-filter-chip-new @(currentTrangThai == true ? "active" : "")" data-type="trangthai" data-value="true">
+                        <span class="mh2-dot mh2-dot-open"></span> Đang mở
+                    </button>
+                    <button type="button" class="mh2-chip mh2-chip-status-paused js-filter-chip-new @(currentTrangThai == false ? "active" : "")" data-type="trangthai" data-value="false">
+                        <span class="mh2-dot mh2-dot-paused"></span> Tạm dừng
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 
     <!-- Danh sách môn học (AJAX) -->
@@ -317,78 +261,120 @@
                 });
             }
 
-            // 1. Debounce tìm kiếm tức thì 300ms
-            searchInput.addEventListener('input', function () {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    fetchResults(false, 1);
-                }, 300);
-            });
+            // Cập nhật trạng thái hiển thị của nút Xóa tìm kiếm và nút Đặt lại bộ lọc
+            function updateFilterUI() {
+                const hasSearch = searchInput && searchInput.value.trim().length > 0;
+                const hasTinChi = selectTinChi && selectTinChi.value !== '';
+                const hasTrangThai = selectTrangThai && selectTrangThai.value !== '';
+                const hasSort = selectSortBy && selectSortBy.value !== '';
 
-            // 2. Thay đổi dropdown Lọc / Sắp xếp
-            selectTinChi.addEventListener('change', () => fetchResults(false, 1));
-            selectTrangThai.addEventListener('change', () => fetchResults(false, 1));
-            selectSortBy.addEventListener('change', () => fetchResults(false, 1));
+                if (btnSearchClear) {
+                    btnSearchClear.classList.toggle('d-none', !hasSearch);
+                }
+                if (btnResetFilters) {
+                    btnResetFilters.classList.toggle('d-none', !(hasSearch || hasTinChi || hasTrangThai || hasSort));
+                }
+            }
+
+            // Hàm xóa toàn bộ bộ lọc
+            function resetAllFilters() {
+                if (searchInput) searchInput.value = '';
+                if (selectTinChi) selectTinChi.value = '';
+                if (selectTrangThai) selectTrangThai.value = '';
+                if (selectSortBy) selectSortBy.value = '';
+
+                // Đồng bộ lại các chip về "Tất cả"
+                document.querySelectorAll('.js-filter-chip-new').forEach(c => {
+                    const cVal = c.getAttribute('data-value');
+                    c.classList.toggle('active', cVal === '');
+                });
+
+                updateFilterUI();
+                fetchResults(false, 1);
+            }
+
+            // 1. Debounce tìm kiếm tức thì 300ms
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    updateFilterUI();
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        fetchResults(false, 1);
+                    }, 300);
+                });
+            }
+
+            // Nút xóa nhanh ô tìm kiếm
+            if (btnSearchClear) {
+                btnSearchClear.addEventListener('click', function () {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    updateFilterUI();
+                    fetchResults(false, 1);
+                });
+            }
+
+            // 2. Thay đổi dropdown Sắp xếp
+            if (selectSortBy) {
+                selectSortBy.addEventListener('change', () => {
+                    updateFilterUI();
+                    fetchResults(false, 1);
+                });
+            }
 
             // Ngăn form submit reload trang
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                fetchResults(false, 1);
-            });
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    fetchResults(false, 1);
+                });
+            }
 
-            // 3. Xử lý Chip lọc nhanh
+            // 3. Xử lý Chip lọc nhanh (Tín chỉ & Trạng thái 1 chạm)
             document.querySelectorAll('.js-filter-chip-new').forEach(chip => {
                 chip.addEventListener('click', function () {
                     const type = this.getAttribute('data-type');
                     const val = this.getAttribute('data-value');
 
-                    if (type === 'all') {
-                        selectTinChi.value = '';
-                        selectTrangThai.value = '';
-                    } else if (type === 'tinchi') {
-                        selectTinChi.value = selectTinChi.value === val ? '' : val;
+                    if (type === 'tinchi') {
+                        // Nếu bấm lại chính chip đang chọn (và val != '') -> bỏ chọn về ''
+                        if (selectTinChi.value === val && val !== '') {
+                            selectTinChi.value = '';
+                        } else {
+                            selectTinChi.value = val;
+                        }
                     } else if (type === 'trangthai') {
-                        selectTrangThai.value = selectTrangThai.value === val ? '' : val;
+                        if (selectTrangThai.value === val && val !== '') {
+                            selectTrangThai.value = '';
+                        } else {
+                            selectTrangThai.value = val;
+                        }
                     }
 
-                    // Đồng bộ class trên các chips
+                    // Đồng bộ class .active trên các chip cùng nhóm
                     document.querySelectorAll('.js-filter-chip-new').forEach(c => {
                         const cType = c.getAttribute('data-type');
                         const cVal = c.getAttribute('data-value');
-                        let isActive = false;
-                        if (cType === 'all') {
-                            isActive = !selectTinChi.value && selectTrangThai.value === '';
-                        } else if (cType === 'tinchi') {
-                            isActive = selectTinChi.value === cVal;
+                        if (cType === 'tinchi') {
+                            const isMatch = selectTinChi.value === cVal || (!selectTinChi.value && cVal === '');
+                            c.classList.toggle('active', isMatch);
                         } else if (cType === 'trangthai') {
-                            isActive = selectTrangThai.value === cVal;
-                        }
-
-                        // Reset class
-                        if (isActive) {
-                            if (cType === 'trangthai' && cVal === 'true') {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-success';
-                            } else if (cType === 'trangthai' && cVal === 'false') {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-danger';
-                            } else {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-primary';
-                            }
-                        } else {
-                            if (cType === 'trangthai' && cVal === 'true') {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-success-subtle text-success border-0';
-                            } else if (cType === 'trangthai' && cVal === 'false') {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-danger-subtle text-danger border-0';
-                            } else {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-primary-subtle text-primary border-0';
-                            }
+                            const isMatch = selectTrangThai.value === cVal || (!selectTrangThai.value && cVal === '');
+                            c.classList.toggle('active', isMatch);
                         }
                     });
 
+                    updateFilterUI();
                     fetchResults(false, 1);
                 });
             });
 
-            // Xử lý sự kiện phân trang AJAX
+            // Nút Đặt lại bộ lọc tại thanh công cụ
+            if (btnResetFilters) {
+                btnResetFilters.addEventListener('click', resetAllFilters);
+            }
+
+            // Xử lý sự kiện phân trang và các nút khác trong container AJAX
             gridContainer.addEventListener('click', function (e) {
                 // Chuyển trang AJAX
                 const pageLink = e.target.closest('.js-page-link');
@@ -399,30 +385,11 @@
                     return;
                 }
 
-                // Xóa bộ lọc
+                // Xóa bộ lọc từ grid container
                 const clearBtn = e.target.closest('.js-clear-filters');
                 if (clearBtn) {
                     e.preventDefault();
-                    searchInput.value = '';
-                    selectTinChi.value = '';
-                    selectTrangThai.value = '';
-                    selectSortBy.value = '';
-                    document.querySelectorAll('.js-filter-chip-new').forEach(c => {
-                        const cType = c.getAttribute('data-type');
-                        const cVal = c.getAttribute('data-value');
-                        if (cType === 'all') {
-                            c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new btn-primary';
-                        } else {
-                            if (cType === 'trangthai' && cVal === 'true') {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-success-subtle text-success border-0';
-                            } else if (cType === 'trangthai' && cVal === 'false') {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-danger-subtle text-danger border-0';
-                            } else {
-                                c.className = 'btn btn-sm rounded-pill px-3 py-1 fw-semibold js-filter-chip-new bg-primary-subtle text-primary border-0';
-                            }
-                        }
-                    });
-                    fetchResults(false, 1);
+                    resetAllFilters();
                     return;
                 }
 
@@ -435,7 +402,8 @@
                 }
             });
 
-            // Khởi tạo chế độ xem ban đầu
+            // Khởi tạo trạng thái ban đầu
+            updateFilterUI();
             applyViewMode();
         });
     </script>

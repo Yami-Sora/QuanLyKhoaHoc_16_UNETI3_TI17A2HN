@@ -117,14 +117,11 @@
                     <span>Ghi danh tại quầy</span>
                 </a>
 
-                <!-- 6. KẾT QUẢ ĐÀO TẠO -->
+                <!-- 6. KẾT QUẢ ĐÀO TẠO (Module 5 - Nguyễn Công Thành - 23103100102) -->
                 <div class="admin-menu-header mt-2">Kết quả đào tạo</div>
 
-                <a href="#module-pending" role="button" class="admin-nav-item module-placeholder-link"
-                   title="Quản lý kết quả học tập"
-                   data-module="Module 5 (Kết quả, Dashboard & Thống kê)"
-                   data-feature="Quản lý kết quả học tập & Điểm số"
-                   data-desc="Bao gồm: Cập nhật điểm chuyên cần, giữa kỳ, cuối kỳ, tự động tính điểm tổng kết và xếp loại học lực học viên.">
+                <a asp-controller="KetQuaHocTap" asp-action="Index" class="admin-nav-item @(currentController == "KetQuaHocTap" ? "active" : "")"
+                   title="Quản lý kết quả học tập & Bảng điểm">
                     <i class="bi bi-award-fill"></i>
                     <span>Quản lý kết quả học tập</span>
                 </a>

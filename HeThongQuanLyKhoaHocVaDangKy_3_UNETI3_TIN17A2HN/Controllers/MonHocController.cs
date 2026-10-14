@@ -25,7 +25,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         public async Task<IActionResult> Index(string? searchString, int? soTinChi, bool? trangThai, string? sortBy = null, int page = 1, int pageSize = 6, int? pageIndex = null)
         {
             if (pageIndex.HasValue && pageIndex.Value > 0) page = pageIndex.Value;
-            var query = _context.MonHocs.AsQueryable();
+            var query = _context.MonHocs.AsNoTracking().AsQueryable();
 
             // Tìm kiếm theo tên môn học hoặc mã môn học
             if (!string.IsNullOrWhiteSpace(searchString))
@@ -35,7 +35,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 var cleanCode = term.Replace("#", "").Replace("mh", "").TrimStart('0');
                 bool isNumeric = int.TryParse(cleanCode, out int searchId);
 
-                query = query.Where(m => m.TenMonHoc.Contains(trimmed)
+                query = query.Where(m => m.TenMonHoc.ToLower().Contains(term)
                                       || (isNumeric && m.MaMonHoc == searchId)
                                       || m.MaMonHoc.ToString().Contains(term));
                 ViewBag.CurrentSearch = trimmed;
@@ -151,7 +151,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
         // GET: /MonHoc/QuanLy
         // Quyền: Chỉ Admin và Nhân viên đào tạo mới được phép truy cập
-        [AuthorizeRole("Admin", "NhanVien")]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> QuanLy(string? searchString, bool? trangThai, int page = 1, int pageSize = 10)
         {
             // Thống kê số liệu tổng thể phục vụ 4 thẻ Stat Cards
@@ -235,6 +235,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
                 try
                 {
+                    monHoc.TenMonHoc = monHoc.TenMonHoc?.Trim() ?? string.Empty;
+                    monHoc.MoTa = monHoc.MoTa?.Trim();
                     _context.Add(monHoc);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = $"Đã thêm mới môn học '{monHoc.TenMonHoc}' thành công!";
@@ -292,13 +294,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                         return NotFound();
                     }
 
-                    // Kiểm tra khóa học đang mở trước khi tạm dừng
+                    // Kiểm tra khóa học đang hoạt động trước khi tạm dừng (Đề 16 Mục 5.5, 6.7, 8.3)
                     if (!monHoc.TrangThai && existing.TrangThai)
                     {
-                        bool coKhoaHocDangMo = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && k.TrangThai == "DangMo");
-                        if (coKhoaHocDangMo)
+                        bool coKhoaHocHoatDong = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && (k.TrangThai == "DangMo" || k.TrangThai == "DangHoc" || k.TrangThai == "SapMo"));
+                        if (coKhoaHocHoatDong)
                         {
-                            ModelState.AddModelError(nameof(monHoc.TrangThai), "Không thể chuyển môn học sang 'Tạm dừng' vì vẫn còn lớp khóa học đang mở.");
+                            ModelState.AddModelError(nameof(monHoc.TrangThai), "Không thể chuyển môn học sang 'Tạm dừng' vì vẫn còn lớp khóa học đang mở, đang học hoặc sắp mở. Vui lòng kết thúc hoặc đóng các lớp học phần trước.");
                             return View(monHoc);
                         }
                     }
@@ -306,7 +308,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     existing.TenMonHoc = monHoc.TenMonHoc?.Trim() ?? string.Empty;
                     existing.SoTinChi = monHoc.SoTinChi;
                     existing.HocPhi = monHoc.HocPhi;
-                    existing.MoTa = monHoc.MoTa;
+                    existing.MoTa = monHoc.MoTa?.Trim();
                     existing.TrangThai = monHoc.TrangThai;
 
                     await _context.SaveChangesAsync();
@@ -372,6 +374,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = $"Đã xóa môn học '{monHoc.TenMonHoc}' thành công.";
                 }
+                else
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy môn học cần xóa hoặc môn học đã được xóa trước đó.";
+                }
             }
             catch (DbUpdateException)
             {
@@ -397,13 +403,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 var monHoc = await _context.MonHocs.FindAsync(id);
                 if (monHoc != null)
                 {
-                    // Kiểm tra khóa học đang mở trước khi xóa
+                    // Kiểm tra khóa học đang hoạt động trước khi tạm dừng (Đề 16 Mục 5.5, 6.7, 8.3)
                     if (monHoc.TrangThai)
                     {
-                        bool coKhoaHocDangMo = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && k.TrangThai == "DangMo");
-                        if (coKhoaHocDangMo)
+                        bool coKhoaHocHoatDong = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && (k.TrangThai == "DangMo" || k.TrangThai == "DangHoc" || k.TrangThai == "SapMo"));
+                        if (coKhoaHocHoatDong)
                         {
-                            TempData["ErrorMessage"] = $"Không thể tạm dừng môn học '{monHoc.TenMonHoc}' vì vẫn còn lớp khóa học đang mở đào tạo. Vui lòng đóng hoặc hoàn tất các khóa học trước.";
+                            TempData["ErrorMessage"] = $"Không thể tạm dừng môn học '{monHoc.TenMonHoc}' vì vẫn còn lớp khóa học đang mở, đang học hoặc sắp mở. Vui lòng đóng hoặc hoàn tất các khóa học trước.";
                             return RedirectToAction(nameof(QuanLy));
                         }
                     }
@@ -411,6 +417,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     monHoc.TrangThai = !monHoc.TrangThai;
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = $"Đã đổi trạng thái môn '{monHoc.TenMonHoc}' sang {(monHoc.TrangThai ? "Đang mở" : "Tạm dừng")}.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy thông tin môn học cần đổi trạng thái.";
                 }
             }
             catch (Exception)

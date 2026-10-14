@@ -77,11 +77,14 @@
                         }
                     </ul>
 
-                    <!-- Thanh tìm kiếm -->
-                    <form class="d-flex align-items-center me-3 rounded-pill px-3 py-1 mb-2 mb-lg-0" style="background-color: #f1f5f9; width: 280px; max-width: 100%;">
-                        <input type="text" class="form-control border-0 bg-transparent shadow-none w-100 p-0" placeholder="Tìm kiếm khóa học, môn học..." style="font-size: 0.85rem;" />
-                        <button type="button" class="btn p-0 border-0 text-primary ms-2 d-flex align-items-center justify-content-center"><i class="bi bi-search"></i></button>
-                    </form>
+                    @if (string.Equals(currentCtrl, "Home", StringComparison.OrdinalIgnoreCase) && string.Equals(currentAct, "Index", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <!-- Thanh tìm kiếm (chỉ hiển thị tại trang chủ) -->
+                        <form asp-controller="MonHoc" asp-action="Index" method="get" class="d-flex align-items-center me-3 rounded-pill px-3 py-1 mb-2 mb-lg-0 uneti-search-form" role="search">
+                            <input type="text" name="searchString" value="@(ViewBag.CurrentSearch ?? "")" class="form-control border-0 bg-transparent shadow-none w-100 p-0 uneti-search-input" placeholder="Tìm môn học, mã môn..." aria-label="Tìm môn học, mã môn" autocomplete="off" />
+                            <button type="submit" class="btn p-0 border-0 text-primary ms-2 d-flex align-items-center justify-content-center" title="Tìm kiếm" aria-label="Tìm kiếm"><i class="bi bi-search"></i></button>
+                        </form>
+                    }
 
                     <!-- Partial View Đăng nhập, Hồ sơ & Nút Đăng xuất -->
                     <partial name="_LoginPartial" />
@@ -96,15 +99,15 @@
         </main>
     </div>
 
-    <footer class="uneti-footer py-3 mt-4">
+    <footer class="uneti-footer py-3 mt-4 border-top bg-white">
         <div class="container-fluid px-lg-4">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+            <div class="row align-items-center gy-2">
+                <div class="col-md-6 text-center text-md-start">
                     <span class="fw-semibold text-dark">© 2026 Đề tài 16: Hệ thống Quản lý Khóa học và Đăng ký học</span>
                     <div class="small text-muted">Khoa Công nghệ Thông tin - Trường ĐH Kinh tế - Kỹ thuật Công nghiệp (UNETI)</div>
                 </div>
-                <div class="col-md-6 text-center text-md-end text-muted small">
-                    <span>Hệ thống Cổng Đào tạo & Quản lý Học tập</span>
+                <div class="col-md-6 text-center text-md-end text-muted small pe-md-5">
+                    <span class="d-inline-block me-md-4">Hệ thống Cổng Đào tạo & Quản lý Học tập</span>
                 </div>
             </div>
         </div>

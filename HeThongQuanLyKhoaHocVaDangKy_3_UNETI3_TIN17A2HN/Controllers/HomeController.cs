@@ -21,13 +21,19 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var dangMo = _context.MonHocs.Where(m => m.TrangThai);
+            var tongSoMon = await _context.MonHocs.AsNoTracking().CountAsync();
+            var dangMo = _context.MonHocs.AsNoTracking().Where(m => m.TrangThai);
+            var soMonDangMo = await dangMo.CountAsync();
 
             // Thống kê dữ liệu cho trang chủ
-            ViewBag.TongMon = await dangMo.CountAsync();
+            ViewBag.TongSoMon = tongSoMon;
+            ViewBag.TongMonDangMo = soMonDangMo;
             ViewBag.TongTinChi = await dangMo.SumAsync(m => (int?)m.SoTinChi) ?? 0;
             ViewBag.HocPhiTb = await dangMo.AverageAsync(m => (decimal?)m.HocPhi) ?? 0m;
             ViewBag.HocPhiThapNhat = await dangMo.MinAsync(m => (decimal?)m.HocPhi) ?? 0m;
+
+            // Số liệu uy tín cho Hero banner
+            ViewBag.TongHocVien = await _context.HocViens.AsNoTracking().CountAsync();
 
             // Nạp 4 môn học tiêu biểu đang mở giảng dạy từ CSDL
             var monHocs = await dangMo
