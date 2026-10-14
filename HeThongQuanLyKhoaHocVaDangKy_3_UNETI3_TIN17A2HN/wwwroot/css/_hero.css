@@ -1,0 +1,248 @@
+
+/* HERO BANNER ĐẦU TRANG THEO MẪU CHUẨN UNETI (3D ILLUSTRATION) */
+.uneti-hero-banner {
+    position: relative;
+    border-radius: var(--uneti-radius-xl, 22px);
+    overflow: hidden;
+    background-color: #1244c2;
+    background-image: url('/images/banner.webp');
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: cover;
+    box-shadow: 0 12px 32px -4px rgba(18, 68, 194, 0.3), 0 4px 12px -2px rgba(18, 68, 194, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    min-height: 350px;
+    display: flex;
+    align-items: center;
+    padding: 3.25rem 3.5rem;
+    transition: all 0.3s ease;
+}
+
+.uneti-banner-content {
+    position: relative;
+    z-index: 2;
+    max-width: 530px;
+}
+
+.uneti-banner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: #1a7afd;
+    background: linear-gradient(135deg, #1f7efd 0%, #156ee8 100%);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: 0 4px 12px rgba(10, 40, 150, 0.2);
+    border-radius: 50rem;
+    padding: 0.38rem 1.15rem 0.38rem 0.85rem;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    margin-bottom: 1.15rem;
+    animation: unetiFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+    transition: all 0.25s ease;
+}
+
+.uneti-banner-badge i {
+    font-size: 1rem;
+    color: #ffffff;
+    line-height: 1;
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.uneti-banner-badge:hover i {
+    transform: rotate(-10deg) scale(1.15);
+}
+
+.uneti-banner-title {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: clamp(1.65rem, 2.7vw, 2.35rem);
+    line-height: 1.24;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin-bottom: 0.95rem;
+    text-shadow: 0 2px 10px rgba(10, 30, 90, 0.25);
+    animation: unetiFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+.uneti-banner-desc {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.96rem;
+    line-height: 1.6;
+    font-weight: 400;
+    margin-bottom: 1.85rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    animation: unetiFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+.uneti-banner-actions {
+    animation: unetiFadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.uneti-btn-banner-primary {
+    position: relative;
+    overflow: hidden;
+    background: #ffc314;
+    background: linear-gradient(180deg, #ffc81a 0%, #f59e0b 100%);
+    color: #0f172a !important;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.65rem 1.65rem;
+    border-radius: 10px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none !important;
+}
+
+/* Vệt sáng lướt nhẹ ánh kim tinh tế (Shimmer Effect) */
+.uneti-btn-banner-primary::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -70%;
+    width: 45%;
+    height: 200%;
+    background: linear-gradient(
+        60deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.45) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(25deg);
+    animation: unetiShine 5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.uneti-btn-banner-primary:hover {
+    background: linear-gradient(180deg, #ffd333 0%, #d97706 100%);
+    color: #0f172a !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.55);
+}
+
+.uneti-btn-banner-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.62rem 1.45rem;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.65);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none !important;
+}
+
+/* Hiệu ứng mũi tên lướt sang phải / trượt xuống khi hover */
+.uneti-btn-banner-secondary i.bi-arrow-right,
+.uneti-btn-banner-secondary i.bi-arrow-down-short {
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.uneti-btn-banner-secondary:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: #ffffff;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.uneti-btn-banner-secondary:hover i.bi-arrow-right {
+    transform: translateX(4px);
+}
+
+.uneti-btn-banner-secondary:hover i.bi-arrow-down-short {
+    transform: translateY(3px);
+}
+
+/* Định nghĩa chuyển động mượt mà Pure CSS */
+@keyframes unetiFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes unetiShine {
+    0%, 82% {
+        left: -70%;
+        opacity: 0;
+    }
+    83% {
+        opacity: 0.75;
+    }
+    94% {
+        left: 150%;
+        opacity: 0.75;
+    }
+    95%, 100% {
+        left: 150%;
+        opacity: 0;
+    }
+}
+
+/* Tôn trọng cài đặt giảm chuyển động của người dùng */
+@media (prefers-reduced-motion: reduce) {
+    .uneti-banner-badge,
+    .uneti-banner-title,
+    .uneti-banner-desc,
+    .uneti-banner-actions {
+        animation: none !important;
+    }
+    .uneti-btn-banner-primary::after {
+        display: none !important;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1199.98px) {
+    .uneti-hero-banner {
+        padding: 2.75rem 2.75rem;
+        min-height: 330px;
+    }
+    .uneti-banner-content {
+        max-width: 480px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .uneti-hero-banner {
+        background: linear-gradient(90deg, rgba(16, 55, 175, 0.94) 0%, rgba(16, 55, 175, 0.88) 55%, rgba(16, 55, 175, 0.35) 100%), url('/images/banner.webp') right center / cover no-repeat;
+        padding: 2.5rem 2rem;
+        min-height: 300px;
+    }
+    .uneti-banner-content {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .uneti-hero-banner {
+        padding: 2rem 1.25rem;
+        border-radius: 16px;
+    }
+    .uneti-banner-actions {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    .uneti-btn-banner-primary,
+    .uneti-btn-banner-secondary {
+        justify-content: center;
+        width: 100%;
+    }
+}

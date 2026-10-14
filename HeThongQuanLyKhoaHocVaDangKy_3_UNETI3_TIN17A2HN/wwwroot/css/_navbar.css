@@ -1,0 +1,289 @@
+
+/* Header Navbar - Modern Academic Style */
+.uneti-navbar {
+    background: rgba(255, 255, 255, 0.96) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 4px 16px -2px rgba(15, 23, 42, 0.03);
+    transition: all 0.2s ease;
+}
+
+.uneti-nav-link {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #475569 !important;
+    padding: 0.48rem 0.95rem !important;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none !important;
+}
+
+.uneti-nav-link i {
+    font-size: 1.05rem;
+    color: #64748b;
+    transition: color 0.18s ease;
+}
+
+.uneti-nav-link:hover {
+    color: var(--uneti-primary) !important;
+    background-color: #f1f5f9;
+    text-decoration: none !important;
+}
+
+.uneti-nav-link:hover i {
+    color: var(--uneti-primary);
+}
+
+.uneti-nav-link.active {
+    color: var(--uneti-primary) !important;
+    background-color: var(--uneti-primary-light);
+    border-color: var(--uneti-primary-border);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(29, 78, 216, 0.08);
+    text-decoration: none !important;
+}
+
+.uneti-nav-link.active i {
+    color: var(--uneti-primary);
+}
+
+.uneti-nav-link:focus,
+.uneti-nav-link:visited,
+.uneti-nav-link:active,
+.uneti-nav-link * {
+    text-decoration: none !important;
+}
+
+/* ==========================================================================
+   MODERN USER PROFILE CHIP IN NAVBAR
+   ========================================================================== */
+.uneti-user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 4px 12px 4px 5px;
+    height: 42px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.uneti-user-chip:hover,
+.uneti-user-chip[aria-expanded="true"] {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+/* Ẩn dấu tam giác đen mặc định của Bootstrap dropdown */
+.uneti-user-chip.dropdown-toggle::after {
+    display: none !important;
+}
+
+.uneti-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    flex-shrink: 0;
+}
+
+.uneti-user-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.25;
+}
+
+.uneti-user-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+
+.uneti-user-role {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.uneti-user-role-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.uneti-user-role-dot.student {
+    background-color: #10b981;
+}
+
+.uneti-user-role-dot.admin {
+    background-color: #ef4444;
+}
+
+.uneti-user-role-dot.staff {
+    background-color: #3b82f6;
+}
+
+.uneti-chevron-icon {
+    font-size: 12px;
+    color: #94a3b8;
+    transition: transform 0.2s ease;
+    margin-left: 2px;
+}
+
+.dropdown-toggle[aria-expanded="true"] .uneti-chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* Logout button in Navbar */
+.uneti-nav-logout {
+    background-color: #ffffff;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0;
+    padding: 0 0.85rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    transition: all 0.18s ease;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 42px;
+}
+
+.uneti-nav-logout:hover {
+    background-color: #fef2f2;
+    color: #dc2626 !important;
+    border-color: #fecaca;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.1);
+    text-decoration: none !important;
+}
+
+/* ==========================================================================
+   MODERN NAVBAR AUTH BUTTONS (ĐĂNG NHẬP & ĐĂNG KÝ)
+   ========================================================================== */
+.uneti-nav-login-btn {
+    height: 40px;
+    padding: 0 1.15rem;
+    background-color: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    color: #334155 !important;
+    font-weight: 600;
+    font-size: 0.88rem;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.uneti-nav-login-btn i {
+    font-size: 1.05rem;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.uneti-nav-login-btn:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: var(--uneti-primary) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.uneti-nav-login-btn:hover i {
+    color: var(--uneti-primary);
+    transform: translateX(2px);
+}
+
+.uneti-nav-register-btn {
+    height: 40px;
+    padding: 0 1.25rem;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: 1.5px solid transparent;
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.88rem;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+
+.uneti-nav-register-btn i {
+    font-size: 1.05rem;
+    color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.uneti-nav-register-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35);
+}
+
+.uneti-nav-register-btn:hover i {
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   NAVBAR SEARCH BAR
+   ========================================================================== */
+.uneti-search-form {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    width: 280px;
+    max-width: 100%;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.uneti-search-form:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.uneti-search-form:focus-within {
+    background-color: #ffffff;
+    border-color: var(--uneti-primary, #2563eb);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.uneti-search-input {
+    font-size: 0.86rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.uneti-search-input::placeholder {
+    color: #64748b;
+    opacity: 0.9;
+}

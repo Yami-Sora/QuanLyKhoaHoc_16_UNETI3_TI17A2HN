@@ -1,0 +1,109 @@
+
+/* Common Surfaces & Badges */
+.uneti-hero-detail {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+    border: 1px solid #dbeafe !important;
+}
+
+.uneti-detail-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    letter-spacing: -0.02em;
+}
+
+.uneti-card-surface {
+    border-radius: 16px;
+    border: 1px solid var(--uneti-border);
+    background: #ffffff;
+}
+
+.uneti-callout-info {
+    background-color: var(--uneti-primary-light);
+    border: 1px solid var(--uneti-primary-border);
+    border-radius: var(--uneti-radius-sm, 8px);
+}
+
+.uneti-callout-warning {
+    background-color: var(--uneti-warning-light);
+    border: 1px solid var(--uneti-warning-border);
+    border-radius: var(--uneti-radius-sm, 8px);
+}
+
+.uneti-badge-tag {
+    font-size: 12px;
+    border-radius: 50rem;
+    padding: 0.25rem 0.75rem;
+    font-weight: 600;
+}
+
+.uneti-badge-status {
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-weight: 600;
+}
+
+.uneti-user-dropdown-menu {
+    min-width: 250px;
+    border-radius: 16px;
+    border-color: var(--uneti-border);
+    padding: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+.uneti-user-dropdown-header {
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: var(--uneti-radius-sm, 8px);
+    padding: 0.875rem;
+}
+
+.uneti-dropdown-item-btn {
+    font-size: 13.5px;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uneti-dropdown-item-active {
+    background-color: var(--uneti-primary-light);
+    color: var(--uneti-primary) !important;
+}
+
+.uneti-auth-page {
+    min-height: 100vh;
+    background-color: #f1f5f9;
+    background-image: linear-gradient(135deg, rgba(239, 246, 255, 0.45) 0%, rgba(219, 234, 254, 0.55) 100%), url('/images/auth-bg.webp');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 1rem;
+    margin: 0;
+    position: relative;
+}
+
+.uneti-glass-card {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px -15px rgba(29, 78, 216, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+}
+
+/* ==========================================================================
+   FOOTER HỆ THỐNG
+   ========================================================================== */
+.uneti-footer {
+    background-color: #ffffff !important;
+    border-top: 1px solid #e2e8f0;
+    color: #64748b;
+    position: relative;
+    z-index: 10;
+}
+

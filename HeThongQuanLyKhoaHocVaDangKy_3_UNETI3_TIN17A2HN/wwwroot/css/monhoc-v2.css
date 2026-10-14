@@ -1,0 +1,602 @@
+/*
+    ==========================================================================
+    MONHOC V2 - Thẻ môn học chuẩn thiết kế hiện đại
+    Phù hợp 100% ảnh mẫu:
+    1. Gradient chéo 2 tông màu (--c1 -> --c2), accent đồng bộ
+    2. Banner gọn thấp 110px
+    3. Icon trắng 56px ở giữa, chấm bi & sóng mờ
+    4. Thân thẻ đè lên banner (margin-top: -18px, bo góc)
+    5. Màu nhấn đồng bộ (nút, giá, tín chỉ)
+    6. Chip đ/tín nền xám nhạt dễ đọc
+    ========================================================================== */
+
+#monHocCardList .card,
+.mh-card {
+    background: #fff;
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, .08);
+    transition: transform .2s ease, box-shadow .2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+#monHocCardList .card:hover,
+.mh-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .14);
+}
+
+.banner {
+    position: relative;
+    height: 110px;
+    background:
+        radial-gradient(circle, rgba(255, 255, 255, .55) 2px, transparent 2.5px) 24px 20px/14px 14px,
+        linear-gradient(135deg, var(--c1), var(--c2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    overflow: hidden;
+}
+
+/* Họa tiết đường sóng mờ bên phải */
+.banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 110' fill='none'%3E%3Cpath d='M80 0 C110 40, 150 35, 200 65' stroke='white' stroke-width='1.5' opacity='0.20'/%3E%3Cpath d='M60 0 C95 50, 140 45, 200 80' stroke='white' stroke-width='1.5' opacity='0.18'/%3E%3Cpath d='M40 0 C80 60, 130 55, 200 95' stroke='white' stroke-width='1.5' opacity='0.15'/%3E%3Cpath d='M100 0 C125 45, 165 40, 200 70' stroke='white' stroke-width='1.5' opacity='0.22'/%3E%3Cpath d='M120 0 C145 55, 180 50, 200 85' stroke='white' stroke-width='1.5' opacity='0.20'/%3E%3Cpath d='M140 0 C165 65, 190 60, 200 100' stroke='white' stroke-width='1.5' opacity='0.24'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-size: 175px 110px;
+    pointer-events: none;
+}
+
+/* Họa tiết chấm bi góc trái */
+.banner::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: 18px;
+    width: 44px;
+    height: 34px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, .75) 2px, transparent 2.5px);
+    background-size: 11px 11px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.icon {
+    font-size: 56px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    transition: transform 0.3s ease;
+}
+#monHocCardList .card:hover .icon,
+.mh-card:hover .icon {
+    transform: scale(1.08);
+}
+.icon svg {
+    width: 56px;
+    height: 56px;
+}
+
+/* Phần nội dung trắng đè lên banner */
+.body {
+    position: relative;
+    margin-top: -18px;
+    padding: 18px 20px 20px;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.id,
+.status {
+    position: absolute;
+    bottom: 22px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.id {
+    left: 16px;
+    background: rgba(255, 255, 255, .92);
+    color: var(--accent);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.status {
+    right: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.status.open {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
+.status.paused {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.body h3 {
+    font-size: 1.16rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 6px 0 8px;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    min-height: 2.7em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #475569;
+    min-height: 44px;
+    margin-bottom: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 18px;
+    flex-wrap: wrap;
+}
+.credit {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.chip {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    background: #f1f5f9;
+    padding: 5px 11px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #e2e8f0;
+}
+.price {
+    margin-left: auto;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+}
+
+#monHocCardList .btn,
+.mh-card .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-decoration: none;
+    border: none;
+    margin-top: auto;
+    box-shadow: 0 8px 18px -6px var(--accent);
+    transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+#monHocCardList .btn:hover,
+.mh-card .btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+    box-shadow: 0 12px 24px -6px var(--accent);
+    color: #fff !important;
+}
+#monHocCardList .btn:focus-visible,
+.mh-card .btn:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+/* ---- Chế độ xem danh sách (List View) ---- */
+@media (min-width: 768px) {
+    .view-list #monHocCardList .card,
+    .view-list .mh-card {
+        flex-direction: row;
+        align-items: stretch;
+    }
+    .view-list .banner {
+        flex: 0 0 210px;
+        height: auto;
+        min-height: 160px;
+    }
+    .view-list .body {
+        margin-top: 0;
+        margin-left: -18px;
+        border-radius: 20px 0 0 20px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    #monHocCardList .card, .mh-card, .btn, .icon { transition: none; }
+}
+
+/* ===== Banner đầu trang danh mục (compact) ===== */
+.mh2-page-banner {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(115deg, #1e40af 0%, #2563eb 45%, #0ea5e9 100%);
+    border-radius: 1.25rem;
+    padding: 1rem 1.35rem;
+    box-shadow: 0 18px 36px -16px rgba(37, 99, 235, 0.55);
+}
+.mh2-page-banner::before,
+.mh2-page-banner::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.10);
+    pointer-events: none;
+}
+.mh2-page-banner::before { width: 220px; height: 220px; right: -60px; top: -90px; }
+.mh2-page-banner::after { width: 140px; height: 140px; right: 190px; bottom: -80px; background: rgba(255, 255, 255, 0.07); }
+.mh2-banner-icon {
+    width: 52px; height: 52px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    color: #fff; font-size: 1.45rem;
+    box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.3);
+}
+.mh2-banner-title {
+    color: #fff; font-weight: 800; font-size: 1.3rem;
+    letter-spacing: -0.01em; margin: 0; line-height: 1.25;
+    text-shadow: 0 2px 10px rgba(9, 50, 120, 0.25);
+}
+.mh2-banner-sub {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0.25rem 0 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.mh2-admin-btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+    color: #fff !important;
+    transition: all 0.2s ease;
+}
+.mh2-admin-btn:hover {
+    background: rgba(255, 255, 255, 0.32) !important;
+    border-color: #ffffff !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+
+.mh2-badge-count {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e3a8a;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.42rem 0.95rem;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+/* ===== Hộp công cụ Tìm kiếm & Bộ lọc hiện đại (2 tầng) ===== */
+.mh2-filter-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1.15rem;
+    padding: 1.1rem 1.25rem;
+    box-shadow: 0 4px 20px -8px rgba(15, 23, 42, 0.06);
+    margin-bottom: 1.25rem;
+}
+
+/* Tầng 1: Ô tìm kiếm & Dropdown sắp xếp */
+.mh2-search-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.mh2-search-input-wrap {
+    flex: 1 1 320px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.mh2-search-input-wrap .mh2-search-icon {
+    position: absolute;
+    left: 1rem;
+    color: #2563eb;
+    font-size: 1rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.mh2-search-input-wrap .form-control {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.62rem 2.5rem 0.62rem 2.6rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #0f172a;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: none;
+}
+
+.mh2-search-input-wrap .form-control:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+}
+
+.mh2-search-input-wrap .form-control:focus {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.mh2-search-input-wrap .form-control::placeholder {
+    color: #64748b;
+    font-weight: 450;
+}
+
+.mh2-search-clear-btn {
+    position: absolute;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 0.25rem;
+    cursor: pointer;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+    z-index: 2;
+}
+.mh2-search-clear-btn:hover {
+    color: #ef4444;
+}
+
+/* Dropdown Sắp xếp */
+.mh2-sort-control {
+    flex: 0 0 auto;
+    min-width: 215px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.mh2-sort-icon {
+    position: absolute;
+    left: 0.85rem;
+    color: #64748b;
+    font-size: 0.95rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.mh2-sort-select {
+    background-color: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.62rem 2rem 0.62rem 2.3rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mh2-sort-select:hover {
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+}
+
+.mh2-sort-select:focus {
+    background-color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Nút đặt lại */
+.mh2-reset-btn {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.86rem;
+    border-radius: 0.75rem;
+    padding: 0.62rem 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.mh2-reset-btn:hover {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+/* Tầng 2: Hệ thống Chip lọc trực quan */
+.mh2-chips-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem 0.85rem;
+    flex-wrap: wrap;
+    padding-top: 0.85rem;
+    margin-top: 0.85rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.mh2-chip-cluster {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.mh2-chip-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-right: 0.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.mh2-chip {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.mh2-chip:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+.mh2-chip.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 4px 10px -2px rgba(37, 99, 235, 0.4);
+}
+
+.mh2-chip-status-open.active {
+    background: #166534;
+    border-color: #166534;
+    color: #ffffff;
+    box-shadow: 0 4px 10px -2px rgba(22, 101, 52, 0.4);
+}
+
+.mh2-chip-status-paused.active {
+    background: #991b1b;
+    border-color: #991b1b;
+    color: #ffffff;
+    box-shadow: 0 4px 10px -2px rgba(153, 27, 27, 0.4);
+}
+
+.mh2-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.mh2-dot-open { background: #22c55e; }
+.mh2-dot-paused { background: #ef4444; }
+.mh2-chip.active .mh2-dot { background: #ffffff; }
+
+.mh2-chip-separator {
+    width: 1px;
+    height: 22px;
+    background: #e2e8f0;
+    margin: 0 0.3rem;
+}
+
+/* Thống kê kết quả tìm kiếm */
+.mh2-result-count {
+    color: #334155;
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+.mh2-result-count strong {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+/* Phân trang đẹp & đồng bộ */
+.uneti-pagination-new .page-link {
+    border: none;
+    color: #475569;
+    background: transparent;
+    border-radius: 50% !important;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 4px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+.uneti-pagination-new .page-link:hover {
+    background-color: #f1f5f9;
+    color: #1d4ed8;
+}
+.uneti-pagination-new .page-item.active .page-link {
+    background-color: #2563eb;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.35);
+}
+.uneti-pagination-new .page-item.disabled .page-link {
+    color: #cbd5e1;
+    background: transparent;
+}
+
+@media (max-width: 767.98px) {
+    .mh2-search-input-wrap { flex: 1 1 100%; }
+    .mh2-sort-control { flex: 1 1 100%; width: 100%; }
+    .mh2-sort-select { width: 100%; }
+    .mh2-reset-btn { width: 100%; justify-content: center; }
+    .mh2-chip-separator { display: none; }
+    .mh2-chips-container { gap: 0.6rem; }
+}
+

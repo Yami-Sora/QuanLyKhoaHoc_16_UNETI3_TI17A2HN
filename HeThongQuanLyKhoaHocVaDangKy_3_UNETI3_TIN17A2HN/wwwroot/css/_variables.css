@@ -1,0 +1,47 @@
+
+:root {
+    --uneti-primary: #1d4ed8;
+    --uneti-primary-hover: #1e40af;
+    --uneti-primary-light: #eff6ff;
+    --uneti-primary-border: #bfdbfe;
+    
+    --uneti-bg: #f8fafc;
+    --uneti-surface: #ffffff;
+    --uneti-border: #e2e8f0;
+    --uneti-border-focus: #3b82f6;
+    
+    --uneti-text-main: #0f172a;
+    --uneti-text-muted: #64748b;
+    --uneti-text-light: #94a3b8;
+    
+    --uneti-success: #10b981;
+    --uneti-success-light: #ecfdf5;
+    --uneti-success-border: #a7f3d0;
+    
+    --uneti-warning: #f59e0b;
+    --uneti-warning-light: #fffbeb;
+    --uneti-warning-border: #fde68a;
+    
+    --uneti-danger: #ef4444;
+    --uneti-danger-light: #fef2f2;
+    --uneti-danger-border: #fecaca;
+    
+    --uneti-radius-sm: 8px;
+    --uneti-radius-md: 12px;
+    --uneti-radius-lg: 18px;
+    --uneti-radius-xl: 24px;
+    
+    --uneti-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+    --uneti-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --uneti-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+
+    /* Animation & Transitions Tokens */
+    --uneti-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --uneti-dur-fast: 150ms;
+    --uneti-dur-base: 250ms;
+    --uneti-dur-slow: 500ms;
+
+    /* Layer Z-Index Tokens */
+    --uneti-z-nav: 1030;
+    --uneti-z-toast: 1090;
+}

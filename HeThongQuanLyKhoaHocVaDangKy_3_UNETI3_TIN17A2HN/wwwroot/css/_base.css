@@ -1,0 +1,29 @@
+
+/* Base Reset & Typography */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--uneti-bg);
+    color: var(--uneti-text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Khung nội dung chính */
+.content-wrapper {
+    flex: 1 0 auto;
+}
+
+/* Footer */
+.uneti-footer {
+    background: #ffffff;
+    border-top: 1px solid var(--uneti-border);
+    color: var(--uneti-text-muted);
+    font-size: 0.875rem;
+}
