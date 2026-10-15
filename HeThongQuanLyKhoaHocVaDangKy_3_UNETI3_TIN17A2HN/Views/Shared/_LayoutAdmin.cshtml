@@ -120,10 +120,14 @@
                 <!-- 6. KẾT QUẢ ĐÀO TẠO (Module 5 - Nguyễn Công Thành - 23103100102) -->
                 <div class="admin-menu-header mt-2">Kết quả đào tạo</div>
 
-                <a asp-controller="KetQuaHocTap" asp-action="Index" class="admin-nav-item @(currentController == "KetQuaHocTap" ? "active" : "")"
-                   title="Quản lý kết quả học tập & Bảng điểm">
+                <a asp-controller="KetQuaHocTap" asp-action="Index" class="admin-nav-item @(currentController == "KetQuaHocTap" ? "active" : "")" title="Quản lý kết quả học tập & Bảng điểm">
                     <i class="bi bi-award-fill"></i>
                     <span>Quản lý kết quả học tập</span>
+                </a>
+
+                <a asp-controller="ThongKe" asp-action="Index" class="admin-nav-item @(currentController == "ThongKe" ? "active" : "")" title="Báo cáo & Thống kê">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Báo cáo &amp; Thống kê</span>
                 </a>
 
             </div>

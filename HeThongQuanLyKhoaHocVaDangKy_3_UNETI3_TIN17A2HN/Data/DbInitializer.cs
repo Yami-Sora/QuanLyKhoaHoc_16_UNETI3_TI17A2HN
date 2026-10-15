@@ -1,6 +1,5 @@
-// Họ và tên: Trần Văn Thành
-// Mã sinh viên: 23103100076
-// Module 1: Khởi tạo dữ liệu mẫu
+// Họ và tên: Trần Văn Thành - MSV: 23103100076 (Module 1: Khởi tạo dữ liệu mẫu nền)
+// Họ và tên: Nguyễn Công Thành - MSV: 23103100102 (Module 5: Dữ liệu mẫu giao dịch đăng ký & Kết quả học tập)
 
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
@@ -430,6 +429,158 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     };
 
                     context.KhoaHocs.AddRange(dsKhoaHocMau);
+                    context.SaveChanges();
+                }
+            }
+
+            // 7. Nạp Giao dịch Đăng ký khóa học mẫu (40-50 giao dịch) & Kết quả học tập (15-20 bản ghi)
+            if (!context.DangKyKhoaHocs.Any())
+            {
+                var dsHocVien = context.HocViens.ToList();
+                var dsKhoaHoc = context.KhoaHocs.ToList();
+
+                if (dsHocVien.Any() && dsKhoaHoc.Any())
+                {
+                    var random = new Random(16); // Seed cố định để dữ liệu nhất quán
+                    var dsDangKyMau = new List<DangKyKhoaHoc>();
+                    var registeredPairs = new HashSet<string>();
+
+                    var trangThaiPool = new[]
+                    {
+                        "HoanThanh", "HoanThanh", "HoanThanh", "HoanThanh", // Trọng số cao cho Hoàn thành để có dữ liệu chấm điểm
+                        "DangXuLy", "DangXuLy",
+                        "ChoXuLy", "ChoXuLy",
+                        "BiHuy"
+                    };
+
+                    int totalOrders = Math.Min(45, dsHocVien.Count * dsKhoaHoc.Count);
+                    int orderIndex = 0;
+
+                    // Phân bổ đều giữa các học viên và khóa học
+                    for (int h = 0; h < dsHocVien.Count && dsDangKyMau.Count < totalOrders; h++)
+                    {
+                        var hv = dsHocVien[h];
+                        // Mỗi học viên đăng ký 1 - 2 khóa
+                        int numCourses = (h % 3 == 0) ? 2 : 1;
+
+                        for (int c = 0; c < numCourses && dsDangKyMau.Count < totalOrders; c++)
+                        {
+                            var kh = dsKhoaHoc[(h + c) % dsKhoaHoc.Count];
+                            var pairKey = $"{hv.MaHocVien}_{kh.MaKhoaHoc}";
+                            if (registeredPairs.Contains(pairKey)) continue;
+                            registeredPairs.Add(pairKey);
+
+                            var trangThai = trangThaiPool[orderIndex % trangThaiPool.Length];
+                            orderIndex++;
+
+                            var daysAgo = random.Next(5, 120);
+                            var ngayDk = DateTime.Now.AddDays(-daysAgo);
+
+                            decimal daDong = 0;
+                            decimal conLai = kh.HocPhi;
+                            DateTime? ngayXacNhan = null;
+                            string? ghiChu = null;
+
+                            if (trangThai == "HoanThanh")
+                            {
+                                daDong = kh.HocPhi;
+                                conLai = 0;
+                                ngayXacNhan = ngayDk.AddDays(random.Next(1, 3));
+                                ghiChu = "Đã thu đủ 100% học phí và hoàn tất xếp lớp.";
+                            }
+                            else if (trangThai == "DangXuLy")
+                            {
+                                daDong = (orderIndex % 2 == 0) ? (kh.HocPhi / 2) : 0;
+                                conLai = Math.Max(0, kh.HocPhi - daDong);
+                                ngayXacNhan = ngayDk.AddHours(random.Next(2, 24));
+                                ghiChu = daDong > 0 ? "Đã đặt cọc 50% học phí." : "Đã tiếp nhận hồ sơ sơ bộ.";
+                            }
+                            else if (trangThai == "BiHuy")
+                            {
+                                daDong = 0;
+                                conLai = kh.HocPhi;
+                                ghiChu = "Học viên bận lịch công tác nên xin hủy đơn.";
+                            }
+
+                            dsDangKyMau.Add(new DangKyKhoaHoc
+                            {
+                                MaHocVien = hv.MaHocVien,
+                                MaKhoaHoc = kh.MaKhoaHoc,
+                                NgayDangKy = ngayDk,
+                                TrangThai = trangThai,
+                                SoTienDaDong = daDong,
+                                SoTienConLai = conLai,
+                                NgayXacNhan = ngayXacNhan,
+                                GhiChu = ghiChu
+                            });
+                        }
+                    }
+
+                    context.DangKyKhoaHocs.AddRange(dsDangKyMau);
+                    context.SaveChanges();
+
+                    // 8. Nạp 18 bản ghi Kết quả học tập mẫu (Mục 16 Đề 16)
+                    var dsHoanThanh = context.DangKyKhoaHocs
+                        .Where(d => d.TrangThai == "HoanThanh")
+                        .Take(18)
+                        .ToList();
+
+                    var sampleScores = new (decimal CC, decimal GK, decimal CK)[]
+                    {
+                        (9.5m, 9.0m, 9.5m), // 9.30 -> XuatSac
+                        (9.0m, 8.5m, 9.0m), // 8.80 -> Gioi
+                        (8.5m, 8.0m, 8.5m), // 8.30 -> Gioi
+                        (10.0m, 9.5m, 9.0m), // 9.30 -> XuatSac
+                        (8.0m, 7.5m, 7.0m), // 7.30 -> Kha
+                        (7.5m, 7.0m, 7.5m), // 7.30 -> Kha
+                        (8.0m, 8.0m, 8.0m), // 8.00 -> Gioi
+                        (7.0m, 6.5m, 6.5m), // 6.55 -> Kha
+                        (6.5m, 6.0m, 6.0m), // 6.05 -> TrungBinh
+                        (6.0m, 5.5m, 5.5m), // 5.55 -> TrungBinh
+                        (7.0m, 5.5m, 5.0m), // 5.40 -> TrungBinh
+                        (8.5m, 8.5m, 8.0m), // 8.25 -> Gioi
+                        (9.0m, 8.0m, 8.5m), // 8.35 -> Gioi
+                        (5.0m, 4.5m, 4.0m), // 4.30 -> Yeu (KhongDat để test tỷ lệ)
+                        (6.0m, 4.0m, 4.0m), // 4.20 -> Yeu (KhongDat để test tỷ lệ)
+                        (8.0m, 7.0m, 7.5m), // 7.35 -> Kha
+                        (9.5m, 9.5m, 9.0m), // 9.25 -> XuatSac
+                        (7.5m, 7.5m, 7.0m)  // 7.25 -> Kha
+                    };
+
+                    var dsKetQuaMau = new List<KetQuaHocTap>();
+                    for (int i = 0; i < dsHoanThanh.Count; i++)
+                    {
+                        var score = sampleScores[i % sampleScores.Length];
+                        var cc = score.CC;
+                        var gk = score.GK;
+                        var ck = score.CK;
+                        var tk = Math.Round(cc * 0.1m + gk * 0.4m + ck * 0.5m, 2);
+
+                        string xl = tk switch
+                        {
+                            >= 9.0m => "XuatSac",
+                            >= 8.0m => "Gioi",
+                            >= 6.5m => "Kha",
+                            >= 5.0m => "TrungBinh",
+                            _ => "Yeu"
+                        };
+
+                        string kq = tk >= 5.0m ? "Dat" : "KhongDat";
+
+                        dsKetQuaMau.Add(new KetQuaHocTap
+                        {
+                            MaDangKy = dsHoanThanh[i].MaDangKy,
+                            DiemChuyenCan = cc,
+                            DiemGiuaKy = gk,
+                            DiemCuoiKy = ck,
+                            DiemTongKet = tk,
+                            XepLoai = xl,
+                            KetQua = kq,
+                            NgayCapNhat = DateTime.Now.AddDays(-random.Next(1, 30))
+                        });
+                    }
+
+                    context.KetQuaHocTaps.AddRange(dsKetQuaMau);
                     context.SaveChanges();
                 }
             }
