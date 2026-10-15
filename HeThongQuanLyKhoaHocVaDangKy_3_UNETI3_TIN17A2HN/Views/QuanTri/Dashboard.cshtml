@@ -1,56 +1,399 @@
 @*
-    Họ và tên: Trần Văn Thành
-    Mã sinh viên: 23103100076
+    Họ và tên: Trần Văn Thành - MSV: 23103100076 (Module 1: Dashboard quản trị khung nền)
+    Họ và tên: Nguyễn Công Thành - MSV: 23103100102 (Module 5: Nâng cấp 9 Stat Cards & Biểu đồ Chart.js thống kê LINQ)
     Lớp: TIN17A2HN
-    Nội dung: Bảng điều khiển quản trị
+    Nội dung: Bảng điều khiển quản trị (Dashboard) hoàn chỉnh
 *@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.DashboardViewModel
 @{
     Layout = "_LayoutAdmin";
-    ViewData["Title"] = "Bảng điều khiển (Dashboard)";
+    ViewData["Title"] = "Bảng điều khiển (Dashboard) - Quản trị đào tạo";
 }
 
 <div class="container-fluid px-0">
-    <!-- Tiêu đề trang -->
+    <!-- Tiêu đề trang & Thanh tác vụ -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
             <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-speedometer2 me-2 text-primary"></i>BẢNG ĐIỀU KHIỂN (DASHBOARD)
+                <i class="bi bi-speedometer2 me-2 text-primary"></i>BẢNG ĐIỀU KHIỂN QUẢN TRỊ (DASHBOARD)
             </h3>
-            <p class="text-muted mb-0 small">Hệ thống tổng hợp chỉ số quản trị và báo cáo thống kê toàn hệ thống</p>
+            <p class="text-muted mb-0 small">
+                Trung tâm chỉ huy &amp; tổng hợp số liệu đào tạo, tài chính học phí và kết quả học tập toàn hệ thống
+            </p>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-sm-0">
+            <a asp-controller="ThongKe" asp-action="Index" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1">
+                <i class="bi bi-bar-chart-line-fill"></i>
+                <span>Xem báo cáo chi tiết</span>
+            </a>
+            <a asp-action="Dashboard" class="btn btn-light border btn-sm shadow-sm d-flex align-items-center gap-1">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span>Làm mới</span>
+            </a>
         </div>
     </div>
 
-    <!-- Khu vực thông báo Module 5 -->
-    <div class="uneti-card p-5 text-center my-4 shadow-sm" style="border-radius: 16px; border: 1.5px dashed #cbd5e1; background: #fafbfc;">
-        <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-white shadow-sm mb-3" 
-             style="width: 80px; height: 80px; border: 1px solid #e2e8f0; color: var(--uneti-primary);">
-            <i class="bi bi-speedometer2" style="font-size: 2.5rem;"></i>
-        </div>
-
-        <div class="mb-3">
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold" style="font-size: 12px;">
-                <i class="bi bi-gear-wide-connected me-1"></i>PHÂN HỆ MODULE 5 — BÁO CÁO &amp; THỐNG KÊ LINQ
-            </span>
-        </div>
-
-        <h4 class="fw-bold text-dark mb-3" style="max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.4;">
-            Đây là nội dung của Module 5 và sẽ tự xóa thông báo này khi hoàn thiện.
-        </h4>
-
-        <div class="p-3 bg-white rounded-3 border mx-auto mb-3 text-start small text-secondary" style="max-width: 600px; line-height: 1.6;">
-            <div class="fw-semibold text-dark mb-1">
-                <i class="bi bi-info-circle text-primary me-1"></i>Mô tả nghiệp vụ phân hệ thống kê (Sinh viên 5 phụ trách):
+    <!-- KHỐI TÀI CHÍNH NỔI BẬT (DOANH THU & CÔNG NỢ) -->
+    <div class="row g-3 mb-4">
+        <!-- Doanh thu học phí đã thu -->
+        <div class="col-md-6">
+            <div class="p-3.5 rounded-3 bg-white border d-flex align-items-center justify-content-between shadow-sm border-start border-4 border-success">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-success-subtle text-success rounded-3 fs-3">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">TỔNG DOANH THU HỌC PHÍ ĐÃ THU</div>
+                        <div class="fs-4 fw-bold text-success">
+                            @Model.TongDoanhThu.ToString("N0") <small class="text-muted fs-6">VNĐ</small>
+                        </div>
+                        <small class="text-muted">Tổng số tiền học viên đã thanh toán vào hệ thống</small>
+                    </div>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1">Thực thu</span>
             </div>
-            <ul class="mb-0 ps-3">
-                <li>Xây dựng biểu đồ tổng hợp và trực quan hóa dữ liệu thống kê bằng LINQ.</li>
-                <li>Theo dõi doanh thu học phí, công nợ, số lượng học viên đăng ký theo từng môn học và khóa học.</li>
-                <li>Thống kê tỷ lệ hoàn thành môn học, phân loại học lực và xuất báo cáo dữ liệu định kỳ.</li>
-            </ul>
         </div>
 
-        <p class="text-muted small mb-0">
-            <i class="bi bi-shield-check text-success me-1"></i>Trang hiện tại để trống sẵn sàng kết nối dữ liệu biểu đồ khi phân hệ Module 5 hoàn tất.
-        </p>
+        <!-- Công nợ học phí còn lại -->
+        <div class="col-md-6">
+            <div class="p-3.5 rounded-3 bg-white border d-flex align-items-center justify-content-between shadow-sm border-start border-4 @(Model.TongCongNo > 0 ? "border-warning" : "border-info")">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 @(Model.TongCongNo > 0 ? "bg-warning-subtle text-warning-emphasis" : "bg-info-subtle text-info") rounded-3 fs-3">
+                        <i class="bi @(Model.TongCongNo > 0 ? "bi-receipt-cutoff" : "bi-check-circle")"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">TỔNG CÔNG NỢ HỌC PHÍ CÒN PHẢI THU</div>
+                        <div class="fs-4 fw-bold @(Model.TongCongNo > 0 ? "text-warning-emphasis" : "text-dark")">
+                            @Model.TongCongNo.ToString("N0") <small class="text-muted fs-6">VNĐ</small>
+                        </div>
+                        <small class="text-muted">Học phí còn thiếu của các đơn chưa hủy</small>
+                    </div>
+                </div>
+                <span class="badge @(Model.TongCongNo > 0 ? "bg-warning-subtle text-warning-emphasis border border-warning-subtle" : "bg-light text-muted border") px-2.5 py-1">
+                    @(Model.TongCongNo > 0 ? "Cần đối soát" : "Đã thu đủ 100%")
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8 THẺ STAT CARDS CHÍNH CÒN LẠI (Theo mục 9.3 Đề bài) -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Tổng số môn học -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">1. Tổng môn học</span>
+                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-book-half fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-dark mb-0">@Model.TongSoMonHoc</h3>
+                <small class="text-secondary" style="font-size: 11px;">Chương trình đào tạo</small>
+            </div>
+        </div>
+
+        <!-- 2. Tổng số khóa học -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-info bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">2. Tổng khóa học</span>
+                    <span class="badge bg-info-subtle text-info rounded-circle p-2"><i class="bi bi-mortarboard-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-primary mb-0">@Model.TongSoKhoaHoc</h3>
+                <small class="text-muted" style="font-size: 11px;">Lớp mở trong hệ thống</small>
+            </div>
+        </div>
+
+        <!-- 3. Số khóa học đang khả dụng -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">3. Khóa đang mở</span>
+                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-door-open-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-success mb-0">@Model.SoKhoaHocKhaDung</h3>
+                <small class="text-success" style="font-size: 11px;">Khả dụng cho học viên</small>
+            </div>
+        </div>
+
+        <!-- 4. Tổng số học viên -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-secondary bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">4. Tổng học viên</span>
+                    <span class="badge bg-secondary-subtle text-secondary rounded-circle p-2"><i class="bi bi-people-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-dark mb-0">@Model.TongSoHocVien</h3>
+                <small class="text-secondary" style="font-size: 11px;">Hồ sơ trong hệ thống</small>
+            </div>
+        </div>
+
+        <!-- 5. Tổng số giao dịch -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">5. Tổng giao dịch</span>
+                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-card-checklist fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-dark mb-0">@Model.TongSoGiaoDich</h3>
+                <small class="text-secondary" style="font-size: 11px;">Lượt đơn đăng ký học</small>
+            </div>
+        </div>
+
+        <!-- 6. Số giao dịch chờ xử lý -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-warning bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">6. Đang chờ xử lý</span>
+                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-circle p-2"><i class="bi bi-hourglass-split fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-warning-emphasis mb-0">@Model.SoGiaoDichChoXuLy</h3>
+                <small class="text-muted" style="font-size: 11px;">Chờ tiếp nhận sơ bộ</small>
+            </div>
+        </div>
+
+        <!-- 7. Số giao dịch đang xử lý -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-info bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">7. Đang thẩm định</span>
+                    <span class="badge bg-info-subtle text-info rounded-circle p-2"><i class="bi bi-gear-wide-connected fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-primary mb-0">@Model.SoGiaoDichDangXuLy</h3>
+                <small class="text-muted" style="font-size: 11px;">Chờ thu phí / xếp lớp</small>
+            </div>
+        </div>
+
+        <!-- 8. Số giao dịch hoàn thành -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">8. Đã hoàn thành</span>
+                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-check-circle-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-success mb-0">@Model.SoGiaoDichHoanThanh</h3>
+                <small class="text-success" style="font-size: 11px;">Đã nhập học chính thức</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHU VỰC 4 BIỂU ĐỒ CHART.JS (TRỰC QUAN HÓA SỐ LIỆU) -->
+    <div class="row g-4 mb-4">
+        <!-- Biểu đồ 1: Tỷ lệ đăng ký theo trạng thái (Doughnut Chart) -->
+        <div class="col-lg-6">
+            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Phân bố giao dịch theo trạng thái
+                    </h6>
+                    <span class="badge bg-light text-secondary border">Tổng @Model.TongSoGiaoDich đơn</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartTrangThai"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ 2: Top khóa học nhiều học viên đăng ký nhất (Bar Chart) -->
+        <div class="col-lg-6">
+            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Top khóa học thu hút học viên nhất
+                    </h6>
+                    <span class="badge bg-light text-secondary border">Số lượng đăng ký</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartTopKhoaHoc"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ 3: Xu hướng đăng ký qua các tháng (Line Chart) -->
+        <div class="col-lg-8">
+            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-graph-up me-2 text-primary"></i>Xu hướng đăng ký học (6 tháng gần nhất)
+                    </h6>
+                    <span class="badge bg-light text-secondary border">Tiến độ theo thời gian</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartTheoThang"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ 4: Tỷ lệ Đạt / Không đạt (Pie Chart) -->
+        <div class="col-lg-4">
+            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-award-fill me-2 text-success"></i>Tỷ lệ Đạt / Không đạt
+                    </h6>
+                    <span class="badge bg-light text-secondary border">Kết quả học tập</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="chartTyLeDat"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI PHÍM TẮT ĐIỀU HƯỚNG NHANH -->
+    <div class="uneti-card p-4 bg-white rounded-3 border shadow-sm">
+        <h6 class="fw-bold text-dark mb-3">
+            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Lối tắt tác vụ quản trị trọng yếu
+        </h6>
+        <div class="row g-2">
+            <div class="col-sm-6 col-md-3">
+                <a asp-controller="KetQuaHocTap" asp-action="Index" class="btn btn-outline-primary w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-award-fill fs-5"></i>
+                    <div>
+                        <div class="fw-semibold small">Nhập điểm khóa học</div>
+                        <div class="text-muted uneti-fs-xs">Quản lý kết quả đào tạo</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a asp-controller="TiepNhanDangKy" asp-action="Index" class="btn btn-outline-success w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-card-checklist fs-5"></i>
+                    <div>
+                        <div class="fw-semibold small">Tiếp nhận đăng ký</div>
+                        <div class="text-muted uneti-fs-xs">Duyệt &amp; xếp lớp học</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a asp-controller="KhoaHoc" asp-action="QuanLy" class="btn btn-outline-info w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-mortarboard-fill fs-5"></i>
+                    <div>
+                        <div class="fw-semibold small">Quản lý khóa học</div>
+                        <div class="text-muted uneti-fs-xs">Mở lớp &amp; chỉ tiêu tuyển sinh</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <a asp-controller="ThongKe" asp-action="Index" class="btn btn-outline-secondary w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-bar-chart-fill fs-5"></i>
+                    <div>
+                        <div class="fw-semibold small">Báo cáo &amp; Thống kê</div>
+                        <div class="text-muted uneti-fs-xs">8 chuyên đề thống kê toàn diện</div>
+                    </div>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
+@section Scripts {
+    <!-- Tải Chart.js từ CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function () {
+            if (typeof Chart === 'undefined') return;
+
+            // 1. Biểu đồ tròn: Trạng thái đăng ký
+            const ctxTrangThai = document.getElementById('chartTrangThai');
+            if (ctxTrangThai) {
+                new Chart(ctxTrangThai, {
+                    type: 'doughnut',
+                    data: {
+                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoTrangThai.Select(x => x.Label))),
+                        datasets: [{
+                            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoTrangThai.Select(x => x.Value))),
+                            backgroundColor: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoTrangThai.Select(x => x.Color))),
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // 2. Biểu đồ cột: Top khóa học
+            const ctxTopKhoa = document.getElementById('chartTopKhoaHoc');
+            if (ctxTopKhoa) {
+                new Chart(ctxTopKhoa, {
+                    type: 'bar',
+                    data: {
+                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoHocVienTheoKhoa.Select(x => x.Label))),
+                        datasets: [{
+                            label: 'Số học viên',
+                            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoHocVienTheoKhoa.Select(x => x.Value))),
+                            backgroundColor: '#2563eb',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0 } }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            // 3. Biểu đồ đường: Đăng ký theo tháng
+            const ctxTheoThang = document.getElementById('chartTheoThang');
+            if (ctxTheoThang) {
+                new Chart(ctxTheoThang, {
+                    type: 'line',
+                    data: {
+                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoThang.Select(x => x.Label))),
+                        datasets: [{
+                            label: 'Số lượt ghi danh',
+                            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoThang.Select(x => x.Value))),
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#8b5cf6',
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0 } }
+                        }
+                    }
+                });
+            }
+
+            // 4. Biểu đồ tròn: Tỷ lệ Đạt / Không đạt
+            const ctxTyLeDat = document.getElementById('chartTyLeDat');
+            if (ctxTyLeDat) {
+                new Chart(ctxTyLeDat, {
+                    type: 'pie',
+                    data: {
+                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoTyLeDatKhongDat.Select(x => x.Label))),
+                        datasets: [{
+                            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoTyLeDatKhongDat.Select(x => x.Value))),
+                            backgroundColor: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoTyLeDatKhongDat.Select(x => x.Color))),
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
+}
