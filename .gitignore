@@ -38,3 +38,7 @@ de16_extracted.txt
 **/wwwroot/uploads/**/*
 !**/wwwroot/uploads/**/.gitkeep
 /BÀI TẬP LỚN MÔN_NET.txt
+
+## Tooling & IDE
+.vscode/
+.codegraph/

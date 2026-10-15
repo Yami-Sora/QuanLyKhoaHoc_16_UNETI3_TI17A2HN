@@ -10,31 +10,42 @@
     ViewData["Title"] = "Quản lý Kết quả học tập & Nhập điểm";
 }
 
+<link rel="stylesheet" href="~/css/module5-v2.css" asp-append-version="true" />
+
 <div class="container-fluid px-0">
-    <!-- Tiêu đề trang & Thanh tác vụ -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-award-fill me-2 text-primary"></i>QUẢN LÝ KẾT QUẢ ĐÀO TẠO & NHẬP ĐIỂM
-            </h3>
-            <p class="text-muted mb-0 small">Phân hệ theo dõi điểm số, bảng điểm khóa học và cập nhật kết quả học tập cho học viên</p>
-        </div>
-        <div class="d-flex gap-2 mt-2 mt-sm-0">
-            <a asp-action="Index" class="btn btn-outline-secondary btn-sm shadow-sm d-flex align-items-center gap-1">
-                <i class="bi bi-arrow-clockwise"></i>
-                <span>Tải lại</span>
-            </a>
-            <a asp-controller="ThongKe" asp-action="Index" class="btn btn-primary btn-sm shadow-sm d-flex align-items-center gap-1">
-                <i class="bi bi-graph-up-arrow"></i>
-                <span>Báo cáo thống kê</span>
-            </a>
+    <!-- 1. HERO BANNER CHUẨN MONHOC V2 -->
+    <div class="m5-hero-banner">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="m5-banner-icon">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+                <div>
+                    <h1 class="m5-banner-title">QUẢN LÝ KẾT QUẢ ĐÀO TẠO & NHẬP ĐIỂM</h1>
+                    <p class="m5-banner-sub">
+                        Phân hệ theo dõi điểm số, bảng điểm khóa học và cập nhật kết quả học tập cho học viên
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cụm nút tác vụ phía trên -->
+            <div class="d-flex align-items-center gap-2">
+                <a asp-action="Index" class="m5-banner-btn-white">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Tải lại</span>
+                </a>
+                <a asp-controller="ThongKe" asp-action="Index" class="m5-banner-btn">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Báo cáo thống kê</span>
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Thông báo phản hồi TempData -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show border-success-subtle mb-4 py-3 shadow-sm rounded-3" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-success-subtle mb-4 py-3 shadow-sm rounded-4" role="alert">
             <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
             <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -42,7 +53,7 @@
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show border-danger-subtle mb-4 py-3 shadow-sm rounded-3" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show border-danger-subtle mb-4 py-3 shadow-sm rounded-4" role="alert">
             <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
             <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -53,55 +64,63 @@
     <div class="row g-3 mb-4">
         <!-- 1. Tổng số khóa học -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Tổng khóa học</span>
-                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-mortarboard-fill fs-6"></i></span>
+            <div class="m5-stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Tổng khóa học</span>
+                    <span class="m5-stat-icon m5-icon-blue"><i class="bi bi-mortarboard-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-dark mb-0">@Model.TongSoKhoaHoc</h3>
-                <small class="text-secondary" style="font-size: 11px;">Quy mô đào tạo</small>
+                <div>
+                    <div class="m5-stat-val text-dark">@Model.TongSoKhoaHoc</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-primary fs-5 align-middle"></i>Quy mô đào tạo</div>
+                </div>
             </div>
         </div>
 
         <!-- 2. Khóa học đã hoàn tất nhập điểm -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Đã hoàn tất điểm</span>
-                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-check-all fs-6"></i></span>
+            <div class="m5-stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Đã hoàn tất điểm</span>
+                    <span class="m5-stat-icon m5-icon-emerald"><i class="bi bi-check-all"></i></span>
                 </div>
-                <h3 class="fw-bold text-success mb-0">@Model.SoKhoaHocDaNhapDiem</h3>
-                <small class="text-success" style="font-size: 11px;">100% học viên có điểm</small>
+                <div>
+                    <div class="m5-stat-val text-success">@Model.SoKhoaHocDaNhapDiem</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-success fs-5 align-middle"></i>100% học viên có điểm</div>
+                </div>
             </div>
         </div>
 
         <!-- 3. Khóa học chưa nhập điểm -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-warning bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Chưa nhập điểm</span>
-                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-circle p-2"><i class="bi bi-hourglass-split fs-6"></i></span>
+            <div class="m5-stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Chưa nhập điểm</span>
+                    <span class="m5-stat-icon m5-icon-amber"><i class="bi bi-hourglass-split"></i></span>
                 </div>
-                <h3 class="fw-bold text-warning-emphasis mb-0">@Model.SoKhoaHocChuaNhapDiem</h3>
-                <small class="text-muted" style="font-size: 11px;">Cần cập nhật điểm</small>
+                <div>
+                    <div class="m5-stat-val text-warning-emphasis">@Model.SoKhoaHocChuaNhapDiem</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-warning fs-5 align-middle"></i>Cần cập nhật điểm</div>
+                </div>
             </div>
         </div>
 
         <!-- 4. Học viên chờ chấm điểm -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-danger bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Học viên chờ điểm</span>
-                    <span class="badge bg-danger-subtle text-danger rounded-circle p-2"><i class="bi bi-person-exclamation fs-6"></i></span>
+            <div class="m5-stat-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Học viên chờ điểm</span>
+                    <span class="m5-stat-icon m5-icon-rose"><i class="bi bi-person-exclamation"></i></span>
                 </div>
-                <h3 class="fw-bold text-danger mb-0">@Model.TongSoHocVienCanNhapDiem</h3>
-                <small class="text-danger" style="font-size: 11px;">Đã hoàn thành thủ tục</small>
+                <div>
+                    <div class="m5-stat-val text-danger">@Model.TongSoHocVienCanNhapDiem</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-danger fs-5 align-middle"></i>Đã hoàn thành thủ tục</div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- FORM BỘ LỌC ĐA TIÊU CHÍ VÀ TÌM KIẾM -->
-    <div class="uneti-card p-3 mb-4 shadow-sm bg-white rounded-3 border">
+    <div class="m5-filter-card">
         <form method="get" asp-action="Index" id="filterForm">
             <div class="row g-2 align-items-end">
                 <!-- Từ khóa tìm kiếm -->
@@ -165,7 +184,7 @@
     </div>
 
     <!-- BẢNG DANH SÁCH KHÓA HỌC -->
-    <div class="uneti-card shadow-sm overflow-hidden mb-4 bg-white rounded-3 border">
+    <div class="m5-card p-0 overflow-hidden mb-4">
         <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
             <span class="fw-bold text-dark small text-uppercase">
                 <i class="bi bi-table me-1 text-primary"></i>Danh sách khóa học đào tạo (@Model.TotalItems kết quả)

@@ -10,48 +10,57 @@
     ViewData["Title"] = "Báo cáo & Thống kê Đào tạo";
 }
 
+<link rel="stylesheet" href="~/css/module5-v2.css" asp-append-version="true" />
+
 <div class="container-fluid px-0">
-    <!-- Tiêu đề trang & Thanh tác vụ -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>BÁO CÁO &amp; THỐNG KÊ TOÀN DIỆN
-            </h3>
-            <p class="text-muted mb-0 small">
-                Tổng hợp 8 chuyên đề thống kê nghiệp vụ đào tạo: Phân tích số liệu, doanh thu, công nợ và kết quả đào tạo
-            </p>
-        </div>
-        <div class="d-flex gap-2 mt-2 mt-sm-0">
-            <button type="button" class="btn btn-outline-secondary btn-sm shadow-sm d-flex align-items-center gap-1" onclick="window.print()">
-                <i class="bi bi-printer"></i>
-                <span>In báo cáo</span>
-            </button>
-            <a asp-controller="QuanTri" asp-action="Dashboard" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1">
-                <i class="bi bi-speedometer2"></i>
-                <span>Về Dashboard</span>
-            </a>
+    <!-- 1. HERO BANNER CHUẨN MONHOC V2 -->
+    <div class="m5-hero-banner">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="m5-banner-icon">
+                    <i class="bi bi-bar-chart-line-fill"></i>
+                </div>
+                <div>
+                    <h1 class="m5-banner-title">BÁO CÁO &amp; THỐNG KÊ TOÀN DIỆN</h1>
+                    <p class="m5-banner-sub">
+                        Tổng hợp 8 chuyên đề nghiệp vụ &bull; Phân tích số liệu đào tạo, tài chính học phí và kết quả học tập
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cụm nút tác vụ phía trên -->
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="m5-banner-btn" onclick="window.print()">
+                    <i class="bi bi-printer"></i>
+                    <span>In báo cáo</span>
+                </button>
+                <a asp-controller="QuanTri" asp-action="Dashboard" class="m5-banner-btn-white">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Về Dashboard</span>
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- THANH MENU ĐIỀU HƯỚNG NHANH 8 CHUYÊN ĐỀ (JUMP TO SECTION) -->
-    <div class="uneti-card p-2.5 mb-4 bg-white rounded-3 border shadow-sm">
-        <div class="d-flex flex-wrap gap-1 align-items-center small">
-            <span class="text-muted fw-bold me-2"><i class="bi bi-list-ol text-primary me-1"></i>Mục lục thống kê:</span>
-            <a href="#sec1" class="btn btn-sm btn-light border py-1 px-2.5">1. Khóa theo môn</a>
-            <a href="#sec2" class="btn btn-sm btn-light border py-1 px-2.5">2. Học viên theo khóa</a>
-            <a href="#sec3" class="btn btn-sm btn-light border py-1 px-2.5">3. Top khóa học hot</a>
-            <a href="#sec4" class="btn btn-sm btn-light border py-1 px-2.5">4. Doanh thu học phí</a>
-            <a href="#sec5" class="btn btn-sm btn-light border py-1 px-2.5">5. Công nợ học phí</a>
-            <a href="#sec6" class="btn btn-sm btn-light border py-1 px-2.5">6. Điểm TB theo khóa</a>
-            <a href="#sec7" class="btn btn-sm btn-light border py-1 px-2.5">7. Tỷ lệ Đạt/Hỏng</a>
-            <a href="#sec8" class="btn btn-sm btn-light border py-1 px-2.5">8. Đăng ký theo tháng</a>
+    <div class="m5-filter-card py-2 px-3 mb-4">
+        <div class="d-flex flex-wrap gap-1.5 gap-2 align-items-center small">
+            <span class="text-dark fw-bold me-2"><i class="bi bi-list-ol text-primary me-1"></i>Mục lục chuyên đề:</span>
+            <a href="#sec1" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">1. Khóa theo môn</a>
+            <a href="#sec2" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">2. Học viên theo khóa</a>
+            <a href="#sec3" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">3. Top khóa hot</a>
+            <a href="#sec4" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">4. Doanh thu học phí</a>
+            <a href="#sec5" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">5. Công nợ học phí</a>
+            <a href="#sec6" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">6. Điểm TB theo khóa</a>
+            <a href="#sec7" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">7. Tỷ lệ Đạt/Hỏng</a>
+            <a href="#sec8" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">8. Đăng ký theo tháng</a>
         </div>
     </div>
 
     <!-- ===================================================================== -->
     <!-- SECTION 1: SỐ KHÓA HỌC THEO MÔN HỌC -->
     <!-- ===================================================================== -->
-    <div class="uneti-card p-4 mb-4 bg-white rounded-3 border shadow-sm" id="sec1">
+    <div class="m5-card mb-4" id="sec1">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
                 <h5 class="fw-bold text-dark mb-0">
@@ -111,7 +120,7 @@
     <!-- ===================================================================== -->
     <!-- SECTION 2: SỐ HỌC VIÊN ĐĂNG KÝ THEO KHÓA & TỶ LỆ LẤP ĐẦY -->
     <!-- ===================================================================== -->
-    <div class="uneti-card p-4 mb-4 bg-white rounded-3 border shadow-sm" id="sec2">
+    <div class="m5-card mb-4" id="sec2">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
                 <h5 class="fw-bold text-dark mb-0">
@@ -174,7 +183,7 @@
     <!-- ===================================================================== -->
     <!-- SECTION 3: TOP KHÓA HỌC NHIỀU HỌC VIÊN NHẤT -->
     <!-- ===================================================================== -->
-    <div class="uneti-card p-4 mb-4 bg-white rounded-3 border shadow-sm" id="sec3">
+    <div class="m5-card mb-4" id="sec3">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
                 <h5 class="fw-bold text-dark mb-0">
@@ -211,7 +220,7 @@
     <!-- ===================================================================== -->
     <!-- SECTION 4: DOANH THU HỌC PHÍ -->
     <!-- ===================================================================== -->
-    <div class="uneti-card p-4 mb-4 bg-white rounded-3 border shadow-sm" id="sec4">
+    <div class="m5-card mb-4" id="sec4">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
                 <h5 class="fw-bold text-dark mb-0">
@@ -263,7 +272,7 @@
     <!-- ===================================================================== -->
     <!-- SECTION 5: TỔNG CÔNG NỢ HỌC PHÍ CẦN THU -->
     <!-- ===================================================================== -->
-    <div class="uneti-card p-4 mb-4 bg-white rounded-3 border shadow-sm" id="sec5">
+    <div class="m5-card mb-4" id="sec5">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
                 <h5 class="fw-bold text-dark mb-0">
@@ -312,7 +321,7 @@
     <!-- ===================================================================== -->
     <!-- SECTION 6: ĐIỂM TRUNG BÌNH THEO KHÓA -->
     <!-- ===================================================================== -->
-    <div class="uneti-card p-4 mb-4 bg-white rounded-3 border shadow-sm" id="sec6">
+    <div class="m5-card mb-4" id="sec6">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
                 <h5 class="fw-bold text-dark mb-0">
@@ -382,7 +391,7 @@
     <div class="row g-4 mb-4">
         <!-- Section 7: Tỷ lệ Đạt / Không đạt -->
         <div class="col-lg-5" id="sec7">
-            <div class="uneti-card p-4 bg-white rounded-3 border shadow-sm h-100">
+            <div class="m5-card h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                     <div>
                         <h5 class="fw-bold text-dark mb-0">
@@ -417,7 +426,7 @@
 
         <!-- Section 8: Số đăng ký theo tháng -->
         <div class="col-lg-7" id="sec8">
-            <div class="uneti-card p-4 bg-white rounded-3 border shadow-sm h-100">
+            <div class="m5-card h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                     <div>
                         <h5 class="fw-bold text-dark mb-0">
@@ -462,29 +471,59 @@
         (function () {
             if (typeof Chart === 'undefined') return;
 
-            // Biểu đồ 1: Khóa theo môn
+            Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+            Chart.defaults.color = "#64748b";
+
+            const tooltipConfig = {
+                backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                titleColor: '#ffffff',
+                titleFont: { size: 13, weight: 'bold' },
+                bodyColor: '#e2e8f0',
+                bodyFont: { size: 12 },
+                padding: 12,
+                cornerRadius: 10,
+                boxPadding: 6,
+                usePointStyle: true,
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1
+            };
+
+            // Biểu đồ 1: Khóa theo môn (Doughnut bo góc)
             const ctxKhoaTheoMon = document.getElementById('chartKhoaTheoMon');
             if (ctxKhoaTheoMon) {
                 new Chart(ctxKhoaTheoMon, {
-                    type: 'pie',
+                    type: 'doughnut',
                     data: {
                         labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.KhoaHocTheoMon.Take(6).Select(x => x.TenMonHoc))),
                         datasets: [{
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.KhoaHocTheoMon.Take(6).Select(x => x.SoKhoaHoc))),
-                            backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'],
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
+                            backgroundColor: ['#6366f1', '#3b82f6', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899'],
+                            borderWidth: 0,
+                            spacing: 3,
+                            borderRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom' } }
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 14,
+                                    font: { size: 11, weight: '600' }
+                                }
+                            },
+                            tooltip: tooltipConfig
+                        }
                     }
                 });
             }
 
-            // Biểu đồ 7: Đạt / Không đạt
+            // Biểu đồ 7: Đạt / Không đạt (Doughnut mềm mại)
             const ctxDatKhongDat = document.getElementById('chartDatKhongDat');
             if (ctxDatKhongDat) {
                 new Chart(ctxDatKhongDat, {
@@ -493,22 +532,41 @@
                         labels: ['Đạt yêu cầu', 'Không đạt'],
                         datasets: [{
                             data: [@Model.SoDat, @Model.SoKhongDat],
-                            backgroundColor: ['#10b981', '#ef4444'],
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
+                            backgroundColor: ['#10b981', '#f43f5e'],
+                            hoverBackgroundColor: ['#059669', '#e11d48'],
+                            borderWidth: 0,
+                            spacing: 4,
+                            borderRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom' } }
+                        cutout: '72%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 14,
+                                    font: { size: 12, weight: '600' }
+                                }
+                            },
+                            tooltip: tooltipConfig
+                        }
                     }
                 });
             }
 
-            // Biểu đồ 8: Đăng ký theo tháng
+            // Biểu đồ 8: Đăng ký theo tháng (Bar Gradient)
             const ctxDangKyThang = document.getElementById('chartDangKyThang');
             if (ctxDangKyThang) {
+                const ctx8 = ctxDangKyThang.getContext('2d');
+                const barGrad = ctx8.createLinearGradient(0, 0, 0, 220);
+                barGrad.addColorStop(0, '#6366f1');
+                barGrad.addColorStop(1, '#4338ca');
+
                 new Chart(ctxDangKyThang, {
                     type: 'bar',
                     data: {
@@ -516,15 +574,30 @@
                         datasets: [{
                             label: 'Lượt đăng ký',
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DangKyTheoThang.Select(x => x.SoDangKy))),
-                            backgroundColor: '#2563eb',
-                            borderRadius: 6
+                            backgroundColor: barGrad,
+                            borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
+                            borderSkipped: false,
+                            barPercentage: 0.6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-                        plugins: { legend: { display: false } }
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0, font: { size: 11 } },
+                                grid: { color: '#f1f5f9', borderDash: [4, 4], drawBorder: false }
+                            },
+                            x: {
+                                ticks: { font: { size: 11, weight: '500' } },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: tooltipConfig
+                        }
                     }
                 });
             }

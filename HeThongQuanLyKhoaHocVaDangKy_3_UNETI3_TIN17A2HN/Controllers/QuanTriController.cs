@@ -66,7 +66,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 new ChartDataItem { Label = "Chờ xử lý", Value = model.SoGiaoDichChoXuLy, Color = "#f59e0b" },
                 new ChartDataItem { Label = "Đang xử lý", Value = model.SoGiaoDichDangXuLy, Color = "#3b82f6" },
                 new ChartDataItem { Label = "Hoàn thành", Value = model.SoGiaoDichHoanThanh, Color = "#10b981" },
-                new ChartDataItem { Label = "Đã hủy", Value = model.SoGiaoDichBiHuy, Color = "#ef4444" }
+                new ChartDataItem { Label = "Đã hủy", Value = model.SoGiaoDichBiHuy, Color = "#f43f5e" }
             };
 
             // Biểu đồ 2: Top khóa học có nhiều học viên đăng ký nhất (Bar)
@@ -82,9 +82,9 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             model.BieuDoHocVienTheoKhoa = topKhoaHocData.Select(x => new ChartDataItem
             {
-                Label = x.TenKhoa.Length > 25 ? x.TenKhoa.Substring(0, 22) + "..." : x.TenKhoa,
+                Label = x.TenKhoa,
                 Value = x.SoLuong,
-                Color = "#2563eb"
+                Color = "#3b82f6"
             }).ToList();
 
             // Biểu đồ 3: Đăng ký theo 6 tháng gần nhất (Line)
@@ -110,7 +110,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 {
                     Label = $"T{targetDate.Month}/{targetDate.Year}",
                     Value = found?.Count ?? 0,
-                    Color = "#8b5cf6"
+                    Color = "#6366f1"
                 });
             }
             model.BieuDoDangKyTheoThang = chartTheoThang;
@@ -123,7 +123,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             model.BieuDoTyLeDatKhongDat = new List<ChartDataItem>
             {
                 new ChartDataItem { Label = "Đạt yêu cầu", Value = soKetQuaDat, Color = "#10b981" },
-                new ChartDataItem { Label = "Không đạt", Value = soKetQuaKhongDat, Color = "#ef4444" },
+                new ChartDataItem { Label = "Không đạt", Value = soKetQuaKhongDat, Color = "#f43f5e" },
                 new ChartDataItem { Label = "Chưa đánh giá", Value = soChuaDanhGia, Color = "#94a3b8" }
             };
 

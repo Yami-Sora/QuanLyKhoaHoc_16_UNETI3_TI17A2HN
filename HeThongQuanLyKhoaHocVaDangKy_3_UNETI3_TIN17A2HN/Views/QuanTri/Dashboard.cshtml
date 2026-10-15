@@ -11,181 +11,213 @@
     ViewData["Title"] = "Bảng điều khiển (Dashboard) - Quản trị đào tạo";
 }
 
+<link rel="stylesheet" href="~/css/module5-v2.css" asp-append-version="true" />
+
 <div class="container-fluid px-0">
-    <!-- Tiêu đề trang & Thanh tác vụ -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-speedometer2 me-2 text-primary"></i>BẢNG ĐIỀU KHIỂN QUẢN TRỊ (DASHBOARD)
-            </h3>
-            <p class="text-muted mb-0 small">
-                Trung tâm chỉ huy &amp; tổng hợp số liệu đào tạo, tài chính học phí và kết quả học tập toàn hệ thống
-            </p>
-        </div>
-        <div class="d-flex gap-2 mt-2 mt-sm-0">
-            <a asp-controller="ThongKe" asp-action="Index" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1">
-                <i class="bi bi-bar-chart-line-fill"></i>
-                <span>Xem báo cáo chi tiết</span>
-            </a>
-            <a asp-action="Dashboard" class="btn btn-light border btn-sm shadow-sm d-flex align-items-center gap-1">
-                <i class="bi bi-arrow-clockwise"></i>
-                <span>Làm mới</span>
-            </a>
+    <!-- 1. HERO BANNER CHUẨN MONHOC V2 -->
+    <div class="m5-hero-banner">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="m5-banner-icon">
+                    <i class="bi bi-speedometer2"></i>
+                </div>
+                <div>
+                    <h1 class="m5-banner-title">BẢNG ĐIỀU KHIỂN QUẢN TRỊ (DASHBOARD)</h1>
+                    <p class="m5-banner-sub">
+                        Trung tâm chỉ huy &bull; Tổng hợp số liệu đào tạo, tài chính học phí và kết quả học tập toàn hệ thống
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cụm nút tác vụ phía trên -->
+            <div class="d-flex align-items-center gap-2">
+                <a asp-controller="ThongKe" asp-action="Index" class="m5-banner-btn">
+                    <i class="bi bi-bar-chart-line-fill"></i>
+                    <span>Xem báo cáo chi tiết</span>
+                </a>
+                <a asp-action="Dashboard" class="m5-banner-btn-white">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Làm mới</span>
+                </a>
+                <span class="m5-badge-pill d-none d-xl-inline-flex">
+                    <i class="bi bi-shield-check text-primary"></i><strong>Hệ thống sẵn sàng</strong>
+                </span>
+            </div>
         </div>
     </div>
 
-    <!-- KHỐI TÀI CHÍNH NỔI BẬT (DOANH THU & CÔNG NỢ) -->
+    <!-- 2. KHỐI TÀI CHÍNH NỔI BẬT (DOANH THU & CÔNG NỢ) -->
     <div class="row g-3 mb-4">
         <!-- Doanh thu học phí đã thu -->
         <div class="col-md-6">
-            <div class="p-3.5 rounded-3 bg-white border d-flex align-items-center justify-content-between shadow-sm border-start border-4 border-success">
+            <div class="m5-finance-card revenue d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="p-3 bg-success-subtle text-success rounded-3 fs-3">
+                    <div class="m5-finance-icon green">
                         <i class="bi bi-cash-stack"></i>
                     </div>
                     <div>
-                        <div class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">TỔNG DOANH THU HỌC PHÍ ĐÃ THU</div>
-                        <div class="fs-4 fw-bold text-success">
-                            @Model.TongDoanhThu.ToString("N0") <small class="text-muted fs-6">VNĐ</small>
+                        <div class="text-muted small fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px;">TỔNG DOANH THU HỌC PHÍ ĐÃ THU</div>
+                        <div class="fs-3 fw-bold text-success lh-1 mb-1" style="letter-spacing: -0.02em;">
+                            @Model.TongDoanhThu.ToString("N0") <small class="text-muted fs-6 fw-normal">VNĐ</small>
                         </div>
-                        <small class="text-muted">Tổng số tiền học viên đã thanh toán vào hệ thống</small>
+                        <small class="text-muted d-block">Tổng số tiền học viên đã thanh toán vào hệ thống</small>
                     </div>
                 </div>
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1">Thực thu</span>
+                <span class="m5-chip green align-self-start">
+                    <i class="bi bi-check-circle-fill"></i>Thực thu
+                </span>
             </div>
         </div>
 
         <!-- Công nợ học phí còn lại -->
         <div class="col-md-6">
-            <div class="p-3.5 rounded-3 bg-white border d-flex align-items-center justify-content-between shadow-sm border-start border-4 @(Model.TongCongNo > 0 ? "border-warning" : "border-info")">
+            <div class="m5-finance-card debt d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="p-3 @(Model.TongCongNo > 0 ? "bg-warning-subtle text-warning-emphasis" : "bg-info-subtle text-info") rounded-3 fs-3">
+                    <div class="m5-finance-icon amber">
                         <i class="bi @(Model.TongCongNo > 0 ? "bi-receipt-cutoff" : "bi-check-circle")"></i>
                     </div>
                     <div>
-                        <div class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">TỔNG CÔNG NỢ HỌC PHÍ CÒN PHẢI THU</div>
-                        <div class="fs-4 fw-bold @(Model.TongCongNo > 0 ? "text-warning-emphasis" : "text-dark")">
-                            @Model.TongCongNo.ToString("N0") <small class="text-muted fs-6">VNĐ</small>
+                        <div class="text-muted small fw-bold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px;">TỔNG CÔNG NỢ HỌC PHÍ CÒN PHẢI THU</div>
+                        <div class="fs-3 fw-bold text-warning-emphasis lh-1 mb-1" style="letter-spacing: -0.02em;">
+                            @Model.TongCongNo.ToString("N0") <small class="text-muted fs-6 fw-normal">VNĐ</small>
                         </div>
-                        <small class="text-muted">Học phí còn thiếu của các đơn chưa hủy</small>
+                        <small class="text-muted d-block">Học phí còn thiếu của các đơn chưa hủy</small>
                     </div>
                 </div>
-                <span class="badge @(Model.TongCongNo > 0 ? "bg-warning-subtle text-warning-emphasis border border-warning-subtle" : "bg-light text-muted border") px-2.5 py-1">
+                <span class="m5-chip @(Model.TongCongNo > 0 ? "amber" : "green") align-self-start">
+                    <i class="bi @(Model.TongCongNo > 0 ? "bi-exclamation-circle-fill" : "bi-check-circle-fill")"></i>
                     @(Model.TongCongNo > 0 ? "Cần đối soát" : "Đã thu đủ 100%")
                 </span>
             </div>
         </div>
     </div>
 
-    <!-- 8 THẺ STAT CARDS CHÍNH CÒN LẠI (Theo mục 9.3 Đề bài) -->
+    <!-- 3. 8 THẺ STAT CARDS CHÍNH (Theo mục 9.3 Đề bài) -->
     <div class="row g-3 mb-4">
         <!-- 1. Tổng số môn học -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">1. Tổng môn học</span>
-                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-book-half fs-6"></i></span>
+            <div class="m5-stat-card theme-blue">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">1. Tổng môn học</span>
+                    <span class="m5-stat-icon"><i class="bi bi-book-half"></i></span>
                 </div>
-                <h3 class="fw-bold text-dark mb-0">@Model.TongSoMonHoc</h3>
-                <small class="text-secondary" style="font-size: 11px;">Chương trình đào tạo</small>
+                <div>
+                    <div class="m5-stat-val">@Model.TongSoMonHoc</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-primary fs-5 align-middle"></i>Chương trình đào tạo</div>
+                </div>
             </div>
         </div>
 
         <!-- 2. Tổng số khóa học -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-info bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">2. Tổng khóa học</span>
-                    <span class="badge bg-info-subtle text-info rounded-circle p-2"><i class="bi bi-mortarboard-fill fs-6"></i></span>
+            <div class="m5-stat-card theme-sky">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">2. Tổng khóa học</span>
+                    <span class="m5-stat-icon"><i class="bi bi-mortarboard-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-primary mb-0">@Model.TongSoKhoaHoc</h3>
-                <small class="text-muted" style="font-size: 11px;">Lớp mở trong hệ thống</small>
+                <div>
+                    <div class="m5-stat-val">@Model.TongSoKhoaHoc</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-info fs-5 align-middle"></i>Lớp mở trong hệ thống</div>
+                </div>
             </div>
         </div>
 
         <!-- 3. Số khóa học đang khả dụng -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">3. Khóa đang mở</span>
-                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-door-open-fill fs-6"></i></span>
+            <div class="m5-stat-card theme-emerald">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">3. Khóa đang mở</span>
+                    <span class="m5-stat-icon"><i class="bi bi-door-open-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-success mb-0">@Model.SoKhoaHocKhaDung</h3>
-                <small class="text-success" style="font-size: 11px;">Khả dụng cho học viên</small>
+                <div>
+                    <div class="m5-stat-val">@Model.SoKhoaHocKhaDung</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-success fs-5 align-middle"></i>Khả dụng cho học viên</div>
+                </div>
             </div>
         </div>
 
         <!-- 4. Tổng số học viên -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-secondary bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">4. Tổng học viên</span>
-                    <span class="badge bg-secondary-subtle text-secondary rounded-circle p-2"><i class="bi bi-people-fill fs-6"></i></span>
+            <div class="m5-stat-card theme-purple">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">4. Tổng học viên</span>
+                    <span class="m5-stat-icon"><i class="bi bi-people-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-dark mb-0">@Model.TongSoHocVien</h3>
-                <small class="text-secondary" style="font-size: 11px;">Hồ sơ trong hệ thống</small>
+                <div>
+                    <div class="m5-stat-val">@Model.TongSoHocVien</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-purple fs-5 align-middle"></i>Hồ sơ trong hệ thống</div>
+                </div>
             </div>
         </div>
 
         <!-- 5. Tổng số giao dịch -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">5. Tổng giao dịch</span>
-                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-card-checklist fs-6"></i></span>
+            <div class="m5-stat-card theme-indigo">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">5. Tổng giao dịch</span>
+                    <span class="m5-stat-icon"><i class="bi bi-card-checklist"></i></span>
                 </div>
-                <h3 class="fw-bold text-dark mb-0">@Model.TongSoGiaoDich</h3>
-                <small class="text-secondary" style="font-size: 11px;">Lượt đơn đăng ký học</small>
+                <div>
+                    <div class="m5-stat-val">@Model.TongSoGiaoDich</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-indigo fs-5 align-middle"></i>Lượt đơn đăng ký học</div>
+                </div>
             </div>
         </div>
 
         <!-- 6. Số giao dịch chờ xử lý -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-warning bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">6. Đang chờ xử lý</span>
-                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-circle p-2"><i class="bi bi-hourglass-split fs-6"></i></span>
+            <div class="m5-stat-card theme-amber">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">6. Đang chờ xử lý</span>
+                    <span class="m5-stat-icon"><i class="bi bi-hourglass-split"></i></span>
                 </div>
-                <h3 class="fw-bold text-warning-emphasis mb-0">@Model.SoGiaoDichChoXuLy</h3>
-                <small class="text-muted" style="font-size: 11px;">Chờ tiếp nhận sơ bộ</small>
+                <div>
+                    <div class="m5-stat-val">@Model.SoGiaoDichChoXuLy</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-warning fs-5 align-middle"></i>Chờ tiếp nhận sơ bộ</div>
+                </div>
             </div>
         </div>
 
         <!-- 7. Số giao dịch đang xử lý -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-info bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">7. Đang thẩm định</span>
-                    <span class="badge bg-info-subtle text-info rounded-circle p-2"><i class="bi bi-gear-wide-connected fs-6"></i></span>
+            <div class="m5-stat-card theme-teal">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">7. Đang thẩm định</span>
+                    <span class="m5-stat-icon"><i class="bi bi-gear-wide-connected"></i></span>
                 </div>
-                <h3 class="fw-bold text-primary mb-0">@Model.SoGiaoDichDangXuLy</h3>
-                <small class="text-muted" style="font-size: 11px;">Chờ thu phí / xếp lớp</small>
+                <div>
+                    <div class="m5-stat-val">@Model.SoGiaoDichDangXuLy</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-teal fs-5 align-middle"></i>Chờ thu phí / xếp lớp</div>
+                </div>
             </div>
         </div>
 
         <!-- 8. Số giao dịch hoàn thành -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">8. Đã hoàn thành</span>
-                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-check-circle-fill fs-6"></i></span>
+            <div class="m5-stat-card theme-green">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">8. Đã hoàn thành</span>
+                    <span class="m5-stat-icon"><i class="bi bi-check-circle-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-success mb-0">@Model.SoGiaoDichHoanThanh</h3>
-                <small class="text-success" style="font-size: 11px;">Đã nhập học chính thức</small>
+                <div>
+                    <div class="m5-stat-val">@Model.SoGiaoDichHoanThanh</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-success fs-5 align-middle"></i>Đã nhập học chính thức</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- KHU VỰC 4 BIỂU ĐỒ CHART.JS (TRỰC QUAN HÓA SỐ LIỆU) -->
+    <!-- 4. KHU VỰC 4 BIỂU ĐỒ CHART.JS (TRỰC QUAN HÓA SỐ LIỆU) -->
     <div class="row g-4 mb-4">
         <!-- Biểu đồ 1: Tỷ lệ đăng ký theo trạng thái (Doughnut Chart) -->
         <div class="col-lg-6">
-            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <h6 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Phân bố giao dịch theo trạng thái
+            <div class="m5-card">
+                <div class="m5-card-header">
+                    <h6 class="m5-card-title">
+                        <span class="m5-header-icon m5-icon-blue"><i class="bi bi-pie-chart-fill"></i></span>
+                        <span>Phân bố giao dịch theo trạng thái</span>
                     </h6>
-                    <span class="badge bg-light text-secondary border">Tổng @Model.TongSoGiaoDich đơn</span>
+                    <span class="m5-chip blue">Tổng @Model.TongSoGiaoDich đơn</span>
                 </div>
                 <div style="position: relative; height: 260px;">
                     <canvas id="chartTrangThai"></canvas>
@@ -195,12 +227,13 @@
 
         <!-- Biểu đồ 2: Top khóa học nhiều học viên đăng ký nhất (Bar Chart) -->
         <div class="col-lg-6">
-            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <h6 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Top khóa học thu hút học viên nhất
+            <div class="m5-card">
+                <div class="m5-card-header">
+                    <h6 class="m5-card-title">
+                        <span class="m5-header-icon m5-icon-indigo"><i class="bi bi-bar-chart-fill"></i></span>
+                        <span>Top khóa học thu hút học viên nhất</span>
                     </h6>
-                    <span class="badge bg-light text-secondary border">Số lượng đăng ký</span>
+                    <span class="m5-chip blue">Số lượng đăng ký</span>
                 </div>
                 <div style="position: relative; height: 260px;">
                     <canvas id="chartTopKhoaHoc"></canvas>
@@ -210,12 +243,13 @@
 
         <!-- Biểu đồ 3: Xu hướng đăng ký qua các tháng (Line Chart) -->
         <div class="col-lg-8">
-            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <h6 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-graph-up me-2 text-primary"></i>Xu hướng đăng ký học (6 tháng gần nhất)
+            <div class="m5-card">
+                <div class="m5-card-header">
+                    <h6 class="m5-card-title">
+                        <span class="m5-header-icon m5-icon-purple"><i class="bi bi-graph-up"></i></span>
+                        <span>Xu hướng đăng ký học (6 tháng gần nhất)</span>
                     </h6>
-                    <span class="badge bg-light text-secondary border">Tiến độ theo thời gian</span>
+                    <span class="m5-chip blue">Tiến độ theo thời gian</span>
                 </div>
                 <div style="position: relative; height: 260px;">
                     <canvas id="chartTheoThang"></canvas>
@@ -225,12 +259,13 @@
 
         <!-- Biểu đồ 4: Tỷ lệ Đạt / Không đạt (Pie Chart) -->
         <div class="col-lg-4">
-            <div class="uneti-card p-4 shadow-sm bg-white rounded-3 border h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <h6 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-award-fill me-2 text-success"></i>Tỷ lệ Đạt / Không đạt
+            <div class="m5-card">
+                <div class="m5-card-header">
+                    <h6 class="m5-card-title">
+                        <span class="m5-header-icon m5-icon-emerald"><i class="bi bi-award-fill"></i></span>
+                        <span>Tỷ lệ Đạt / Không đạt</span>
                     </h6>
-                    <span class="badge bg-light text-secondary border">Kết quả học tập</span>
+                    <span class="m5-chip green">Kết quả học tập</span>
                 </div>
                 <div style="position: relative; height: 260px;">
                     <canvas id="chartTyLeDat"></canvas>
@@ -239,45 +274,57 @@
         </div>
     </div>
 
-    <!-- KHỐI PHÍM TẮT ĐIỀU HƯỚNG NHANH -->
-    <div class="uneti-card p-4 bg-white rounded-3 border shadow-sm">
-        <h6 class="fw-bold text-dark mb-3">
-            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Lối tắt tác vụ quản trị trọng yếu
-        </h6>
-        <div class="row g-2">
+    <!-- 5. KHỐI PHÍM TẮT ĐIỀU HƯỚNG NHANH -->
+    <div class="m5-card">
+        <div class="m5-card-header mb-3">
+            <h6 class="m5-card-title">
+                <span class="m5-header-icon m5-icon-amber"><i class="bi bi-lightning-charge-fill"></i></span>
+                <span>Lối tắt tác vụ quản trị trọng yếu</span>
+            </h6>
+            <span class="text-muted small">Truy cập nhanh</span>
+        </div>
+        <div class="row g-3">
             <div class="col-sm-6 col-md-3">
-                <a asp-controller="KetQuaHocTap" asp-action="Index" class="btn btn-outline-primary w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
-                    <i class="bi bi-award-fill fs-5"></i>
+                <a asp-controller="KetQuaHocTap" asp-action="Index" class="m5-shortcut-btn">
+                    <div class="icon-wrap m5-icon-blue">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
                     <div>
-                        <div class="fw-semibold small">Nhập điểm khóa học</div>
+                        <div class="fw-bold small text-dark">Nhập điểm khóa học</div>
                         <div class="text-muted uneti-fs-xs">Quản lý kết quả đào tạo</div>
                     </div>
                 </a>
             </div>
             <div class="col-sm-6 col-md-3">
-                <a asp-controller="TiepNhanDangKy" asp-action="Index" class="btn btn-outline-success w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
-                    <i class="bi bi-card-checklist fs-5"></i>
+                <a asp-controller="TiepNhanDangKy" asp-action="Index" class="m5-shortcut-btn">
+                    <div class="icon-wrap m5-icon-emerald">
+                        <i class="bi bi-card-checklist"></i>
+                    </div>
                     <div>
-                        <div class="fw-semibold small">Tiếp nhận đăng ký</div>
+                        <div class="fw-bold small text-dark">Tiếp nhận đăng ký</div>
                         <div class="text-muted uneti-fs-xs">Duyệt &amp; xếp lớp học</div>
                     </div>
                 </a>
             </div>
             <div class="col-sm-6 col-md-3">
-                <a asp-controller="KhoaHoc" asp-action="QuanLy" class="btn btn-outline-info w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
-                    <i class="bi bi-mortarboard-fill fs-5"></i>
+                <a asp-controller="KhoaHoc" asp-action="QuanLy" class="m5-shortcut-btn">
+                    <div class="icon-wrap m5-icon-sky">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
                     <div>
-                        <div class="fw-semibold small">Quản lý khóa học</div>
-                        <div class="text-muted uneti-fs-xs">Mở lớp &amp; chỉ tiêu tuyển sinh</div>
+                        <div class="fw-bold small text-dark">Quản lý khóa học</div>
+                        <div class="text-muted uneti-fs-xs">Mở lớp &amp; tuyển sinh</div>
                     </div>
                 </a>
             </div>
             <div class="col-sm-6 col-md-3">
-                <a asp-controller="ThongKe" asp-action="Index" class="btn btn-outline-secondary w-100 text-start p-2.5 rounded-3 d-flex align-items-center gap-2">
-                    <i class="bi bi-bar-chart-fill fs-5"></i>
+                <a asp-controller="ThongKe" asp-action="Index" class="m5-shortcut-btn">
+                    <div class="icon-wrap m5-icon-purple">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
                     <div>
-                        <div class="fw-semibold small">Báo cáo &amp; Thống kê</div>
-                        <div class="text-muted uneti-fs-xs">8 chuyên đề thống kê toàn diện</div>
+                        <div class="fw-bold small text-dark">Báo cáo &amp; Thống kê</div>
+                        <div class="text-muted uneti-fs-xs">8 chuyên đề toàn diện</div>
                     </div>
                 </a>
             </div>
@@ -292,7 +339,25 @@
         (function () {
             if (typeof Chart === 'undefined') return;
 
-            // 1. Biểu đồ tròn: Trạng thái đăng ký
+            // Cấu hình chung giao diện Chart.js hiện đại
+            Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+            Chart.defaults.color = "#64748b";
+
+            const tooltipConfig = {
+                backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                titleColor: '#ffffff',
+                titleFont: { size: 13, weight: 'bold' },
+                bodyColor: '#e2e8f0',
+                bodyFont: { size: 12 },
+                padding: 12,
+                cornerRadius: 10,
+                boxPadding: 6,
+                usePointStyle: true,
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1
+            };
+
+            // 1. Biểu đồ tròn: Trạng thái đăng ký (Doughnut cao cấp bo góc)
             const ctxTrangThai = document.getElementById('chartTrangThai');
             if (ctxTrangThai) {
                 new Chart(ctxTrangThai, {
@@ -301,24 +366,55 @@
                         labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoTrangThai.Select(x => x.Label))),
                         datasets: [{
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoTrangThai.Select(x => x.Value))),
-                            backgroundColor: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoTrangThai.Select(x => x.Color))),
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
+                            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#f43f5e'],
+                            hoverBackgroundColor: ['#d97706', '#2563eb', '#059669', '#e11d48'],
+                            borderWidth: 0,
+                            spacing: 4,
+                            borderRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        cutout: '72%',
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 18,
+                                    font: { size: 12, weight: '600' }
+                                }
+                            },
+                            tooltip: tooltipConfig
                         }
                     }
                 });
             }
 
-            // 2. Biểu đồ cột: Top khóa học
+            // 2. Biểu đồ cột: Top khóa học (Multi-color Gradients bo tròn)
             const ctxTopKhoa = document.getElementById('chartTopKhoaHoc');
             if (ctxTopKhoa) {
+                const ctx2 = ctxTopKhoa.getContext('2d');
+                
+                // Mảng màu gradient chuyển tiếp cho từng cột
+                const colorPalette = [
+                    ['#6366f1', '#4338ca'], // Indigo
+                    ['#3b82f6', '#1d4ed8'], // Blue
+                    ['#0ea5e9', '#0284c7'], // Sky
+                    ['#14b8a6', '#0f766e'], // Teal
+                    ['#10b981', '#047857'], // Emerald
+                    ['#8b5cf6', '#6d28d9']  // Purple
+                ];
+
+                const barGradients = colorPalette.map(c => {
+                    const g = ctx2.createLinearGradient(0, 0, 0, 240);
+                    g.addColorStop(0, c[0]);
+                    g.addColorStop(1, c[1]);
+                    return g;
+                });
+
                 new Chart(ctxTopKhoa, {
                     type: 'bar',
                     data: {
@@ -326,26 +422,67 @@
                         datasets: [{
                             label: 'Số học viên',
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoHocVienTheoKhoa.Select(x => x.Value))),
-                            backgroundColor: '#2563eb',
-                            borderRadius: 6
+                            backgroundColor: barGradients,
+                            borderRadius: { topLeft: 8, topRight: 8, bottomLeft: 0, bottomRight: 0 },
+                            borderSkipped: false,
+                            barPercentage: 0.62,
+                            categoryPercentage: 0.75
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            y: { beginAtZero: true, ticks: { precision: 0 } }
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0, font: { size: 11 } },
+                                grid: {
+                                    color: '#f1f5f9',
+                                    borderDash: [5, 5],
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: { size: 11, weight: '500' },
+                                    maxRotation: 20,
+                                    minRotation: 0,
+                                    callback: function(value, index) {
+                                        const label = this.getLabelForValue(value);
+                                        if (!label) return '';
+                                        return label.length > 15 ? label.substring(0, 14) + '…' : label;
+                                    }
+                                },
+                                grid: { display: false }
+                            }
                         },
                         plugins: {
-                            legend: { display: false }
+                            legend: { display: false },
+                            tooltip: {
+                                ...tooltipConfig,
+                                callbacks: {
+                                    title: function(items) {
+                                        if (!items.length) return '';
+                                        return items[0].label; // Hiển thị 100% đầy đủ tên khóa học khi rê chuột
+                                    },
+                                    label: function(item) {
+                                        return ' Sĩ số ghi danh: ' + item.raw + ' học viên';
+                                    }
+                                }
+                            }
                         }
                     }
                 });
             }
 
-            // 3. Biểu đồ đường: Đăng ký theo tháng
+            // 3. Biểu đồ đường: Đăng ký theo tháng (Smooth Spline Gradient Glow)
             const ctxTheoThang = document.getElementById('chartTheoThang');
             if (ctxTheoThang) {
+                const ctx3 = ctxTheoThang.getContext('2d');
+                const lineGrad = ctx3.createLinearGradient(0, 0, 0, 240);
+                lineGrad.addColorStop(0, 'rgba(99, 102, 241, 0.32)');
+                lineGrad.addColorStop(1, 'rgba(99, 102, 241, 0.01)');
+
                 new Chart(ctxTheoThang, {
                     type: 'line',
                     data: {
@@ -353,43 +490,78 @@
                         datasets: [{
                             label: 'Số lượt ghi danh',
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoDangKyTheoThang.Select(x => x.Value))),
-                            borderColor: '#8b5cf6',
-                            backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                            borderColor: '#6366f1',
+                            borderWidth: 3.5,
+                            backgroundColor: lineGrad,
                             fill: true,
-                            tension: 0.35,
-                            pointBackgroundColor: '#8b5cf6',
-                            pointRadius: 5
+                            tension: 0.42,
+                            pointRadius: 5,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#6366f1',
+                            pointBorderWidth: 3,
+                            pointHoverBackgroundColor: '#6366f1',
+                            pointHoverBorderColor: '#ffffff',
+                            pointHoverBorderWidth: 3
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         scales: {
-                            y: { beginAtZero: true, ticks: { precision: 0 } }
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0, font: { size: 11 } },
+                                grid: {
+                                    color: '#f1f5f9',
+                                    borderDash: [5, 5],
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                ticks: { font: { size: 11, weight: '500' } },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: tooltipConfig
                         }
                     }
                 });
             }
 
-            // 4. Biểu đồ tròn: Tỷ lệ Đạt / Không đạt
+            // 4. Biểu đồ Doughnut: Tỷ lệ Đạt / Không đạt (Modern Doughnut)
             const ctxTyLeDat = document.getElementById('chartTyLeDat');
             if (ctxTyLeDat) {
                 new Chart(ctxTyLeDat, {
-                    type: 'pie',
+                    type: 'doughnut',
                     data: {
                         labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoTyLeDatKhongDat.Select(x => x.Label))),
                         datasets: [{
                             data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoTyLeDatKhongDat.Select(x => x.Value))),
-                            backgroundColor: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BieuDoTyLeDatKhongDat.Select(x => x.Color))),
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
+                            backgroundColor: ['#10b981', '#f43f5e', '#cbd5e1'],
+                            hoverBackgroundColor: ['#059669', '#e11d48', '#94a3b8'],
+                            borderWidth: 0,
+                            spacing: 4,
+                            borderRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        cutout: '72%',
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    padding: 18,
+                                    font: { size: 12, weight: '600' }
+                                }
+                            },
+                            tooltip: tooltipConfig
                         }
                     }
                 });
