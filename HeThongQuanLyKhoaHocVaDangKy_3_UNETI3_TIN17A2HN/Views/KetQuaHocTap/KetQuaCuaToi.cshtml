@@ -1,0 +1,264 @@
+@*
+    Họ và tên: Nguyễn Công Thành
+    Mã sinh viên: 23103100102
+    Nội dung thực hiện: Module 5 - Giao diện Xem kết quả học tập & Bảng điểm cá nhân của Học viên
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.KetQuaCuaToiViewModel
+@{
+    var userRole = Context.Session.GetString("VaiTro");
+    var isStaffOrAdmin = userRole == "Admin" || userRole == "NhanVien";
+    Layout = isStaffOrAdmin ? "~/Views/Shared/_LayoutAdmin.cshtml" : "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Kết quả học tập của tôi - " + Model.HoTenHocVien;
+}
+
+<div class="container py-4">
+    <!-- Tiêu đề trang & Thanh tác vụ -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-award-fill me-2 text-primary"></i>KẾT QUẢ HỌC TẬP CÁ NHÂN
+            </h3>
+            <p class="text-muted mb-0 small">
+                Bảng điểm tích lũy, xếp loại học lực và tiến độ hoàn thành các khóa đào tạo của <strong>@Model.HoTenHocVien</strong>
+            </p>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <button type="button" class="btn btn-outline-secondary btn-sm shadow-sm d-flex align-items-center gap-1" onclick="window.print()">
+                <i class="bi bi-printer"></i>
+                <span>In bảng điểm</span>
+            </button>
+            <a asp-controller="DangKyKhoaHoc" asp-action="Index" class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1">
+                <i class="bi bi-journal-check"></i>
+                <span>Khóa học của tôi</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 THẺ THỐNG KÊ KẾT QUẢ HỌC TẬP CÁ NHÂN -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Điểm trung bình tích lũy -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Điểm TB tích lũy</span>
+                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-star-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold mb-0 @(Model.DiemTBToanBo.HasValue && Model.DiemTBToanBo.Value >= 8.0m ? "text-success" : (Model.DiemTBToanBo.HasValue && Model.DiemTBToanBo.Value >= 5.0m ? "text-primary" : "text-danger"))">
+                    @(Model.DiemTBToanBo.HasValue ? Model.DiemTBToanBo.Value.ToString("0.00") : "--")
+                </h3>
+                <small class="text-secondary" style="font-size: 11px;">Thang điểm 10</small>
+            </div>
+        </div>
+
+        <!-- 2. Tín chỉ tích lũy -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Tín chỉ tích lũy</span>
+                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-check-circle-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-success mb-0">@Model.TinChiDat <small class="fs-6 text-muted">/ @Model.TongTinChi TC</small></h3>
+                <small class="text-success" style="font-size: 11px;">Đã hoàn thành</small>
+            </div>
+        </div>
+
+        <!-- 3. Số khóa học Đạt -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-info bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Khóa học Đạt</span>
+                    <span class="badge bg-info-subtle text-info-emphasis rounded-circle p-2"><i class="bi bi-mortarboard-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-primary mb-0">@Model.SoKhoaDat <small class="fs-6 text-muted">/ @Model.TongSoKhoaDaHoc khóa</small></h3>
+                <small class="text-muted" style="font-size: 11px;">
+                    @(Model.SoKhoaKhongDat > 0 ? $"{Model.SoKhoaKhongDat} khóa chưa đạt" : "Tất cả đều đạt")
+                </small>
+            </div>
+        </div>
+
+        <!-- 4. Tỷ lệ hoàn thành -->
+        <div class="col-6 col-md-3">
+            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-warning bg-white rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Tỷ lệ đạt chuẩn</span>
+                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-circle p-2"><i class="bi bi-pie-chart-fill fs-6"></i></span>
+                </div>
+                <h3 class="fw-bold text-warning-emphasis mb-0">@Model.TyLeDat%</h3>
+                <small class="text-muted" style="font-size: 11px;">
+                    @if (Model.SoKhoaChuaCoKetQua > 0)
+                    {
+                        <span>Có @Model.SoKhoaChuaCoKetQua khóa đang chấm</span>
+                    }
+                    else
+                    {
+                        <span>Đã đánh giá đầy đủ</span>
+                    }
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- BẢNG CHI TIẾT KẾT QUẢ HỌC TẬP TỪNG KHÓA HỌC -->
+    <div class="uneti-card shadow-sm overflow-hidden mb-4 bg-white rounded-3 border">
+        <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark small text-uppercase">
+                <i class="bi bi-table me-1 text-primary"></i>Chi tiết điểm số từng khóa học (@Model.DanhSachKetQua.Count khóa đào tạo)
+            </span>
+            <div class="small text-muted">
+                <i class="bi bi-person-circle me-1"></i>Học viên: <strong>@Model.HoTenHocVien</strong> (Mã HV: #HV@Model.MaHocVien)
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 13.5px;">
+                <thead class="table-light text-secondary border-bottom">
+                    <tr>
+                        <th class="text-center" style="width: 50px;">STT</th>
+                        <th>Khóa học &amp; Môn học</th>
+                        <th class="text-center">Số TC</th>
+                        <th class="text-center">Chuyên cần<br /><small class="fw-normal text-muted">(10%)</small></th>
+                        <th class="text-center">Giữa kỳ<br /><small class="fw-normal text-muted">(40%)</small></th>
+                        <th class="text-center">Cuối kỳ<br /><small class="fw-normal text-muted">(50%)</small></th>
+                        <th class="text-center">Tổng kết</th>
+                        <th class="text-center">Xếp loại</th>
+                        <th class="text-center" style="width: 120px;">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.DanhSachKetQua != null && Model.DanhSachKetQua.Any())
+                    {
+                        int stt = 1;
+                        foreach (var item in Model.DanhSachKetQua)
+                        {
+                            var isDat = item.KetQua == "Dat";
+
+                            <tr>
+                                <!-- STT -->
+                                <td class="text-center text-muted fw-semibold">
+                                    @stt
+                                </td>
+
+                                <!-- Khóa học & Môn học -->
+                                <td>
+                                    <div class="fw-bold text-dark">
+                                        <a asp-controller="DangKyKhoaHoc" asp-action="ChiTiet" asp-route-id="@item.MaDangKy" class="text-decoration-none text-dark hover-primary">
+                                            @item.TenKhoaHoc
+                                        </a>
+                                    </div>
+                                    <div class="small text-muted mt-0.5 d-flex align-items-center gap-2">
+                                        <span><i class="bi bi-journal-text text-primary me-1"></i>@(item.TenMonHoc ?? "Chưa phân môn")</span>
+                                        <span>•</span>
+                                        <span><i class="bi bi-person me-1"></i>@(item.TenGiangVien ?? "GV phụ trách")</span>
+                                        <span class="badge bg-light text-secondary border" style="font-size: 10px;">@item.HinhThucHoc</span>
+                                    </div>
+                                </td>
+
+                                <!-- Số tín chỉ -->
+                                <td class="text-center fw-semibold text-secondary">
+                                    @item.SoTinChi
+                                </td>
+
+                                @if (item.DaCoKetQua)
+                                {
+                                    <!-- Điểm CC -->
+                                    <td class="text-center fw-medium text-dark">
+                                        @item.DiemChuyenCan.ToString("0.0")
+                                    </td>
+
+                                    <!-- Điểm GK -->
+                                    <td class="text-center fw-medium text-dark">
+                                        @item.DiemGiuaKy.ToString("0.0")
+                                    </td>
+
+                                    <!-- Điểm CK -->
+                                    <td class="text-center fw-medium text-dark">
+                                        @item.DiemCuoiKy.ToString("0.0")
+                                    </td>
+
+                                    <!-- Điểm TK -->
+                                    <td class="text-center">
+                                        <span class="fw-bold fs-6 @(item.DiemTongKet >= 8.0m ? "text-success" : (item.DiemTongKet >= 5.0m ? "text-primary" : "text-danger"))">
+                                            @item.DiemTongKet.ToString("0.00")
+                                        </span>
+                                    </td>
+
+                                    <!-- Xếp loại -->
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border px-2 py-1">
+                                            @TranslateXepLoai(item.XepLoai)
+                                        </span>
+                                    </td>
+
+                                    <!-- Kết quả -->
+                                    <td class="text-center">
+                                        <span class="badge @(isDat ? "bg-success" : "bg-danger") px-2.5 py-1 rounded-pill fw-semibold">
+                                            @(isDat ? "ĐẠT YÊU CẦU" : "KHÔNG ĐẠT")
+                                        </span>
+                                        @if (item.NgayCapNhat.HasValue)
+                                        {
+                                            <div class="text-muted uneti-fs-xs mt-0.5">
+                                                @item.NgayCapNhat.Value.ToString("dd/MM/yyyy")
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td colspan="5" class="text-center text-muted fst-italic py-3">
+                                        <span class="badge bg-secondary-subtle text-secondary px-3 py-1.5 rounded-pill">
+                                            <i class="bi bi-hourglass-split me-1"></i>Đang học • Chờ giảng viên nhập điểm
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-muted border px-2 py-1">Chưa có kết quả</span>
+                                    </td>
+                                }
+                            </tr>
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <div class="mb-2"><i class="bi bi-journal-x fs-1 text-secondary opacity-50"></i></div>
+                                <div class="fw-semibold">Bạn chưa hoàn thành khóa học nào trong hệ thống</div>
+                                <small class="text-muted">Các khóa học được duyệt 'Hoàn thành' mới được tổng hợp bảng điểm vào đây.</small>
+                                <div class="mt-3">
+                                    <a asp-controller="KhoaHoc" asp-action="Index" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-search me-1"></i>Xem danh sách khóa học để đăng ký
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-3 bg-light border-top d-flex flex-wrap justify-content-between align-items-center gap-2 small text-muted">
+            <div>
+                <strong>Quy tắc xét đạt:</strong> Điểm tổng kết &ge; 5.0 và tích lũy đủ số tín chỉ quy định của môn học.
+            </div>
+            <div>
+                Hệ thống Cổng Đào tạo UNETI • Cập nhật tự động
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public static string TranslateXepLoai(string? xl)
+    {
+        return xl switch
+        {
+            "XuatSac" => "Xuất sắc",
+            "Gioi" => "Giỏi",
+            "Kha" => "Khá",
+            "TrungBinh" => "Trung bình",
+            "Yeu" => "Yếu",
+            _ => xl ?? "Chưa xếp loại"
+        };
+    }
+}
