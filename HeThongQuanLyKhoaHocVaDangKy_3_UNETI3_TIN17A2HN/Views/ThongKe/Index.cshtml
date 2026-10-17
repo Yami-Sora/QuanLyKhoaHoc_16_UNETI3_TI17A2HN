@@ -1,20 +1,24 @@
 @*
     Họ và tên: Nguyễn Công Thành
     Mã sinh viên: 23103100102
-    Nội dung thực hiện: Module 5 - Giao diện Báo cáo & Thống kê tổng hợp
+    Nội dung thực hiện: Module 5 - Giao diện Báo cáo & Thống kê tổng hợp toàn diện (Analytics Suite V2)
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.ThongKeViewModel
 @{
     Layout = "_LayoutAdmin";
     ViewData["Title"] = "Báo cáo & Thống kê Đào tạo";
+    var tongKhoaHoc = Model.HocVienTheoKhoa.Count;
+    var tongHocVien = Model.HocVienTheoKhoa.Sum(x => x.SoHocVienDangKy);
 }
 
 <link rel="stylesheet" href="~/css/module5-v2.css" asp-append-version="true" />
 
-<div class="container-fluid px-0">
+<div class="container-fluid px-0 pb-5">
+    <!-- ===================================================================== -->
     <!-- 1. HERO BANNER CHUẨN MONHOC V2 -->
-    <div class="m5-hero-banner">
+    <!-- ===================================================================== -->
+    <div class="m5-hero-banner mb-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
             <div class="d-flex align-items-center gap-3">
                 <div class="m5-banner-icon">
@@ -23,7 +27,7 @@
                 <div>
                     <h1 class="m5-banner-title">BÁO CÁO &amp; THỐNG KÊ TOÀN DIỆN</h1>
                     <p class="m5-banner-sub">
-                        Tổng hợp 8 chuyên đề nghiệp vụ &bull; Phân tích số liệu đào tạo, tài chính học phí và kết quả học tập
+                        Hệ thống phân tích dữ liệu đa chiều &bull; Đào tạo, Tuyển sinh, Dòng tiền học phí &amp; Chất lượng đầu ra
                     </p>
                 </div>
             </div>
@@ -31,7 +35,7 @@
             <!-- Cụm nút tác vụ phía trên -->
             <div class="d-flex align-items-center gap-2">
                 <button type="button" class="m5-banner-btn" onclick="window.print()">
-                    <i class="bi bi-printer"></i>
+                    <i class="bi bi-printer-fill"></i>
                     <span>In báo cáo</span>
                 </button>
                 <a asp-controller="QuanTri" asp-action="Dashboard" class="m5-banner-btn-white">
@@ -42,18 +46,135 @@
         </div>
     </div>
 
-    <!-- THANH MENU ĐIỀU HƯỚNG NHANH 8 CHUYÊN ĐỀ (JUMP TO SECTION) -->
-    <div class="m5-filter-card py-2 px-3 mb-4">
-        <div class="d-flex flex-wrap gap-1.5 gap-2 align-items-center small">
-            <span class="text-dark fw-bold me-2"><i class="bi bi-list-ol text-primary me-1"></i>Mục lục chuyên đề:</span>
-            <a href="#sec1" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">1. Khóa theo môn</a>
-            <a href="#sec2" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">2. Học viên theo khóa</a>
-            <a href="#sec3" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">3. Top khóa hot</a>
-            <a href="#sec4" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">4. Doanh thu học phí</a>
-            <a href="#sec5" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">5. Công nợ học phí</a>
-            <a href="#sec6" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">6. Điểm TB theo khóa</a>
-            <a href="#sec7" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">7. Tỷ lệ Đạt/Hỏng</a>
-            <a href="#sec8" class="btn btn-sm btn-light border py-1 px-2.5 rounded-pill fw-medium">8. Đăng ký theo tháng</a>
+    <!-- ===================================================================== -->
+    <!-- 2. KPI QUICK-STATS RIBBON (TỔNG QUAN CHỈ SỐ VĨ MÔ) -->
+    <!-- ===================================================================== -->
+    <div class="row g-3 mb-4">
+        <!-- Thẻ 1: Doanh thu thực thu -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="m5-kpi-card" style="border-left: 4px solid #10b981; cursor: help;"
+                 data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top"
+                 title="<b>Tổng doanh thu thực tế:</b><br/>Tổng số tiền học phí thực tế đã thu thành công và ghi nhận vào quỹ từ các học viên đã hoàn tất đóng học phí.">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1">
+                            <span>Doanh thu thực thu</span>
+                            <i class="bi bi-info-circle text-muted" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="fs-4 fw-bold text-success mt-1">@Model.TongDoanhThu.ToString("N0") <small class="fs-6">đ</small></div>
+                        <div class="small text-muted mt-1">
+                            <i class="bi bi-check2-circle text-success me-1"></i>Học phí đã vào quỹ thực tế
+                        </div>
+                    </div>
+                    <div class="m5-finance-icon green" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thẻ 2: Công nợ học phí -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="m5-kpi-card" style="border-left: 4px solid #f59e0b; cursor: help;"
+                 data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top"
+                 title="<b>Tổng công nợ học phí:</b><br/>Tổng số tiền học phí còn tồn đọng mà học viên chưa thanh toán đủ, cần phòng đào tạo tiếp tục theo dõi và đôn đốc thu hồi.">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1">
+                            <span>Công nợ học phí</span>
+                            <i class="bi bi-info-circle text-muted" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="fs-4 fw-bold text-warning-emphasis mt-1">@Model.TongCongNo.ToString("N0") <small class="fs-6">đ</small></div>
+                        <div class="small text-muted mt-1">
+                            <i class="bi bi-clock-history text-warning me-1"></i>Chờ học viên hoàn tất
+                        </div>
+                    </div>
+                    <div class="m5-finance-icon amber" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                        <i class="bi bi-exclamation-octagon-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thẻ 3: Tỷ lệ học viên đạt chuẩn -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="m5-kpi-card" style="border-left: 4px solid #6366f1; cursor: help;"
+                 data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top"
+                 title="<b>Tỷ lệ đạt chuẩn tốt nghiệp (@Model.TyLeDat%):</b><br/>Tỷ lệ học viên đạt điều kiện tốt nghiệp (Điểm tổng kết &ge; 5.0) trên tổng số @Model.TongSoKetQua học viên đã có điểm kết thúc khóa.<br/>&bull; Đạt: <b>@Model.SoDat</b> học viên (&ge; 5.0 điểm)<br/>&bull; Chưa đạt: <b>@Model.SoKhongDat</b> học viên (&lt; 5.0 điểm)">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1">
+                            <span>Tỷ lệ đạt chuẩn (&ge; 5.0đ)</span>
+                            <i class="bi bi-info-circle text-muted" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="fs-4 fw-bold text-primary mt-1">@Model.TyLeDat%</div>
+                        <div class="small text-muted mt-1">
+                            <span class="text-success fw-semibold">@Model.SoDat đạt</span> / @Model.TongSoKetQua HV đã có điểm
+                        </div>
+                    </div>
+                    <div class="m5-stat-icon theme-indigo" style="width: 44px; height: 44px; font-size: 1.25rem; background: linear-gradient(135deg, #6366f1, #4338ca); color: #fff;">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thẻ 4: Tổng số lượt học viên ghi danh -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="m5-kpi-card" style="border-left: 4px solid #0ea5e9; cursor: help;"
+                 data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top"
+                 title="<b>Tổng quy mô tuyển sinh:</b><br/>Tổng cộng có <b>@tongHocVien</b> lượt học viên đã ghi danh tham gia học tập trên toàn hệ thống, hiện đang phân bổ tại <b>@tongKhoaHoc</b> lớp khóa học thuộc <b>@Model.KhoaHocTheoMon.Count</b> chuyên đề môn học khác nhau.">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase tracking-wider d-flex align-items-center gap-1">
+                            <span>Lượt học viên ghi danh</span>
+                            <i class="bi bi-info-circle text-muted" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <div class="fs-4 fw-bold text-dark mt-1">@tongHocVien.ToString("N0") <small class="fs-6 fw-normal text-muted">lượt HV</small></div>
+                        <div class="small text-muted mt-1">
+                            Tại <span class="fw-semibold text-primary">@tongKhoaHoc lớp học</span> (@Model.KhoaHocTheoMon.Count môn)
+                        </div>
+                    </div>
+                    <div class="m5-stat-icon" style="width: 44px; height: 44px; font-size: 1.25rem; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 3. THANH ĐIỀU HƯỚNG MỤC LỤC NHANH 8 CHUYÊN ĐỀ (JUMP-TO PILL BAR) -->
+    <!-- ===================================================================== -->
+    <div class="m5-filter-card py-2.5 px-3 mb-4">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="text-dark fw-bold me-1 small">
+                <i class="bi bi-compass-fill text-primary me-1"></i>Điều hướng chuyên đề:
+            </span>
+            <a href="#sec1" class="m5-toc-pill">
+                <span class="badge bg-primary text-white rounded-pill px-1.5 py-0.5">1</span> Khóa theo môn
+            </a>
+            <a href="#sec2" class="m5-toc-pill">
+                <span class="badge bg-info text-white rounded-pill px-1.5 py-0.5">2</span> Học viên &amp; Sĩ số
+            </a>
+            <a href="#sec3" class="m5-toc-pill">
+                <span class="badge bg-warning text-dark rounded-pill px-1.5 py-0.5">3</span> Top khóa hot
+            </a>
+            <a href="#sec4" class="m5-toc-pill">
+                <span class="badge bg-success text-white rounded-pill px-1.5 py-0.5">4</span> Doanh thu học phí
+            </a>
+            <a href="#sec5" class="m5-toc-pill">
+                <span class="badge bg-danger text-white rounded-pill px-1.5 py-0.5">5</span> Công nợ học phí
+            </a>
+            <a href="#sec6" class="m5-toc-pill">
+                <span class="badge bg-purple text-white rounded-pill px-1.5 py-0.5" style="background-color: #8b5cf6;">6</span> Điểm TB khóa
+            </a>
+            <a href="#sec7" class="m5-toc-pill">
+                <span class="badge bg-teal text-white rounded-pill px-1.5 py-0.5" style="background-color: #06b6d4;">7</span> Tỷ lệ Đạt / Không đạt
+            </a>
+            <a href="#sec8" class="m5-toc-pill">
+                <span class="badge bg-indigo text-white rounded-pill px-1.5 py-0.5" style="background-color: #6366f1;">8</span> Đăng ký theo tháng
+            </a>
         </div>
     </div>
 
@@ -61,29 +182,30 @@
     <!-- SECTION 1: SỐ KHÓA HỌC THEO MÔN HỌC -->
     <!-- ===================================================================== -->
     <div class="m5-card mb-4" id="sec1">
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <div>
-                <h5 class="fw-bold text-dark mb-0">
-                    <span class="badge bg-primary me-2">1</span>Số khóa học theo từng môn học
-                </h5>
-                <small class="text-muted">Thống kê cơ cấu và số lượng lớp học được tổ chức cho từng chương trình môn học</small>
+        <div class="m5-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <span class="m5-section-badge sec-1">1</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Cơ cấu số khóa học theo từng môn học</h5>
+                    <small class="text-muted">Phân bổ số lượng lớp học được tổ chức cho các chương trình môn học đào tạo</small>
+                </div>
             </div>
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                Tổng @Model.KhoaHocTheoMon.Count môn học
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold">
+                <i class="bi bi-book-half me-1"></i>Tổng @Model.KhoaHocTheoMon.Count môn học
             </span>
         </div>
 
         <div class="row g-4 align-items-center">
             <div class="col-lg-7">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 small">
-                        <thead class="table-light text-secondary">
+                    <table class="m5-table-clean">
+                        <thead>
                             <tr>
-                                <th style="width: 70px;">Mã môn</th>
+                                <th style="width: 90px;">Mã môn</th>
                                 <th>Tên môn học</th>
-                                <th class="text-center">Số tín chỉ</th>
-                                <th class="text-center">Số khóa đang mở</th>
-                                <th style="width: 150px;">Tỷ trọng</th>
+                                <th class="text-center" style="width: 100px;">Tín chỉ</th>
+                                <th class="text-center" style="width: 120px;">Số lớp mở</th>
+                                <th style="width: 160px;">Tỷ trọng</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -94,13 +216,26 @@
                             {
                                 var pct = Math.Round((double)item.SoKhoaHoc / maxKhoa * 100);
                                 <tr>
-                                    <td class="text-muted fw-bold">#MH@(item.MaMonHoc.ToString("D2"))</td>
-                                    <td class="fw-semibold text-dark">@item.TenMonHoc</td>
-                                    <td class="text-center">@item.SoTinChi TC</td>
-                                    <td class="text-center fw-bold text-primary">@item.SoKhoaHoc</td>
                                     <td>
-                                        <div class="progress" style="height: 6px;">
-                                            <div class="progress-bar bg-primary" style="width: @pct%;"></div>
+                                        <span class="badge bg-light text-primary border px-2 py-1 fw-bold">#MH@(item.MaMonHoc.ToString("D2"))</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">@item.TenMonHoc</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-slate text-secondary border rounded-pill px-2.5 py-1">@item.SoTinChi TC</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fs-6 fw-bold text-primary">@item.SoKhoaHoc</span>
+                                        <small class="text-muted d-block" style="font-size: 11px;">khóa học</small>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11px;">
+                                            <span class="text-muted">Quy mô</span>
+                                            <span class="fw-bold text-primary">@pct%</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px; border-radius: 999px;">
+                                            <div class="progress-bar bg-primary" style="width: @pct%; border-radius: 999px;"></div>
                                         </div>
                                     </td>
                                 </tr>
@@ -110,8 +245,11 @@
                 </div>
             </div>
             <div class="col-lg-5">
-                <div style="position: relative; height: 260px;">
-                    <canvas id="chartKhoaTheoMon"></canvas>
+                <div class="p-3 bg-light rounded-4 border text-center">
+                    <div class="text-muted small fw-semibold mb-2">Biểu đồ phân bổ khóa học theo môn</div>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="chartKhoaTheoMon"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -121,56 +259,79 @@
     <!-- SECTION 2: SỐ HỌC VIÊN ĐĂNG KÝ THEO KHÓA & TỶ LỆ LẤP ĐẦY -->
     <!-- ===================================================================== -->
     <div class="m5-card mb-4" id="sec2">
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <div>
-                <h5 class="fw-bold text-dark mb-0">
-                    <span class="badge bg-primary me-2">2</span>Số học viên đăng ký theo từng khóa học
-                </h5>
-                <small class="text-muted">Theo dõi quy mô tuyển sinh, số lượng học viên ghi danh và tỷ lệ lấp đầy sĩ số</small>
+        <div class="m5-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <span class="m5-section-badge sec-2">2</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Số học viên đăng ký theo từng khóa học &amp; Tỷ lệ lấp đầy</h5>
+                    <small class="text-muted">Theo dõi quy mô tuyển sinh, sĩ số ghi danh thực tế so với giới hạn của từng lớp</small>
+                </div>
             </div>
-            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
-                Sĩ số &amp; Tỷ lệ lấp đầy
+            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-3 py-2 rounded-pill fw-bold">
+                <i class="bi bi-people-fill me-1"></i>Sĩ số &amp; Tỷ lệ lấp đầy
             </span>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 small">
-                <thead class="table-light text-secondary">
+            <table class="m5-table-clean">
+                <thead>
                     <tr>
                         <th>Tên khóa học</th>
-                        <th>Môn học</th>
-                        <th class="text-center">Đã đăng ký</th>
-                        <th class="text-center">Sĩ số tối đa</th>
-                        <th style="min-width: 180px;">Tỷ lệ lấp đầy</th>
-                        <th class="text-center">Tình trạng chỗ</th>
+                        <th>Chương trình môn</th>
+                        <th class="text-center" style="width: 140px;">Sĩ số đăng ký</th>
+                        <th class="text-center" style="width: 120px;">Chỉ tiêu tối đa</th>
+                        <th style="min-width: 200px;">Tỷ lệ lấp đầy lớp</th>
+                        <th class="text-center" style="width: 140px;">Trạng thái tuyển sinh</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.HocVienTheoKhoa)
                     {
                         var isFull = item.SoHocVienDangKy >= item.SoLuongToiDa;
+                        var isNearlyFull = !isFull && item.TyLeLapDay >= 80;
                         <tr>
-                            <td class="fw-bold text-dark">@item.TenKhoaHoc</td>
-                            <td class="text-muted">@(item.TenMonHoc ?? "--")</td>
-                            <td class="text-center fw-bold fs-6 text-primary">@item.SoHocVienDangKy</td>
-                            <td class="text-center text-muted">@item.SoLuongToiDa</td>
+                            <td>
+                                <div class="fw-bold text-dark">@item.TenKhoaHoc</div>
+                                <small class="text-muted">Mã lớp: #KH@(item.MaKhoaHoc.ToString("D2"))</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@(item.TenMonHoc ?? "--")</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fs-6 fw-bold text-primary">@item.SoHocVienDangKy</span>
+                                <small class="text-muted"> HV</small>
+                            </td>
+                            <td class="text-center text-muted fw-semibold">
+                                @item.SoLuongToiDa HV
+                            </td>
                             <td>
                                 <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                                    <span>@item.SoHocVienDangKy/@item.SoLuongToiDa HV</span>
-                                    <span class="fw-bold @(isFull ? "text-danger" : "text-primary")">@item.TyLeLapDay%</span>
+                                    <span class="text-muted">@item.SoHocVienDangKy / @item.SoLuongToiDa HV</span>
+                                    <span class="fw-bold @(isFull ? "text-danger" : (isNearlyFull ? "text-warning" : "text-primary"))">@item.TyLeLapDay%</span>
                                 </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar @(isFull ? "bg-danger" : "bg-primary")" style="width: @Math.Min(100, item.TyLeLapDay)%;"></div>
+                                <div class="progress" style="height: 7px; border-radius: 999px;">
+                                    <div class="progress-bar @(isFull ? "bg-danger" : (isNearlyFull ? "bg-warning" : "bg-primary"))"
+                                         style="width: @Math.Min(100, item.TyLeLapDay)%; border-radius: 999px;"></div>
                                 </div>
                             </td>
                             <td class="text-center">
                                 @if (isFull)
                                 {
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Hết chỗ</span>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1.5 rounded-pill fw-bold">
+                                        <i class="bi bi-slash-circle me-1"></i>Hết chỗ
+                                    </span>
+                                }
+                                else if (isNearlyFull)
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1.5 rounded-pill fw-bold">
+                                        <i class="bi bi-exclamation-circle me-1"></i>Còn @(item.SoLuongToiDa - item.SoHocVienDangKy) chỗ
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Còn @(item.SoLuongToiDa - item.SoHocVienDangKy) chỗ</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5 rounded-pill fw-bold">
+                                        <i class="bi bi-check-circle me-1"></i>Còn @(item.SoLuongToiDa - item.SoHocVienDangKy) chỗ
+                                    </span>
                                 }
                             </td>
                         </tr>
@@ -184,15 +345,16 @@
     <!-- SECTION 3: TOP KHÓA HỌC NHIỀU HỌC VIÊN NHẤT -->
     <!-- ===================================================================== -->
     <div class="m5-card mb-4" id="sec3">
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <div>
-                <h5 class="fw-bold text-dark mb-0">
-                    <span class="badge bg-primary me-2">3</span>Top khóa học thu hút nhiều học viên nhất
-                </h5>
-                <small class="text-muted">Danh sách các lớp học có số lượng người học đăng ký đông đảo nhất</small>
+        <div class="m5-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <span class="m5-section-badge sec-3">3</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Top 5 khóa học có số lượng học viên đăng ký nhiều nhất</h5>
+                    <small class="text-muted">Thống kê 5 lớp học có quy mô tuyển sinh và số lượng người học ghi danh đông nhất toàn hệ thống</small>
+                </div>
             </div>
-            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-                <i class="bi bi-fire me-1"></i>Top 5 khóa học tiêu biểu
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill fw-bold">
+                <i class="bi bi-bar-chart-fill text-warning me-1"></i>Top 5 quy mô lớn nhất
             </span>
         </div>
 
@@ -200,17 +362,43 @@
             @for (int i = 0; i < Model.TopKhoaHocNhieuHocVien.Count; i++)
             {
                 var top = Model.TopKhoaHocNhieuHocVien[i];
-                <div class="col-md">
-                    <div class="p-3 rounded-3 border h-100 bg-light position-relative">
-                        <div class="position-absolute top-0 end-0 p-2">
-                            <span class="badge @(i == 0 ? "bg-danger" : (i == 1 ? "bg-warning text-dark" : "bg-primary")) rounded-circle px-2 py-1">
-                                #@(i + 1)
-                            </span>
+                var rankClass = i == 0 ? "rank-1" : (i == 1 ? "rank-2" : (i == 2 ? "rank-3" : "rank-normal"));
+                var badgeClass = i == 0 ? "gold" : (i == 1 ? "silver" : (i == 2 ? "bronze" : "normal"));
+                var rankLabel = $"Top {i + 1}";
+                var rankNumber = $"#{i + 1}";
+
+                <div class="col-md-6 col-xl">
+                    <div class="m5-podium-card @rankClass" 
+                         style="cursor: help;"
+                         data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="top"
+                         title="<b>@rankLabel: @top.TenKhoaHoc</b><br/>&bull; Sĩ số: <b>@top.SoHocVien / @top.SoLuongToiDa</b> học viên<br/>&bull; Môn: @top.TenMonHoc<br/>&bull; Giảng viên: @(top.TenGiangVien ?? "Chưa phân công")<br/>&bull; Học phí: @top.HocPhi.ToString("N0") VNĐ">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="m5-podium-badge @badgeClass" style="font-size: 0.8rem; font-weight: 800;">@rankNumber</span>
+                                <span class="badge bg-light text-dark border small">@top.TenMonHoc</span>
+                            </div>
+
+                            <div class="fw-bold text-dark fs-6 text-truncate mb-1" title="@top.TenKhoaHoc">
+                                @top.TenKhoaHoc
+                            </div>
+
+                            <div class="text-muted small mb-3">
+                                <i class="bi bi-person-badge me-1"></i>GV: @(top.TenGiangVien ?? "Đang cập nhật")
+                            </div>
                         </div>
-                        <div class="fw-bold text-dark text-truncate pe-4 small mb-1" title="@top.TenKhoaHoc">@top.TenKhoaHoc</div>
-                        <div class="text-muted uneti-fs-xs mb-2">@top.TenGiangVien</div>
-                        <div class="fs-4 fw-bold text-primary">@top.SoHocVien <small class="fs-6 text-muted">HV</small></div>
-                        <small class="text-muted" style="font-size: 11px;">Học phí: @top.HocPhi.ToString("N0") đ</small>
+
+                        <div class="pt-2 border-top">
+                            <div class="d-flex justify-content-between align-items-end">
+                                <div>
+                                    <div class="text-muted" style="font-size: 11px;">Học viên đăng ký</div>
+                                    <div class="fs-4 fw-bold text-primary">@top.SoHocVien <small class="fs-6 text-muted">/ @top.SoLuongToiDa</small></div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted" style="font-size: 11px;">Học phí</div>
+                                    <div class="fw-bold text-success small">@top.HocPhi.ToString("N0") đ</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             }
@@ -218,30 +406,32 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- SECTION 4: DOANH THU HỌC PHÍ -->
+    <!-- SECTION 4: DOANH THU HỌC PHÍ THEO KHÓA HỌC -->
     <!-- ===================================================================== -->
     <div class="m5-card mb-4" id="sec4">
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <div>
-                <h5 class="fw-bold text-dark mb-0">
-                    <span class="badge bg-primary me-2">4</span>Doanh thu học phí theo khóa học
-                </h5>
-                <small class="text-muted">Tổng hợp dòng tiền thực thu từ học phí theo từng lớp đào tạo</small>
+        <div class="m5-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <span class="m5-section-badge sec-4">4</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Báo cáo doanh thu học phí theo từng khóa học</h5>
+                    <small class="text-muted">Tổng hợp dòng tiền thực thu từ học phí theo từng lớp đào tạo chuyên đề</small>
+                </div>
             </div>
-            <div class="fs-5 fw-bold text-success">
-                Tổng doanh thu: @Model.TongDoanhThu.ToString("N0") VNĐ
+            <div class="text-end">
+                <span class="text-muted small d-block">Tổng dòng tiền thực thu</span>
+                <span class="fs-5 fw-bold text-success">@Model.TongDoanhThu.ToString("N0") VNĐ</span>
             </div>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 small">
-                <thead class="table-light text-secondary">
+            <table class="m5-table-clean">
+                <thead>
                     <tr>
                         <th>Khóa học</th>
-                        <th>Môn học</th>
-                        <th class="text-center">Số học viên đã nộp</th>
-                        <th class="text-end">Doanh thu thực thu</th>
-                        <th style="width: 200px;">Tỷ trọng doanh thu</th>
+                        <th>Chuyên đề môn học</th>
+                        <th class="text-center" style="width: 170px;">Học viên đã hoàn thành HP</th>
+                        <th class="text-end" style="width: 180px;">Doanh thu thực thu</th>
+                        <th style="width: 220px;">Tỷ trọng đóng góp</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -249,17 +439,28 @@
                     {
                         var pct = Model.TongDoanhThu > 0 ? Math.Round((double)item.DoanhThu / (double)Model.TongDoanhThu * 100, 1) : 0;
                         <tr>
-                            <td class="fw-bold text-dark">@item.TenKhoaHoc</td>
-                            <td class="text-muted">@(item.TenMonHoc ?? "--")</td>
-                            <td class="text-center">@item.SoHocVienDaDong HV</td>
-                            <td class="text-end fw-bold text-success fs-6">@item.DoanhThu.ToString("N0") đ</td>
+                            <td>
+                                <div class="fw-bold text-dark">@item.TenKhoaHoc</div>
+                                <small class="text-muted">#KH@(item.MaKhoaHoc.ToString("D2"))</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@(item.TenMonHoc ?? "--")</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-bold">
+                                    <i class="bi bi-check2-all me-1"></i>@item.SoHocVienDaDong HV
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold text-success fs-6">
+                                @item.DoanhThu.ToString("N0") <small class="text-muted">đ</small>
+                            </td>
                             <td>
                                 <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                                    <span>Tỷ trọng</span>
+                                    <span class="text-muted">Đóng góp</span>
                                     <span class="fw-bold text-success">@pct%</span>
                                 </div>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: @pct%;"></div>
+                                <div class="progress" style="height: 6px; border-radius: 999px;">
+                                    <div class="progress-bar bg-success" style="width: @pct%; border-radius: 999px;"></div>
                                 </div>
                             </td>
                         </tr>
@@ -270,39 +471,56 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- SECTION 5: TỔNG CÔNG NỢ HỌC PHÍ CẦN THU -->
+    <!-- SECTION 5: TỔNG CÔNG NỢ HỌC PHÍ CÒN PHẢI THU -->
     <!-- ===================================================================== -->
     <div class="m5-card mb-4" id="sec5">
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <div>
-                <h5 class="fw-bold text-dark mb-0">
-                    <span class="badge bg-primary me-2">5</span>Tổng công nợ học phí còn phải thu
-                </h5>
-                <small class="text-muted">Kiểm soát các khoản học phí còn tồn đọng cần đôn đốc học viên hoàn thành</small>
+        <div class="m5-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <span class="m5-section-badge sec-5">5</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Quản lý tổng công nợ học phí còn tồn đọng</h5>
+                    <small class="text-muted">Kiểm soát các khoản học phí chưa thanh toán cần đôn đốc học viên hoàn thành</small>
+                </div>
             </div>
-            <div class="fs-5 fw-bold text-warning-emphasis">
-                Tổng công nợ: @Model.TongCongNo.ToString("N0") VNĐ
+            <div class="text-end">
+                <span class="text-muted small d-block">Tổng công nợ cần thu hồi</span>
+                <span class="fs-5 fw-bold text-danger">@Model.TongCongNo.ToString("N0") VNĐ</span>
             </div>
         </div>
 
         @if (Model.CongNoTheoKhoa != null && Model.CongNoTheoKhoa.Any())
         {
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 small">
-                    <thead class="table-light text-secondary">
+                <table class="m5-table-clean">
+                    <thead>
                         <tr>
                             <th>Khóa học có công nợ</th>
-                            <th class="text-center">Số học viên còn thiếu tiền</th>
-                            <th class="text-end">Công nợ còn lại</th>
+                            <th class="text-center" style="width: 200px;">Số học viên còn nợ</th>
+                            <th class="text-end" style="width: 220px;">Khoản nợ tồn đọng</th>
+                            <th class="text-center" style="width: 140px;">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.CongNoTheoKhoa)
                         {
                             <tr>
-                                <td class="fw-bold text-dark">@item.TenKhoaHoc</td>
-                                <td class="text-center fw-semibold text-danger">@item.SoHocVienConNo học viên</td>
-                                <td class="text-end fw-bold text-danger fs-6">@item.CongNo.ToString("N0") đ</td>
+                                <td>
+                                    <div class="fw-bold text-dark">@item.TenKhoaHoc</div>
+                                    <small class="text-muted">Mã khóa: #KH@(item.MaKhoaHoc.ToString("D2"))</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-1.5 rounded-pill fw-bold">
+                                        <i class="bi bi-clock me-1"></i>@item.SoHocVienConNo học viên
+                                    </span>
+                                </td>
+                                <td class="text-end fw-bold text-danger fs-6">
+                                    @item.CongNo.ToString("N0") <small class="text-muted">đ</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill">
+                                        Đang đôn đốc
+                                    </span>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -311,9 +529,14 @@
         }
         else
         {
-            <div class="alert alert-success mb-0 small d-flex align-items-center gap-2">
-                <i class="bi bi-check-circle-fill fs-5"></i>
-                <span>Tất cả học viên trong hệ thống đã hoàn thành 100% nghĩa vụ học phí. Không có công nợ tồn đọng!</span>
+            <div class="p-4 bg-success-subtle rounded-4 border border-success-subtle text-center">
+                <div class="text-success fs-1 mb-2">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <h6 class="fw-bold text-success mb-1">DÒNG TIỀN HOÀN HẢO &bull; KHÔNG CÓ CÔNG NỢ TỒN ĐỌNG!</h6>
+                <p class="text-muted small mb-0">
+                    Toàn bộ học viên trong hệ thống đã hoàn tất 100% nghĩa vụ học phí. Không có hồ sơ nào nợ đọng cần thu hồi.
+                </p>
             </div>
         }
     </div>
@@ -322,53 +545,76 @@
     <!-- SECTION 6: ĐIỂM TRUNG BÌNH THEO KHÓA -->
     <!-- ===================================================================== -->
     <div class="m5-card mb-4" id="sec6">
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <div>
-                <h5 class="fw-bold text-dark mb-0">
-                    <span class="badge bg-primary me-2">6</span>Điểm trung bình theo từng khóa học
-                </h5>
-                <small class="text-muted">Đánh giá chất lượng đào tạo, học lực trung bình và tỷ lệ đạt chuẩn của từng khóa</small>
+        <div class="m5-card-header">
+            <div class="d-flex align-items-center gap-3">
+                <span class="m5-section-badge sec-6">6</span>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Điểm trung bình và chất lượng đào tạo theo từng khóa</h5>
+                    <small class="text-muted">Đánh giá học lực trung bình, tỷ lệ Đạt chuẩn và phân hóa kết quả của học viên</small>
+                </div>
             </div>
-            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                Chất lượng đào tạo
+            <span class="badge bg-purple-subtle border px-3 py-2 rounded-pill fw-bold" style="background-color: #f3e8ff; color: #7e22ce; border-color: #d8b4fe !important;">
+                <i class="bi bi-mortarboard-fill me-1"></i>Chất lượng đào tạo
             </span>
         </div>
 
         @if (Model.DiemTBTheoKhoa != null && Model.DiemTBTheoKhoa.Any())
         {
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 small">
-                    <thead class="table-light text-secondary">
+                <table class="m5-table-clean">
+                    <thead>
                         <tr>
                             <th>Khóa học</th>
                             <th>Môn học</th>
-                            <th class="text-center">Số HV có điểm</th>
-                            <th class="text-center">Điểm TB</th>
-                            <th class="text-center">Số Đạt</th>
-                            <th class="text-center">Số Hỏng</th>
-                            <th style="min-width: 160px;">Tỷ lệ Đạt</th>
+                            <th class="text-center" style="width: 120px;">HV có điểm</th>
+                            <th class="text-center" style="width: 130px;">Điểm TB lớp</th>
+                            <th class="text-center" style="width: 110px;">Số Đạt</th>
+                            <th class="text-center" style="width: 120px;">Không đạt</th>
+                            <th style="min-width: 180px;">Tỷ lệ Đạt chuẩn</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.DiemTBTheoKhoa)
                         {
                             var tyLe = item.SoHocVienCoKetQua > 0 ? Math.Round((double)item.SoDat / item.SoHocVienCoKetQua * 100, 1) : 0;
+                            var scoreClass = item.DiemTB >= 8.0m ? "excellent" : (item.DiemTB >= 6.5m ? "good" : (item.DiemTB >= 5.0m ? "average" : "poor"));
+                            var scoreText = item.DiemTB >= 8.0m ? "Giỏi" : (item.DiemTB >= 6.5m ? "Khá" : (item.DiemTB >= 5.0m ? "Trung bình" : "Yếu"));
+
                             <tr>
-                                <td class="fw-bold text-dark">@item.TenKhoaHoc</td>
-                                <td class="text-muted">@(item.TenMonHoc ?? "--")</td>
-                                <td class="text-center">@item.SoHocVienCoKetQua</td>
-                                <td class="text-center fw-bold fs-6 @(item.DiemTB >= 8.0m ? "text-success" : (item.DiemTB >= 5.0m ? "text-primary" : "text-danger"))">
-                                    @item.DiemTB.ToString("0.00")
+                                <td>
+                                    <div class="fw-bold text-dark">@item.TenKhoaHoc</div>
                                 </td>
-                                <td class="text-center text-success fw-semibold">@item.SoDat</td>
-                                <td class="text-center text-danger fw-semibold">@item.SoKhongDat</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@(item.TenMonHoc ?? "--")</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-bold text-dark">@item.SoHocVienCoKetQua</span>
+                                    <small class="text-muted"> HV</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="m5-score-pill @scoreClass">
+                                        <i class="bi bi-star-fill"></i>
+                                        @item.DiemTB.ToString("0.00")
+                                    </span>
+                                    <small class="d-block text-muted mt-0.5" style="font-size: 10.5px;">@scoreText</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fw-bold">
+                                        @item.SoDat Đạt
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill fw-bold">
+                                        @item.SoKhongDat Chưa đạt
+                                    </span>
+                                </td>
                                 <td>
                                     <div class="d-flex justify-content-between mb-1" style="font-size: 11px;">
-                                        <span>Đạt chuẩn</span>
+                                        <span class="text-muted">Tỷ lệ đỗ</span>
                                         <span class="fw-bold text-success">@tyLe%</span>
                                     </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar bg-success" style="width: @tyLe%;"></div>
+                                    <div class="progress" style="height: 6px; border-radius: 999px;">
+                                        <div class="progress-bar bg-success" style="width: @tyLe%; border-radius: 999px;"></div>
                                     </div>
                                 </td>
                             </tr>
@@ -379,46 +625,46 @@
         }
         else
         {
-            <div class="alert alert-light border mb-0 small text-muted">
-                <i class="bi bi-info-circle me-1"></i>Chưa có khóa học nào được nhập điểm trong hệ thống.
+            <div class="alert alert-light border mb-0 small text-muted d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <span>Chưa có khóa học nào hoàn thành việc nhập điểm trong hệ thống.</span>
             </div>
         }
     </div>
 
     <!-- ===================================================================== -->
-    <!-- SECTION 7 & 8: TỶ LỆ ĐẠT/HỎNG & SỐ ĐĂNG KÝ THEO THÁNG -->
+    <!-- SECTION 7 & 8: TỶ LỆ ĐẠT / KHÔNG ĐẠT & SỐ ĐĂNG KÝ THEO THÁNG -->
     <!-- ===================================================================== -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4">
         <!-- Section 7: Tỷ lệ Đạt / Không đạt -->
         <div class="col-lg-5" id="sec7">
             <div class="m5-card h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-0">
-                            <span class="badge bg-primary me-2">7</span>Tỷ lệ Đạt / Không đạt
-                        </h5>
-                        <small class="text-muted">Tỷ lệ học viên đạt yêu cầu tốt nghiệp khóa học</small>
-                    </div>
-                </div>
-
-                <div class="text-center mb-3">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <div class="p-2.5 bg-success-subtle text-success rounded-3 border border-success-subtle">
-                                <div class="fs-4 fw-bold">@Model.SoDat</div>
-                                <small class="fw-semibold">ĐẠT (@Model.TyLeDat%)</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="p-2.5 bg-danger-subtle text-danger rounded-3 border border-danger-subtle">
-                                <div class="fs-4 fw-bold">@Model.SoKhongDat</div>
-                                <small class="fw-semibold">KHÔNG ĐẠT (@Model.TyLeKhongDat%)</small>
-                            </div>
+                <div class="m5-card-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="m5-section-badge sec-7">7</span>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">Tỷ lệ Đạt / Không đạt</h5>
+                            <small class="text-muted">Đánh giá chung tỷ lệ tốt nghiệp đạt chuẩn</small>
                         </div>
                     </div>
                 </div>
 
-                <div style="position: relative; height: 220px;">
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <div class="p-3 bg-success-subtle text-success rounded-4 border border-success-subtle text-center">
+                            <div class="fs-3 fw-bold">@Model.SoDat</div>
+                            <div class="fw-bold small text-uppercase">Đạt (@Model.TyLeDat%)</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-danger-subtle text-danger rounded-4 border border-danger-subtle text-center">
+                            <div class="fs-3 fw-bold">@Model.SoKhongDat</div>
+                            <div class="fw-bold small text-uppercase">Không đạt (@Model.TyLeKhongDat%)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="position: relative; height: 230px;">
                     <canvas id="chartDatKhongDat"></canvas>
                 </div>
             </div>
@@ -427,26 +673,27 @@
         <!-- Section 8: Số đăng ký theo tháng -->
         <div class="col-lg-7" id="sec8">
             <div class="m5-card h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-0">
-                            <span class="badge bg-primary me-2">8</span>Số đăng ký theo tháng
-                        </h5>
-                        <small class="text-muted">Biến động số lượng hồ sơ đăng ký qua từng chu kỳ tháng</small>
+                <div class="m5-card-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="m5-section-badge sec-8">8</span>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">Biến động hồ sơ đăng ký theo tháng</h5>
+                            <small class="text-muted">Xu hướng tiếp nhận học viên qua từng chu kỳ tháng</small>
+                        </div>
                     </div>
                 </div>
 
-                <div style="position: relative; height: 220px;" class="mb-3">
+                <div style="position: relative; height: 210px;" class="mb-3">
                     <canvas id="chartDangKyThang"></canvas>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-sm table-bordered align-middle mb-0 text-center small">
+                    <table class="table table-sm table-bordered align-middle mb-0 text-center small rounded-3 overflow-hidden">
                         <thead class="table-light">
                             <tr>
                                 @foreach (var item in Model.DangKyTheoThang)
                                 {
-                                    <th>@item.NhanThang</th>
+                                    <th class="py-2 text-muted fw-bold">@item.NhanThang</th>
                                 }
                             </tr>
                         </thead>
@@ -454,7 +701,7 @@
                             <tr>
                                 @foreach (var item in Model.DangKyTheoThang)
                                 {
-                                    <td class="fw-bold text-primary">@item.SoDangKy</td>
+                                    <td class="py-2 fw-bold text-primary fs-6">@item.SoDangKy</td>
                                 }
                             </tr>
                         </tbody>
@@ -469,6 +716,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         (function () {
+            // Khởi tạo Bootstrap Tooltips
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+
             if (typeof Chart === 'undefined') return;
 
             Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
@@ -488,7 +743,7 @@
                 borderWidth: 1
             };
 
-            // Biểu đồ 1: Khóa theo môn (Doughnut bo góc)
+            // Biểu đồ 1: Khóa theo môn (Doughnut bo góc mượt mà)
             const ctxKhoaTheoMon = document.getElementById('chartKhoaTheoMon');
             if (ctxKhoaTheoMon) {
                 new Chart(ctxKhoaTheoMon, {
@@ -513,7 +768,7 @@
                                 labels: {
                                     usePointStyle: true,
                                     pointStyle: 'circle',
-                                    padding: 14,
+                                    padding: 12,
                                     font: { size: 11, weight: '600' }
                                 }
                             },
@@ -559,11 +814,11 @@
                 });
             }
 
-            // Biểu đồ 8: Đăng ký theo tháng (Bar Gradient)
+            // Biểu đồ 8: Đăng ký theo tháng (Bar Gradient tinh tế)
             const ctxDangKyThang = document.getElementById('chartDangKyThang');
             if (ctxDangKyThang) {
                 const ctx8 = ctxDangKyThang.getContext('2d');
-                const barGrad = ctx8.createLinearGradient(0, 0, 0, 220);
+                const barGrad = ctx8.createLinearGradient(0, 0, 0, 210);
                 barGrad.addColorStop(0, '#6366f1');
                 barGrad.addColorStop(1, '#4338ca');
 
@@ -577,7 +832,7 @@
                             backgroundColor: barGrad,
                             borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
                             borderSkipped: false,
-                            barPercentage: 0.6
+                            barPercentage: 0.55
                         }]
                     },
                     options: {
