@@ -52,6 +52,9 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public double TyLeDat => TongSoKetQua > 0 ? Math.Round((double)SoDat / TongSoKetQua * 100, 1) : 0;
         public double TyLeKhongDat => TongSoKetQua > 0 ? Math.Round((double)SoKhongDat / TongSoKetQua * 100, 1) : 0;
 
+        // Danh sách các năm có dữ liệu đăng ký (phục vụ bộ lọc Section 8)
+        public List<int> DanhSachNamCoDuLieu { get; set; } = new();
+
         // =====================================================================
         // 8. SỐ ĐĂNG KÝ THEO THÁNG — GroupBy() theo tháng
         // =====================================================================

@@ -154,23 +154,123 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             model.SoKhongDat = await _context.KetQuaHocTaps.CountAsync(k => k.KetQua == "KhongDat");
 
             // =====================================================================
-            // 8. SỐ ĐĂNG KÝ THEO THÁNG — LINQ GroupBy(Year, Month)
+            // 8. SỐ ĐĂNG KÝ THEO THÁNG — LINQ GroupBy(Year, Month) — Mặc định 12 tháng gần nhất
             // =====================================================================
-            var dangKyGroups = await _context.DangKyKhoaHocs
+            var now8 = DateTime.Today;
+            var twelveMonthsAgo = new DateTime(now8.Year, now8.Month, 1).AddMonths(-11);
+
+            var dangKyRaw = await _context.DangKyKhoaHocs
+                .Where(d => d.NgayDangKy >= twelveMonthsAgo)
                 .GroupBy(d => new { d.NgayDangKy.Year, d.NgayDangKy.Month })
-                .Select(g => new ThongKeDangKyTheoThangViewModel
-                {
-                    Nam = g.Key.Year,
-                    Thang = g.Key.Month,
-                    SoDangKy = g.Count()
-                })
-                .OrderBy(x => x.Nam)
-                .ThenBy(x => x.Thang)
+                .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
                 .ToListAsync();
 
+            // Zero-fill: Đảm bảo đủ 12 tháng liên tục, tháng nào không có đăng ký thì gán = 0
+            var dangKyGroups = new List<ThongKeDangKyTheoThangViewModel>();
+            for (int i = 0; i < 12; i++)
+            {
+                var target = twelveMonthsAgo.AddMonths(i);
+                var found = dangKyRaw.FirstOrDefault(x => x.Year == target.Year && x.Month == target.Month);
+                dangKyGroups.Add(new ThongKeDangKyTheoThangViewModel
+                {
+                    Nam = target.Year,
+                    Thang = target.Month,
+                    SoDangKy = found?.Count ?? 0
+                });
+            }
             model.DangKyTheoThang = dangKyGroups;
 
+            // Danh sách các năm có dữ liệu đăng ký (phục vụ bộ lọc biểu đồ Section 8)
+            model.DanhSachNamCoDuLieu = await _context.DangKyKhoaHocs
+                .Select(d => d.NgayDangKy.Year)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToListAsync();
+
             return View(model);
+        }
+
+        // =====================================================================
+        // API: Lọc số đăng ký theo tháng — Phục vụ bộ lọc biểu đồ Section 8
+        // Hỗ trợ 3 chế độ: 12months (12 tháng gần nhất), year (theo năm cụ thể), all (toàn bộ)
+        // =====================================================================
+        [HttpGet]
+        public async Task<IActionResult> GetDangKyTheoThang(string filterType = "12months", int? year = null)
+        {
+            var result = new List<ThongKeDangKyTheoThangViewModel>();
+
+            if (filterType == "year" && year.HasValue)
+            {
+                // Lọc theo năm cụ thể: Zero-fill đủ 12 tháng T1 → T12
+                var raw = await _context.DangKyKhoaHocs
+                    .Where(d => d.NgayDangKy.Year == year.Value)
+                    .GroupBy(d => d.NgayDangKy.Month)
+                    .Select(g => new { Month = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                for (int m = 1; m <= 12; m++)
+                {
+                    var found = raw.FirstOrDefault(x => x.Month == m);
+                    result.Add(new ThongKeDangKyTheoThangViewModel
+                    {
+                        Nam = year.Value,
+                        Thang = m,
+                        SoDangKy = found?.Count ?? 0
+                    });
+                }
+            }
+            else if (filterType == "all")
+            {
+                // Toàn bộ thời gian: Lấy từ tháng đầu tiên đến tháng hiện tại, zero-fill
+                var allRaw = await _context.DangKyKhoaHocs
+                    .GroupBy(d => new { d.NgayDangKy.Year, d.NgayDangKy.Month })
+                    .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
+                    .ToListAsync();
+
+                if (allRaw.Any())
+                {
+                    var minDate = new DateTime(allRaw.Min(x => x.Year), allRaw.Min(x => x.Month), 1);
+                    // Tìm min date chính xác
+                    minDate = allRaw.Select(x => new DateTime(x.Year, x.Month, 1)).Min();
+                    var maxDate = allRaw.Select(x => new DateTime(x.Year, x.Month, 1)).Max();
+
+                    for (var d = minDate; d <= maxDate; d = d.AddMonths(1))
+                    {
+                        var found = allRaw.FirstOrDefault(x => x.Year == d.Year && x.Month == d.Month);
+                        result.Add(new ThongKeDangKyTheoThangViewModel
+                        {
+                            Nam = d.Year,
+                            Thang = d.Month,
+                            SoDangKy = found?.Count ?? 0
+                        });
+                    }
+                }
+            }
+            else
+            {
+                // Mặc định: 12 tháng gần nhất, zero-fill
+                var now = DateTime.Today;
+                var start = new DateTime(now.Year, now.Month, 1).AddMonths(-11);
+                var raw = await _context.DangKyKhoaHocs
+                    .Where(d => d.NgayDangKy >= start)
+                    .GroupBy(d => new { d.NgayDangKy.Year, d.NgayDangKy.Month })
+                    .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
+                    .ToListAsync();
+
+                for (int i = 0; i < 12; i++)
+                {
+                    var target = start.AddMonths(i);
+                    var found = raw.FirstOrDefault(x => x.Year == target.Year && x.Month == target.Month);
+                    result.Add(new ThongKeDangKyTheoThangViewModel
+                    {
+                        Nam = target.Year,
+                        Thang = target.Month,
+                        SoDangKy = found?.Count ?? 0
+                    });
+                }
+            }
+
+            return Json(result.Select(r => new { label = r.NhanThang, value = r.SoDangKy }));
         }
     }
 }

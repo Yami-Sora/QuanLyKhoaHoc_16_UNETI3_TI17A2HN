@@ -651,16 +651,396 @@
 .m5-score-pill.average { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 .m5-score-pill.poor { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
 
-/* In ấn tối ưu */
+/* Thanh tiến trình Progress Bar chuẩn Module 5 */
+.progress {
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+.progress-bar {
+    transition: width 0.4s ease;
+}
+
+/* ===================================================================== */
+/* ===================================================================== */
+/* IN ẤN & XUẤT PDF CHUẨN A4 DỌC (PORTRAIT) — ĐỒNG BỘ 100% BỐ CỤC VỚI WEB */
+/* ===================================================================== */
 @media print {
-    .m5-hero-banner button,
-    .m5-hero-banner a,
-    .m5-filter-card {
+    @page {
+        size: A4 portrait; /* Chuẩn in hàng dọc A4 theo yêu cầu */
+        margin: 10mm 10mm 12mm 10mm;
+    }
+
+    /* Ép màu nền và màu chữ giữ nguyên trung thực khi in */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* 1. Ẩn toàn bộ thành phần Admin Layout và giao diện tương tác Web */
+    .admin-sidebar,
+    .admin-topbar,
+    .admin-footer,
+    .admin-sidebar-backdrop,
+    .uneti-skip-link,
+    .m5-hero-banner,
+    .m5-filter-card,
+    .sec8-filter-bar,
+    .m5-banner-btn,
+    .m5-banner-btn-white,
+    .btn,
+    button,
+    .dropdown,
+    .dropdown-menu,
+    .tooltip,
+    .bs-tooltip-top,
+    .bs-tooltip-auto,
+    .bi-info-circle,
+    .no-print {
         display: none !important;
     }
-    .m5-card {
-        break-inside: avoid;
+
+    /* 2. Reset Layout Admin — Phá vỡ flexbox kẹt 100vh và overflow-hidden */
+    html, body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 11px !important;
+        line-height: 1.4 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    .admin-wrapper,
+    .admin-content-area,
+    .admin-main-body,
+    .container-fluid {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        min-height: auto !important;
+        height: auto !important;
+        background: transparent !important;
+    }
+
+    /* 3. Header báo cáo chính thức chỉ hiện khi in */
+    .print-report-header {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 12px !important;
+        padding-bottom: 8px !important;
+        border-bottom: 1.5px solid #334155 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* 4. Thẻ KPI Ribbon — Giữ nguyên bố cục 4 cột vừa vặn trên khổ dọc */
+    .row.g-3.mb-4 {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        margin-bottom: 14px !important;
+    }
+    .row.g-3.mb-4 > [class*="col-"] {
+        flex: 1 1 25% !important;
+        max-width: 25% !important;
+        padding: 0 !important;
+    }
+    .m5-kpi-card {
+        display: block !important;
+        padding: 8px 10px !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
         box-shadow: none !important;
-        border: 1px solid #ccc !important;
+        height: auto !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    .m5-kpi-card .fs-4 {
+        font-size: 1.15rem !important;
+        margin-top: 2px !important;
+    }
+    .m5-kpi-card .small {
+        font-size: 9.5px !important;
+    }
+    .m5-finance-icon,
+    .m5-stat-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+        border-radius: 6px !important;
+    }
+
+    /* 5. Khung Card chứa nội dung chuyên đề — Giữ cấu trúc card trang nhã */
+    .m5-card {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        margin-bottom: 14px !important;
+        padding: 12px 14px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    /* Tiêu đề Card — Chống mồ côi ở cuối trang */
+    .m5-card-header {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        margin-bottom: 10px !important;
+        padding-bottom: 8px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+    }
+    .m5-card-header h5 {
+        font-size: 13px !important;
+        margin: 0 !important;
+    }
+
+    /* 6. Bảng dữ liệu sạch đẹp — Chống xẻ đôi hàng, lặp lại thead */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 10px !important;
+    }
+    thead {
+        display: table-header-group !important;
+    }
+    tbody tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    .m5-table-clean thead th {
+        background-color: #f1f5f9 !important;
+        color: #334155 !important;
+        padding: 5px 8px !important;
+        font-size: 9.5px !important;
+        font-weight: 700 !important;
+        border-bottom: 1.5px solid #cbd5e1 !important;
+    }
+    .m5-table-clean tbody td {
+        padding: 5px 8px !important;
+        font-size: 10px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    /* 7. Section 1 (Khóa theo môn) — BẢNG VÀ BIỂU ĐỒ NẰM NGANG CẠNH NHAU TRÊN CÙNG HÀNG Y HỆT WEB */
+    #sec1 {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    #sec1 .sec1-row {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 14px !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    #sec1 .sec1-table-col {
+        flex: 0 0 58% !important;
+        width: 58% !important;
+        max-width: 58% !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+    }
+    #sec1 .sec1-chart-col {
+        flex: 0 0 42% !important;
+        width: 42% !important;
+        max-width: 42% !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    #sec1 .sec1-chart-box {
+        padding: 10px !important;
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+    }
+    #sec1 .sec1-chart-title {
+        font-size: 10px !important;
+        margin-bottom: 6px !important;
+    }
+    #sec1 .sec1-chart-canvas-wrap {
+        height: 220px !important;
+        position: relative !important;
+    }
+    #sec1 canvas {
+        max-height: 220px !important;
+        width: 100% !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    #sec1 .table-responsive {
+        overflow: visible !important;
+    }
+    #sec1 table {
+        font-size: 9.5px !important;
+    }
+    #sec1 th, #sec1 td {
+        padding: 4px 6px !important;
+    }
+    #sec1 th:nth-child(1), #sec1 td:nth-child(1) { width: 55px !important; }
+    #sec1 th:nth-child(3), #sec1 td:nth-child(3) { width: 50px !important; }
+    #sec1 th:nth-child(4), #sec1 td:nth-child(4) { width: 60px !important; }
+    #sec1 th:nth-child(5), #sec1 td:nth-child(5) { width: 80px !important; }
+    #sec1 .badge {
+        font-size: 8.5px !important;
+        padding: 2px 5px !important;
+    }
+    #sec1 .progress {
+        height: 5px !important;
+    }
+
+    /* 8. Section 3 (Top 5) — CHIA 2 HÀNG RÕ RÀNG Y HỆT WEB (HÀNG TRÊN 3 THẺ, HÀNG DƯỚI 2 THẺ) */
+    #sec3 {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    #sec3 .row {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 10px 0 !important;
+    }
+    #sec3 .col-4 {
+        flex: 0 0 33.333333% !important;
+        max-width: 33.333333% !important;
+        padding: 0 5px !important;
+    }
+    #sec3 .col-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        padding: 0 5px !important;
+    }
+    .m5-podium-card {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        padding: 10px 12px !important;
+        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        height: 100% !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    .m5-podium-card .fs-4 {
+        font-size: 1.15rem !important;
+    }
+    .m5-podium-card .small {
+        font-size: 9.5px !important;
+    }
+
+    /* 9. Section 7 & Section 8 — NẰM NGANG CẠNH NHAU TRÊN CÙNG HÀNG Y HỆT WEB */
+    .sec78-row {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 14px !important;
+        margin: 0 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    #sec7 {
+        flex: 0 0 42% !important;
+        width: 42% !important;
+        max-width: 42% !important;
+        padding: 0 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    #sec8 {
+        flex: 0 0 58% !important;
+        width: 58% !important;
+        max-width: 58% !important;
+        padding: 0 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    #sec7 .m5-card,
+    #sec8 .m5-card {
+        height: 100% !important;
+        margin-bottom: 0 !important;
+    }
+    #sec7 canvas {
+        max-height: 210px !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+    }
+    #sec8 canvas {
+        max-height: 200px !important;
+        width: 100% !important;
+    }
+    #tableDangKyThang th,
+    #tableDangKyThang td {
+        padding: 4px 6px !important;
+        font-size: 9.5px !important;
+    }
+
+    /* 10. Thanh tiến trình và huy hiệu — Giữ màu in */
+    .progress {
+        background-color: #e2e8f0 !important;
+        height: 6px !important;
+    }
+    .badge {
+        font-size: 9px !important;
+        padding: 2.5px 6px !important;
+        border: 1px solid #94a3b8 !important;
+    }
+    .m5-score-pill {
+        font-size: 9px !important;
+        padding: 2.5px 6px !important;
+    }
+    .m5-section-badge {
+        width: 22px !important;
+        height: 22px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* 11. Khung chữ ký phê duyệt báo cáo — Đặt ngay ngắn ở cuối, không đè lên biểu đồ */
+    .print-report-footer {
+        display: block !important;
+        position: relative !important;
+        clear: both !important;
+        width: 100% !important;
+        margin-top: 22px !important;
+        padding-top: 14px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+    .print-report-footer table {
+        width: 100% !important;
+        border: none !important;
+    }
+    .print-report-footer td {
+        border: none !important;
+        padding: 0 10px !important;
     }
 }
+
+/* Mặc định ẩn header/footer báo cáo in trên web */
+.print-report-header,
+.print-report-footer {
+    display: none;
+}
+
+
