@@ -526,6 +526,20 @@
     box-shadow: 0 4px 10px -2px rgba(22, 101, 52, 0.4);
 }
 
+.mh2-chip-status-info.active {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+    box-shadow: 0 4px 10px -2px rgba(29, 78, 216, 0.4);
+}
+
+.mh2-chip-status-warning.active {
+    background: #b45309;
+    border-color: #b45309;
+    color: #ffffff;
+    box-shadow: 0 4px 10px -2px rgba(180, 83, 9, 0.4);
+}
+
 .mh2-chip-status-paused.active {
     background: #991b1b;
     border-color: #991b1b;
@@ -541,6 +555,8 @@
 }
 .mh2-dot-open { background: #22c55e; }
 .mh2-dot-paused { background: #ef4444; }
+.mh2-dot-info { background: #3b82f6; }
+.mh2-dot-warning { background: #eab308; }
 .mh2-chip.active .mh2-dot { background: #ffffff; }
 
 .mh2-chip-separator {

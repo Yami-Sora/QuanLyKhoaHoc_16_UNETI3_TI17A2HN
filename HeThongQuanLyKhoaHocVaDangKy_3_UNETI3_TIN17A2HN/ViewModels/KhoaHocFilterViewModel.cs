@@ -43,11 +43,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
             get
             {
                 if (TrangThai == "BiHuy") return "Khóa học đã bị hủy";
-                if (TrangThai == "DaKetThuc") return "Khóa học đã kết thúc";
-                if (TrangThai == "DangHoc") return "Khóa học đang diễn ra, đã đóng đăng ký";
+                if (TrangThai == "DaKetThuc" || NgayKetThuc.Date < DateTime.Today) return "Khóa học đã kết thúc";
+                if (TrangThai == "DangHoc" || NgayBatDau.Date <= DateTime.Today) return "Khóa học đang diễn ra, đã đóng đăng ký";
                 if (TrangThai == "SapMo") return "Khóa học sắp mở, chưa tới đợt đăng ký";
                 if (!ConCho) return "Khóa học đã hết chỗ (đã đủ sĩ số)";
-                if (NgayBatDau.Date < DateTime.Today) return "Khóa học đã quá hạn ngày khai giảng";
                 return string.Empty;
             }
         }
@@ -102,10 +101,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         // Trợ giúp kiểm tra có bộ lọc đang kích hoạt hay không
         public bool HasActiveFilter =>
             !string.IsNullOrWhiteSpace(SearchString) ||
-            MaMonHoc.HasValue ||
+            (MaMonHoc.HasValue && MaMonHoc.Value > 0) ||
             !string.IsNullOrWhiteSpace(HinhThuc) ||
             !string.IsNullOrWhiteSpace(TrangThai) ||
             !string.IsNullOrWhiteSpace(KhoangHocPhi) ||
-            !string.IsNullOrWhiteSpace(TinhTrangCho);
+            !string.IsNullOrWhiteSpace(TinhTrangCho) ||
+            (!string.IsNullOrWhiteSpace(SortBy) && SortBy != "ngay_desc");
     }
 }

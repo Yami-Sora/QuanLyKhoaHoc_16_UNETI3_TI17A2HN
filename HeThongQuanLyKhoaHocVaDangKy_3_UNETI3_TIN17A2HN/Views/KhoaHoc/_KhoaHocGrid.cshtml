@@ -43,8 +43,8 @@
 <!-- Thanh trạng thái kết quả tra cứu -->
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 px-1 gap-2">
     <div class="d-flex align-items-center flex-wrap gap-2 small">
-        <span class="text-muted">
-            Hiển thị <strong class="text-dark">@Model.DanhSachKhoaHoc.Count</strong> / <strong>@Model.TotalItems</strong> khóa học phù hợp (Tổng @Model.TongSoKhoaHoc khóa)
+        <span class="mh2-result-count">
+            Hiển thị <strong>@Model.DanhSachKhoaHoc.Count</strong> / <strong>@Model.TotalItems</strong> khóa học phù hợp (Tổng <strong>@Model.TongSoKhoaHoc</strong> khóa)
         </span>
 
         @if (!string.IsNullOrWhiteSpace(Model.SearchString))
@@ -144,7 +144,14 @@
             var percent = item.SoLuongToiDa > 0 ? (item.SoLuongDaDangKy * 100 / item.SoLuongToiDa) : 0;
             var progressColor = percent >= 100 ? "bg-danger" : (percent >= 80 ? "bg-warning" : "bg-success");
 
-            var (statusBadge, statusIcon, statusLabel) = item.TrangThai switch
+            // Trạng thái vòng đời thực tế theo thời gian (tự động đồng bộ với ngày hiện tại)
+            var actualStatus = item.TrangThai;
+            if (actualStatus == "DangMo" && item.NgayBatDau.Date <= DateTime.Today)
+            {
+                actualStatus = item.NgayKetThuc.Date < DateTime.Today ? "DaKetThuc" : "DangHoc";
+            }
+
+            var (statusBadge, statusIcon, statusLabel) = actualStatus switch
             {
                 "SapMo" => ("uneti-badge-warning", "bi-clock", "Sắp mở"),
                 "DangMo" => ("uneti-badge-success", "bi-door-open", "Đang mở"),
@@ -168,7 +175,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-2 gap-1">
                         <div class="d-flex align-items-center gap-1">
                             <span class="badge bg-light text-secondary border px-2 py-1 fw-semibold uneti-fs-12">
-                                #KH0@item.MaKhoaHoc
+                                #KH0@(item.MaKhoaHoc)
                             </span>
                             <span class="badge @hinhThucBadge border px-2 py-1 uneti-fs-11">
                                 @item.HinhThuc

@@ -121,6 +121,7 @@
 /* Badges trạng thái mềm mại (Soft Badges) */
 .uneti-badge-primary,
 .uneti-badge-success,
+.uneti-badge-warning,
 .uneti-badge-danger,
 .uneti-badge-secondary {
     display: inline-flex;
@@ -142,6 +143,11 @@
     background-color: var(--uneti-success-light);
     color: var(--uneti-success);
     border: 1px solid var(--uneti-success-border);
+}
+.uneti-badge-warning {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
 }
 .uneti-badge-danger {
     background-color: var(--uneti-danger-light);

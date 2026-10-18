@@ -33,8 +33,16 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
         // GET: /KhoaHoc or /KhoaHoc/Index
         [HttpGet]
-        public async Task<IActionResult> Index(KhoaHocFilterViewModel filter)
+        public async Task<IActionResult> Index(KhoaHocFilterViewModel filter, int? page = null)
         {
+            // Tự động đồng bộ và cập nhật vòng đời khóa học theo thời gian thực (Mục 6.7)
+            await DongBoVongDoiKhoaHocAsync();
+
+            if (page.HasValue && page.Value > 0)
+            {
+                filter.PageIndex = page.Value;
+            }
+
             // Dropdown môn học cho bộ lọc
             ViewBag.MonHocList = new SelectList(
                 await _context.MonHocs
@@ -222,6 +230,9 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             int page = 1,
             int pageSize = 5)
         {
+            // Tự động đồng bộ và cập nhật vòng đời khóa học theo thời gian thực (Mục 6.7)
+            await DongBoVongDoiKhoaHocAsync();
+
             // Dropdown môn học cho bộ lọc quản trị
             ViewBag.MonHocList = new SelectList(
                 await _context.MonHocs
@@ -346,11 +357,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // GET: /KhoaHoc/Details/5
-        // Quyền: Admin và Nhân viên
-        [AuthorizeRole("Admin", "NhanVien")]
+        // Công khai: Học viên & Khách được xem chi tiết khóa học, lịch học, giảng viên và đăng ký
+        // Danh sách học viên đăng ký bên trong view được bảo vệ chỉ hiển thị cho Admin & Nhân viên
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
+
+            // Tự động đồng bộ và cập nhật vòng đời khóa học theo thời gian thực (Mục 6.7)
+            await DongBoVongDoiKhoaHocAsync();
 
             var khoaHoc = await _context.KhoaHocs
                 .Include(k => k.MonHoc)
@@ -360,6 +374,20 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 .FirstOrDefaultAsync(k => k.MaKhoaHoc == id);
 
             if (khoaHoc == null) return NotFound();
+
+            // Kiểm tra xem Học viên đang đăng nhập đã đăng ký khóa học này chưa
+            var maTaiKhoan = HttpContext.Session.GetInt32("MaTaiKhoan");
+            bool daDangKy = false;
+            if (maTaiKhoan.HasValue)
+            {
+                var hocVien = await _context.HocViens.FirstOrDefaultAsync(h => h.MaTaiKhoan == maTaiKhoan.Value);
+                if (hocVien != null)
+                {
+                    daDangKy = await _context.DangKyKhoaHocs
+                        .AnyAsync(dk => dk.MaKhoaHoc == id && dk.MaHocVien == hocVien.MaHocVien && dk.TrangThai != "BiHuy");
+                }
+            }
+            ViewBag.DaDangKy = daDangKy;
 
             return View(khoaHoc);
         }
@@ -584,6 +612,50 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     .Select(g => new { g.MaGiangVien, Display = g.HoTen + " - " + (g.ChuyenMon ?? "N/A") })
                     .ToListAsync(),
                 "MaGiangVien", "Display", selectedGiangVien);
+        }
+
+        /// <summary>
+        /// Tự động đồng bộ và cập nhật vòng đời khóa học theo thời gian thực (Mục 6.7):
+        /// 1. Khóa học "DangMo" hoặc "SapMo" nhưng đã đến/qua ngày khai giảng (NgayBatDau <= Today) và chưa hết hạn -> Chuyển sang "DangHoc" (Đang giảng dạy / Đã đóng cổng đăng ký).
+        /// 2. Khóa học đã quá ngày kết thúc (NgayKetThuc < Today) -> Chuyển sang "DaKetThuc".
+        /// </summary>
+        private async Task DongBoVongDoiKhoaHocAsync()
+        {
+            var today = DateTime.Today;
+
+            // 1. Khóa học đã tới hoặc qua ngày khai giảng -> chuyển sang Đang học
+            var khoaHocsCanBatDau = await _context.KhoaHocs
+                .Where(k => (k.TrangThai == "DangMo" || k.TrangThai == "SapMo") && k.NgayBatDau.Date <= today && k.NgayKetThuc.Date >= today)
+                .ToListAsync();
+
+            // 2. Khóa học đã qua ngày kết thúc -> chuyển sang Đã kết thúc
+            var khoaHocsCanKetThuc = await _context.KhoaHocs
+                .Where(k => k.TrangThai != "DaKetThuc" && k.TrangThai != "BiHuy" && k.NgayKetThuc.Date < today)
+                .ToListAsync();
+
+            bool coThayDoi = false;
+            if (khoaHocsCanBatDau.Any())
+            {
+                foreach (var k in khoaHocsCanBatDau)
+                {
+                    k.TrangThai = "DangHoc";
+                }
+                coThayDoi = true;
+            }
+
+            if (khoaHocsCanKetThuc.Any())
+            {
+                foreach (var k in khoaHocsCanKetThuc)
+                {
+                    k.TrangThai = "DaKetThuc";
+                }
+                coThayDoi = true;
+            }
+
+            if (coThayDoi)
+            {
+                await _context.SaveChangesAsync();
+            }
         }
 
         /// <summary>

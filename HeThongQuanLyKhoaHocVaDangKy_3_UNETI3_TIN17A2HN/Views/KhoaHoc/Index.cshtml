@@ -1,7 +1,7 @@
 @*
     Họ và tên: Nguyễn Văn Mạnh
     Mã sinh viên: 23103100096
-    Nội dung thực hiện: Module 2 - Cổng thông tin tra cứu & Đăng ký Khóa học (Tìm kiếm, Lọc kết hợp, Sắp xếp, Phân trang LINQ, Kiểm tra khả dụng)
+    Nội dung thực hiện: Module 2 - Cổng thông tin tra cứu & Đăng ký Khóa học (Tìm kiếm tức thì, Bộ lọc hiện đại 2 tầng, Sắp xếp, Phân trang LINQ, AJAX & Skeleton Loading)
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.KhoaHocFilterViewModel
@@ -13,36 +13,46 @@
     ViewData["Title"] = "Danh mục Khóa học & Lớp học phần";
 }
 
-<div class="container py-4">
-    <!-- 1. BREADCRUMB & TIÊU ĐỀ TRANG CHUẨN DESIGN SYSTEM UNETI -->
-    <div class="mb-4">
+<link rel="stylesheet" href="~/css/monhoc-v2.css" asp-append-version="true" />
 
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <h3 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">
-                    <i class="bi bi-mortarboard-fill me-2 text-primary"></i>DANH MỤC KHÓA HỌC & LỚP HỌC PHẦN
-                </h3>
-                <p class="text-muted mb-0 small">
-                    Hệ thống các khóa học đang tuyển sinh và tổ chức giảng dạy &bull; Trường Đại học Kinh tế - Kỹ thuật Công nghiệp
-                </p>
+<div class="container py-4">
+    <!-- 1. BANNER TIÊU ĐỀ TRANG ĐỒNG BỘ VỚI MÔN HỌC -->
+    <div class="mh2-page-banner mb-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="mh2-banner-icon">
+                    <i class="bi bi-collection-play-fill"></i>
+                </div>
+                <div>
+                    <h1 class="mh2-banner-title">DANH MỤC KHÓA HỌC & LỚP HỌC PHẦN</h1>
+                    <p class="mh2-banner-sub">
+                        Hệ thống các khóa học đang tuyển sinh &amp; tổ chức giảng dạy &bull; Trường Đại học Kinh tế - Kỹ thuật Công nghiệp (UNETI)
+                    </p>
+                </div>
             </div>
 
-            <!-- Cụm hành động góc phải -->
+            <!-- Cụm thông tin & hành động góc phải -->
             <div class="d-flex align-items-center gap-2">
                 @if (isStaffOrAdmin)
                 {
-                    <a asp-action="QuanLy" class="btn btn-warning text-dark fw-bold shadow-sm text-decoration-none rounded-3 btn-sm py-2 px-3">
-                        <i class="bi bi-gear-fill me-1"></i>Quản trị khóa học
+                    <a asp-action="QuanLy" class="btn btn-sm py-2 px-3 rounded-pill fw-semibold shadow-sm mh2-admin-btn text-decoration-none">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Quản trị khóa học
+                    </a>
+                }
+                else if (isLoggedIn && userRole == "HocVien")
+                {
+                    <a asp-controller="DangKyKhoaHoc" asp-action="Index" class="btn btn-light btn-sm py-2 px-3 rounded-pill shadow-sm text-decoration-none fw-bold text-primary">
+                        <i class="bi bi-journal-check me-1"></i>Khóa học của tôi
                     </a>
                 }
                 else if (!isLoggedIn)
                 {
-                    <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "KhoaHoc")" class="btn uneti-btn-primary btn-sm py-2 px-3 rounded-3 shadow-sm text-decoration-none">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập để đăng ký
+                    <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "KhoaHoc")" class="btn btn-light btn-sm py-2 px-3 rounded-pill shadow-sm text-decoration-none fw-bold text-primary">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập học viên
                     </a>
                 }
-                <span class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-semibold shadow-sm small">
-                    <i class="bi bi-collection text-primary me-1"></i><strong>@Model.TongSoKhoaHoc</strong> khóa học
+                <span class="mh2-badge-count">
+                    <i class="bi bi-collection text-primary"></i><strong>@Model.TongSoKhoaHoc</strong> khóa học
                 </span>
             </div>
         </div>
@@ -50,10 +60,10 @@
 
     @if (isStaffOrAdmin)
     {
-        <div class="alert alert-info border-0 shadow-sm py-2 px-3 rounded-3 small d-flex align-items-center justify-content-between mb-4 bg-primary-subtle text-primary border border-primary-subtle">
+        <div class="alert alert-info border-0 shadow-sm py-2 px-3 rounded-3 small d-flex align-items-center justify-content-between mb-3 bg-primary-subtle text-primary border border-primary-subtle">
             <div>
                 <i class="bi bi-info-circle-fill me-2 fs-6 align-middle"></i>
-                <span class="align-middle">Bạn đang xem chế độ <strong>Giao diện Học viên & Khách tra cứu (Card Grid)</strong>. Để tạo mới, sửa hoặc xóa khóa học, vui lòng vào trang Quản trị.</span>
+                <span class="align-middle">Bạn đang xem chế độ <strong>Giao diện Học viên &amp; Khách tra cứu (Card Grid)</strong>. Để tạo mới, sửa hoặc xóa khóa học, vui lòng vào trang Quản trị.</span>
             </div>
             <a asp-action="QuanLy" class="btn btn-sm btn-primary fw-semibold ms-3 text-nowrap rounded-2 py-1 px-3" style="font-size: 12px;">
                 Quản trị khóa học <i class="bi bi-arrow-right ms-1"></i>
@@ -61,23 +71,23 @@
         </div>
     }
 
-    <!-- 4 THẺ THỐNG KÊ (STAT CARDS) -->
-    <div class="row g-3 mb-4">
+    <!-- 2. BỐN THẺ THỐNG KÊ (STAT CARDS) TƯƠNG TÁC NHANH -->
+    <div class="row g-3 mb-3">
         <div class="col-6 col-lg-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4 js-stat-filter" data-type="all" style="cursor: pointer; transition: transform .2s ease;" title="Bấm để xem tất cả khóa học">
                 <div class="d-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary" style="width: 48px; height: 48px; min-width: 48px;">
                     <i class="bi bi-journal-album fs-4"></i>
                 </div>
                 <div class="overflow-hidden">
                     <span class="text-muted small fw-semibold d-block text-uppercase uneti-fs-11">Tổng khóa học</span>
                     <h4 class="fw-bold text-dark mb-0">@Model.TongSoKhoaHoc</h4>
-                    <small class="text-secondary uneti-fs-11">Khóa trong hệ thống</small>
+                    <small class="text-secondary uneti-fs-11">Toàn bộ hệ thống</small>
                 </div>
             </div>
         </div>
 
         <div class="col-6 col-lg-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4 js-stat-filter" data-type="trangthai" data-value="DangMo" style="cursor: pointer; transition: transform .2s ease;" title="Bấm để lọc nhanh khóa học đang mở">
                 <div class="d-flex align-items-center justify-content-center rounded-3 bg-success-subtle text-success" style="width: 48px; height: 48px; min-width: 48px;">
                     <i class="bi bi-door-open-fill fs-4"></i>
                 </div>
@@ -90,7 +100,7 @@
         </div>
 
         <div class="col-6 col-lg-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4 js-stat-filter" data-type="tinhtrangcho" data-value="con_cho" style="cursor: pointer; transition: transform .2s ease;" title="Bấm để lọc nhanh khóa học còn chỗ">
                 <div class="d-flex align-items-center justify-content-center rounded-3 bg-info-subtle text-info-emphasis" style="width: 48px; height: 48px; min-width: 48px;">
                     <i class="bi bi-people-fill fs-4"></i>
                 </div>
@@ -103,7 +113,7 @@
         </div>
 
         <div class="col-6 col-lg-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4">
+            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4 js-stat-filter" data-type="khadung" data-value="khadung" style="cursor: pointer; transition: transform .2s ease;" title="Bấm để lọc khóa khả dụng giao dịch">
                 <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning-subtle text-warning-emphasis" style="width: 48px; height: 48px; min-width: 48px;">
                     <i class="bi bi-check-circle-fill fs-4"></i>
                 </div>
@@ -116,174 +126,151 @@
         </div>
     </div>
 
-    <!-- THANH TÌM KIẾM & BỘ LỌC KẾT HỢP (MỤC 6.3, 6.4, 6.5) -->
-    <div class="uneti-card p-3 p-md-4 mb-4 shadow-sm rounded-4 border">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
-            <div class="d-flex align-items-center gap-2">
-                <span class="uneti-icon-box-32 bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                    <i class="bi bi-funnel-fill"></i>
-                </span>
-                <div>
-                    <span class="fw-bold text-dark fs-6">Tìm kiếm & Lọc kết hợp khóa học</span>
-                    <span class="d-block text-muted uneti-fs-xs">Kết hợp linh hoạt: Tên khóa học, Môn học, Sắp xếp, Hình thức, Trạng thái, Học phí & Sĩ số</span>
-                </div>
-            </div>
-            @if (Model.HasActiveFilter)
-            {
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 uneti-fs-xs fw-semibold js-clear-filters">
-                    <i class="bi bi-x-circle me-1"></i>Xóa bộ lọc
-                </button>
-            }
-        </div>
-
+    <!-- 3. HỘP CÔNG CỤ TÌM KIẾM & BỘ LỌC HIỆN ĐẠI (2 TẦNG MẠCH LẠC - ĐỒNG BỘ CHUẨN MÔN HỌC) -->
+    <div class="mh2-filter-card">
         <form id="filterForm" method="get" asp-action="Index">
-            <input type="hidden" name="pageIndex" id="pageIndex" value="1" />
-            <input type="hidden" name="pageSize" id="pageSize" value="@Model.PageSize" />
+            <!-- Hidden inputs điều khiển bởi chip lọc và phân trang -->
+            <input type="hidden" id="trangThai" name="trangThai" value="@(Model.TrangThai ?? "")" />
+            <input type="hidden" id="tinhTrangCho" name="tinhTrangCho" value="@(Model.TinhTrangCho ?? "")" />
+            <input type="hidden" id="hinhThuc" name="hinhThuc" value="@(Model.HinhThuc ?? "")" />
+            <input type="hidden" id="khoangHocPhi" name="khoangHocPhi" value="@(Model.KhoangHocPhi ?? "")" />
+            <input type="hidden" id="pageIndex" name="pageIndex" value="@Model.PageIndex" />
+            <input type="hidden" id="pageSize" name="pageSize" value="@Model.PageSize" />
 
-            <!-- KHỐI 1: TỪ KHÓA, MÔN HỌC, SẮP XẾP VÀ NÚT TÌM KIẾM -->
-            <div class="row g-2 align-items-end mb-3">
-                <!-- 1. Từ khóa tìm kiếm -->
-                <div class="col-12 col-md-5 col-lg-4">
-                    <label class="form-label small fw-semibold text-secondary mb-1">
-                        <i class="bi bi-search me-1 text-primary"></i>Từ khóa tìm kiếm
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 text-muted ps-3">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" id="searchString" name="searchString" value="@Model.SearchString"
-                               class="form-control border-start-0 ps-1"
-                               placeholder="Tìm tên khóa học, môn học, giảng viên..."
-                               autocomplete="off" />
-                    </div>
+            <!-- TẦNG 1: Ô tìm kiếm rộng rãi & Dropdown Môn học & Dropdown Sắp xếp & Nút đặt lại -->
+            <div class="mh2-search-row">
+                <!-- Ô tìm kiếm tức thì với debounce và nút xóa -->
+                <div class="mh2-search-input-wrap">
+                    <i class="bi bi-search mh2-search-icon"></i>
+                    <input type="text" id="searchString" name="searchString" value="@Model.SearchString"
+                           class="form-control" placeholder="Tìm kiếm theo tên khóa học, môn học, giảng viên..."
+                           autocomplete="off" />
+                    <button type="button" class="mh2-search-clear-btn @(string.IsNullOrWhiteSpace(Model.SearchString) ? "d-none" : "")" id="btnSearchClear" title="Xóa tìm kiếm">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
                 </div>
 
-                <!-- 2. Lọc môn học -->
-                <div class="col-12 col-sm-6 col-md-3 col-lg-3">
-                    <label class="form-label small fw-semibold text-secondary mb-1">
-                        <i class="bi bi-journal-text me-1 text-primary"></i>Môn học đào tạo
-                    </label>
-                    <select id="maMonHoc" name="maMonHoc" class="form-select" asp-items="ViewBag.MonHocList">
-                        <option value="">-- Tất cả môn học --</option>
+                <!-- Dropdown Chọn môn học đào tạo -->
+                <div class="mh2-sort-control" style="min-width: 220px; max-width: 280px;">
+                    <i class="bi bi-journal-text mh2-sort-icon"></i>
+                    <select id="maMonHoc" name="maMonHoc" class="form-select mh2-sort-select" asp-items="ViewBag.MonHocList">
+                        <option value="">Tất cả môn học</option>
                     </select>
                 </div>
 
-                <!-- 3. Sắp xếp: Hiện rõ chữ Sắp xếp -->
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <label class="form-label small fw-semibold text-secondary mb-1">
-                        <i class="bi bi-arrow-down-up me-1 text-primary"></i>Sắp xếp danh sách
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 text-muted px-2 small">
-                            <span class="fw-semibold text-dark uneti-fs-xs">Sắp xếp:</span>
-                        </span>
-                        <select id="sortBy" name="sortBy" class="form-select border-start-0 ps-1">
-                            <option value="ngay_desc" selected="@(Model.SortBy == "ngay_desc")">Ngày bắt đầu: Mới nhất</option>
-                            <option value="ngay_asc" selected="@(Model.SortBy == "ngay_asc")">Ngày bắt đầu: Sớm nhất</option>
-                            <option value="ten_asc" selected="@(Model.SortBy == "ten_asc")">Tên khóa học: A &rarr; Z</option>
-                            <option value="ten_desc" selected="@(Model.SortBy == "ten_desc")">Tên khóa học: Z &rarr; A</option>
-                            <option value="hocphi_asc" selected="@(Model.SortBy == "hocphi_asc")">Học phí: Thấp &rarr; Cao</option>
-                            <option value="hocphi_desc" selected="@(Model.SortBy == "hocphi_desc")">Học phí: Cao &rarr; Thấp</option>
-                            <option value="cho_desc" selected="@(Model.SortBy == "cho_desc")">Chỗ trống còn lại: Nhiều &rarr; Ít</option>
-                            <option value="cho_asc" selected="@(Model.SortBy == "cho_asc")">Chỗ trống còn lại: Ít &rarr; Nhiều</option>
-                        </select>
-                    </div>
+                <!-- Dropdown Sắp xếp danh mục -->
+                <div class="mh2-sort-control" style="min-width: 215px;">
+                    <i class="bi bi-arrow-down-up mh2-sort-icon"></i>
+                    <select id="sortBy" name="sortBy" class="form-select mh2-sort-select">
+                        <option value="ngay_desc" selected="@(Model.SortBy == "ngay_desc")">Khai giảng: Mới nhất</option>
+                        <option value="ngay_asc" selected="@(Model.SortBy == "ngay_asc")">Khai giảng: Sớm nhất</option>
+                        <option value="ten_asc" selected="@(Model.SortBy == "ten_asc")">Tên khóa: A &rarr; Z</option>
+                        <option value="ten_desc" selected="@(Model.SortBy == "ten_desc")">Tên khóa: Z &rarr; A</option>
+                        <option value="hocphi_asc" selected="@(Model.SortBy == "hocphi_asc")">Học phí: Thấp &rarr; Cao</option>
+                        <option value="hocphi_desc" selected="@(Model.SortBy == "hocphi_desc")">Học phí: Cao &rarr; Thấp</option>
+                        <option value="cho_desc" selected="@(Model.SortBy == "cho_desc")">Chỗ trống: Nhiều &rarr; Ít</option>
+                        <option value="cho_asc" selected="@(Model.SortBy == "cho_asc")">Chỗ trống: Ít &rarr; Nhiều</option>
+                    </select>
                 </div>
 
-                <!-- 4. Cụm nút thao tác -->
-                <div class="col-12 col-md-12 col-lg-2 d-flex gap-2">
-                    <button type="submit" class="btn uneti-btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1 shadow-sm">
-                        <i class="bi bi-funnel-fill"></i>
-                        <span>Lọc</span>
-                    </button>
-                    <button type="button" class="btn uneti-btn-outline px-3 d-flex align-items-center justify-content-center js-clear-filters rounded-3" title="Xóa bộ lọc & Làm mới">
-                        <i class="bi bi-arrow-counterclockwise"></i>
-                    </button>
-                </div>
+                <!-- Nút đặt lại toàn bộ bộ lọc -->
+                <button type="button" class="mh2-reset-btn js-clear-filters @(!Model.HasActiveFilter ? "d-none" : "")" id="btnResetFilters" title="Đặt lại bộ lọc về mặc định">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span>Đặt lại</span>
+                </button>
             </div>
 
-            <!-- KHỐI 2: CÁC TIÊU CHÍ LỌC CHI TIẾT (CÓ LABEL RÕ RÀNG DỄ NHẬN BIẾT) -->
-            <div class="p-3 bg-light rounded-3 border mb-3">
-                <div class="row g-2 align-items-center">
-                    <!-- Hình thức -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-building me-1"></i>Hình thức đào tạo
-                        </label>
-                        <select id="hinhThuc" name="hinhThuc" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả hình thức --</option>
-                            <option value="Trực tiếp" selected="@(Model.HinhThuc == "Trực tiếp")">Trực tiếp (Tại lớp)</option>
-                            <option value="Trực tuyến" selected="@(Model.HinhThuc == "Trực tuyến")">Trực tuyến (Online)</option>
-                            <option value="Kết hợp" selected="@(Model.HinhThuc == "Kết hợp")">Kết hợp (Hybrid)</option>
-                        </select>
-                    </div>
-
-                    <!-- Trạng thái -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-activity me-1"></i>Trạng thái khóa học
-                        </label>
-                        <select id="trangThai" name="trangThai" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả trạng thái --</option>
-                            <option value="DangMo" selected="@(Model.TrangThai == "DangMo")">Đang mở đăng ký</option>
-                            <option value="SapMo" selected="@(Model.TrangThai == "SapMo")">Sắp mở</option>
-                            <option value="DangHoc" selected="@(Model.TrangThai == "DangHoc")">Đang giảng dạy</option>
-                            <option value="DaKetThuc" selected="@(Model.TrangThai == "DaKetThuc")">Đã kết thúc</option>
-                            <option value="BiHuy" selected="@(Model.TrangThai == "BiHuy")">Đã hủy</option>
-                        </select>
-                    </div>
-
-                    <!-- Khoảng học phí -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-cash-stack me-1"></i>Khoảng học phí
-                        </label>
-                        <select id="khoangHocPhi" name="khoangHocPhi" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả khoảng giá --</option>
-                            <option value="duoi_2tr" selected="@(Model.KhoangHocPhi == "duoi_2tr")">Dưới 2.000.000 đ</option>
-                            <option value="2tr_4tr" selected="@(Model.KhoangHocPhi == "2tr_4tr")">Từ 2.000.000 - 4.000.000 đ</option>
-                            <option value="4tr_6tr" selected="@(Model.KhoangHocPhi == "4tr_6tr")">Từ 4.000.000 - 6.000.000 đ</option>
-                            <option value="tren_6tr" selected="@(Model.KhoangHocPhi == "tren_6tr")">Trên 6.000.000 đ</option>
-                        </select>
-                    </div>
-
-                    <!-- Còn chỗ / Hết chỗ -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-people me-1"></i>Tình trạng chỗ ngồi
-                        </label>
-                        <select id="tinhTrangCho" name="tinhTrangCho" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả tình trạng --</option>
-                            <option value="con_cho" selected="@(Model.TinhTrangCho == "con_cho")">Còn chỗ đăng ký</option>
-                            <option value="het_cho" selected="@(Model.TinhTrangCho == "het_cho")">Đã hết chỗ (Đủ sĩ số)</option>
-                        </select>
-                    </div>
+            <!-- TẦNG 2: Hệ thống Chip lọc 1 chạm (Segmented Filter Chips) -->
+            <div class="mh2-chips-container">
+                <!-- Nhóm Trạng thái -->
+                <div class="mh2-chip-cluster">
+                    <span class="mh2-chip-label">
+                        <i class="bi bi-activity"></i> Trạng thái:
+                    </span>
+                    <button type="button" class="mh2-chip js-filter-chip @(string.IsNullOrEmpty(Model.TrangThai) ? "active" : "")" data-type="trangthai" data-value="">
+                        Tất cả
+                    </button>
+                    <button type="button" class="mh2-chip mh2-chip-status-open js-filter-chip @(Model.TrangThai == "DangMo" ? "active" : "")" data-type="trangthai" data-value="DangMo">
+                        <span class="mh2-dot mh2-dot-open"></span> Đang mở
+                    </button>
+                    <button type="button" class="mh2-chip mh2-chip-status-info js-filter-chip @(Model.TrangThai == "SapMo" ? "active" : "")" data-type="trangthai" data-value="SapMo">
+                        <span class="mh2-dot mh2-dot-info"></span> Sắp mở
+                    </button>
+                    <button type="button" class="mh2-chip mh2-chip-status-warning js-filter-chip @(Model.TrangThai == "DangHoc" ? "active" : "")" data-type="trangthai" data-value="DangHoc">
+                        <span class="mh2-dot mh2-dot-warning"></span> Đang học
+                    </button>
+                    <button type="button" class="mh2-chip mh2-chip-status-paused js-filter-chip @(Model.TrangThai == "DaKetThuc" ? "active" : "")" data-type="trangthai" data-value="DaKetThuc">
+                        <span class="mh2-dot mh2-dot-paused"></span> Đã kết thúc
+                    </button>
                 </div>
-            </div>
 
-            <!-- Hàng 3: Chip lọc nhanh (Quick Filter Chips) -->
-            <div class="d-flex flex-wrap align-items-center gap-2 pt-2 mt-2 border-top">
-                <span class="small text-muted fw-semibold me-1"><i class="bi bi-tags me-1"></i>Lọc nhanh:</span>
-                <button type="button" class="uneti-filter-chip @(!Model.HasActiveFilter ? "active" : "")" data-chip="all">
-                    Tất cả
-                </button>
-                <button type="button" class="uneti-filter-chip @(Model.TrangThai == "DangMo" ? "active" : "")" data-chip="trangThai" data-value="DangMo">
-                    <i class="bi bi-check-circle-fill text-success"></i> Đang mở
-                </button>
-                <button type="button" class="uneti-filter-chip @(Model.TinhTrangCho == "con_cho" ? "active" : "")" data-chip="tinhTrangCho" data-value="con_cho">
-                    <i class="bi bi-people-fill text-primary"></i> Còn chỗ
-                </button>
-                <button type="button" class="uneti-filter-chip @(Model.HinhThuc == "Trực tuyến" ? "active" : "")" data-chip="hinhThuc" data-value="Trực tuyến">
-                    <i class="bi bi-camera-video text-info"></i> Online
-                </button>
-                <button type="button" class="uneti-filter-chip @(Model.KhoangHocPhi == "duoi_2tr" ? "active" : "")" data-chip="khoangHocPhi" data-value="duoi_2tr">
-                    <i class="bi bi-cash text-warning"></i> &lt; 2 triệu
-                </button>
+                <div class="mh2-chip-separator d-none d-lg-block" aria-hidden="true"></div>
+
+                <!-- Nhóm Sĩ số / Chỗ trống -->
+                <div class="mh2-chip-cluster">
+                    <span class="mh2-chip-label">
+                        <i class="bi bi-people"></i> Sĩ số:
+                    </span>
+                    <button type="button" class="mh2-chip js-filter-chip @(string.IsNullOrEmpty(Model.TinhTrangCho) ? "active" : "")" data-type="tinhtrangcho" data-value="">
+                        Tất cả
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.TinhTrangCho == "con_cho" ? "active" : "")" data-type="tinhtrangcho" data-value="con_cho">
+                        <i class="bi bi-check2-circle text-success"></i> Còn chỗ
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.TinhTrangCho == "het_cho" ? "active" : "")" data-type="tinhtrangcho" data-value="het_cho">
+                        <i class="bi bi-x-circle text-danger"></i> Đã hết chỗ
+                    </button>
+                </div>
+
+                <div class="mh2-chip-separator d-none d-lg-block" aria-hidden="true"></div>
+
+                <!-- Nhóm Hình thức đào tạo -->
+                <div class="mh2-chip-cluster">
+                    <span class="mh2-chip-label">
+                        <i class="bi bi-building"></i> Hình thức:
+                    </span>
+                    <button type="button" class="mh2-chip js-filter-chip @(string.IsNullOrEmpty(Model.HinhThuc) ? "active" : "")" data-type="hinhthuc" data-value="">
+                        Tất cả
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.HinhThuc == "Trực tiếp" ? "active" : "")" data-type="hinhthuc" data-value="Trực tiếp">
+                        Trực tiếp
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.HinhThuc == "Trực tuyến" ? "active" : "")" data-type="hinhthuc" data-value="Trực tuyến">
+                        Online
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.HinhThuc == "Kết hợp" ? "active" : "")" data-type="hinhthuc" data-value="Kết hợp">
+                        Hybrid
+                    </button>
+                </div>
+
+                <div class="mh2-chip-separator d-none d-lg-block" aria-hidden="true"></div>
+
+                <!-- Nhóm Khoảng học phí -->
+                <div class="mh2-chip-cluster">
+                    <span class="mh2-chip-label">
+                        <i class="bi bi-cash-stack"></i> Học phí:
+                    </span>
+                    <button type="button" class="mh2-chip js-filter-chip @(string.IsNullOrEmpty(Model.KhoangHocPhi) ? "active" : "")" data-type="khoanghocphi" data-value="">
+                        Tất cả
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.KhoangHocPhi == "duoi_2tr" ? "active" : "")" data-type="khoanghocphi" data-value="duoi_2tr">
+                        &lt; 2 triệu
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.KhoangHocPhi == "2tr_4tr" ? "active" : "")" data-type="khoanghocphi" data-value="2tr_4tr">
+                        2 - 4 triệu
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.KhoangHocPhi == "4tr_6tr" ? "active" : "")" data-type="khoanghocphi" data-value="4tr_6tr">
+                        4 - 6 triệu
+                    </button>
+                    <button type="button" class="mh2-chip js-filter-chip @(Model.KhoangHocPhi == "tren_6tr" ? "active" : "")" data-type="khoanghocphi" data-value="tren_6tr">
+                        &gt; 6 triệu
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 
-    <!-- KHUNG DANH SÁCH KHÓA HỌC (HỖ TRỢ AJAX & TẢI TRANG) -->
+    <!-- 4. KHUNG DANH SÁCH KHÓA HỌC (HỖ TRỢ AJAX & SKELETON) -->
     <div id="khoaHocGridContainer" class="position-relative min-vh-25">
         <partial name="_KhoaHocGrid" model="Model" />
     </div>
@@ -295,11 +282,13 @@
             const form = document.getElementById('filterForm');
             const searchInput = document.getElementById('searchString');
             const selectMonHoc = document.getElementById('maMonHoc');
-            const selectHinhThuc = document.getElementById('hinhThuc');
-            const selectTrangThai = document.getElementById('trangThai');
-            const selectKhoangHocPhi = document.getElementById('khoangHocPhi');
-            const selectTinhTrangCho = document.getElementById('tinhTrangCho');
             const selectSortBy = document.getElementById('sortBy');
+            const inputTrangThai = document.getElementById('trangThai');
+            const inputTinhTrangCho = document.getElementById('tinhTrangCho');
+            const inputHinhThuc = document.getElementById('hinhThuc');
+            const inputKhoangHocPhi = document.getElementById('khoangHocPhi');
+            const btnSearchClear = document.getElementById('btnSearchClear');
+            const btnResetFilters = document.getElementById('btnResetFilters');
             const gridContainer = document.getElementById('khoaHocGridContainer');
 
             let debounceTimer = null;
@@ -322,7 +311,7 @@
                 });
             }
 
-            // Khung Skeleton loading khi AJAX fetching
+            // Khung Skeleton loading khi đang fetch AJAX
             function showSkeleton() {
                 gridContainer.innerHTML = `
                     <div class="row g-4">
@@ -335,7 +324,7 @@
                                     </div>
                                     <div class="skeleton skeleton-title"></div>
                                     <div class="skeleton skeleton-text"></div>
-                                    <div class="skeleton skeleton-text" style="width: 80%;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 85%;"></div>
                                     <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
                                         <div class="skeleton skeleton-badge"></div>
                                         <div class="skeleton skeleton-title" style="width: 35%;"></div>
@@ -348,26 +337,30 @@
                 `;
             }
 
-            // Gọi AJAX fetch danh sách khóa học tức thì
-            function fetchResults(page = 1) {
+            // Gọi API nạp dữ liệu tức thì qua AJAX
+            function fetchResults(isPageChange = false, page = 1) {
                 const params = new URLSearchParams();
-                const q = searchInput.value.trim();
-                const mh = selectMonHoc.value;
-                const ht = selectHinhThuc.value;
-                const tt = selectTrangThai.value;
-                const hp = selectKhoangHocPhi.value;
-                const cho = selectTinhTrangCho.value;
-                const sb = selectSortBy.value;
+                const q = searchInput ? searchInput.value.trim() : '';
+                const mh = selectMonHoc ? selectMonHoc.value : '';
+                const tt = inputTrangThai ? inputTrangThai.value : '';
+                const cho = inputTinhTrangCho ? inputTinhTrangCho.value : '';
+                const ht = inputHinhThuc ? inputHinhThuc.value : '';
+                const hp = inputKhoangHocPhi ? inputKhoangHocPhi.value : '';
+                const sb = selectSortBy ? selectSortBy.value : 'ngay_desc';
 
                 if (q) params.set('searchString', q);
                 if (mh) params.set('maMonHoc', mh);
-                if (ht) params.set('hinhThuc', ht);
                 if (tt) params.set('trangThai', tt);
-                if (hp) params.set('khoangHocPhi', hp);
                 if (cho) params.set('tinhTrangCho', cho);
-                if (sb) params.set('sortBy', sb);
-                if (page > 1) params.set('pageIndex', page);
+                if (ht) params.set('hinhThuc', ht);
+                if (hp) params.set('khoangHocPhi', hp);
+                if (sb && sb !== 'ngay_desc') params.set('sortBy', sb);
+                if (page > 1) {
+                    params.set('pageIndex', page);
+                    params.set('page', page);
+                }
 
+                // Cập nhật URL trình duyệt
                 const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
                 window.history.replaceState({ path: newUrl }, '', newUrl);
 
@@ -376,16 +369,23 @@
                 fetch(newUrl, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
-                .then(res => {
-                    if (!res.ok) throw new Error('Network error');
-                    return res.text();
+                .then(response => {
+                    if (!response.ok) throw new Error('Network error');
+                    return response.text();
                 })
                 .then(html => {
                     gridContainer.innerHTML = html;
                     applyViewMode();
 
+                    // Kích hoạt lại hiệu ứng UI
                     if (window.UnetiEffects && typeof window.UnetiEffects.refresh === 'function') {
                         window.UnetiEffects.refresh();
+                    }
+
+                    // Nếu chuyển trang thì cuộn mượt nhẹ lên đầu danh sách khóa học
+                    if (isPageChange) {
+                        const targetY = gridContainer.getBoundingClientRect().top + window.pageYOffset - 90;
+                        window.scrollTo({ top: targetY, behavior: 'smooth' });
                     }
                 })
                 .catch(err => {
@@ -400,96 +400,172 @@
                 });
             }
 
-            // 1. Debounce tìm kiếm tức thì 300ms
-            searchInput.addEventListener('input', function () {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    fetchResults(1);
-                }, 300);
-            });
+            // Cập nhật trạng thái hiển thị của nút Xóa tìm kiếm và nút Đặt lại bộ lọc
+            function updateFilterUI() {
+                const hasSearch = searchInput && searchInput.value.trim().length > 0;
+                const hasMonHoc = selectMonHoc && selectMonHoc.value !== '';
+                const hasTrangThai = inputTrangThai && inputTrangThai.value !== '';
+                const hasCho = inputTinhTrangCho && inputTinhTrangCho.value !== '';
+                const hasHinhThuc = inputHinhThuc && inputHinhThuc.value !== '';
+                const hasHocPhi = inputKhoangHocPhi && inputKhoangHocPhi.value !== '';
+                const hasSort = selectSortBy && selectSortBy.value !== '' && selectSortBy.value !== 'ngay_desc';
 
-            // 2. Dropdowns thay đổi
-            [selectMonHoc, selectHinhThuc, selectTrangThai, selectKhoangHocPhi, selectTinhTrangCho, selectSortBy].forEach(el => {
-                el.addEventListener('change', () => fetchResults(1));
-            });
+                if (btnSearchClear) {
+                    btnSearchClear.classList.toggle('d-none', !hasSearch);
+                }
+                if (btnResetFilters) {
+                    btnResetFilters.classList.toggle('d-none', !(hasSearch || hasMonHoc || hasTrangThai || hasCho || hasHinhThuc || hasHocPhi || hasSort));
+                }
+            }
+
+            // Đồng bộ trạng thái active của các chip lọc
+            function syncChipsUI() {
+                document.querySelectorAll('.js-filter-chip').forEach(c => {
+                    const type = c.getAttribute('data-type');
+                    const val = c.getAttribute('data-value');
+
+                    if (type === 'trangthai') {
+                        c.classList.toggle('active', inputTrangThai.value === val || (!inputTrangThai.value && val === ''));
+                    } else if (type === 'tinhtrangcho') {
+                        c.classList.toggle('active', inputTinhTrangCho.value === val || (!inputTinhTrangCho.value && val === ''));
+                    } else if (type === 'hinhthuc') {
+                        c.classList.toggle('active', inputHinhThuc.value === val || (!inputHinhThuc.value && val === ''));
+                    } else if (type === 'khoanghocphi') {
+                        c.classList.toggle('active', inputKhoangHocPhi.value === val || (!inputKhoangHocPhi.value && val === ''));
+                    }
+                });
+            }
+
+            // Hàm xóa toàn bộ bộ lọc về trạng thái ban đầu
+            function resetAllFilters() {
+                if (searchInput) searchInput.value = '';
+                if (selectMonHoc) selectMonHoc.value = '';
+                if (inputTrangThai) inputTrangThai.value = '';
+                if (inputTinhTrangCho) inputTinhTrangCho.value = '';
+                if (inputHinhThuc) inputHinhThuc.value = '';
+                if (inputKhoangHocPhi) inputKhoangHocPhi.value = '';
+                if (selectSortBy) selectSortBy.value = 'ngay_desc';
+
+                syncChipsUI();
+                updateFilterUI();
+                fetchResults(false, 1);
+            }
+
+            // 1. Debounce tìm kiếm tức thì 300ms
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    updateFilterUI();
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        fetchResults(false, 1);
+                    }, 300);
+                });
+            }
+
+            // Nút xóa nhanh ô tìm kiếm
+            if (btnSearchClear) {
+                btnSearchClear.addEventListener('click', function () {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    updateFilterUI();
+                    fetchResults(false, 1);
+                });
+            }
+
+            // 2. Dropdown Môn học & Dropdown Sắp xếp
+            if (selectMonHoc) {
+                selectMonHoc.addEventListener('change', () => {
+                    updateFilterUI();
+                    fetchResults(false, 1);
+                });
+            }
+
+            if (selectSortBy) {
+                selectSortBy.addEventListener('change', () => {
+                    updateFilterUI();
+                    fetchResults(false, 1);
+                });
+            }
 
             // Ngăn chặn submit form reload trang
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                fetchResults(1);
-            });
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    fetchResults(false, 1);
+                });
+            }
 
-            // 3. Xử lý Chip lọc nhanh
-            document.querySelectorAll('.uneti-filter-chip').forEach(chip => {
+            // 3. Xử lý Chip lọc nhanh (Trạng thái, Sĩ số, Hình thức, Học phí)
+            document.querySelectorAll('.js-filter-chip').forEach(chip => {
                 chip.addEventListener('click', function () {
-                    const chipType = this.getAttribute('data-chip');
-                    const chipVal = this.getAttribute('data-value');
+                    const type = this.getAttribute('data-type');
+                    const val = this.getAttribute('data-value');
 
-                    if (chipType === 'all') {
-                        searchInput.value = '';
-                        selectMonHoc.value = '';
-                        selectHinhThuc.value = '';
-                        selectTrangThai.value = '';
-                        selectKhoangHocPhi.value = '';
-                        selectTinhTrangCho.value = '';
-                    } else if (chipType === 'trangThai') {
-                        selectTrangThai.value = selectTrangThai.value === chipVal ? '' : chipVal;
-                    } else if (chipType === 'tinhTrangCho') {
-                        selectTinhTrangCho.value = selectTinhTrangCho.value === chipVal ? '' : chipVal;
-                    } else if (chipType === 'hinhThuc') {
-                        selectHinhThuc.value = selectHinhThuc.value === chipVal ? '' : chipVal;
-                    } else if (chipType === 'khoangHocPhi') {
-                        selectKhoangHocPhi.value = selectKhoangHocPhi.value === chipVal ? '' : chipVal;
+                    if (type === 'trangthai') {
+                        inputTrangThai.value = (inputTrangThai.value === val && val !== '') ? '' : val;
+                    } else if (type === 'tinhtrangcho') {
+                        inputTinhTrangCho.value = (inputTinhTrangCho.value === val && val !== '') ? '' : val;
+                    } else if (type === 'hinhthuc') {
+                        inputHinhThuc.value = (inputHinhThuc.value === val && val !== '') ? '' : val;
+                    } else if (type === 'khoanghocphi') {
+                        inputKhoangHocPhi.value = (inputKhoangHocPhi.value === val && val !== '') ? '' : val;
                     }
 
-                    // Đồng bộ chip active
-                    document.querySelectorAll('.uneti-filter-chip').forEach(c => {
-                        const ct = c.getAttribute('data-chip');
-                        const cv = c.getAttribute('data-value');
-                        if (ct === 'all') {
-                            c.classList.toggle('active', !searchInput.value && !selectMonHoc.value && !selectHinhThuc.value && !selectTrangThai.value && !selectKhoangHocPhi.value && !selectTinhTrangCho.value);
-                        } else if (ct === 'trangThai') {
-                            c.classList.toggle('active', selectTrangThai.value === cv);
-                        } else if (ct === 'tinhTrangCho') {
-                            c.classList.toggle('active', selectTinhTrangCho.value === cv);
-                        } else if (ct === 'hinhThuc') {
-                            c.classList.toggle('active', selectHinhThuc.value === cv);
-                        } else if (ct === 'khoangHocPhi') {
-                            c.classList.toggle('active', selectKhoangHocPhi.value === cv);
-                        }
-                    });
-
-                    fetchResults(1);
+                    syncChipsUI();
+                    updateFilterUI();
+                    fetchResults(false, 1);
                 });
             });
 
-            // 4. Phân trang & Xóa bộ lọc & Đổi view mode
+            // 4. Bấm vào Thẻ Thống Kê (Stat Cards) để lọc nhanh
+            document.querySelectorAll('.js-stat-filter').forEach(card => {
+                card.addEventListener('click', function () {
+                    const type = this.getAttribute('data-type');
+                    const val = this.getAttribute('data-value');
+
+                    if (type === 'all') {
+                        resetAllFilters();
+                        return;
+                    } else if (type === 'trangthai') {
+                        inputTrangThai.value = val;
+                    } else if (type === 'tinhtrangcho') {
+                        inputTinhTrangCho.value = val;
+                    } else if (type === 'khadung') {
+                        inputTrangThai.value = 'DangMo';
+                        inputTinhTrangCho.value = 'con_cho';
+                    }
+
+                    syncChipsUI();
+                    updateFilterUI();
+                    fetchResults(false, 1);
+                });
+            });
+
+            // Nút Đặt lại bộ lọc tại thanh công cụ
+            if (btnResetFilters) {
+                btnResetFilters.addEventListener('click', resetAllFilters);
+            }
+
+            // 5. Xử lý sự kiện phân trang và các nút khác trong container AJAX
             gridContainer.addEventListener('click', function (e) {
+                // Chuyển trang AJAX
                 const pageLink = e.target.closest('.js-page-link');
                 if (pageLink && !pageLink.parentElement.classList.contains('disabled') && !pageLink.parentElement.classList.contains('active')) {
                     e.preventDefault();
                     const page = parseInt(pageLink.getAttribute('data-page'), 10) || 1;
-                    fetchResults(page);
+                    fetchResults(true, page);
                     return;
                 }
 
+                // Xóa bộ lọc từ grid container
                 const clearBtn = e.target.closest('.js-clear-filters');
                 if (clearBtn) {
                     e.preventDefault();
-                    searchInput.value = '';
-                    selectMonHoc.value = '';
-                    selectHinhThuc.value = '';
-                    selectTrangThai.value = '';
-                    selectKhoangHocPhi.value = '';
-                    selectTinhTrangCho.value = '';
-                    selectSortBy.value = 'ngay_desc';
-                    document.querySelectorAll('.uneti-filter-chip').forEach(c => {
-                        c.classList.toggle('active', c.getAttribute('data-chip') === 'all');
-                    });
-                    fetchResults(1);
+                    resetAllFilters();
                     return;
                 }
 
+                // Nút chuyển chế độ xem (Lưới / Danh sách)
                 const viewBtn = e.target.closest('.js-view-mode');
                 if (viewBtn) {
                     currentViewMode = viewBtn.getAttribute('data-view') || 'grid';
@@ -498,8 +574,9 @@
                 }
             });
 
+            // Khởi tạo trạng thái ban đầu
+            updateFilterUI();
             applyViewMode();
         });
     </script>
 }
-
