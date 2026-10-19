@@ -557,6 +557,30 @@
     background-color: #e0f2fe !important;
 }
 
+/* Ô nhập điểm số chuyên cần, giữa kỳ, cuối kỳ trong bảng điểm */
+.diem-input {
+    background-color: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    height: 36px !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    transition: all 0.2s ease !important;
+    max-width: 90px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.diem-input:hover {
+    border-color: #94a3b8 !important;
+}
+.diem-input:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+    background-color: #ffffff !important;
+    outline: none !important;
+}
+
 /* Thẻ Top Khóa học đông học viên nhất (Ranking Cards) */
 .m5-podium-card {
     border-radius: 16px;

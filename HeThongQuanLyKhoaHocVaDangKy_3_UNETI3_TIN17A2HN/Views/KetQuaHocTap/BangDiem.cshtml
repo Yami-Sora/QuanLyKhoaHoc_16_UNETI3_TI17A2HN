@@ -10,30 +10,41 @@
     ViewData["Title"] = "Bảng điểm & Nhập điểm - " + Model.TenKhoaHoc;
 }
 
+<link rel="stylesheet" href="~/css/module5-v2.css" asp-append-version="true" />
+
 <div class="container-fluid px-0">
-    <!-- Tiêu đề trang & Điều hướng -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <a asp-action="Index" class="btn btn-sm btn-light border text-secondary shadow-none px-2 py-1">
-                    <i class="bi bi-arrow-left me-1"></i>Danh sách khóa học
-                </a>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1">
-                    Mã khóa: #KH@(Model.MaKhoaHoc.ToString("D2"))
-                </span>
+    <!-- 1. HERO BANNER CHUẨN DASHBOARD / MODULE 5 -->
+    <div class="m5-hero-banner">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="m5-banner-icon">
+                    <i class="bi bi-journal-check"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-white text-primary fw-bold px-2.5 py-0.5 rounded-pill shadow-sm" style="font-size: 11px;">
+                            #KH@(Model.MaKhoaHoc.ToString("D2"))
+                        </span>
+                        <span class="text-white-50 small">• @Model.TenMonHoc (@Model.SoTinChi tín chỉ)</span>
+                    </div>
+                    <h1 class="m5-banner-title">BẢNG ĐIỂM: @Model.TenKhoaHoc</h1>
+                    <p class="m5-banner-sub">
+                        Giảng viên phụ trách: <strong>@(Model.TenGiangVien ?? "Chưa phân công")</strong> • Hệ thống tự động tính điểm tổng kết &amp; xếp loại tức thì
+                    </p>
+                </div>
             </div>
-            <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-journal-check me-2 text-primary"></i>BẢNG ĐIỂM KHÓA HỌC: @Model.TenKhoaHoc
-            </h3>
-            <p class="text-muted mb-0 small">
-                Môn học: <strong>@Model.TenMonHoc</strong> (@Model.SoTinChi tín chỉ) • Giảng viên: <strong>@(Model.TenGiangVien ?? "Chưa phân công")</strong>
-            </p>
-        </div>
-        <div class="d-flex gap-2 mt-3 mt-md-0">
-            <button type="submit" form="formBangDiem" class="btn btn-success btn-sm shadow-sm d-flex align-items-center gap-1 px-3 py-2 fw-semibold">
-                <i class="bi bi-floppy2-fill"></i>
-                <span>Lưu toàn bộ bảng điểm</span>
-            </button>
+
+            <!-- Cụm nút tác vụ phía trên -->
+            <div class="d-flex align-items-center gap-2">
+                <a asp-action="Index" class="m5-banner-btn-white">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Danh sách khóa học</span>
+                </a>
+                <button type="submit" form="formBangDiem" class="m5-banner-btn border-0">
+                    <i class="bi bi-floppy2-fill"></i>
+                    <span>Lưu toàn bộ bảng điểm</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -117,32 +128,43 @@
     </div>
 
     <!-- HƯỚNG DẪN CÔNG THỨC TÍNH ĐIỂM -->
-    <div class="alert alert-light border rounded-3 p-3 mb-4 small d-flex flex-wrap align-items-center justify-content-between gap-2">
-        <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-info-circle-fill text-primary fs-5"></i>
-            <div>
-                <strong>Quy chế tính điểm:</strong>
-                <span>Điểm tổng kết = <code>Chuyên cần (10%)</code> + <code>Giữa kỳ (40%)</code> + <code>Cuối kỳ (50%)</code>.</span>
-                <span class="ms-2">Điểm &ge; 5.0 xếp loại <strong>ĐẠT</strong>.</span>
+    <div class="m5-card p-3 mb-4" style="border-radius: 14px;">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 small">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary-subtle text-primary p-2 rounded-3">
+                    <i class="bi bi-calculator-fill fs-6"></i>
+                </span>
+                <div>
+                    <span class="fw-bold text-dark">Quy chế tính điểm:</span>
+                    <span class="text-secondary ms-1">Điểm tổng kết = <code>Chuyên cần (10%)</code> + <code>Giữa kỳ (40%)</code> + <code>Cuối kỳ (50%)</code>.</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle ms-2 fw-semibold">Điểm &ge; 5.0: ĐẠT</span>
+                </div>
             </div>
-        </div>
-        <div class="text-secondary">
-            <span class="badge bg-success-subtle text-success me-1">&ge; 9.0: Xuất sắc</span>
-            <span class="badge bg-primary-subtle text-primary me-1">&ge; 8.0: Giỏi</span>
-            <span class="badge bg-info-subtle text-info-emphasis me-1">&ge; 6.5: Khá</span>
-            <span class="badge bg-warning-subtle text-warning-emphasis me-1">&ge; 5.0: Trung bình</span>
-            <span class="badge bg-danger-subtle text-danger">&lt; 5.0: Yếu</span>
+            <div class="d-flex flex-wrap align-items-center gap-1">
+                <span class="badge bg-success-subtle text-success border border-success-subtle">&ge; 9.0: Xuất sắc</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">&ge; 8.0: Giỏi</span>
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">&ge; 6.5: Khá</span>
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">&ge; 5.0: Trung bình</span>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">&lt; 5.0: Yếu</span>
+            </div>
         </div>
     </div>
 
     <!-- BẢNG NHẬP ĐIỂM HÀNG LOẠT -->
-    <div class="uneti-card shadow-sm overflow-hidden mb-4 bg-white rounded-3 border">
-        <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
-            <span class="fw-bold text-dark small text-uppercase">
-                <i class="bi bi-pencil-square me-1 text-primary"></i>Danh sách học viên và bảng điểm (@Model.DanhSachDiem.Count học viên)
-            </span>
-            <div class="small text-muted">
-                <i class="bi bi-lightning-charge-fill text-warning me-1"></i>Hệ thống tự động tính điểm tổng kết &amp; xếp loại tức thì
+    <div class="m5-card p-0 overflow-hidden mb-4">
+        <div class="m5-card-header px-4 pt-3 pb-3 mb-0">
+            <h2 class="m5-card-title">
+                <span class="m5-header-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-pencil-square"></i>
+                </span>
+                <span>Danh sách học viên &amp; Bảng điểm</span>
+                <span class="badge bg-light text-secondary border px-2 py-1 ms-1" style="font-size: 11px;">
+                    @Model.DanhSachDiem.Count học viên
+                </span>
+            </h2>
+            <div class="small text-muted d-none d-md-flex align-items-center gap-1">
+                <i class="bi bi-lightning-charge-fill text-warning"></i>
+                <span>Tự động tính điểm &amp; xếp loại realtime</span>
             </div>
         </div>
 
@@ -278,14 +300,14 @@
             </div>
 
             <div class="p-3 bg-light border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 fw-semibold">
                     <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
                 </a>
                 <div class="d-flex gap-2">
-                    <button type="reset" class="btn btn-light border btn-sm">
+                    <button type="reset" class="btn btn-light border btn-sm rounded-pill px-3 py-1.5 text-secondary">
                         <i class="bi bi-arrow-counterclockwise me-1"></i>Khôi phục giá trị cũ
                     </button>
-                    <button type="submit" class="btn btn-success btn-sm shadow-sm fw-semibold px-4">
+                    <button type="submit" class="btn btn-success btn-sm shadow-sm fw-semibold rounded-pill px-4 py-1.5">
                         <i class="bi bi-floppy2-fill me-1"></i>Lưu toàn bộ bảng điểm
                     </button>
                 </div>
