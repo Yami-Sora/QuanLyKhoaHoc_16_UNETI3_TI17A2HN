@@ -19,7 +19,7 @@
                     <i class="bi bi-arrow-left me-1"></i>Danh sách khóa học
                 </a>
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1">
-                    Mã khóa: #KH@Model.MaKhoaHoc.ToString("D2")
+                    Mã khóa: #KH@(Model.MaKhoaHoc.ToString("D2"))
                 </span>
             </div>
             <h3 class="fw-bold mb-1 text-dark">
@@ -55,55 +55,63 @@
         </div>
     }
 
-    <!-- THẺ TỔNG HỢP THỐNG KÊ LỚP HỌC -->
+    <!-- THẺ TỔNG HỢP THỐNG KÊ LỚP HỌC ĐỒNG BỘ DASHBOARD -->
     <div class="row g-3 mb-4">
         <!-- Sĩ số học viên -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-primary bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Sĩ số hoàn thành</span>
-                    <span class="badge bg-primary-subtle text-primary rounded-circle p-2"><i class="bi bi-people-fill fs-6"></i></span>
+            <div class="m5-stat-card theme-blue">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Sĩ số hoàn tất</span>
+                    <span class="m5-stat-icon"><i class="bi bi-people-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-dark mb-0" id="statTongHV">@Model.TongSoDangKyHoanThanh</h3>
-                <small class="text-secondary" style="font-size: 11px;">Đã hoàn tất thủ tục</small>
+                <div>
+                    <div class="m5-stat-val" id="statTongHV">@Model.TongSoDangKyHoanThanh</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-primary fs-5 align-middle"></i>Đã hoàn tất thủ tục</div>
+                </div>
             </div>
         </div>
 
         <!-- Đã có điểm -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-info bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Đã chấm điểm</span>
-                    <span class="badge bg-info-subtle text-info-emphasis rounded-circle p-2"><i class="bi bi-check2-circle fs-6"></i></span>
+            <div class="m5-stat-card theme-sky">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Đã chấm điểm</span>
+                    <span class="m5-stat-icon"><i class="bi bi-check2-circle"></i></span>
                 </div>
-                <h3 class="fw-bold text-primary mb-0" id="statDaCham">@Model.SoDaCoKetQua</h3>
-                <small class="text-muted" style="font-size: 11px;">Còn lại: <span id="statChuaCham">@Model.SoChuaCoKetQua</span> HV</small>
+                <div>
+                    <div class="m5-stat-val" id="statDaCham">@Model.SoDaCoKetQua</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-info fs-5 align-middle"></i>Còn lại: <span id="statChuaCham">@Model.SoChuaCoKetQua</span> HV</div>
+                </div>
             </div>
         </div>
 
         <!-- Điểm trung bình lớp -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-warning bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Điểm TB cả lớp</span>
-                    <span class="badge bg-warning-subtle text-warning-emphasis rounded-circle p-2"><i class="bi bi-bar-chart-fill fs-6"></i></span>
+            <div class="m5-stat-card theme-amber">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Điểm TB cả lớp</span>
+                    <span class="m5-stat-icon"><i class="bi bi-bar-chart-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-warning-emphasis mb-0" id="statDiemTB">
-                    @(Model.DiemTBLop.HasValue ? Model.DiemTBLop.Value.ToString("0.00") : "--")
-                </h3>
-                <small class="text-muted" style="font-size: 11px;">Thang điểm 10</small>
+                <div>
+                    <div class="m5-stat-val" id="statDiemTB">
+                        @(Model.DiemTBLop.HasValue ? Model.DiemTBLop.Value.ToString("0.00") : "--")
+                    </div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-warning fs-5 align-middle"></i>Thang điểm 10</div>
+                </div>
             </div>
         </div>
 
         <!-- Tỷ lệ Đạt -->
         <div class="col-6 col-md-3">
-            <div class="uneti-card p-3 h-100 shadow-sm border-start border-4 border-success bg-white rounded-3">
-                <div class="d-flex align-items-center justify-content-between mb-1">
-                    <span class="text-muted small fw-semibold text-uppercase" style="font-size: 11px;">Tỷ lệ Đạt yêu cầu</span>
-                    <span class="badge bg-success-subtle text-success rounded-circle p-2"><i class="bi bi-award-fill fs-6"></i></span>
+            <div class="m5-stat-card theme-emerald">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Tỷ lệ Đạt yêu cầu</span>
+                    <span class="m5-stat-icon"><i class="bi bi-award-fill"></i></span>
                 </div>
-                <h3 class="fw-bold text-success mb-0" id="statTyLeDat">@Model.TyLeDat%</h3>
-                <small class="text-success" style="font-size: 11px;"><span id="statSoDat">@Model.SoDat</span> Đạt / <span id="statSoKhongDat">@Model.SoKhongDat</span> Không đạt</small>
+                <div>
+                    <div class="m5-stat-val"><span id="statTyLeDat">@Model.TyLeDat</span>%</div>
+                    <div class="m5-stat-sub"><i class="bi bi-dot text-success fs-5 align-middle"></i><span id="statSoDat">@Model.SoDat</span> Đạt / <span id="statSoKhongDat">@Model.SoKhongDat</span> Không đạt</div>
+                </div>
             </div>
         </div>
     </div>
@@ -147,8 +155,8 @@
             <input type="hidden" asp-for="TenGiangVien" />
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="tableDiem" style="font-size: 13.5px;">
-                    <thead class="table-light text-secondary border-bottom">
+                <table class="table m5-table-clean table-zebra-m5 align-middle mb-0" id="tableDiem" style="font-size: 13.5px;">
+                    <thead>
                         <tr>
                             <th class="text-center" style="width: 50px;">STT</th>
                             <th style="min-width: 180px;">Họ và tên học viên</th>

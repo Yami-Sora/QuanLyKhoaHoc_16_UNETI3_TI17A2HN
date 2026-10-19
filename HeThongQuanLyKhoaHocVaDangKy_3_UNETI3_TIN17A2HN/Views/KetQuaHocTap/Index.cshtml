@@ -60,17 +60,17 @@
         </div>
     }
 
-    <!-- 4 THẺ THỐNG KÊ (STAT CARDS) -->
+    <!-- 4 THẺ THỐNG KÊ (STAT CARDS) ĐỒNG BỘ DASHBOARD -->
     <div class="row g-3 mb-4">
         <!-- 1. Tổng số khóa học -->
         <div class="col-6 col-md-3">
-            <div class="m5-stat-card">
+            <div class="m5-stat-card theme-blue">
                 <div class="d-flex align-items-center justify-content-between">
                     <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Tổng khóa học</span>
-                    <span class="m5-stat-icon m5-icon-blue"><i class="bi bi-mortarboard-fill"></i></span>
+                    <span class="m5-stat-icon"><i class="bi bi-mortarboard-fill"></i></span>
                 </div>
                 <div>
-                    <div class="m5-stat-val text-dark">@Model.TongSoKhoaHoc</div>
+                    <div class="m5-stat-val">@Model.TongSoKhoaHoc</div>
                     <div class="m5-stat-sub"><i class="bi bi-dot text-primary fs-5 align-middle"></i>Quy mô đào tạo</div>
                 </div>
             </div>
@@ -78,13 +78,13 @@
 
         <!-- 2. Khóa học đã hoàn tất nhập điểm -->
         <div class="col-6 col-md-3">
-            <div class="m5-stat-card">
+            <div class="m5-stat-card theme-emerald">
                 <div class="d-flex align-items-center justify-content-between">
                     <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Đã hoàn tất điểm</span>
-                    <span class="m5-stat-icon m5-icon-emerald"><i class="bi bi-check-all"></i></span>
+                    <span class="m5-stat-icon"><i class="bi bi-check-all"></i></span>
                 </div>
                 <div>
-                    <div class="m5-stat-val text-success">@Model.SoKhoaHocDaNhapDiem</div>
+                    <div class="m5-stat-val">@Model.SoKhoaHocDaNhapDiem</div>
                     <div class="m5-stat-sub"><i class="bi bi-dot text-success fs-5 align-middle"></i>100% học viên có điểm</div>
                 </div>
             </div>
@@ -92,13 +92,13 @@
 
         <!-- 3. Khóa học chưa nhập điểm -->
         <div class="col-6 col-md-3">
-            <div class="m5-stat-card">
+            <div class="m5-stat-card theme-amber">
                 <div class="d-flex align-items-center justify-content-between">
                     <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Chưa nhập điểm</span>
-                    <span class="m5-stat-icon m5-icon-amber"><i class="bi bi-hourglass-split"></i></span>
+                    <span class="m5-stat-icon"><i class="bi bi-hourglass-split"></i></span>
                 </div>
                 <div>
-                    <div class="m5-stat-val text-warning-emphasis">@Model.SoKhoaHocChuaNhapDiem</div>
+                    <div class="m5-stat-val">@Model.SoKhoaHocChuaNhapDiem</div>
                     <div class="m5-stat-sub"><i class="bi bi-dot text-warning fs-5 align-middle"></i>Cần cập nhật điểm</div>
                 </div>
             </div>
@@ -106,13 +106,13 @@
 
         <!-- 4. Học viên chờ chấm điểm -->
         <div class="col-6 col-md-3">
-            <div class="m5-stat-card">
+            <div class="m5-stat-card theme-rose">
                 <div class="d-flex align-items-center justify-content-between">
                     <span class="text-muted small fw-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Học viên chờ điểm</span>
-                    <span class="m5-stat-icon m5-icon-rose"><i class="bi bi-person-exclamation"></i></span>
+                    <span class="m5-stat-icon"><i class="bi bi-person-exclamation"></i></span>
                 </div>
                 <div>
-                    <div class="m5-stat-val text-danger">@Model.TongSoHocVienCanNhapDiem</div>
+                    <div class="m5-stat-val">@Model.TongSoHocVienCanNhapDiem</div>
                     <div class="m5-stat-sub"><i class="bi bi-dot text-danger fs-5 align-middle"></i>Đã hoàn thành thủ tục</div>
                 </div>
             </div>
@@ -171,13 +171,18 @@
                 </div>
 
                 <!-- Nút thao tác -->
-                <div class="col-12 col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1 shadow-sm">
-                        <i class="bi bi-filter"></i> Lọc dữ liệu
-                    </button>
-                    <a asp-action="Index" class="btn btn-sm btn-light border px-3" title="Xóa bộ lọc">
-                        <i class="bi bi-x-lg"></i>
-                    </a>
+                <div class="col-12 col-md-3">
+                    <label class="form-label small fw-semibold text-secondary mb-1 d-none d-md-block" style="visibility: hidden;">
+                        <i class="bi bi-filter me-1"></i>Thao tác
+                    </label>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1 d-flex align-items-center justify-content-center gap-1 shadow-sm">
+                            <i class="bi bi-filter"></i> Lọc dữ liệu
+                        </button>
+                        <a asp-action="Index" class="btn btn-light border px-3 d-flex align-items-center justify-content-center" title="Xóa bộ lọc">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </form>
@@ -195,8 +200,8 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="font-size: 13.5px;">
-                <thead class="table-light text-secondary border-bottom">
+            <table class="m5-table-clean table-zebra-m5 align-middle mb-0" style="font-size: 13.5px;">
+                <thead>
                     <tr>
                         <th class="text-center" style="width: 70px;">Mã</th>
                         <th>Khóa học &amp; Môn học</th>
@@ -218,7 +223,7 @@
                             <tr>
                                 <!-- Mã khóa -->
                                 <td class="text-center fw-bold text-secondary">
-                                    #KH@item.MaKhoaHoc.ToString("D2")
+                                    #KH@(item.MaKhoaHoc.ToString("D2"))
                                 </td>
 
                                 <!-- Khóa học & Môn học -->

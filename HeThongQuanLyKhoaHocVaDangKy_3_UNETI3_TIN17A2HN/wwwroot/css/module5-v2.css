@@ -468,32 +468,93 @@
     margin-bottom: 1.35rem;
 }
 
-/* 7. PHONG CÁCH CHO BẢNG BÁO CÁO & THỐNG KÊ (ANALYTICS SUITE) */
-.m5-table-clean {
+.m5-filter-card .form-control,
+.m5-filter-card .form-select,
+.m5-filter-card .btn {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    font-size: 0.85rem !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+}
+
+.m5-filter-card .form-control {
+    padding: 0 0.85rem !important;
+    line-height: 36px !important;
+}
+
+.m5-filter-card .form-select {
+    padding: 0 2.25rem 0 0.85rem !important;
+    line-height: 36px !important;
+    background-position: right 0.75rem center !important;
+}
+
+.m5-filter-card .btn {
+    padding: 0 1rem !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.4rem !important;
+    line-height: 1 !important;
+}
+
+/* 7. PHONG CÁCH CHO BẢNG BÁO CÁO & THỐNG KÊ (ANALYTICS SUITE) - ZEBRA STRIPING CHUẨN XÁM TRẮNG XEN KẼ */
+.m5-table-clean,
+.table-zebra-m5 {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
 }
-.m5-table-clean thead th {
-    background-color: #f8fafc;
-    color: #475569;
+.m5-table-clean thead th,
+.table-zebra-m5 thead th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
     font-size: 0.78rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding: 0.75rem 1rem;
-    border-bottom: 1.5px solid #e2e8f0;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
+    vertical-align: middle;
 }
-.m5-table-clean thead th:first-child { border-top-left-radius: 10px; }
-.m5-table-clean thead th:last-child { border-top-right-radius: 10px; }
-.m5-table-clean tbody td {
+.m5-table-clean thead th:first-child,
+.table-zebra-m5 thead th:first-child { border-top-left-radius: 12px; }
+.m5-table-clean thead th:last-child,
+.table-zebra-m5 thead th:last-child { border-top-right-radius: 12px; }
+
+/* Dòng lẻ: Nền trắng tinh khôi */
+.m5-table-clean tbody tr:nth-child(odd) > td,
+.m5-table-clean tbody tr:nth-child(odd) > th,
+.table-zebra-m5 tbody tr:nth-child(odd) > td,
+.table-zebra-m5 tbody tr:nth-child(odd) > th {
+    background-color: #ffffff !important;
     padding: 0.85rem 1rem;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
     color: #1e293b;
     vertical-align: middle;
 }
-.m5-table-clean tbody tr:hover td {
-    background-color: #f8fafc;
+
+/* Dòng chẵn: Nền xám nhạt thanh lịch (Slate 100) */
+.m5-table-clean tbody tr:nth-child(even) > td,
+.m5-table-clean tbody tr:nth-child(even) > th,
+.table-zebra-m5 tbody tr:nth-child(even) > td,
+.table-zebra-m5 tbody tr:nth-child(even) > th {
+    background-color: #f1f5f9 !important;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+    vertical-align: middle;
+}
+
+/* Hiệu ứng rê chuột (Hover): Xanh nhạt hiện đại */
+.m5-table-clean tbody tr:hover > td,
+.m5-table-clean tbody tr:hover > th,
+.table-zebra-m5 tbody tr:hover > td,
+.table-zebra-m5 tbody tr:hover > th {
+    background-color: #e0f2fe !important;
 }
 
 /* Thẻ Top Khóa học đông học viên nhất (Ranking Cards) */
