@@ -75,6 +75,11 @@
                     <span>Bảng điều khiển</span>
                 </a>
 
+                <a asp-controller="ThongKe" asp-action="Index" class="admin-nav-item @(currentController == "ThongKe" ? "active" : "")" title="Báo cáo & Thống kê">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Báo cáo &amp; Thống kê</span>
+                </a>
+
                 <!-- 2. MÔN HỌC & TÀI KHOẢN -->
                 <div class="admin-menu-header mt-2">Môn học & Tài khoản</div>
 
@@ -125,10 +130,6 @@
                     <span>Quản lý kết quả học tập</span>
                 </a>
 
-                <a asp-controller="ThongKe" asp-action="Index" class="admin-nav-item @(currentController == "ThongKe" ? "active" : "")" title="Báo cáo & Thống kê">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Báo cáo &amp; Thống kê</span>
-                </a>
 
             </div>
 
