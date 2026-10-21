@@ -370,4 +370,25 @@
         initHeroParallax();
     });
 
+    // 10. Khôi phục trạng thái khi quay lại bằng nút Back/Forward của trình duyệt:
+    // trang được khôi phục từ bộ nhớ đệm (bfcache) sẽ giữ nguyên class fx-page-exiting
+    // (body opacity: 0) từ lúc rời trang khiến trang trắng xóa, mà DOMContentLoaded
+    // không chạy lại để gỡ. Phải dọn trạng thái này mỗi khi trang hiển thị lại từ cache.
+    window.addEventListener('pageshow', function (e) {
+        if (!e.persisted) return;
+
+        document.body.classList.remove('fx-page-exiting');
+
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-zoom, .stagger-card, .stagger-group > *')
+            .forEach(function (el) { el.classList.add('is-visible'); });
+
+        // Nút submit còn kẹt trạng thái loading từ lần gửi form trước cũng phải mở lại
+        document.querySelectorAll('button.is-loading').forEach(function (btn) {
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+            const wrap = btn.querySelector('.fx-btn-spinner-wrap');
+            if (wrap) wrap.remove();
+        });
+    });
+
 })();
