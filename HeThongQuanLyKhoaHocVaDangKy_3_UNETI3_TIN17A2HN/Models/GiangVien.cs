@@ -40,6 +40,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
         [Display(Name = "Học vị")]
         public string? HocVi { get; set; } // Thạc sĩ, Tiến sĩ, Giáo sư...
 
+        [StringLength(10)]
+        [Display(Name = "Giới tính")]
+        public string? GioiTinh { get; set; } // Nam | Nữ (dùng để hiển thị avatar theo giới tính)
+
         [Display(Name = "Trạng thái công tác")]
         public bool TrangThai { get; set; } = true; // true: Đang giảng dạy, false: Tạm nghỉ
 

@@ -25,14 +25,14 @@
     int pageSize = ViewBag.PageSize ?? 10;
 }
 
-<div class="container py-4">
+<div class="container-fluid py-2">
     <!-- Header trang Quản lý cho Admin & Nhân viên -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div class="dl-page-head">
         <div>
-            <h3 class="fw-bold mb-1 text-dark">
+            <h4 class="dl-page-title">
                 <i class="bi bi-book-half me-2 text-primary"></i>DANH MỤC MÔN HỌC
-            </h3>
-            <p class="text-muted mb-0 small">Hệ thống quản lý dữ liệu môn học, định mức học phí và trạng thái mở lớp đào tạo theo học chế tín chỉ</p>
+            </h4>
+            <p class="dl-page-sub">Hệ thống quản lý dữ liệu môn học, định mức học phí và trạng thái mở lớp đào tạo theo học chế tín chỉ</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
             @if (isManager)
@@ -44,67 +44,53 @@
         </div>
     </div>
 
-    <!-- 4 thẻ thống kê -->
-    <div class="row g-3 mb-4">
+    <!-- 4 thẻ thống kê (dùng chung thiết kế với Giảng viên / Tài khoản) -->
+    <div class="row g-3 mb-3">
         <!-- 1. Tổng số môn học -->
         <div class="col-sm-6 col-xl-3">
-            <a asp-action="QuanLy" class="text-decoration-none d-block h-100" title="Xem tất cả môn học">
-                <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm @(currentTrangThai == null ? "active-filter border-primary bg-primary-subtle" : "")">
-                    <div class="uneti-icon-box-52 bg-primary text-white shadow-sm rounded-3">
-                        <i class="bi bi-journal-bookmark fs-3"></i>
-                    </div>
-                    <div class="overflow-hidden">
-                        <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Tổng số môn học</span>
-                        <h3 class="fw-bold text-dark mb-0"><span data-count-to="@totalCount">@totalCount</span></h3>
-                        <small class="text-secondary uneti-fs-xs">Môn trong khung đào tạo</small>
-                    </div>
-                </div>
+            <a asp-action="QuanLy" class="dl-stat-card dl-blue @(currentTrangThai == null ? "dl-active" : "")" title="Xem tất cả môn học">
+                <span class="dl-stat-icon"><i class="bi bi-journal-bookmark"></i></span>
+                <span>
+                    <span class="dl-stat-label">Tổng số môn học</span>
+                    <span class="dl-stat-num"><span data-count-to="@totalCount">@totalCount</span></span>
+                    <span class="dl-stat-sub">Môn trong khung đào tạo</span>
+                </span>
             </a>
         </div>
 
         <!-- 2. Đang mở giảng dạy -->
         <div class="col-sm-6 col-xl-3">
-            <a asp-action="QuanLy" asp-route-trangThai="true" class="text-decoration-none d-block h-100" title="Lọc các môn đang mở">
-                <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm @(currentTrangThai == true ? "active-filter border-success bg-success-subtle" : "")">
-                    <div class="uneti-icon-box-52 bg-success text-white shadow-sm rounded-3">
-                        <i class="bi bi-check2-circle fs-3"></i>
-                    </div>
-                    <div class="overflow-hidden">
-                        <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Đang giảng dạy</span>
-                        <h3 class="fw-bold text-success mb-0"><span data-count-to="@activeCount">@activeCount</span></h3>
-                        <small class="text-success uneti-fs-xs">Sẵn sàng mở khóa học</small>
-                    </div>
-                </div>
+            <a asp-action="QuanLy" asp-route-trangThai="true" class="dl-stat-card dl-green @(currentTrangThai == true ? "dl-active" : "")" title="Lọc các môn đang mở">
+                <span class="dl-stat-icon"><i class="bi bi-check2-circle"></i></span>
+                <span>
+                    <span class="dl-stat-label">Đang giảng dạy</span>
+                    <span class="dl-stat-num"><span data-count-to="@activeCount">@activeCount</span></span>
+                    <span class="dl-stat-sub">Sẵn sàng mở khóa học</span>
+                </span>
             </a>
         </div>
 
         <!-- 3. Tạm dừng mở lớp -->
         <div class="col-sm-6 col-xl-3">
-            <a asp-action="QuanLy" asp-route-trangThai="false" class="text-decoration-none d-block h-100" title="Lọc các môn tạm dừng">
-                <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm @(currentTrangThai == false ? "active-filter border-danger bg-danger-subtle" : "")">
-                    <div class="uneti-icon-box-52 bg-danger text-white shadow-sm rounded-3">
-                        <i class="bi bi-pause-circle fs-3"></i>
-                    </div>
-                    <div class="overflow-hidden">
-                        <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Tạm dừng mở lớp</span>
-                        <h3 class="fw-bold text-danger mb-0"><span data-count-to="@inactiveCount">@inactiveCount</span></h3>
-                        <small class="text-muted uneti-fs-xs">Đang bảo trì / ngưng tuyển</small>
-                    </div>
-                </div>
+            <a asp-action="QuanLy" asp-route-trangThai="false" class="dl-stat-card dl-red @(currentTrangThai == false ? "dl-active" : "")" title="Lọc các môn tạm dừng">
+                <span class="dl-stat-icon"><i class="bi bi-pause-circle"></i></span>
+                <span>
+                    <span class="dl-stat-label">Tạm dừng mở lớp</span>
+                    <span class="dl-stat-num"><span data-count-to="@inactiveCount">@inactiveCount</span></span>
+                    <span class="dl-stat-sub">Đang bảo trì / ngưng tuyển</span>
+                </span>
             </a>
         </div>
 
-        <!-- 4. Tổng tín chỉ & Học phí TB -->
+        <!-- 4. Học phí trung bình -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card uneti-stat-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="uneti-icon-box-52 bg-warning text-white shadow-sm rounded-3">
-                    <i class="bi bi-cash-stack fs-3"></i>
-                </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted uneti-fs-xs fw-semibold d-block text-uppercase">Học phí trung bình</span>
-                    <h4 class="fw-bold text-dark mb-0"><span data-count-to="@avgHocPhi" data-format="number">@avgHocPhi.ToString("N0")</span> <small class="fs-6 fw-normal text-muted">đ</small></h4>
-                    <small class="text-secondary uneti-fs-xs">Tổng tích lũy: <strong>@totalTinChi</strong> tín chỉ</small>
-                </div>
+            <div class="dl-stat-card dl-amber">
+                <span class="dl-stat-icon"><i class="bi bi-cash-stack"></i></span>
+                <span>
+                    <span class="dl-stat-label">Học phí trung bình</span>
+                    <span class="dl-stat-num"><span data-count-to="@avgHocPhi" data-format="number">@avgHocPhi.ToString("N0")</span> <small class="fs-6 fw-normal">đ</small></span>
+                    <span class="dl-stat-sub">Tổng tích lũy: <strong>@totalTinChi</strong> tín chỉ</span>
+                </span>
             </div>
         </div>
     </div>
@@ -130,7 +116,7 @@
     </noscript>
 
     <!-- THANH TÌM KIẾM & BỘ LỌC -->
-    <div class="uneti-card p-3 mb-4 shadow-sm">
+    <div class="dl-filter-card">
         <form method="get" asp-action="QuanLy" class="row g-2 align-items-center">
             <div class="col-md-5">
                 <div class="input-group">
@@ -158,25 +144,26 @@
         </form>
     </div>
 
-    <!-- THANH LỌC NHANH TRÊN BẢNG HIỆN TẠI -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 px-1 gap-2">
-        <div class="small text-muted fw-semibold">
-            <i class="bi bi-list-check me-1 text-primary"></i>Danh sách hiển thị (<span id="visibleRowCount">@(Model?.Count() ?? 0)</span> môn học)
-        </div>
-        <div style="min-width: 280px;">
-            <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
-                <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (tên, mã, TC)..." aria-label="Lọc nhanh trên bảng" />
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
-                    <i class="bi bi-x"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- BẢNG DANH MỤC MÔN HỌC QUẢN TRỊ -->
     <div id="monHocTableContainer" class="position-relative">
-        <div class="uneti-card overflow-hidden shadow-sm">
+        <div class="dl-table-card">
+        <!-- Đầu bảng: tiêu đề + thanh lọc nhanh trên bảng hiện tại -->
+        <div class="dl-table-head">
+            <div class="d-flex align-items-center gap-2">
+                <span class="dl-head-ic"><i class="bi bi-list-check"></i></span>
+                <span class="fw-bold text-dark">Danh sách môn học</span>
+                <span class="dl-count-badge"><span id="visibleRowCount">@(Model?.Count() ?? 0)</span> môn học</span>
+            </div>
+            <div style="min-width: 280px;">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
+                    <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (tên, mã, TC)..." aria-label="Lọc nhanh trên bảng" />
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 uneti-table" id="monHocAdminTable">
                 <thead>
@@ -295,21 +282,11 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted">
-            <span>Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalCount</strong> môn học trong cơ sở dữ liệu</span>
-            <span>Cơ sở dữ liệu đào tạo tín chỉ - Năm học 2025-2026</span>
-        </div>
-    </div>
-
-    <!-- PHÂN TRANG DANH SÁCH MÔN HỌC (PAGINATION) -->
-    @if (totalPages > 1)
-    {
-        <div class="mt-4 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-            <div class="text-muted small">
-                <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-xs">
-                    <i class="bi bi-journal-bookmark text-primary me-1"></i>Trang <strong>@currentPage</strong> / <strong>@totalPages</strong> (Tổng <strong>@totalCount</strong> môn học)
-                </span>
-            </div>
+        <!-- Chân bảng gộp: tổng số + phân trang cùng 1 hàng, nằm trong cùng thẻ bảng -->
+        <div class="dl-table-foot">
+            <span class="small text-muted">Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalCount</strong> môn học @if (totalPages > 1) { <text>• Trang <strong>@currentPage</strong>/<strong>@totalPages</strong></text> }</span>
+            @if (totalPages > 1)
+            {
             <nav aria-label="Phân trang danh mục môn học">
                 <ul class="pagination uneti-pagination mb-0">
                     <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang đầu">
@@ -348,8 +325,9 @@
                     </li>
                 </ul>
             </nav>
+            }
         </div>
-    }
+    </div>
     </div>
 </div>
 

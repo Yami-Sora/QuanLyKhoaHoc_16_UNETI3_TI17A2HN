@@ -1,4 +1,4 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Hệ thống hồ sơ nhận diện và nội dung chuyên ngành động cho Môn học
 
@@ -21,6 +21,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
         public string ColorC2 { get; set; } = "#8b5cf6";
         public string ColorAccent { get; set; } = "#2563eb";
         public string IconWhiteSvg { get; set; } = "";
+        // Banner nền riêng theo chủ đề nhóm môn (để trống = xoay vòng theo mã môn học)
+        public string BannerFile { get; set; } = "";
 
         // SVG Biểu tượng môn học (Hình vuông bo góc)
         public string BrandLogoSvg { get; set; } = "";
@@ -94,7 +96,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                 p.ColorC1 = "#3b82f6";
                 p.ColorC2 = "#8b5cf6";
                 p.ColorAccent = "#2563eb";
-                p.IconWhiteSvg = @"<svg width=""56"" height=""56"" viewBox=""0 0 24 24"" fill=""none"" stroke=""white"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round""><path d=""M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z""/><path d=""M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z""/></svg>";
+                p.IconWhiteSvg = @"<svg width=""56"" height=""56"" viewBox=""0 0 24 24"" fill=""white""><text x=""12"" y=""15.8"" font-family=""Arial, Helvetica, sans-serif"" font-size=""9.5"" font-weight=""800"" text-anchor=""middle"" fill=""white"">C#</text></svg>";
+                p.BannerFile = "detail-banner-0.webp";
 
                 p.BrandLogoSvg = @"
                     <svg width=""48"" height=""48"" viewBox=""0 0 128 128"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
@@ -205,6 +208,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                 p.ColorC2 = "#ec4899";
                 p.ColorAccent = "#7c3aed";
                 p.IconWhiteSvg = @"<svg width=""56"" height=""56"" viewBox=""0 0 24 24"" fill=""none"" stroke=""white"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round""><ellipse cx=""12"" cy=""5"" rx=""9"" ry=""3""/><path d=""M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5""/><path d=""M3 12c0 1.66 4 3 9 3s9-1.34 9-3""/></svg>";
+                p.BannerFile = "detail-banner-1.webp";
 
                 p.BrandLogoSvg = @"
                     <svg width=""48"" height=""48"" viewBox=""0 0 128 128"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
@@ -315,6 +319,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                 p.ColorC2 = "#38bdf8";
                 p.ColorAccent = "#0f766e";
                 p.IconWhiteSvg = @"<svg width=""56"" height=""56"" viewBox=""0 0 24 24"" fill=""none"" stroke=""white"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round""><rect width=""14"" height=""20"" x=""5"" y=""2"" rx=""3"" ry=""3""/><path d=""M12 18h.01""/></svg>";
+                p.BannerFile = "detail-banner-4.webp";
 
                 p.BrandLogoSvg = @"
                     <svg width=""48"" height=""48"" viewBox=""0 0 128 128"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
@@ -356,7 +361,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                 p.LecturerPhone = "0934 567 890";
             }
             // 6. NHÓM PHÂN TÍCH DỮ LIỆU & PYTHON / AI
-            else if (name.Contains("Python", StringComparison.OrdinalIgnoreCase) || name.Contains("Dữ liệu", StringComparison.OrdinalIgnoreCase) || name.Contains("AI", StringComparison.OrdinalIgnoreCase) || name.Contains("Trí tuệ nhân tạo", StringComparison.OrdinalIgnoreCase))
+            // Lưu ý: KHÔNG bắt theo từ "Dữ liệu" hay "AI" đứng một mình — môn "Cấu trúc dữ liệu..."
+            // sẽ bị nhận nhầm vào nhóm này (nó thuộc nhóm 7 bên dưới), và "AI" còn xuất hiện trong
+            // rất nhiều từ tiếng Việt khác (khai, mai, tương lai...). Chỉ bắt các cụm từ đặc trưng.
+            else if (name.Contains("Python", StringComparison.OrdinalIgnoreCase) || name.Contains("Phân tích dữ liệu", StringComparison.OrdinalIgnoreCase) || name.Contains("Khoa học dữ liệu", StringComparison.OrdinalIgnoreCase) || name.Contains("Khai phá dữ liệu", StringComparison.OrdinalIgnoreCase) || name.Contains("Dữ liệu lớn", StringComparison.OrdinalIgnoreCase) || name.Contains("Big Data", StringComparison.OrdinalIgnoreCase) || name.Contains("Học máy", StringComparison.OrdinalIgnoreCase) || name.Contains("Machine Learning", StringComparison.OrdinalIgnoreCase) || name.Contains("Deep Learning", StringComparison.OrdinalIgnoreCase) || name.Contains("Trí tuệ nhân tạo", StringComparison.OrdinalIgnoreCase) || name.Contains(" AI ", StringComparison.OrdinalIgnoreCase) || name.StartsWith("AI ", StringComparison.OrdinalIgnoreCase) || name.EndsWith(" AI", StringComparison.OrdinalIgnoreCase))
             {
                 p.CategoryName = "Khoa học Dữ liệu & Trí tuệ Nhân tạo";
                 p.ThemePrimaryColor = "#b45309";
@@ -369,6 +377,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                 p.ColorC2 = "#14b8a6";
                 p.ColorAccent = "#047857";
                 p.IconWhiteSvg = @"<svg width=""56"" height=""56"" viewBox=""0 0 24 24"" fill=""white""><path d=""M11.9 2c-3.1 0-4.9 1.4-4.9 3.2v2.4h5v.8H5.9C3.7 8.4 2 10.3 2 12.8s1.8 4.4 4.1 4.4h1.7v-2.3c0-1.8 1.6-3.3 3.5-3.3h5.1c1.5 0 2.8-1.2 2.8-2.8V5.2c0-1.8-1.8-3.2-4.9-3.2h-2.4zm-1.8 1.9c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9z""/><path d=""M12.1 22c3.1 0 4.9-1.4 4.9-3.2v-2.4h-5v-.8h6.1c2.2 0 3.9-1.9 3.9-4.4s-1.8-4.4-4.1-4.4h-1.7v2.3c0 1.8-1.6 3.3-3.5 3.3H7.6c-1.5 0-2.8 1.2-2.8 2.8v3.6c0 1.8 1.8 3.2 4.9 3.2h2.4zm1.8-1.9c-.5 0-.9-.4-.9-.9s.4-.9.9-.9.9.4.9.9-.4.9-.9.9z""/></svg>";
+                p.BannerFile = "detail-banner-5.webp";
 
                 p.BrandLogoSvg = @"
                     <svg width=""48"" height=""48"" viewBox=""0 0 128 128"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
@@ -484,6 +493,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                 p.ColorC2 = "#06b6d4";
                 p.ColorAccent = "#0f766e";
                 p.IconWhiteSvg = @"<svg width=""56"" height=""56"" viewBox=""0 0 24 24"" fill=""none"" stroke=""white"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round""><rect x=""2"" y=""3"" width=""20"" height=""14"" rx=""2""/><path d=""M6 21h12""/><path d=""M12 17v4""/></svg>";
+                p.BannerFile = "detail-banner-3.webp";
 
                 p.BrandLogoSvg = @"
                     <svg width=""48"" height=""48"" viewBox=""0 0 128 128"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">
@@ -596,6 +606,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
                 p.ColorC2 = "#ec4899";
                 p.ColorAccent = "#be123c";
                 p.IconWhiteSvg = @"<svg width=""56"" height=""56"" viewBox=""0 0 24 24"" fill=""none"" stroke=""white"" stroke-width=""2"" stroke-linecap=""round"" stroke-linejoin=""round""><path d=""M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z""/></svg>";
+                p.BannerFile = "detail-banner-3.webp";
 
                 p.BrandLogoSvg = @"
                     <svg width=""48"" height=""48"" viewBox=""0 0 128 128"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">

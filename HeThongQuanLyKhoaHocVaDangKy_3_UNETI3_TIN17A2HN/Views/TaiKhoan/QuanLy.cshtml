@@ -1,7 +1,9 @@
 @*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung: Quản trị tài khoản (Admin)
+    Nội dung: Module 1 - Quản trị tài khoản (Admin) — dùng chung bộ CSS trang quản lý
+             (dl-page-head / dl-stat-card / dl-filter-card / dl-table-card trong _admin.css) với Môn học và Giảng viên:
+             thẻ thống kê bấm lọc theo vai trò, lọc nhanh trong đầu bảng, cột tài khoản gộp, phân trang ở chân bảng
 *@
 
 @model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.TaiKhoan>
@@ -27,16 +29,16 @@
     var totalLocked = ViewBag.TotalLocked ?? 0;
 }
 
-<div class="container py-4">
+<div class="container-fluid py-2">
     <!-- Header trang -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div class="dl-page-head">
         <div>
-            <h3 class="fw-bold mb-1 text-dark">
+            <h4 class="dl-page-title">
                 <i class="bi bi-people-fill me-2 text-primary"></i>QUẢN LÝ TÀI KHOẢN & PHÂN QUYỀN
-            </h3>
-            <p class="text-muted mb-0 small">Kiểm soát danh sách người dùng, cấp phân quyền hệ thống và khóa/mở khóa tài khoản</p>
+            </h4>
+            <p class="dl-page-sub">Kiểm soát người dùng, phân quyền và khóa/mở tài khoản</p>
         </div>
-        <div class="mt-2 mt-md-0 d-flex gap-2">
+        <div class="d-flex gap-2">
             @if (isCurrentUserAdmin)
             {
                 <a asp-action="Create" class="btn uneti-btn-outline shadow-sm text-decoration-none">
@@ -68,83 +70,58 @@
         }
     </noscript>
 
-    <!-- 4 thẻ thống kê -->
-    <div class="row g-3 mb-4">
-        <!-- Thẻ 1: Tất cả tài khoản -->
+    <!-- Thống kê: 4 thẻ dùng chung thiết kế với Môn học / Giảng viên (bấm vào thẻ = lọc theo vai trò) -->
+    <div class="row g-3 mb-3">
         <div class="col-6 col-lg-3">
-            <a asp-action="QuanLy" class="text-decoration-none">
-                <div class="uneti-stat-card d-flex align-items-center gap-3 @(string.IsNullOrEmpty(ViewBag.CurrentRole) && ViewBag.CurrentTrangThai == null ? "active-filter border-primary bg-primary-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-primary text-white shadow-sm uneti-icon-box-48">
-                        <i class="bi bi-people-fill fs-5"></i>
-                    </span>
-                    <div class="overflow-hidden">
-                        <div class="fs-4 fw-bold text-dark lh-1 mb-1"><span data-count-to="@totalAccounts">@totalAccounts</span></div>
-                        <div class="small text-muted fw-semibold text-truncate">Tất cả tài khoản</div>
-                    </div>
-                </div>
+            <a asp-action="QuanLy" class="dl-stat-card dl-blue @(string.IsNullOrEmpty(ViewBag.CurrentRole) && ViewBag.CurrentTrangThai == null ? "dl-active" : "")" title="Xem tất cả tài khoản">
+                <span class="dl-stat-icon"><i class="bi bi-people-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Tất cả tài khoản</span>
+                    <span class="dl-stat-num"><span data-count-to="@totalAccounts">@totalAccounts</span></span>
+                    <span class="dl-stat-sub">Toàn bộ tài khoản hệ thống</span>
+                </span>
             </a>
         </div>
-
-        <!-- Thẻ 2: Quản trị viên -->
         <div class="col-6 col-lg-3">
-            <a asp-action="QuanLy" asp-route-role="Admin" class="text-decoration-none">
-                <div class="uneti-stat-card d-flex align-items-center gap-3 @(ViewBag.CurrentRole == "Admin" ? "active-filter border-danger bg-danger-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-danger text-white shadow-sm uneti-icon-box-48">
-                        <i class="bi bi-shield-lock-fill fs-5"></i>
-                    </span>
-                    <div class="overflow-hidden">
-                        <div class="fs-4 fw-bold text-danger lh-1 mb-1"><span data-count-to="@totalAdmins">@totalAdmins</span></div>
-                        <div class="small text-muted fw-semibold text-truncate">Quản trị viên (Admin)</div>
-                    </div>
-                </div>
+            <a asp-action="QuanLy" asp-route-role="Admin" class="dl-stat-card dl-red @(ViewBag.CurrentRole == "Admin" ? "dl-active" : "")" title="Lọc: quản trị viên (Admin)">
+                <span class="dl-stat-icon"><i class="bi bi-shield-lock-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Quản trị viên (Admin)</span>
+                    <span class="dl-stat-num"><span data-count-to="@totalAdmins">@totalAdmins</span></span>
+                    <span class="dl-stat-sub">Toàn quyền quản trị hệ thống</span>
+                </span>
             </a>
         </div>
-
-        <!-- Thẻ 3: Nhân viên quản lý -->
         <div class="col-6 col-lg-3">
-            <a asp-action="QuanLy" asp-route-role="NhanVien" class="text-decoration-none">
-                <div class="uneti-stat-card d-flex align-items-center gap-3 @(ViewBag.CurrentRole == "NhanVien" ? "active-filter border-primary bg-primary-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 text-white shadow-sm uneti-icon-box-48 bg-primary">
-                        <i class="bi bi-person-badge-fill fs-5"></i>
-                    </span>
-                    <div class="overflow-hidden">
-                        <div class="fs-4 fw-bold lh-1 mb-1 text-primary"><span data-count-to="@totalNhanViens">@totalNhanViens</span></div>
-                        <div class="small text-muted fw-semibold text-truncate">Nhân viên quản lý</div>
-                    </div>
-                </div>
+            <a asp-action="QuanLy" asp-route-role="NhanVien" class="dl-stat-card dl-violet @(ViewBag.CurrentRole == "NhanVien" ? "dl-active" : "")" title="Lọc: nhân viên quản lý">
+                <span class="dl-stat-icon"><i class="bi bi-person-badge-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Nhân viên quản lý</span>
+                    <span class="dl-stat-num"><span data-count-to="@totalNhanViens">@totalNhanViens</span></span>
+                    <span class="dl-stat-sub">Quản lý đào tạo &amp; khóa học</span>
+                </span>
             </a>
         </div>
-
-        <!-- Thẻ 4: Học viên -->
         <div class="col-6 col-lg-3">
-            <a asp-action="QuanLy" asp-route-role="HocVien" class="text-decoration-none">
-                <div class="uneti-stat-card d-flex align-items-center gap-3 @(ViewBag.CurrentRole == "HocVien" ? "active-filter border-success bg-success-subtle" : "")">
-                    <span class="rounded-3 d-inline-flex justify-content-center align-items-center flex-shrink-0 bg-success text-white shadow-sm uneti-icon-box-48">
-                        <i class="bi bi-mortarboard-fill fs-5"></i>
-                    </span>
-                    <div class="overflow-hidden">
-                        <div class="fs-4 fw-bold text-success lh-1 mb-1">
-                            <span data-count-to="@totalHocViens">@totalHocViens</span>
-                            @if (totalLocked > 0)
-                            {
-                                <span class="badge bg-danger text-white fw-normal ms-1 uneti-fs-xs">@totalLocked khóa</span>
-                            }
-                        </div>
-                        <div class="small text-muted fw-semibold text-truncate">Học viên đào tạo</div>
-                    </div>
-                </div>
+            <a asp-action="QuanLy" asp-route-role="HocVien" class="dl-stat-card dl-green @(ViewBag.CurrentRole == "HocVien" ? "dl-active" : "")" title="Lọc: học viên đào tạo">
+                <span class="dl-stat-icon"><i class="bi bi-mortarboard-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Học viên đào tạo</span>
+                    <span class="dl-stat-num"><span data-count-to="@totalHocViens">@totalHocViens</span>@if (totalLocked > 0) { <span class="badge bg-danger text-white fw-normal ms-1 uneti-fs-xs">@totalLocked khóa</span> }</span>
+                    <span class="dl-stat-sub">Tài khoản học viên của trung tâm</span>
+                </span>
             </a>
         </div>
     </div>
 
-    <!-- Thanh Tìm kiếm và Lọc -->
-    <div class="uneti-card p-3 mb-4">
+    <!-- Thanh Tìm kiếm và Lọc (gọn 1 hàng) -->
+    <div class="dl-filter-card">
         <form method="get" asp-action="QuanLy" class="row g-2 align-items-center">
-            <div class="col-md-5">
+            <div class="col-md-4">
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" name="searchString" value="@ViewBag.CurrentSearch" 
-                           class="form-control border-start-0 ps-1" 
+                    <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
+                           class="form-control border-start-0 ps-1"
                            placeholder="Tìm kiếm theo tên đăng nhập, họ tên, email..." />
                 </div>
             </div>
@@ -163,8 +140,8 @@
                     @if (ViewBag.CurrentTrangThai != null && !(bool)ViewBag.CurrentTrangThai) { <option value="false" selected>Đã bị khóa</option> } else { <option value="false">Đã bị khóa</option> }
                 </select>
             </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn uneti-btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-1">
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn uneti-btn-primary flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1">
                     <i class="bi bi-funnel-fill"></i><span>Lọc</span>
                 </button>
                 <a asp-action="QuanLy" class="btn uneti-btn-outline" title="Đặt lại bộ lọc">
@@ -174,250 +151,245 @@
         </form>
     </div>
 
-    <!-- THANH LỌC NHANH TRÊN BẢNG HIỆN TẠI -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 px-1 gap-2">
-        <div class="small text-muted fw-semibold">
-            <i class="bi bi-people me-1 text-primary"></i>Danh sách hiển thị (<span id="visibleRowCount">@(Model?.Count() ?? 0)</span> tài khoản)
-        </div>
-        <div style="min-width: 280px;">
-            <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
-                <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (username, họ tên, email, vai trò)..." aria-label="Lọc nhanh trên bảng" />
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
-                    <i class="bi bi-x"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bảng danh sách tài khoản -->
+    <!-- Bảng danh sách tài khoản: lọc nhanh nằm NGAY TRONG đầu bảng, phân trang nằm NGAY chân bảng -->
     <div id="taiKhoanTableContainer" class="position-relative">
-        <div class="uneti-card overflow-hidden">
-        <div class="table-responsive">
-            <table class="table uneti-table align-middle mb-0 uneti-table-min-1050" id="taiKhoanAdminTable">
-                <thead>
-                    <tr>
-                        <th class="text-center" style="width: 50px;">STT</th>
-                        <th style="width: 170px;">Tên đăng nhập</th>
-                        <th style="width: 180px;">Họ và tên</th>
-                        <th style="width: 220px;">Email liên hệ</th>
-                        <th class="text-center" style="width: 140px;">Vai trò</th>
-                        <th class="text-center" style="width: 130px;">Trạng thái</th>
-                        <th class="text-center" style="width: 110px;">Ngày tạo</th>
-                        <th class="text-center" style="width: 250px;">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr id="quickSearchEmptyRow" style="display: none;">
-                        <td colspan="8" class="text-center py-5 text-muted">
-                            <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
-                            <div>Không tìm thấy tài khoản nào khớp với từ khóa "<strong><span id="quickSearchTerm"></span></strong>".</div>
-                            <button type="button" class="btn btn-sm uneti-btn-outline mt-3 rounded-pill" id="btnResetQuickFilter">
-                                <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc nhanh
-                            </button>
-                        </td>
-                    </tr>
-                @if (Model != null && Model.Any())
-                {
-                    int stt = (currentPage - 1) * pageSize + 1;
-                    foreach (var item in Model)
-                    {
-                        var isCurrentAdmin = currentUserId == item.MaTaiKhoan;
+        <div class="dl-table-card">
+            <!-- Đầu bảng: tiêu đề + lọc nhanh gộp chung 1 chỗ -->
+            <div class="dl-table-head">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="dl-head-ic"><i class="bi bi-people"></i></span>
+                    <span class="fw-bold text-dark">Danh sách tài khoản</span>
+                    <span class="dl-count-badge"><span id="visibleRowCount">@(Model?.Count() ?? 0)</span> tài khoản</span>
+                </div>
+                <div style="min-width: 280px;">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
+                        <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (username, họ tên, email, vai trò)..." aria-label="Lọc nhanh trên bảng" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table uneti-table align-middle mb-0" style="min-width: 900px;" id="taiKhoanAdminTable">
+                    <thead>
                         <tr>
-                            <td class="text-center text-muted fw-bold">@stt</td>
-                            <td>
-                                <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                                    <span class="user-avatar text-white uneti-icon-box-28 bg-primary fw-bold shadow-sm flex-shrink-0">
-                                        @(string.IsNullOrEmpty(item.HoTen) ? "U" : item.HoTen.Substring(0, 1).ToUpper())
-                                    </span>
-                                    <span class="text-nowrap">@item.TenDangNhap</span>
-                                    @if (isCurrentAdmin)
+                            <th class="text-center" style="width: 44px;">STT</th>
+                            <th>Tài khoản</th>
+                            <th>Email liên hệ</th>
+                            <th class="text-center" style="width: 128px;">Vai trò</th>
+                            <th class="text-center" style="width: 124px;">Trạng thái</th>
+                            <th class="text-center" style="width: 102px;">Ngày tạo</th>
+                            <th class="text-center" style="width: 168px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="quickSearchEmptyRow" style="display: none;">
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
+                                <div>Không tìm thấy tài khoản nào khớp với từ khóa "<strong><span id="quickSearchTerm"></span></strong>".</div>
+                                <button type="button" class="btn btn-sm uneti-btn-outline mt-2 rounded-pill" id="btnResetQuickFilter">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc nhanh
+                                </button>
+                            </td>
+                        </tr>
+                    @if (Model != null && Model.Any())
+                    {
+                        int stt = (currentPage - 1) * pageSize + 1;
+                        foreach (var item in Model)
+                        {
+                            var isSelf = currentUserId == item.MaTaiKhoan;
+                            <tr>
+                                <td class="text-center text-muted fw-bold">@stt</td>
+                                <!-- GỘP 2 cột Tên đăng nhập + Họ và tên thành 1 cột Tài khoản -->
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="user-avatar text-white uneti-icon-box-32 bg-primary fw-bold shadow-sm flex-shrink-0">
+                                            @(string.IsNullOrEmpty(item.HoTen) ? "U" : item.HoTen.Substring(0, 1).ToUpper())
+                                        </span>
+                                        <div class="overflow-hidden">
+                                            <div class="fw-semibold text-dark text-nowrap">
+                                                @item.HoTen
+                                                @if (isSelf)
+                                                {
+                                                    <span class="badge bg-secondary-subtle text-secondary border py-0 px-1 uneti-fs-xs">Bạn</span>
+                                                }
+                                            </div>
+                                            <div class="small text-muted text-nowrap">@@@item.TenDangNhap</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="mailto:@item.Email" class="text-decoration-none text-muted small text-nowrap">
+                                        <i class="bi bi-envelope me-1 text-primary"></i>@item.Email
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    @switch (item.VaiTro)
                                     {
-                                        <span class="badge bg-secondary-subtle text-secondary border py-0 px-1 text-nowrap uneti-fs-xs">Bạn</span>
+                                        case "Admin":
+                                            <span class="uneti-badge-danger"><i class="bi bi-shield-lock-fill me-1"></i>Admin</span>
+                                            break;
+                                        case "NhanVien":
+                                            <span class="uneti-badge-primary"><i class="bi bi-person-badge me-1"></i>Nhân viên</span>
+                                            break;
+                                        case "HocVien":
+                                            <span class="uneti-badge-success"><i class="bi bi-mortarboard me-1"></i>Học viên</span>
+                                            break;
+                                        default:
+                                            <span class="uneti-badge-secondary">@item.VaiTro</span>
+                                            break;
                                     }
-                                </div>
-                            </td>
-                            <td>
-                                <span class="fw-semibold text-dark text-nowrap">@item.HoTen</span>
-                            </td>
-                            <td>
-                                <a href="mailto:@item.Email" class="text-decoration-none text-muted small text-nowrap">
-                                    <i class="bi bi-envelope me-1 text-primary"></i>@item.Email
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                @switch (item.VaiTro)
-                                {
-                                    case "Admin":
-                                        <span class="uneti-badge-danger"><i class="bi bi-shield-lock-fill me-1"></i>Admin</span>
-                                        break;
-                                    case "NhanVien":
-                                        <span class="uneti-badge-primary"><i class="bi bi-person-badge me-1"></i>Nhân viên</span>
-                                        break;
-                                    case "HocVien":
-                                        <span class="uneti-badge-success"><i class="bi bi-mortarboard me-1"></i>Học viên</span>
-                                        break;
-                                    default:
-                                        <span class="uneti-badge-secondary">@item.VaiTro</span>
-                                        break;
-                                }
-                            </td>
-                            <td class="text-center">
-                                @if (item.TrangThai)
-                                {
-                                    <span class="uneti-badge-success">
-                                        <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="uneti-badge-danger">
-                                        <i class="bi bi-lock-fill me-1"></i>Đã khóa
-                                    </span>
-                                }
-                            </td>
-                            <td class="text-center text-muted small text-nowrap">
-                                @item.NgayTao.ToString("dd/MM/yyyy")
-                            </td>
-                            <td class="text-center">
-                                <div class="d-inline-flex align-items-center justify-content-center gap-1.5 flex-nowrap">
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai)
+                                    {
+                                        <span class="uneti-badge-success">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Hoạt động
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="uneti-badge-danger">
+                                            <i class="bi bi-lock-fill me-1"></i>Đã khóa
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center text-muted small text-nowrap">
+                                    @item.NgayTao.ToString("dd/MM/yyyy")
+                                </td>
+                                <td class="text-center">
                                     @if (!isCurrentUserAdmin)
                                     {
                                         <span class="badge bg-light text-muted border py-1 px-2 uneti-fs-xs">
                                             <i class="bi bi-eye me-1"></i>Chỉ xem
                                         </span>
                                     }
-                                    else if (!isCurrentAdmin)
+                                    else if (!isSelf)
                                     {
-                                        <!-- Nút Chỉnh sửa thông tin tài khoản -->
-                                        <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan" class="btn btn-sm btn-outline-secondary uneti-action-btn" title="Chỉnh sửa thông tin tài khoản">
-                                            <i class="bi bi-pencil-square"></i><span>Sửa</span>
-                                        </a>
-
-                                        <!-- Nút đổi vai trò -->
-                                        <button type="button" class="btn btn-sm btn-outline-primary uneti-action-btn js-open-role-modal" 
-                                                data-id="@item.MaTaiKhoan" 
-                                                data-username="@item.TenDangNhap"
-                                                data-fullname="@item.HoTen"
-                                                data-email="@item.Email"
-                                                data-role="@item.VaiTro"
-                                                title="Chỉnh sửa vai trò / Phân quyền tài khoản">
-                                            <i class="bi bi-person-gear"></i><span>Vai trò</span>
-                                        </button>
-
-                                        <!-- Nút Khóa / Mở khóa tài khoản -->
-                                        <form method="post" asp-action="ToggleStatus" asp-route-id="@item.MaTaiKhoan" class="d-inline"
-                                              data-uneti-confirm="Bạn có chắc chắn muốn @(item.TrangThai ? "KHÓA" : "MỞ KHÓA") tài khoản @item.TenDangNhap?"
-                                              data-uneti-title="@(item.TrangThai ? "Xác nhận khóa tài khoản" : "Xác nhận mở khóa tài khoản")"
-                                              data-uneti-type="@(item.TrangThai ? "danger" : "primary")"
-                                              data-uneti-ok="@(item.TrangThai ? "Khóa tài khoản" : "Mở khóa")">
-                                            @Html.AntiForgeryToken()
-                                            @if (item.TrangThai)
-                                            {
-                                                <button type="submit" class="btn btn-sm btn-outline-danger uneti-action-btn" title="Khóa tài khoản này">
-                                                    <i class="bi bi-lock-fill"></i><span>Khóa</span>
-                                                </button>
-                                            }
-                                            else
-                                            {
-                                                <button type="submit" class="btn btn-sm btn-outline-success uneti-action-btn" title="Mở khóa tài khoản này">
-                                                    <i class="bi bi-unlock-fill"></i><span>Mở</span>
-                                                </button>
-                                            }
-                                        </form>
-
-                                        <!-- Nút Đặt lại mật khẩu về mặc định 123456 -->
-                                        <form method="post" asp-action="ResetPasswordByAdmin" asp-route-id="@item.MaTaiKhoan" class="d-inline"
-                                              data-uneti-confirm="Đặt lại mật khẩu cho tài khoản @item.TenDangNhap về mặc định (123456)?"
-                                              data-uneti-title="Đặt lại mật khẩu"
-                                              data-uneti-type="warning"
-                                              data-uneti-ok="Đặt lại 123456">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-secondary uneti-action-btn" title="Đặt lại mật khẩu về mặc định (123456)">
-                                                <i class="bi bi-key-fill"></i><span>Reset</span>
+                                        <!-- Thao tác dạng ICON gọn (giống trang Môn học), có tooltip chú thích -->
+                                        <div class="d-inline-flex align-items-center justify-content-center gap-1 flex-nowrap">
+                                            <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan" class="btn-action-icon btn-action-edit" title="Chỉnh sửa thông tin tài khoản">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <button type="button" class="btn-action-icon btn-action-toggle js-open-role-modal"
+                                                    data-id="@item.MaTaiKhoan"
+                                                    data-username="@item.TenDangNhap"
+                                                    data-fullname="@item.HoTen"
+                                                    data-email="@item.Email"
+                                                    data-role="@item.VaiTro"
+                                                    title="Đổi vai trò / Phân quyền tài khoản">
+                                                <i class="bi bi-person-gear"></i>
                                             </button>
-                                        </form>
+                                            <form method="post" asp-action="ToggleStatus" asp-route-id="@item.MaTaiKhoan" class="d-inline m-0 p-0"
+                                                  data-uneti-confirm="Bạn có chắc chắn muốn @(item.TrangThai ? "KHÓA" : "MỞ KHÓA") tài khoản @item.TenDangNhap?"
+                                                  data-uneti-title="@(item.TrangThai ? "Xác nhận khóa tài khoản" : "Xác nhận mở khóa tài khoản")"
+                                                  data-uneti-type="@(item.TrangThai ? "danger" : "primary")"
+                                                  data-uneti-ok="@(item.TrangThai ? "Khóa tài khoản" : "Mở khóa")">
+                                                @Html.AntiForgeryToken()
+                                                @if (item.TrangThai)
+                                                {
+                                                    <button type="submit" class="btn-action-icon btn-action-delete" title="Khóa tài khoản này">
+                                                        <i class="bi bi-lock-fill"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="btn-action-icon btn-action-toggle" title="Mở khóa tài khoản này">
+                                                        <i class="bi bi-unlock-fill"></i>
+                                                    </button>
+                                                }
+                                            </form>
+                                            <form method="post" asp-action="ResetPasswordByAdmin" asp-route-id="@item.MaTaiKhoan" class="d-inline m-0 p-0"
+                                                  data-uneti-confirm="Đặt lại mật khẩu cho tài khoản @item.TenDangNhap về mặc định (123456)?"
+                                                  data-uneti-title="Đặt lại mật khẩu"
+                                                  data-uneti-type="warning"
+                                                  data-uneti-ok="Đặt lại 123456">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn-action-icon btn-action-view" title="Đặt lại mật khẩu về mặc định (123456)">
+                                                    <i class="bi bi-key-fill"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary-subtle text-secondary border px-3 py-1.5 text-nowrap">
+                                        <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 text-nowrap uneti-fs-xs">
                                             <i class="bi bi-person-check-fill me-1"></i>Đang đăng nhập
                                         </span>
                                     }
-                                </div>
+                                </td>
+                            </tr>
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary opacity-50"></i>
+                                <div class="fw-semibold">Không tìm thấy tài khoản nào phù hợp</div>
+                                <div class="small text-muted">Thử thay đổi từ khóa tìm kiếm hoặc đặt lại bộ lọc.</div>
                             </td>
                         </tr>
-                        stt++;
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary opacity-50"></i>
-                            <div class="fw-semibold">Không tìm thấy tài khoản nào phù hợp</div>
-                            <div class="small text-muted">Thử thay đổi từ khóa tìm kiếm hoặc đặt lại bộ lọc.</div>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center small text-muted">
-            <span>Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalAccounts</strong> tài khoản trong hệ thống</span>
-            <span>Quản trị tài khoản &amp; phân quyền</span>
-        </div>
-    </div>
-
-    <!-- PHÂN TRANG DANH SÁCH TÀI KHOẢN (PAGINATION) -->
-    @if (totalPages > 1)
-    {
-        <div class="mt-4 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-            <div class="text-muted small">
-                <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-xs">
-                    <i class="bi bi-people-fill text-primary me-1"></i>Trang <strong>@currentPage</strong> / <strong>@totalPages</strong> (Tổng <strong>@totalFiltered</strong> tài khoản)
-                </span>
+                    </tbody>
+                </table>
             </div>
-            <nav aria-label="Phân trang danh sách tài khoản">
-                <ul class="pagination uneti-pagination mb-0">
-                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang đầu">
-                        <a class="page-link" asp-action="QuanLy" asp-route-page="1" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
-                            <i class="bi bi-chevron-double-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang trước">
-                        <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
-                    @for (int p = 1; p <= totalPages; p++)
-                    {
-                        if (totalPages > 7 && Math.Abs(p - currentPage) > 2 && p != 1 && p != totalPages)
-                        {
-                            if (p == currentPage - 3 || p == currentPage + 3)
-                            {
-                                <li class="page-item disabled"><span class="page-ellipsis">…</span></li>
-                            }
-                            continue;
-                        }
-                        <li class="page-item @(p == currentPage ? "active" : "")">
-                            <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">@p</a>
+
+        <!-- Chân bảng GỘP: tổng số hiển thị + phân trang cùng 1 hàng, nằm trong cùng thẻ bảng -->
+        <div class="dl-table-foot">
+            <span class="small text-muted">
+                Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalAccounts</strong> tài khoản
+                @if (totalPages > 1)
+                {
+                    <span>• Trang <strong>@currentPage</strong>/<strong>@totalPages</strong> (đã lọc: <strong>@totalFiltered</strong>)</span>
+                }
+            </span>
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Phân trang danh sách tài khoản">
+                    <ul class="pagination uneti-pagination mb-0">
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang đầu">
+                            <a class="page-link" asp-action="QuanLy" asp-route-page="1" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
                         </li>
-                    }
-                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang tiếp theo">
-                        <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang cuối">
-                        <a class="page-link" asp-action="QuanLy" asp-route-page="@totalPages" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
-                            <i class="bi bi-chevron-double-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang trước">
+                            <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        @for (int p = 1; p <= totalPages; p++)
+                        {
+                            if (totalPages > 7 && Math.Abs(p - currentPage) > 2 && p != 1 && p != totalPages)
+                            {
+                                if (p == currentPage - 3 || p == currentPage + 3)
+                                {
+                                    <li class="page-item disabled"><span class="page-ellipsis">…</span></li>
+                                }
+                                continue;
+                            }
+                            <li class="page-item @(p == currentPage ? "active" : "")">
+                                <a class="page-link" asp-action="QuanLy" asp-route-page="@p" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">@p</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang tiếp theo">
+                            <a class="page-link" asp-action="QuanLy" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang cuối">
+                            <a class="page-link" asp-action="QuanLy" asp-route-page="@totalPages" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
         </div>
-    }
+        </div>
     </div>
 </div>
 
@@ -648,4 +620,3 @@
         })();
     </script>
 }
-

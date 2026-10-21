@@ -1,0 +1,253 @@
+@*
+    Họ và tên: Trần Văn Thành
+    Mã sinh viên: 23103100076
+    Nội dung: Module 1 - Danh sách giảng viên (Admin / Nhân viên) — dùng chung bộ CSS trang quản lý
+             (dl-page-head / dl-stat-card / dl-filter-card / dl-table-card trong _admin.css) với Môn học và Tài khoản:
+             thẻ thống kê theo theme màu bấm lọc nhanh, thẻ lọc riêng, bảng có avatar, badge học vị/trạng thái
+*@
+
+@using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers
+@model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.GiangVien>
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var userRole = Context.Session.GetString("VaiTro");
+    var isAdmin = userRole == "Admin";
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var totalCount = (int)(ViewBag.TotalFilteredItems ?? ViewBag.TotalCount ?? 0);
+    var totalGiangVien = (int)(ViewBag.TotalCount ?? 0);
+    var dangGiangDay = (int)(ViewBag.ActiveCount ?? 0);
+    var tamNghi = (int)(ViewBag.InactiveCount ?? 0);
+    var totalKhoaHoc = (int)(ViewBag.TotalKhoaHoc ?? 0);
+    var currentSearch = ViewBag.CurrentSearch as string;
+    var currentTrangThai = ViewBag.CurrentTrangThai as bool?;
+    var currentCoKhoaHoc = ViewBag.CurrentCoKhoaHoc as bool?;
+    // 10 bản ghi / trang (đồng bộ Tài khoản, Môn học, Khóa học): vừa 1 màn hình kèm thẻ thống kê + thẻ lọc
+    const int pageSize = 10;
+    var fromItem = totalCount == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    var toItem = Math.Min(currentPage * pageSize, totalCount);
+
+    // Avatar theo giới tính: màu + chữ cái đầu lấy từ GiangVienAvatarHelper dùng chung
+}
+<div class="container-fluid py-2">
+    <div class="dl-page-head">
+        <div>
+            <h4 class="dl-page-title"><i class="bi bi-person-badge-fill text-primary me-2"></i>QUẢN LÝ GIẢNG VIÊN</h4>
+            <p class="dl-page-sub">Quản lý đội ngũ giảng viên, học vị, chuyên môn và trạng thái công tác của trung tâm</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="MonHoc" asp-action="QuanLy" class="btn uneti-btn-outline shadow-sm"><i class="bi bi-book-half me-1"></i> Quản lý môn học</a>
+            <a asp-action="Create" class="btn uneti-btn-primary shadow-sm"><i class="bi bi-plus-lg me-1"></i> Thêm giảng viên mới</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null) { <div class="alert alert-success shadow-sm py-2"><i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]</div> }
+    @if (TempData["ErrorMessage"] != null) { <div class="alert alert-danger shadow-sm py-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]</div> }
+
+    <!-- Hàng 1: 4 thẻ thống kê theo theme màu (ấn vào thẻ để lọc nhanh) -->
+    <div class="row g-3 mb-3">
+        <div class="col-xl-3 col-md-6">
+            <a asp-action="Index" class="dl-stat-card dl-blue @(currentTrangThai == null && currentCoKhoaHoc != true ? "dl-active" : "")" title="Xem tất cả giảng viên">
+                <span class="dl-stat-icon"><i class="bi bi-people-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Tổng số giảng viên</span>
+                    <span class="dl-stat-num">@totalGiangVien</span>
+                    <span class="dl-stat-sub">Toàn bộ đội ngũ của trung tâm</span>
+                </span>
+            </a>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <a asp-action="Index" asp-route-trangThai="true" class="dl-stat-card dl-green @(currentTrangThai == true && currentCoKhoaHoc != true ? "dl-active" : "")" title="Lọc: đang giảng dạy">
+                <span class="dl-stat-icon"><i class="bi bi-check-lg"></i></span>
+                <span>
+                    <span class="dl-stat-label">Đang giảng dạy</span>
+                    <span class="dl-stat-num">@dangGiangDay</span>
+                    <span class="dl-stat-sub">Sẵn sàng nhận lớp</span>
+                </span>
+            </a>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <a asp-action="Index" asp-route-trangThai="false" class="dl-stat-card dl-amber @(currentTrangThai == false && currentCoKhoaHoc != true ? "dl-active" : "")" title="Lọc: tạm nghỉ">
+                <span class="dl-stat-icon"><i class="bi bi-pause-circle-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Tạm nghỉ</span>
+                    <span class="dl-stat-num">@tamNghi</span>
+                    <span class="dl-stat-sub">Tạm dừng công tác</span>
+                </span>
+            </a>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <a asp-action="Index" asp-route-coKhoaHoc="true" class="dl-stat-card dl-violet @(currentCoKhoaHoc == true ? "dl-active" : "")" title="Lọc: giảng viên đang có lớp phụ trách">
+                <span class="dl-stat-icon"><i class="bi bi-mortarboard-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Khóa học phụ trách</span>
+                    <span class="dl-stat-num">@totalKhoaHoc</span>
+                    <span class="dl-stat-sub">Ấn để xem giảng viên đang có lớp</span>
+                </span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Hàng 2: thẻ lọc riêng -->
+    <div class="dl-filter-card">
+        <form asp-action="Index" method="get" class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="searchString" class="form-control border-start-0" placeholder="Tìm theo họ tên, email, SĐT, chuyên môn..." value="@currentSearch" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="trangThai" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="true" selected="@(currentTrangThai == true ? "selected" : null)">Đang giảng dạy</option>
+                    <option value="false" selected="@(currentTrangThai == false ? "selected" : null)">Tạm nghỉ</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn uneti-btn-primary flex-grow-1"><i class="bi bi-funnel-fill me-1"></i> Lọc</button>
+                <a asp-action="Index" class="btn uneti-btn-outline" title="Đặt lại bộ lọc"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Hàng 3: thẻ bảng danh sách -->
+    <div class="dl-table-card">
+        <div class="dl-table-head">
+            <div class="d-flex align-items-center gap-2">
+                <span class="dl-head-ic">
+                    <i class="bi bi-person-lines-fill"></i>
+                </span>
+                <h6 class="mb-0 fw-bold text-dark">Danh sách giảng viên</h6>
+                <span class="dl-count-badge">@totalCount giảng viên</span>
+                @if (currentCoKhoaHoc == true)
+                {
+                    <a asp-action="Index" class="badge rounded-pill text-decoration-none" style="background:#f5f3ff;color:#7c3aed" title="Bỏ lọc nhanh">Đang lọc: có lớp phụ trách <i class="bi bi-x-lg"></i></a>
+                }
+            </div>
+            <a asp-action="XuatDanhSach" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc" class="btn btn-sm uneti-btn-outline"><i class="bi bi-download me-1"></i> Xuất danh sách</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 uneti-table" style="min-width:960px">
+                <thead>
+                    <tr>
+                        <th style="width:26%" class="ps-3">GIẢNG VIÊN</th>
+                        <th style="width:10%" class="text-center">HỌC VỊ</th>
+                        <th style="width:24%">CHUYÊN MÔN</th>
+                        <th style="width:12%">LIÊN HỆ</th>
+                        <th style="width:9%" class="text-center">KHÓA</th>
+                        <th style="width:11%" class="text-center">TRẠNG THÁI</th>
+                        <th style="width:8%" class="text-center">THAO TÁC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="bi bi-person-x display-4 text-muted opacity-50"></i>
+                                <div class="mt-2 fw-semibold text-secondary">Không tìm thấy giảng viên nào</div>
+                                <div class="small text-muted">Thử thay đổi từ khóa hoặc bộ lọc, hoặc thêm giảng viên mới.</div>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in Model)
+                    {
+                        var gioiTinhGV = GiangVienAvatarHelper.LayGioiTinh(item);
+                        var soKhoa = item.KhoaHocs?.Count ?? 0;
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="dl-avatar" style="background:@GiangVienAvatarHelper.MauAvatar(gioiTinhGV, item.HoTen)" title="@(gioiTinhGV == "Nữ" ? "Giảng viên nữ" : gioiTinhGV == "Nam" ? "Giảng viên nam" : "Giảng viên")">@GiangVienAvatarHelper.ChuCaiDau(item.HoTen)</span>
+                                    <div>
+                                        <div class="fw-bold text-dark">@item.HoTen</div>
+                                        <div class="small text-muted">@item.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                @if (item.HocVi == "Tiến sĩ")
+                                {
+                                    <span class="badge rounded-pill" style="background:#f5f3ff;color:#7c3aed">Tiến sĩ</span>
+                                }
+                                else if (item.HocVi == "Thạc sĩ")
+                                {
+                                    <span class="badge rounded-pill" style="background:#eff6ff;color:#2563eb">Thạc sĩ</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill">@(item.HocVi ?? "—")</span>
+                                }
+                            </td>
+                            <td><span class="text-secondary d-inline-block text-truncate" style="max-width:300px" title="@item.ChuyenMon">@(item.ChuyenMon ?? "—")</span></td>
+                            <td><span class="small text-secondary text-nowrap"><i class="bi bi-telephone text-muted me-1"></i>@item.SoDienThoai</span></td>
+                            <td class="text-center">
+                                @if (soKhoa > 0)
+                                {
+                                    <span class="badge bg-light text-dark border rounded-pill"><i class="bi bi-mortarboard text-primary me-1"></i>@soKhoa lớp</span>
+                                }
+                                else
+                                {
+                                    <span class="small text-muted">Chưa có</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (item.TrangThai)
+                                {
+                                    <span class="uneti-badge-success d-inline-flex align-items-center gap-1"><span class="rounded-circle bg-success d-inline-block" style="width:7px;height:7px"></span>Đang dạy</span>
+                                }
+                                else
+                                {
+                                    <span class="uneti-badge-danger d-inline-flex align-items-center gap-1"><span class="rounded-circle bg-danger d-inline-block" style="width:7px;height:7px"></span>Tạm nghỉ</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a asp-action="Edit" asp-route-id="@item.MaGiangVien" class="btn-action-icon btn-action-edit" title="Sửa thông tin"><i class="bi bi-pencil-square"></i></a>
+                                    <form asp-action="ToggleStatus" asp-route-id="@item.MaGiangVien" method="post" class="d-inline" onsubmit="return confirm('Đổi trạng thái công tác của giảng viên @item.HoTen?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-action-icon btn-action-view" title="Đổi trạng thái"><i class="bi bi-arrow-repeat"></i></button>
+                                    </form>
+                                    @if (isAdmin)
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@item.MaGiangVien" class="btn-action-icon btn-action-delete" title="Xóa (chỉ Admin)"><i class="bi bi-trash"></i></a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Chân bảng gộp: tổng số + phân trang cùng 1 hàng -->
+        <div class="dl-table-foot">
+            <span class="text-muted small">
+                @if (totalCount > 0)
+                {
+                    <text>Hiển thị <strong>@fromItem–@toItem</strong> trên tổng số <strong>@totalCount</strong> giảng viên</text>
+                }
+                else
+                {
+                    <text>Không có giảng viên nào</text>
+                }
+            </span>
+            @if (totalPages > 1)
+            {
+                <nav>
+                    <ul class="pagination uneti-pagination mb-0">
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang đầu"><a class="page-link" asp-action="Index" asp-route-page="1" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc"><i class="bi bi-chevron-double-left"></i></a></li>
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : "")" title="Trang trước"><a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc"><i class="bi bi-chevron-left"></i></a></li>
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")"><a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc">@i</a></li>
+                        }
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang tiếp theo"><a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc"><i class="bi bi-chevron-right"></i></a></li>
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")" title="Trang cuối"><a class="page-link" asp-action="Index" asp-route-page="@totalPages" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc"><i class="bi bi-chevron-double-right"></i></a></li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>

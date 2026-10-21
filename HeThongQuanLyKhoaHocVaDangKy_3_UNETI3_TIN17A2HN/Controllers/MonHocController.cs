@@ -128,17 +128,20 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             }
             ViewBag.RegisteredKhoaHocIds = registeredKhoaHocIds;
 
-            // 2. Giảng viên phụ trách tiêu biểu của môn học
-            var giangVienTieuBieu = monHoc.KhoaHocs
-                .Where(k => k.GiangVien != null)
-                .Select(k => k.GiangVien)
-                .FirstOrDefault();
-
-            if (giangVienTieuBieu == null)
-            {
-                giangVienTieuBieu = await _context.GiangViens.FirstOrDefaultAsync(g => g.TrangThai);
-            }
-            ViewBag.GiangVienTieuBieu = giangVienTieuBieu;
+            // 2. Danh sách giảng viên đang dạy môn học này.
+            // Phân công giảng viên nằm ở từng khóa học (lớp học phần) nên danh sách được
+            // suy ra từ các lớp của chính môn học, loại lớp đã hủy và chống trùng lặp.
+            // Môn chưa có lớp nào được gán giảng viên thì danh sách để trống (không lấy
+            // giảng viên không liên quan lấp vào).
+            var danhSachGiangVien = monHoc.KhoaHocs
+                .Where(k => k.GiangVien != null && k.TrangThai != "BiHuy")
+                .Select(k => k.GiangVien!)
+                .GroupBy(g => g.MaGiangVien)
+                .Select(g => g.First())
+                .OrderBy(g => g.HoTen)
+                .ToList();
+            ViewBag.DanhSachGiangVien = danhSachGiangVien;
+            ViewBag.GiangVienTieuBieu = danhSachGiangVien.FirstOrDefault();
 
             // 3. Đếm số lớp mở và kiểm tra còn chỗ
             var openClasses = monHoc.KhoaHocs.Where(k => k.TrangThai == "DangMo").ToList();

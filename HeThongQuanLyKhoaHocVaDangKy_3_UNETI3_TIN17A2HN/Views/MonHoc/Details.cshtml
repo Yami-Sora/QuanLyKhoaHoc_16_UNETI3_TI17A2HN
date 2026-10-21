@@ -25,6 +25,7 @@
 
     var registeredIds = ViewBag.RegisteredKhoaHocIds as IEnumerable<int> ?? Enumerable.Empty<int>();
     var dbGiangVien = ViewBag.GiangVienTieuBieu as HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.GiangVien;
+    var dsGiangVien = ViewBag.DanhSachGiangVien as List<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.GiangVien> ?? new List<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.GiangVien>();
     
     // Xác định thông tin giảng viên hiển thị
     string gvName = (dbGiangVien != null ? dbGiangVien.HoTen : profile.LecturerName)?.Trim() ?? string.Empty;
@@ -95,10 +96,18 @@
     string gvEmail = dbGiangVien != null ? dbGiangVien.Email : profile.LecturerEmail;
     string gvPhone = dbGiangVien != null ? dbGiangVien.SoDienThoai : profile.LecturerPhone;
 
+    // Avatar theo giới tính giảng viên phụ trách: ưu tiên cột GioiTinh trong CSDL, chưa có thì suy từ họ tên
+    string gvGioiTinh = dbGiangVien != null ? GiangVienAvatarHelper.LayGioiTinh(dbGiangVien) : GiangVienAvatarHelper.SuyDoanTuTen(gvName) ?? "";
+    string gvAvatarSrc = GiangVienAvatarHelper.AnhDaiDien(gvGioiTinh);
+
     var openClasses = Model.KhoaHocs != null ? Model.KhoaHocs.OrderBy(k => k.NgayBatDau).ToList() : new List<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.KhoaHoc>();
     int openCount = openClasses.Count(k => k.TrangThai == "DangMo");
     bool hasAvailable = Model.TrangThai && openClasses.Any(k => k.TrangThai == "DangMo" && (k.DangKyKhoaHocs?.Count(d => d.TrangThai != "BiHuy") ?? 0) < k.SoLuongToiDa);
-    int bannerIndex = Math.Abs((Model.TenMonHoc ?? "Default").GetHashCode()) % 3;
+    // Bộ 6 banner nền hero (wwwroot/images/banners): nhóm môn có banner riêng theo chủ đề thì dùng
+    // banner đó (khai trong MonHocProfileHelper), các môn còn lại gán cố định theo mã môn học —
+    // mỗi môn luôn giữ đúng 1 banner, môn thêm mới tự nhận banner kế tiếp trong vòng xoay.
+    string[] detailBanners = { "detail-banner-0.webp", "detail-banner-1.webp", "detail-banner-2.webp", "detail-banner-3.webp", "detail-banner-4.webp", "detail-banner-5.webp" };
+    string detailBanner = !string.IsNullOrEmpty(profile.BannerFile) ? profile.BannerFile : detailBanners[Math.Abs(Model.MaMonHoc) % detailBanners.Length];
 }
 
 <style>
@@ -389,29 +398,23 @@
 
 <div class="container py-4 uneti-detail-wrapper">
     <!-- 1. HERO BANNER CARD (THÍCH ỨNG ĐỘNG THEO CHUYÊN MÔN MÔN HỌC) -->
-    <div class="detail-hero-card p-4 p-md-5 mb-4 position-relative" style="background: linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 45%, rgba(255,255,255,0) 75%), url('/images/banners/detail-banner-@(bannerIndex).png') no-repeat right center / cover; border: 1.5px solid @profile.ThemeBorderColor;">
+    <div class="detail-hero-card p-4 p-md-5 mb-4 position-relative" style="background: linear-gradient(to right, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.92) 36%, rgba(255,255,255,0) 58%), url('/images/banners/@detailBanner') no-repeat right center / cover; border: 1.5px solid @profile.ThemeBorderColor;">
         
 
         <div class="row align-items-center g-4">
             <!-- Cột thông tin môn học (trái) -->
-            <div class="col-lg-8 col-xl-8">
+            <div class="col-lg-7 col-xl-7">
                 <div class="d-flex align-items-start gap-3 mb-3">
                     <!-- Biểu tượng đại diện môn học (SVG động) -->
-                    <div class="brand-logo-box" style="background: @profile.BrandBoxBg; box-shadow: 0 10px 25px -5px @profile.BrandBoxShadow;">
-                        @Html.Raw(profile.BrandLogoSvg)
+                    <div class="brand-logo-box" style="background: linear-gradient(135deg, #1d6fe0 0%, #38bdf8 100%); box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.45);">
+                        @Html.Raw(profile.IconWhiteSvg)
                     </div>
 
                     <div>
-                        <!-- Badges trường, mã học phần, trạng thái -->
+                        <!-- Badges gọn: chỉ giữ mã học phần + trạng thái -->
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                            <span class="badge bg-primary text-white px-2.5 py-1 rounded-pill" style="font-size: 0.85rem; letter-spacing: 0.02em;">
-                                <i class="bi bi-mortarboard-fill me-1"></i>TRƯỜNG ĐH KINH TẾ - KỸ THUẬT CÔNG NGHIỆP
-                            </span>
                             <span class="badge bg-white text-secondary border px-2.5 py-1 rounded-pill" style="font-size: 0.85rem; font-weight: 600;">
                                 Mã học phần: #@($"MH{Model.MaMonHoc:D3}")
-                            </span>
-                            <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill" style="font-size: 0.85rem; font-weight: 600;">
-                                @profile.CategoryName
                             </span>
                             @if (Model.TrangThai)
                             {
@@ -433,7 +436,7 @@
                         </h1>
 
                         <!-- Mô tả tóm tắt -->
-                        <p class="text-secondary mb-0" style="font-size: 0.95rem; line-height: 1.5; max-width: 680px;">
+                        <p class="text-secondary mb-0" style="font-size: 0.95rem; line-height: 1.5; max-width: 560px;">
                             @(string.IsNullOrWhiteSpace(Model.MoTa) ? "Học phần đào tạo theo hệ thống tín chỉ chuẩn kiểm định, định hướng giáo dục đại học." : Model.MoTa)
                         </p>
                     </div>
@@ -630,6 +633,7 @@
                                 <tr>
                                     <th>Mã lớp</th>
                                     <th>Tên khóa học</th>
+                                    <th>Giảng viên</th>
                                     <th>Ngày khai giảng</th>
                                     <th>Sĩ số</th>
                                     <th>Hình thức</th>
@@ -652,6 +656,19 @@
                                         </td>
                                         <td>
                                             <div class="fw-semibold text-dark">@kh.TenKhoaHoc</div>
+                                        </td>
+                                        <td>
+                                            @if (kh.GiangVien != null)
+                                            {
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <img src="@GiangVienAvatarHelper.AnhDaiDien(GiangVienAvatarHelper.LayGioiTinh(kh.GiangVien))" asp-append-version="true" alt="Giảng viên" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;" />
+                                                    <span class="fw-medium text-dark text-nowrap">@kh.GiangVien.HoTen</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted fst-italic">Chưa phân công</span>
+                                            }
                                         </td>
                                         <td>
                                             <span class="text-secondary">@kh.NgayBatDau.ToString("dd/MM/yyyy")</span>
@@ -773,19 +790,34 @@
                 </div>
             </div>
 
-            <!-- 5.4. GIẢNG VIÊN PHỤ TRÁCH (GẮN ĐÚNG CHUYÊN NGÀNH) -->
+            <!-- 5.4. GIẢNG VIÊN GIẢNG DẠY MÔN HỌC (SUY RA TỪ CÁC LỚP HỌC PHẦN CỦA MÔN) -->
             <div class="section-card" id="giang-vien">
                 <div class="section-card-header">
                     <h5 class="section-title">
                         <span class="section-icon"><i class="bi bi-person-fill"></i></span>
-                        Giảng viên phụ trách
+                        Giảng viên giảng dạy môn học
                     </h5>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 rounded-pill" style="font-size: 0.85rem;">Bộ môn chuyên ngành</span>
+                    @if (dsGiangVien.Count > 0)
+                    {
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 rounded-pill" style="font-size: 0.85rem;">@dsGiangVien.Count giảng viên</span>
+                    }
                 </div>
 
+                @if (dsGiangVien.Count == 0)
+                {
+                    <div class="text-center py-4">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle border border-2 border-secondary-subtle mb-3" style="width: 84px; height: 84px;">
+                            <i class="bi bi-person-dash text-secondary" style="font-size: 2.2rem;"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">Chưa phân công giảng viên</h6>
+                        <div class="text-muted" style="font-size: 0.9rem;">Môn học chưa có lớp học phần nào được gán giảng viên phụ trách.</div>
+                    </div>
+                }
+                else if (dsGiangVien.Count == 1)
+                {
                 <div class="row align-items-center g-3">
                     <div class="col-auto">
-                        <img src="~/images/avatars/lecturer-avatar.webp" asp-append-version="true" alt="Giảng viên phụ trách" class="lecturer-avatar" />
+                        <img src="@gvAvatarSrc" asp-append-version="true" alt="Giảng viên phụ trách" class="lecturer-avatar" />
                     </div>
                     <div class="col">
                         <h6 class="fw-bold text-dark mb-1 fs-6">
@@ -818,6 +850,40 @@
                         Xem thông tin chi tiết <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column">
+                        @{
+                            int gvIdx = 0;
+                        }
+                        @foreach (var gv in dsGiangVien)
+                        {
+                            gvIdx++;
+                            string tenHienThi = gv.HoTen?.Trim() ?? string.Empty;
+                            bool coTienTo = tenHienThi.StartsWith("TS.") || tenHienThi.StartsWith("ThS.") || tenHienThi.StartsWith("PGS.") || tenHienThi.StartsWith("GS.") || tenHienThi.StartsWith("Tiến sĩ") || tenHienThi.StartsWith("Thạc sĩ");
+                            if (!coTienTo && !string.IsNullOrWhiteSpace(gv.HocVi))
+                            {
+                                string tt = gv.HocVi switch { "Tiến sĩ" => "TS.", "Thạc sĩ" => "ThS.", "Giáo sư" => "GS.", "Phó giáo sư" => "PGS.", _ => gv.HocVi.EndsWith(".") ? gv.HocVi : gv.HocVi + "." };
+                                tenHienThi = $"{tt} {tenHienThi}";
+                            }
+                            <div class="d-flex align-items-center gap-3 @(gvIdx > 1 ? "border-top pt-3 mt-3" : "")">
+                                <img src="@GiangVienAvatarHelper.AnhDaiDien(GiangVienAvatarHelper.LayGioiTinh(gv))" asp-append-version="true" alt="Giảng viên" class="lecturer-avatar" style="width: 58px; height: 58px;" />
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0 fs-6">@tenHienThi</h6>
+                                    <div class="text-muted" style="font-size: 0.9rem;">@gv.ChuyenMon</div>
+                                    <div class="text-secondary" style="font-size: 0.825rem;">
+                                        <i class="bi bi-envelope text-primary me-1"></i>@gv.Email
+                                        @if (!string.IsNullOrWhiteSpace(gv.SoDienThoai))
+                                        {
+                                            <span class="ms-2"><i class="bi bi-telephone text-primary me-1"></i>@gv.SoDienThoai</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
 
             <!-- 5.5. CÔNG NGHỆ VÀ CÔNG CỤ SỬ DỤNG (ĐỒNG BỘ ĐỘNG THEO MÔN HỌC) -->
@@ -1090,7 +1156,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center px-4 pb-4 pt-0">
-                <img src="~/images/avatars/lecturer-avatar.webp" asp-append-version="true" alt="Giảng viên" class="lecturer-avatar mb-3" style="width: 90px; height: 90px;" />
+                <img src="@gvAvatarSrc" asp-append-version="true" alt="Giảng viên" class="lecturer-avatar mb-3" style="width: 90px; height: 90px;" />
                 <h5 class="fw-bold text-dark mb-1">
                     @gvFullName
                 </h5>

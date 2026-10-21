@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
-    Nội dung: Bố cục trang quản trị
+    Nội dung: Module 1 - Bố cục trang quản trị
 *@
 
 @using Microsoft.AspNetCore.Http
@@ -80,12 +80,17 @@
                     <span>Báo cáo &amp; Thống kê</span>
                 </a>
 
-                <!-- 2. MÔN HỌC & TÀI KHOẢN -->
-                <div class="admin-menu-header mt-2">Môn học & Tài khoản</div>
+                <!-- 2. DỮ LIỆU NỀN & TÀI KHOẢN -->
+                <div class="admin-menu-header mt-2">Dữ liệu nền & Tài khoản</div>
 
                 <a asp-controller="MonHoc" asp-action="QuanLy" class="admin-nav-item @(currentController == "MonHoc" && currentAction == "QuanLy" ? "active" : "")" title="Quản lý môn học">
                     <i class="bi bi-book-half"></i>
                     <span>Quản lý môn học</span>
+                </a>
+
+                <a asp-controller="GiangVien" asp-action="Index" class="admin-nav-item @(currentController == "GiangVien" ? "active" : "")" title="Quản lý giảng viên">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>Quản lý giảng viên</span>
                 </a>
 
                 <a asp-controller="TaiKhoan" asp-action="QuanLy" class="admin-nav-item @(currentController == "TaiKhoan" && (currentAction == "QuanLy" || currentAction == "Index") ? "active" : "")" title="Quản lý tài khoản">

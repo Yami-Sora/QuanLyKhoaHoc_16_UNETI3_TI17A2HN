@@ -1,4 +1,9 @@
 
+/*
+    CSS dùng chung cho khu vực quản trị: sidebar, topbar và các khối giao diện
+    dùng chung cho mọi trang quản lý (đầu trang, thẻ thống kê, thẻ lọc, thẻ bảng).
+*/
+
 /* ADMIN DASHBOARD SIDEBAR & LAYOUT */
 .admin-wrapper {
     display: flex;
@@ -79,10 +84,20 @@
     transition: all 0.18s ease;
 }
 
+/* Hộp icon cố định: mọi mục menu có icon cùng kích cỡ, chữ thẳng hàng một cột
+   (glyph Bootstrap to/nhỏ khác nhau vẫn nằm gọn trong cùng 1 hộp 26x26) */
 .admin-nav-item i {
-    font-size: 1.05rem;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef2f7;
+    border-radius: 7px;
+    font-size: 0.92rem;
     color: #64748b;
-    transition: color 0.18s ease;
+    transition: all 0.18s ease;
 }
 
 .admin-nav-item:hover {
@@ -92,6 +107,7 @@
 
 .admin-nav-item:hover i {
     color: var(--uneti-primary);
+    background: #dbeafe;
 }
 
 .admin-nav-item.active {
@@ -103,6 +119,7 @@
 
 .admin-nav-item.active i {
     color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .admin-nav-item.disabled-link {
@@ -186,4 +203,194 @@
     .admin-main-body {
         padding: 1.25rem 1rem;
     }
+}
+
+/* ==========================================================================
+   CHUẨN DÙNG CHUNG CHO CÁC TRANG QUẢN LÝ DANH SÁCH (Môn học / Giảng viên /
+   Tài khoản): mọi trang dùng đúng 1 bộ class dưới đây nên đầu trang, thẻ
+   thống kê, thẻ lọc và thẻ bảng luôn cùng chiều cao, cùng kích cỡ.
+   ========================================================================== */
+
+/* Đầu trang: tiêu đề + mô tả bên trái, nút thao tác bên phải, gạch dưới 1 đường */
+.dl-page-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--uneti-border);
+}
+
+.dl-page-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--uneti-text-main);
+    margin: 0;
+}
+
+.dl-page-sub {
+    color: var(--uneti-text-muted);
+    font-size: 0.85rem;
+    margin: 0.25rem 0 0;
+}
+
+/* Thẻ thống kê: 1 cấu trúc duy nhất cho mọi trang (ấn vào thẻ để lọc nhanh) */
+.dl-stat-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    background: #ffffff;
+    border: 1px solid var(--uneti-border);
+    border-radius: var(--uneti-radius-md);
+    box-shadow: var(--uneti-shadow-sm);
+    padding: 1.1rem 1.25rem;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.dl-stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--dl-theme, #2563eb);
+}
+
+a.dl-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.dl-stat-card.dl-active {
+    background: var(--dl-tint, #eff6ff);
+    box-shadow: 0 0 0 2px var(--dl-theme, #2563eb) inset;
+}
+
+.dl-stat-icon {
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
+    border-radius: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    background: var(--dl-tint, #eff6ff);
+    color: var(--dl-theme, #2563eb);
+}
+
+.dl-stat-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--uneti-text-muted);
+}
+
+.dl-stat-num {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--dl-theme, #2563eb);
+}
+
+.dl-stat-sub {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--uneti-text-light);
+}
+
+/* Màu theme của thẻ thống kê (chỉ đổi màu, không đổi kích thước) */
+.dl-blue   { --dl-theme: #2563eb; --dl-tint: #eff6ff; }
+.dl-green  { --dl-theme: #059669; --dl-tint: #ecfdf5; }
+.dl-amber  { --dl-theme: #d97706; --dl-tint: #fffbeb; }
+.dl-red    { --dl-theme: #dc2626; --dl-tint: #fef2f2; }
+.dl-violet { --dl-theme: #7c3aed; --dl-tint: #f5f3ff; }
+
+/* Thẻ chứa thanh tìm kiếm / bộ lọc */
+.dl-filter-card {
+    background: #ffffff;
+    border: 1px solid var(--uneti-border);
+    border-radius: var(--uneti-radius-md);
+    box-shadow: var(--uneti-shadow-sm);
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Thẻ chứa bảng danh sách: đầu bảng + bảng + chân bảng trong cùng 1 thẻ */
+.dl-table-card {
+    background: #ffffff;
+    border: 1px solid var(--uneti-border);
+    border-radius: var(--uneti-radius-md);
+    box-shadow: var(--uneti-shadow-sm);
+    overflow: hidden;
+}
+
+.dl-table-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--uneti-border);
+    background: #ffffff;
+}
+
+.dl-table-head .dl-head-ic {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 8px;
+    background: var(--uneti-primary-light);
+    color: var(--uneti-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dl-count-badge {
+    background: var(--uneti-primary-light);
+    color: var(--uneti-primary);
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.dl-table-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.9rem;
+    border-top: 1px solid var(--uneti-border);
+    background: #ffffff;
+}
+
+/* Ô bảng đồng đều trong mọi thẻ bảng dùng chung */
+.dl-table-card .uneti-table thead th { padding: 0.55rem 0.65rem; }
+.dl-table-card .uneti-table tbody td { padding: 0.55rem 0.65rem; }
+
+/* Avatar tròn chữ cái đầu (bảng danh sách) */
+.dl-avatar {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.8rem;
 }

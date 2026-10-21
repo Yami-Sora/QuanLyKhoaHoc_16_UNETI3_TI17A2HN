@@ -133,49 +133,129 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                 }
             }
 
-            // 2. Nạp giảng viên mẫu
-            if (!context.GiangViens.Any())
+            // 2. Nạp giảng viên mẫu (nạp bổ sung theo Email: CSDL đã có giảng viên cũ
+            //    vẫn tự thêm được giảng viên mới khi chạy lại app, không cần xóa dữ liệu)
+            var giangViens = new List<GiangVien>
             {
-                var giangViens = new List<GiangVien>
+                new GiangVien
                 {
-                    new GiangVien
-                    {
-                        HoTen = "TS. Nguyễn Hoàng Long",
-                        Email = "nhlong@uneti.edu.vn",
-                        SoDienThoai = "0912345678",
-                        ChuyenMon = "Công nghệ phần mềm & Lập trình .NET",
-                        HocVi = "Tiến sĩ",
-                        TrangThai = true
-                    },
-                    new GiangVien
-                    {
-                        HoTen = "ThS. Trần Thị Mai Lan",
-                        Email = "ttmlan@uneti.edu.vn",
-                        SoDienThoai = "0923456789",
-                        ChuyenMon = "Cơ sở dữ liệu & Hệ thống thông tin",
-                        HocVi = "Thạc sĩ",
-                        TrangThai = true
-                    },
-                    new GiangVien
-                    {
-                        HoTen = "ThS. Lê Tuấn Anh",
-                        Email = "ltanh@uneti.edu.vn",
-                        SoDienThoai = "0934567890",
-                        ChuyenMon = "Lập trình Web & Di động (React, Flutter)",
-                        HocVi = "Thạc sĩ",
-                        TrangThai = true
-                    },
-                    new GiangVien
-                    {
-                        HoTen = "TS. Phạm Minh Đức",
-                        Email = "pmduc@uneti.edu.vn",
-                        SoDienThoai = "0945678901",
-                        ChuyenMon = "Khoa học Dữ liệu & Trí tuệ Nhân tạo",
-                        HocVi = "Tiến sĩ",
-                        TrangThai = true
-                    }
-                };
-                context.GiangViens.AddRange(giangViens);
+                    HoTen = "TS. Nguyễn Hoàng Long",
+                    Email = "nhlong@uneti.edu.vn",
+                    SoDienThoai = "0912345678",
+                    ChuyenMon = "Công nghệ phần mềm & Lập trình .NET",
+                    HocVi = "Tiến sĩ",
+                    GioiTinh = "Nam",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "ThS. Trần Thị Mai Lan",
+                    Email = "ttmlan@uneti.edu.vn",
+                    SoDienThoai = "0923456789",
+                    ChuyenMon = "Cơ sở dữ liệu & Hệ thống thông tin",
+                    HocVi = "Thạc sĩ",
+                    GioiTinh = "Nữ",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "ThS. Lê Tuấn Anh",
+                    Email = "ltanh@uneti.edu.vn",
+                    SoDienThoai = "0934567890",
+                    ChuyenMon = "Lập trình Web & Di động (React, Flutter)",
+                    HocVi = "Thạc sĩ",
+                    GioiTinh = "Nam",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "TS. Phạm Minh Đức",
+                    Email = "pmduc@uneti.edu.vn",
+                    SoDienThoai = "0945678901",
+                    ChuyenMon = "Khoa học Dữ liệu & Trí tuệ Nhân tạo",
+                    HocVi = "Tiến sĩ",
+                    GioiTinh = "Nam",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "TS. Vũ Thị Thanh Hằng",
+                    Email = "vtthang@uneti.edu.vn",
+                    SoDienThoai = "0956789012",
+                    ChuyenMon = "An toàn thông tin & Bảo mật hệ thống",
+                    HocVi = "Tiến sĩ",
+                    GioiTinh = "Nữ",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "ThS. Đỗ Thu Trang",
+                    Email = "dttrang@uneti.edu.vn",
+                    SoDienThoai = "0967890123",
+                    ChuyenMon = "Phân tích thiết kế hệ thống & Kiểm thử phần mềm",
+                    HocVi = "Thạc sĩ",
+                    GioiTinh = "Nữ",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "ThS. Bùi Diệu Linh",
+                    Email = "bdlinh@uneti.edu.vn",
+                    SoDienThoai = "0978901234",
+                    ChuyenMon = "Mạng máy tính & Quản trị hệ thống mạng",
+                    HocVi = "Thạc sĩ",
+                    GioiTinh = "Nữ",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "TS. Ngô Văn Thắng",
+                    Email = "nvthang@uneti.edu.vn",
+                    SoDienThoai = "0989012345",
+                    ChuyenMon = "Hệ điều hành & Lập trình hệ thống",
+                    HocVi = "Tiến sĩ",
+                    GioiTinh = "Nam",
+                    TrangThai = true
+                },
+                new GiangVien
+                {
+                    HoTen = "ThS. Trịnh Quốc Bảo",
+                    Email = "tqbao@uneti.edu.vn",
+                    SoDienThoai = "0990123456",
+                    ChuyenMon = "Lập trình Java & Kiến trúc phần mềm doanh nghiệp",
+                    HocVi = "Thạc sĩ",
+                    GioiTinh = "Nam",
+                    TrangThai = true
+                }
+            };
+
+            bool hasNewGiangVien = false;
+            foreach (var gv in giangViens)
+            {
+                if (!context.GiangViens.Any(g => g.Email == gv.Email))
+                {
+                    context.GiangViens.Add(gv);
+                    hasNewGiangVien = true;
+                }
+            }
+            if (hasNewGiangVien)
+            {
+                context.SaveChanges();
+            }
+
+            // 2b. Điền giới tính cho giảng viên cũ chưa có (suy từ họ tên) để avatar hiển thị đúng Nam/Nữ
+            bool hasGenderBackfill = false;
+            foreach (var gv in context.GiangViens.Where(g => string.IsNullOrEmpty(g.GioiTinh)).ToList())
+            {
+                var gioiTinh = GiangVienAvatarHelper.SuyDoanTuTen(gv.HoTen);
+                if (gioiTinh != null)
+                {
+                    gv.GioiTinh = gioiTinh;
+                    hasGenderBackfill = true;
+                }
+            }
+            if (hasGenderBackfill)
+            {
                 context.SaveChanges();
             }
 
@@ -429,6 +509,77 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     };
 
                     context.KhoaHocs.AddRange(dsKhoaHocMau);
+                    context.SaveChanges();
+                }
+            }
+
+            // 6b. Bổ sung khóa học mẫu cho đủ 15 khóa, đa trạng thái (Mục 16 Đề 16)
+            //     Nạp cộng dồn theo tên khóa: CSDL đã có 6 khóa cũ vẫn tự thêm 9 khóa mới khi chạy lại app.
+            //     Phân công theo đúng chuyên môn: 5 giảng viên mới mỗi người 1 khóa, 4 giảng viên cũ thêm lớp K17B.
+            {
+                var gvTheoEmail = context.GiangViens.GroupBy(g => g.Email).ToDictionary(gr => gr.Key, gr => gr.First().MaGiangVien);
+                var mhTheoTen = context.MonHocs.GroupBy(m => m.TenMonHoc).ToDictionary(gr => gr.Key, gr => gr.First().MaMonHoc);
+                var dsBoSung = new List<KhoaHoc>();
+
+                void ThemKhoa(string tenKhoa, string tenMonHoc, string emailGV, DateTime batDau, DateTime ketThuc,
+                              int siSo, decimal hocPhi, string hinhThuc, string trangThai, string moTa)
+                {
+                    if (!mhTheoTen.TryGetValue(tenMonHoc, out var maMH)) return;
+                    if (!gvTheoEmail.TryGetValue(emailGV, out var maGV)) return;
+                    dsBoSung.Add(new KhoaHoc
+                    {
+                        TenKhoaHoc = tenKhoa,
+                        MaMonHoc = maMH,
+                        MaGiangVien = maGV,
+                        NgayBatDau = batDau,
+                        NgayKetThuc = ketThuc,
+                        SoLuongToiDa = siSo,
+                        HocPhi = hocPhi,
+                        HinhThuc = hinhThuc,
+                        TrangThai = trangThai,
+                        MoTa = moTa
+                    });
+                }
+
+                ThemKhoa("An toàn thông tin & Mật mã ứng dụng", "An toàn thông tin", "vtthang@uneti.edu.vn",
+                    DateTime.Today.AddDays(12), DateTime.Today.AddMonths(3), 30, 3400000, "Trực tiếp", "DangMo",
+                    "Nguyên lý mật mã, chữ ký số, bảo mật ứng dụng Web và quy trình ứng phó sự cố an toàn thông tin.");
+                ThemKhoa("Mạng máy tính & Quản trị mạng doanh nghiệp", "Mạng máy tính", "bdlinh@uneti.edu.vn",
+                    DateTime.Today.AddDays(-20), DateTime.Today.AddMonths(2), 30, 3000000, "Kết hợp", "DangHoc",
+                    "Cấu hình Router, Switch, VLAN, định tuyến và quản trị hệ thống mạng doanh nghiệp trên thiết bị thật.");
+                ThemKhoa("Hệ điều hành Linux & Quản trị hệ thống", "Hệ điều hành", "nvthang@uneti.edu.vn",
+                    DateTime.Today.AddDays(15), DateTime.Today.AddMonths(3), 35, 3000000, "Trực tuyến", "DangMo",
+                    "Quản trị Linux Server, lập trình Shell, quản lý tiến trình, bộ nhớ và bảo mật hệ thống.");
+                ThemKhoa("Công nghệ Java & Spring Boot cho doanh nghiệp", "Công nghệ Java", "tqbao@uneti.edu.vn",
+                    DateTime.Today.AddDays(10), DateTime.Today.AddMonths(3), 30, 3600000, "Trực tiếp", "DangMo",
+                    "Java Core, Spring Boot, Spring Data JPA và xây dựng REST API cho ứng dụng doanh nghiệp.");
+                ThemKhoa("Phân tích & Thiết kế HTTT với UML", "Phân tích và thiết kế các hệ thống thông tin", "dttrang@uneti.edu.vn",
+                    DateTime.Today.AddDays(35), DateTime.Today.AddMonths(4), 40, 3200000, "Trực tuyến", "SapMo",
+                    "Khảo sát nghiệp vụ, mô hình hóa UML, thiết kế kiến trúc và đặc tả yêu cầu hệ thống thông tin.");
+                ThemKhoa("Lập trình C# và .NET Core MVC - Lớp K17B", "Lập trình C# và .NET Core", "nhlong@uneti.edu.vn",
+                    DateTime.Today.AddDays(-30), DateTime.Today.AddMonths(2), 30, 3500000, "Kết hợp", "DangHoc",
+                    "Lớp K17B: ASP.NET Core MVC, Entity Framework Core và triển khai ứng dụng Web doanh nghiệp.");
+                ThemKhoa("Cơ sở Dữ liệu & SQL Server - Lớp K17B", "Cơ sở Dữ liệu & SQL Server", "ttmlan@uneti.edu.vn",
+                    DateTime.Today.AddDays(18), DateTime.Today.AddMonths(3), 25, 3000000, "Trực tuyến", "DangMo",
+                    "Lớp K17B học trực tuyến: T-SQL, Stored Procedure, Trigger và tối ưu truy vấn SQL Server.");
+                ThemKhoa("Lập trình Di động Flutter & Dart - Lớp K17B", "Lập trình Di động với Flutter", "ltanh@uneti.edu.vn",
+                    DateTime.Today.AddDays(40), DateTime.Today.AddMonths(4), 25, 4200000, "Trực tiếp", "SapMo",
+                    "Lớp K17B: Phát triển ứng dụng iOS & Android với Dart, Flutter và tích hợp Firebase.");
+                ThemKhoa("Cấu trúc Dữ liệu & Giải thuật - Lớp K17B", "Cấu trúc dữ liệu và giải thuật", "pmduc@uneti.edu.vn",
+                    DateTime.Today.AddMonths(-5), DateTime.Today.AddMonths(-2), 30, 3200000, "Trực tuyến", "DaKetThuc",
+                    "Lớp K17B đã hoàn thành: cấu trúc dữ liệu, đồ thị và các thuật toán sắp xếp, tìm kiếm nâng cao.");
+
+                bool hasNewKhoa = false;
+                foreach (var kh in dsBoSung)
+                {
+                    if (!context.KhoaHocs.Any(k => k.TenKhoaHoc == kh.TenKhoaHoc))
+                    {
+                        context.KhoaHocs.Add(kh);
+                        hasNewKhoa = true;
+                    }
+                }
+                if (hasNewKhoa)
+                {
                     context.SaveChanges();
                 }
             }
