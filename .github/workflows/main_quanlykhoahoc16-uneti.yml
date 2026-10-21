@@ -1,0 +1,42 @@
+name: Build and deploy ASP.NET Core app to Azure Web App - quanlykhoahoc16-uneti
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build with dotnet
+        run: dotnet build "HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN/HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.csproj" --configuration Release
+
+      - name: Publish with dotnet
+        run: dotnet publish "HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN/HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.csproj" -c Release -o "${{ env.DOTNET_ROOT }}/myapp"
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: 3ca76624-c596-43d4-9f0b-983be13929b1
+          tenant-id: cd325ffc-e986-48bd-97c5-35fb89c96e57
+          subscription-id: a5a14da7-64af-47e3-9746-d9cd155d3803
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'quanlykhoahoc16-uneti'
+          slot-name: 'Production'
+          package: "${{ env.DOTNET_ROOT }}/myapp"
