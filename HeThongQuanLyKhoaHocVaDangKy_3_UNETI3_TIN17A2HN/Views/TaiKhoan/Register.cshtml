@@ -152,6 +152,19 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
     <script>
+        // Chỉ kiểm tra dữ liệu khi bấm nút gửi form (submit), không kiểm tra theo từng phím gõ
+        // hay khi rời ô nhập, tránh báo lỗi nhảy liên tục. Server vẫn kiểm tra lại toàn bộ.
+        $(function () {
+            $('form').each(function () {
+                var validator = $(this).data('validator');
+                if (validator) {
+                    validator.settings.onkeyup = false;
+                    validator.settings.onfocusout = false;
+                }
+            });
+        });
+    </script>
+    <script>
         // Đăng ký adapter jQuery Validate Unobtrusive cho rule [MustBeTrue]
         if (window.jQuery && window.jQuery.validator) {
             if (window.jQuery.validator.unobtrusive) {

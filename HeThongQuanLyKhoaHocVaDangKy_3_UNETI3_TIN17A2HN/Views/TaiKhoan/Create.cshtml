@@ -124,4 +124,17 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Chỉ kiểm tra dữ liệu khi bấm nút gửi form (submit), không kiểm tra theo từng phím gõ
+        // hay khi rời ô nhập, tránh báo lỗi nhảy liên tục. Server vẫn kiểm tra lại toàn bộ.
+        $(function () {
+            $('form').each(function () {
+                var validator = $(this).data('validator');
+                if (validator) {
+                    validator.settings.onkeyup = false;
+                    validator.settings.onfocusout = false;
+                }
+            });
+        });
+    </script>
 }
