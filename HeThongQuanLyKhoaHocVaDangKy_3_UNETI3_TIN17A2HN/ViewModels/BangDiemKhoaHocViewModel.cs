@@ -6,10 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
 {
-    /// <summary>
-    /// ViewModel cho từng dòng điểm học viên trong bảng nhập hàng loạt.
-    /// Mỗi dòng tương ứng 1 đăng ký có TrangThai == "HoanThanh".
-    /// </summary>
+    // Dòng nhập điểm từng học viên
     public class NhapDiemHocVienItem
     {
         public int MaDangKy { get; set; }
@@ -17,7 +14,6 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public string HoTenHocVien { get; set; } = string.Empty;
         public string? EmailHocVien { get; set; }
 
-        /// <summary>Nếu null → chưa có kết quả, cần tạo mới. Nếu có → cập nhật.</summary>
         public int? MaKetQua { get; set; }
         public bool DaCoKetQua => MaKetQua.HasValue;
 
@@ -33,16 +29,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         [Display(Name = "Điểm CK (50%)")]
         public decimal DiemCuoiKy { get; set; }
 
-        // Các trường tự tính — hiển thị trên View, server tính lại khi lưu
+        // Điểm và xếp loại tự tính
         public decimal DiemTongKet { get; set; }
         public string? XepLoai { get; set; }
         public string? KetQua { get; set; }
     }
 
-    /// <summary>
-    /// ViewModel cho toàn bộ bảng điểm 1 khóa học.
-    /// Hiển thị thông tin khóa + danh sách điểm tất cả học viên đã hoàn thành đăng ký.
-    /// </summary>
+    // Bảng điểm chi tiết của khóa học
     public class BangDiemKhoaHocViewModel
     {
         // Thông tin khóa học
@@ -58,7 +51,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public int SoDaCoKetQua { get; set; }
         public int SoChuaCoKetQua { get; set; }
 
-        // Thống kê điểm nhanh
+        // Thống kê điểm
         public decimal? DiemTBLop { get; set; }
         public int SoDat { get; set; }
         public int SoKhongDat { get; set; }
@@ -70,9 +63,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public List<NhapDiemHocVienItem> DanhSachDiem { get; set; } = new();
     }
 
-    /// <summary>
-    /// ViewModel tóm tắt 1 khóa học trong danh sách chọn nhập điểm (trang Index).
-    /// </summary>
+    // Khóa học trong danh sách nhập điểm
     public class KhoaHocKetQuaViewModel
     {
         public int MaKhoaHoc { get; set; }
@@ -84,34 +75,30 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public DateTime NgayBatDau { get; set; }
         public DateTime NgayKetThuc { get; set; }
 
-        // Thống kê điểm
+        // Thống kê điểm và tiến độ
         public int SoDangKyHoanThanh { get; set; }
         public int SoDaCoKetQua { get; set; }
         public int SoChuaCoKetQua => SoDangKyHoanThanh - SoDaCoKetQua;
         public decimal? DiemTBLop { get; set; }
-
-        // Hiển thị tiến độ nhập điểm
         public double TienDoNhapDiem => SoDangKyHoanThanh > 0
             ? Math.Round((double)SoDaCoKetQua / SoDangKyHoanThanh * 100, 0)
             : 0;
     }
 
-    /// <summary>
-    /// ViewModel bộ lọc + phân trang cho danh sách khóa học (trang Index nhập điểm).
-    /// </summary>
+    // Bộ lọc và phân trang khóa học
     public class KetQuaFilterViewModel
     {
         // Bộ lọc
         public string? SearchString { get; set; }
         public int? MaMonHoc { get; set; }
         public string? TrangThai { get; set; }
-        public string? TinhTrangDiem { get; set; } // "TatCa" | "DaNhapDiem" | "ChuaNhapDiem" | "NhapMotPhan"
+        public string? TinhTrangDiem { get; set; }
         public string? SortBy { get; set; } = "ten_asc";
 
-        // Dữ liệu danh sách
+        // Danh sách khóa học
         public List<KhoaHocKetQuaViewModel> DanhSachKhoaHoc { get; set; } = new();
 
-        // Thống kê tổng quan (stat cards)
+        // Thống kê tổng quan
         public int TongSoKhoaHoc { get; set; }
         public int SoKhoaHocDaNhapDiem { get; set; }
         public int SoKhoaHocChuaNhapDiem { get; set; }
