@@ -42,3 +42,8 @@ de16_extracted.txt
 ## Tooling & IDE
 .vscode/
 .codegraph/
+
+# AI Agent & Skills
+.agents/
+.archify/
+skills-lock.json
