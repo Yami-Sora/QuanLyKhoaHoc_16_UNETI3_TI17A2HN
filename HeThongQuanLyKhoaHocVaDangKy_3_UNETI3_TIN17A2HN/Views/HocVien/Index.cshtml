@@ -1,4 +1,4 @@
-@*
+﻿@*
     Họ và tên: Ngọc Tùng Lâm
     Mã sinh viên: 23103100098
     Nội dung thực hiện: Module 3 - Giao diện Quản lý Danh sách Học viên
@@ -12,7 +12,7 @@
 
 <div class="container-fluid py-3 px-4">
     <!-- Breadcrumb & Tiêu đề -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2">
         <div>
             <h3 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-people-fill me-2" style="color: var(--uneti-primary);"></i>QUẢN LÝ HỒ SƠ HỌC VIÊN
@@ -52,7 +52,7 @@
     <!-- 4 THẺ THỐNG KÊ (STAT CARDS) -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-primary">
+            <div class="uneti-card p-3 shadow-sm h-100 border-0">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-medium text-uppercase">Tổng số học viên</span>
@@ -67,7 +67,7 @@
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-success">
+            <div class="uneti-card p-3 shadow-sm h-100 border-0">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-medium text-uppercase">Đang hoạt động</span>
@@ -82,7 +82,7 @@
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-danger">
+            <div class="uneti-card p-3 shadow-sm h-100 border-0">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-medium text-uppercase">Đang bị khóa</span>
@@ -97,7 +97,7 @@
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 shadow-sm h-100 border-start border-4 border-warning">
+            <div class="uneti-card p-3 shadow-sm h-100 border-0">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted small fw-medium text-uppercase">Đã đăng ký khóa</span>
@@ -172,18 +172,34 @@
 
     <!-- BẢNG DANH SÁCH HỌC VIÊN -->
     <div class="uneti-card shadow-sm overflow-hidden mb-4">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <!-- Thanh tiêu đề bảng -->
+        <div class="px-3 py-2.5 bg-white border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-2" style="width: 32px; height: 32px;">
+                    <i class="bi bi-people-fill fs-6"></i>
+                </span>
+                <span class="fw-bold text-dark small text-uppercase" style="letter-spacing: 0.03em;">Danh sách hồ sơ học viên</span>
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1 fw-semibold" style="font-size: 11px;">
+                    @Model.TotalItems hồ sơ
+                </span>
+            </div>
+            <div class="small text-muted">
+                Trang <strong class="text-dark">@Model.PageIndex</strong> / @Math.Max(1, Model.TotalPages)
+            </div>
+        </div>
+
+        <div class="w-100" style="overflow: visible;">
+            <table class="table table-hover align-middle mb-0 uneti-table w-100" style="table-layout: auto;">
                 <thead class="table-light border-bottom">
-                    <tr class="small text-secondary text-uppercase fw-semibold" style="letter-spacing: 0.03em;">
-                        <th class="ps-4" style="width: 80px;">Mã HV</th>
-                        <th>Học viên</th>
-                        <th>Ngày sinh / Giới tính</th>
-                        <th>Thông tin liên hệ</th>
-                        <th>Trình độ</th>
-                        <th class="text-center">Số khóa học</th>
-                        <th class="text-center">Trạng thái</th>
-                        <th class="text-end pe-4" style="width: 140px;">Thao tác</th>
+                    <tr class="small text-secondary text-uppercase fw-semibold" style="letter-spacing: 0.02em; font-size: 11px;">
+                        <th class="ps-3 text-center" style="width: 7%;">Mã HV</th>
+                        <th style="width: 24%;">Học viên</th>
+                        <th style="width: 14%;">Ngày sinh / GT</th>
+                        <th style="width: 20%;">Liên hệ</th>
+                        <th class="text-center" style="width: 10%;">Trình độ</th>
+                        <th class="text-center" style="width: 8%;">Khóa học</th>
+                        <th class="text-center" style="width: 9%;">Trạng thái</th>
+                        <th class="text-center" style="width: 8%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -192,8 +208,10 @@
                         foreach (var item in Model.DanhSachHocVien)
                         {
                             <tr>
-                                <td class="ps-4 fw-bold text-muted small">
-                                    #HV@(item.MaHocVien.ToString("D3"))
+                                <td class="ps-3 text-center">
+                                    <span class="badge bg-light text-secondary border font-monospace fw-semibold px-2 py-1" style="font-size: 11.5px;">
+                                        #HV@(item.MaHocVien.ToString("D3"))
+                                    </span>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2.5">
@@ -202,83 +220,153 @@
                                                 ? item.HinhAnh 
                                                 : "/images/avatars/default.svg";
                                         }
-                                        <img src="@avatarUrl" alt="@item.HoTen" class="rounded-circle shadow-sm object-fit-cover flex-shrink-0" style="width: 38px; height: 38px;" />
-                                        <div>
-                                            <a asp-action="Details" asp-route-id="@item.MaHocVien" class="fw-bold text-dark text-decoration-none d-block lh-sm">
+                                        <img src="@avatarUrl" alt="@item.HoTen" class="rounded-circle border border-2 border-white shadow-sm object-fit-cover flex-shrink-0" style="width: 34px; height: 34px;" />
+                                        <div class="min-w-0">
+                                            <a asp-action="Details" asp-route-id="@item.MaHocVien" class="fw-bold text-dark text-decoration-none d-block lh-sm mb-1 text-truncate" title="@item.HoTen" style="font-size: 0.92rem;">
                                                 @item.HoTen
                                             </a>
                                             @if (!string.IsNullOrEmpty(item.TenDangNhap))
                                             {
-                                                <small class="text-muted uneti-fs-xs">@@@item.TenDangNhap</small>
+                                                <span class="text-muted uneti-fs-xs font-monospace">
+                                                    <i class="bi bi-at text-secondary opacity-75"></i>@item.TenDangNhap
+                                                </span>
                                             }
                                             else
                                             {
-                                                <small class="text-warning uneti-fs-xs">Chưa có tài khoản</small>
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" style="font-size: 10px; padding: 1px 6px;">
+                                                    Chưa có tài khoản
+                                                </span>
                                             }
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="small text-dark">
-                                        <i class="bi bi-calendar3 me-1 text-muted"></i>
-                                        @(item.NgaySinh.HasValue ? item.NgaySinh.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")
+                                    <div class="small text-dark mb-1 d-flex align-items-center">
+                                        <i class="bi bi-calendar3 me-1.5 text-primary opacity-75" style="font-size: 11px;"></i>
+                                        <span class="fw-medium">@(item.NgaySinh.HasValue ? item.NgaySinh.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")</span>
                                     </div>
-                                    <small class="text-muted uneti-fs-xs">
-                                        Giới tính: <span class="fw-semibold">@(item.GioiTinh ?? "Nam")</span>
-                                    </small>
+                                    <div>
+                                        @if (item.GioiTinh == "Nữ")
+                                        {
+                                            <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle fw-medium" style="font-size: 11px; padding: 2px 8px;">
+                                                <i class="bi bi-gender-female me-1"></i>Nữ
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle fw-medium" style="font-size: 11px; padding: 2px 8px;">
+                                                <i class="bi bi-gender-male me-1"></i>@(item.GioiTinh ?? "Nam")
+                                            </span>
+                                        }
+                                    </div>
                                 </td>
                                 <td>
+                                    <div class="small mb-1">
+                                        <a href="tel:@item.SoDienThoai" class="text-decoration-none text-dark fw-medium d-inline-flex align-items-center">
+                                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary me-1.5 flex-shrink-0" style="width: 22px; height: 22px; font-size: 11px;">
+                                                <i class="bi bi-telephone-fill"></i>
+                                            </span>
+                                            <span>@item.SoDienThoai</span>
+                                        </a>
+                                    </div>
                                     <div class="small">
-                                        <a href="tel:@item.SoDienThoai" class="text-decoration-none text-dark d-block">
-                                            <i class="bi bi-telephone me-1 text-primary"></i>@item.SoDienThoai
-                                        </a>
-                                        <a href="mailto:@item.Email" class="text-decoration-none text-muted uneti-fs-xs d-block">
-                                            <i class="bi bi-envelope me-1 text-secondary"></i>@item.Email
+                                        <a href="mailto:@item.Email" class="text-decoration-none text-muted d-inline-flex align-items-center text-truncate" style="max-width: 180px;" title="@item.Email">
+                                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary-subtle text-secondary me-1.5 flex-shrink-0" style="width: 22px; height: 22px; font-size: 11px;">
+                                                <i class="bi bi-envelope-fill"></i>
+                                            </span>
+                                            <span class="text-truncate">@item.Email</span>
                                         </a>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="badge bg-light text-dark border px-2 py-1 small">
-                                        <i class="bi bi-mortarboard me-1 text-primary"></i>@(item.TrinhDo ?? "Đại học")
+                                <td class="text-center">
+                                    @{
+                                        var trinhDoBadge = (item.TrinhDo ?? "Đại học") switch
+                                        {
+                                            "Thạc sĩ" => "bg-indigo-subtle text-primary border-primary-subtle",
+                                            "Kỹ sư" => "bg-info-subtle text-info-emphasis border-info-subtle",
+                                            "Cử nhân" => "bg-teal-subtle text-success border-success-subtle",
+                                            "Cao đẳng" => "bg-warning-subtle text-warning-emphasis border-warning-subtle",
+                                            "Đại học" => "bg-primary-subtle text-primary border-primary-subtle",
+                                            _ => "bg-light text-secondary border"
+                                        };
+                                    }
+                                    <span class="badge @trinhDoBadge border px-2.5 py-1 small fw-medium rounded-pill">
+                                        <i class="bi bi-mortarboard me-1"></i>@(item.TrinhDo ?? "Đại học")
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge @(item.SoKhoaHocDaDangKy > 0 ? "bg-primary-subtle text-primary border border-primary-subtle" : "bg-light text-muted border") px-2 py-1">
-                                        @item.SoKhoaHocDaDangKy khóa
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    @if (item.TrangThai)
+                                    @if (item.SoKhoaHocDaDangKy > 0)
                                     {
-                                        <span class="uneti-badge-success px-2.5 py-1">
-                                            <i class="bi bi-check-circle me-1"></i>Hoạt động
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill fw-semibold">
+                                            <i class="bi bi-book-half me-1"></i>@item.SoKhoaHocDaDangKy khóa
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="uneti-badge-danger px-2.5 py-1">
-                                            <i class="bi bi-lock me-1"></i>Bị khóa
+                                        <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill fw-normal">
+                                            0 khóa
                                         </span>
                                     }
                                 </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-action="Details" asp-route-id="@item.MaHocVien" class="btn btn-outline-primary" title="Xem chi tiết hồ sơ">
+                                <td class="text-center">
+                                    @if (item.TrangThai)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-medium d-inline-flex align-items-center gap-1">
+                                            <span class="rounded-circle bg-success d-inline-block" style="width: 6px; height: 6px;"></span>
+                                            <span>Hoạt động</span>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill fw-medium d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-lock-fill" style="font-size: 11px;"></i>
+                                            <span>Bị khóa</span>
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                        <!-- Xem chi tiết -->
+                                        <a asp-action="Details" asp-route-id="@item.MaHocVien" 
+                                           class="btn-action-icon btn-action-primary" 
+                                           title="Xem chi tiết hồ sơ">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.MaHocVien" class="btn btn-outline-secondary" title="Chỉnh sửa thông tin">
+
+                                        <!-- Chỉnh sửa -->
+                                        <a asp-action="Edit" asp-route-id="@item.MaHocVien" 
+                                           class="btn-action-icon btn-action-edit" 
+                                           title="Chỉnh sửa thông tin">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form asp-action="ToggleTrangThai" asp-route-id="@item.MaHocVien" method="post" class="d-inline">
+
+                                        <!-- Khóa / Mở khóa -->
+                                        <form asp-action="ToggleTrangThai" asp-route-id="@item.MaHocVien" method="post" class="d-inline m-0 p-0">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn @(item.TrangThai ? "btn-outline-warning" : "btn-outline-success")" 
-                                                    title="@(item.TrangThai ? "Khóa hồ sơ" : "Mở khóa hồ sơ")"
-                                                    onclick="return confirm('Bạn có chắc chắn muốn @(item.TrangThai ? "khóa" : "mở khóa") học viên này?');">
-                                                <i class="bi @(item.TrangThai ? "bi-lock" : "bi-unlock")"></i>
-                                            </button>
+                                            @if (item.TrangThai)
+                                            {
+                                                <button type="submit" class="btn-action-icon btn-action-lock" 
+                                                        title="Khóa hồ sơ học viên"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn KHÓA tài khoản học viên @item.HoTen?');">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" class="btn-action-icon btn-action-unlock" 
+                                                        title="Mở khóa hồ sơ học viên"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn MỞ KHÓA tài khoản học viên @item.HoTen?');">
+                                                    <i class="bi bi-unlock-fill"></i>
+                                                </button>
+                                            }
                                         </form>
-                                        <a asp-action="Delete" asp-route-id="@item.MaHocVien" class="btn btn-outline-danger" title="Xóa học viên">
-                                            <i class="bi bi-trash"></i>
+
+                                        <!-- Xóa -->
+                                        <a asp-action="Delete" asp-route-id="@item.MaHocVien" 
+                                           class="btn-action-icon btn-action-delete" 
+                                           title="Xóa hồ sơ học viên"
+                                           onclick="return confirm('Bạn có chắc chắn muốn xóa hồ sơ học viên @item.HoTen?');">
+                                            <i class="bi bi-trash3"></i>
                                         </a>
                                     </div>
                                 </td>
@@ -289,8 +377,10 @@
                     {
                         <tr>
                             <td colspan="8" class="text-center py-5 text-muted">
-                                <div class="py-3">
-                                    <i class="bi bi-person-x fs-1 text-muted d-block mb-2"></i>
+                                <div class="py-4">
+                                    <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 text-muted" style="width: 56px; height: 56px;">
+                                        <i class="bi bi-person-x fs-2"></i>
+                                    </div>
                                     <p class="mb-1 fw-semibold text-secondary">Không tìm thấy học viên nào phù hợp với điều kiện tìm kiếm.</p>
                                     <small class="text-muted">Thử thay đổi từ khóa hoặc thiết lập lại bộ lọc để tra cứu lại.</small>
                                 </div>

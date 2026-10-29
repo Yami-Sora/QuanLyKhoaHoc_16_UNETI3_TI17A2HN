@@ -1,4 +1,4 @@
-
+﻿
 /* Thẻ Card dùng chung (Unified Card) */
 .uneti-card {
     background: var(--uneti-surface);
@@ -210,16 +210,16 @@
 
 /* Nút thao tác dạng vuông */
 .btn-action-icon {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    max-width: 34px !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 8px !important;
-    font-size: 0.95rem !important;
+    font-size: 0.85rem !important;
     line-height: 1 !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     border: 1px solid transparent !important;
@@ -269,4 +269,35 @@
 .btn-action-delete:hover {
     background-color: #fecaca;
     color: #b91c1c !important;
+}
+
+.btn-action-primary {
+    background-color: #eff6ff;
+    color: #2563eb !important;
+    border-color: #dbeafe !important;
+}
+.btn-action-primary:hover {
+    background-color: #dbeafe;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe !important;
+}
+.btn-action-lock {
+    background-color: #fff7ed;
+    color: #ea580c !important;
+    border-color: #ffedd5 !important;
+}
+.btn-action-lock:hover {
+    background-color: #ffedd5;
+    color: #c2410c !important;
+    border-color: #fed7aa !important;
+}
+.btn-action-unlock {
+    background-color: #ecfdf5;
+    color: #059669 !important;
+    border-color: #a7f3d0 !important;
+}
+.btn-action-unlock:hover {
+    background-color: #d1fae5;
+    color: #047857 !important;
+    border-color: #6ee7b7 !important;
 }

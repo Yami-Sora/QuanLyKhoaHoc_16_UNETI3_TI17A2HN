@@ -1,4 +1,4 @@
-// Họ và tên: Trần Văn Thành
+﻿// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Cấu hình ứng dụng
 
@@ -22,6 +22,10 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+// 3. Đăng ký Repository Pattern (Module 3: Ngọc Tùng Lâm - 23103100098)
+builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IHocVienRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.HocVienRepository>();
+builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IDangKyKhoaHocRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.DangKyKhoaHocRepository>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
