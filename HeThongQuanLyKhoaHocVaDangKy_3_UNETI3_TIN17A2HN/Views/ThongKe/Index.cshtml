@@ -1,7 +1,7 @@
-@*
+﻿@*
     Họ và tên: Nguyễn Công Thành
     Mã sinh viên: 23103100102
-    Nội dung thực hiện: Module 5 - Giao diện Báo cáo & Thống kê tổng hợp toàn diện (Analytics Suite V2)
+    Nội dung thực hiện: Module 5 - Giao diện Báo cáo & Thống kê tổng hợp toàn diện
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.ThongKeViewModel
@@ -228,21 +228,15 @@
                     <table class="m5-table-clean">
                         <thead>
                             <tr>
-                                <th style="width: 90px;">Mã môn</th>
+                                <th style="width: 100px;">Mã môn</th>
                                 <th>Tên môn học</th>
-                                <th class="text-center" style="width: 100px;">Tín chỉ</th>
-                                <th class="text-center" style="width: 120px;">Số lớp mở</th>
-                                <th style="width: 160px;">Tỷ trọng</th>
+                                <th class="text-center" style="width: 110px;">Tín chỉ</th>
+                                <th class="text-center" style="width: 130px;">Số lớp mở</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @{
-                                var maxKhoa = Model.KhoaHocTheoMon.Any() ? Math.Max(1, Model.KhoaHocTheoMon.Max(x => x.SoKhoaHoc)) : 1;
-                            }
                             @foreach (var item in Model.KhoaHocTheoMon)
                             {
-                                var pct = Math.Round((double)item.SoKhoaHoc / maxKhoa * 100);
-                                var pctCss = pct.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
                                 <tr>
                                     <td>
                                         <span class="badge bg-light text-primary border px-2 py-1 fw-bold">#MH@(item.MaMonHoc.ToString("D2"))</span>
@@ -257,15 +251,6 @@
                                         <span class="fs-6 fw-bold text-primary">@item.SoKhoaHoc</span>
                                         <small class="text-muted d-block" style="font-size: 11px;">khóa học</small>
                                     </td>
-                                    <td>
-                                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 11px;">
-                                            <span class="text-muted">Quy mô</span>
-                                            <span class="fw-bold text-primary">@pct%</span>
-                                        </div>
-                                        <div class="progress" style="height: 6px; border-radius: 999px;">
-                                            <div class="progress-bar bg-primary" style="width: @pctCss%; border-radius: 999px;"></div>
-                                        </div>
-                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -276,7 +261,10 @@
                 <div class="p-3 bg-light rounded-4 border text-center sec1-chart-box">
                     <div class="text-muted small fw-semibold mb-2 sec1-chart-title">Biểu đồ phân bổ khóa học theo môn</div>
                     <div style="position: relative; height: 260px;" class="sec1-chart-canvas-wrap">
-                        <canvas id="chartKhoaTheoMon"></canvas>
+                        <canvas id="chartKhoaTheoMon"
+                            data-labels='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.KhoaHocTheoMon.Take(6).Select(x => x.TenMonHoc)))'
+                            data-values='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.KhoaHocTheoMon.Take(6).Select(x => x.SoKhoaHoc)))'>
+                        </canvas>
                     </div>
                 </div>
             </div>
@@ -697,7 +685,7 @@
                 </div>
 
                 <div style="position: relative; height: 230px;">
-                    <canvas id="chartDatKhongDat"></canvas>
+                    <canvas id="chartDatKhongDat" data-dat="@Model.SoDat" data-khongdat="@Model.SoKhongDat"></canvas>
                 </div>
             </div>
         </div>
@@ -717,7 +705,7 @@
                     <!-- Cụm bộ lọc chu kỳ Section 8 (Phương án B) -->
                     <div class="sec8-filter-bar d-flex align-items-center gap-1.5 flex-wrap">
                         <button type="button" class="btn btn-sm btn-primary rounded-pill fw-semibold btn-filter-sec8 active" 
-                                data-filter="12months" onclick="doiChuKyDangKy('12months', null, this)" style="font-size: 0.78rem; padding: 0.25rem 0.75rem;">
+                                data-filter="12months" style="font-size: 0.78rem; padding: 0.25rem 0.75rem;">
                             12 tháng gần nhất
                         </button>
                         
@@ -733,7 +721,7 @@
                                     {
                                         <li>
                                             <a class="dropdown-item btn-filter-sec8" href="javascript:void(0)" 
-                                               data-filter="year" data-year="@nam" onclick="doiChuKyDangKy('year', @nam, this)">
+                                               data-filter="year" data-year="@nam">
                                                 Năm @nam
                                             </a>
                                         </li>
@@ -743,14 +731,17 @@
                         }
 
                         <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold btn-filter-sec8" 
-                                data-filter="all" onclick="doiChuKyDangKy('all', null, this)" style="font-size: 0.78rem; padding: 0.25rem 0.75rem;">
+                                data-filter="all" style="font-size: 0.78rem; padding: 0.25rem 0.75rem;">
                             Toàn bộ
                         </button>
                     </div>
                 </div>
 
                 <div style="position: relative; height: 210px;" class="mb-3">
-                    <canvas id="chartDangKyThang"></canvas>
+                    <canvas id="chartDangKyThang"
+                        data-labels='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DangKyTheoThang.Select(x => x.NhanThang)))'
+                        data-values='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DangKyTheoThang.Select(x => x.SoDangKy)))'>
+                    </canvas>
                 </div>
 
                 <div class="table-responsive">
@@ -810,224 +801,5 @@
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Khai báo biến chart instance toàn cục để hàm lọc AJAX gọi được
-        let chartInstanceDangKyThang = null;
-
-        // Hàm chuyển đổi bộ lọc chu kỳ Section 8 (Phương án B)
-        function doiChuKyDangKy(filterType, year, clickedBtn) {
-            // Cập nhật trạng thái nút bấm
-            document.querySelectorAll('.btn-filter-sec8').forEach(el => {
-                el.classList.remove('active', 'btn-primary');
-                if (el.classList.contains('btn-primary')) {
-                    el.classList.remove('btn-primary');
-                    el.classList.add('btn-outline-secondary');
-                }
-            });
-
-            const dropdownToggle = document.getElementById('dropdownNamDangKy');
-            if (clickedBtn) {
-                clickedBtn.classList.add('active');
-                if (clickedBtn.tagName.toLowerCase() === 'button') {
-                    clickedBtn.classList.remove('btn-outline-secondary');
-                    clickedBtn.classList.add('btn-primary');
-                }
-
-                if (dropdownToggle) {
-                    if (filterType === 'year' && year) {
-                        dropdownToggle.innerHTML = '<i class="bi bi-calendar3 me-1"></i>Năm ' + year;
-                        dropdownToggle.classList.remove('btn-outline-secondary');
-                        dropdownToggle.classList.add('btn-primary', 'active');
-                    } else {
-                        dropdownToggle.innerHTML = '<i class="bi bi-calendar3 me-1"></i>Theo năm';
-                        dropdownToggle.classList.remove('btn-primary', 'active');
-                        dropdownToggle.classList.add('btn-outline-secondary');
-                    }
-                }
-            }
-
-            let url = '/ThongKe/GetDangKyTheoThang?filterType=' + encodeURIComponent(filterType);
-            if (year) url += '&year=' + encodeURIComponent(year);
-
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    if (!data || !chartInstanceDangKyThang) return;
-
-                    const labels = data.map(x => x.label);
-                    const values = data.map(x => x.value);
-
-                    // 1. Cập nhật biểu đồ Chart.js mượt mà
-                    chartInstanceDangKyThang.data.labels = labels;
-                    chartInstanceDangKyThang.data.datasets[0].data = values;
-                    chartInstanceDangKyThang.update();
-
-                    // 2. Cập nhật bảng ma trận số liệu bên dưới
-                    const headerRow = document.getElementById('tableDangKyThangHeader');
-                    const bodyRow = document.getElementById('tableDangKyThangBody');
-                    if (headerRow && bodyRow) {
-                        headerRow.innerHTML = labels.map(l => `<th class="py-2 text-muted fw-bold">${l}</th>`).join('');
-                        bodyRow.innerHTML = values.map(v => `<td class="py-2 fw-bold text-primary fs-6">${v}</td>`).join('');
-                    }
-                })
-                .catch(err => console.error('Lỗi tải dữ liệu đăng ký theo tháng:', err));
-        }
-
-        (function () {
-            // Khởi tạo Bootstrap Tooltips
-            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-                    new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
-
-            if (typeof Chart === 'undefined') return;
-
-            Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
-            Chart.defaults.color = "#64748b";
-            // Siêu nét cho hiển thị màn hình và khi in ấn / xuất PDF (Retina 3x sắc nét, khử triệt để mờ vỡ hạt)
-            Chart.defaults.devicePixelRatio = Math.max(window.devicePixelRatio || 1, 3);
-
-            const tooltipConfig = {
-                backgroundColor: 'rgba(15, 23, 42, 0.92)',
-                titleColor: '#ffffff',
-                titleFont: { size: 13, weight: 'bold' },
-                bodyColor: '#e2e8f0',
-                bodyFont: { size: 12 },
-                padding: 12,
-                cornerRadius: 10,
-                boxPadding: 6,
-                usePointStyle: true,
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-                borderWidth: 1
-            };
-
-            // Biểu đồ 1: Khóa theo môn (Doughnut bo góc mượt mà)
-            const ctxKhoaTheoMon = document.getElementById('chartKhoaTheoMon');
-            if (ctxKhoaTheoMon) {
-                new Chart(ctxKhoaTheoMon, {
-                    type: 'doughnut',
-                    data: {
-                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.KhoaHocTheoMon.Take(6).Select(x => x.TenMonHoc))),
-                        datasets: [{
-                            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.KhoaHocTheoMon.Take(6).Select(x => x.SoKhoaHoc))),
-                            backgroundColor: ['#6366f1', '#3b82f6', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899'],
-                            borderWidth: 0,
-                            spacing: 3,
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    pointStyle: 'circle',
-                                    padding: 12,
-                                    font: { size: 11, weight: '600' }
-                                }
-                            },
-                            tooltip: tooltipConfig
-                        }
-                    }
-                });
-            }
-
-            // Biểu đồ 7: Đạt / Không đạt (Doughnut mềm mại)
-            const ctxDatKhongDat = document.getElementById('chartDatKhongDat');
-            if (ctxDatKhongDat) {
-                new Chart(ctxDatKhongDat, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Đạt yêu cầu', 'Không đạt'],
-                        datasets: [{
-                            data: [@Model.SoDat, @Model.SoKhongDat],
-                            backgroundColor: ['#10b981', '#f43f5e'],
-                            hoverBackgroundColor: ['#059669', '#e11d48'],
-                            borderWidth: 0,
-                            spacing: 4,
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '72%',
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    usePointStyle: true,
-                                    pointStyle: 'circle',
-                                    padding: 14,
-                                    font: { size: 12, weight: '600' }
-                                }
-                            },
-                            tooltip: tooltipConfig
-                        }
-                    }
-                });
-            }
-
-            // Biểu đồ 8: Đăng ký theo tháng (Bar Gradient tinh tế)
-            const ctxDangKyThang = document.getElementById('chartDangKyThang');
-            if (ctxDangKyThang) {
-                const ctx8 = ctxDangKyThang.getContext('2d');
-                const barGrad = ctx8.createLinearGradient(0, 0, 0, 210);
-                barGrad.addColorStop(0, '#6366f1');
-                barGrad.addColorStop(1, '#4338ca');
-
-                chartInstanceDangKyThang = new Chart(ctxDangKyThang, {
-                    type: 'bar',
-                    data: {
-                        labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DangKyTheoThang.Select(x => x.NhanThang))),
-                        datasets: [{
-                            label: 'Lượt đăng ký',
-                            data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DangKyTheoThang.Select(x => x.SoDangKy))),
-                            backgroundColor: barGrad,
-                            borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
-                            borderSkipped: false,
-                            barPercentage: 0.55
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { precision: 0, font: { size: 11 } },
-                                grid: { color: '#f1f5f9', borderDash: [4, 4], drawBorder: false }
-                            },
-                            x: {
-                                ticks: { font: { size: 11, weight: '500' } },
-                                grid: { display: false }
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: tooltipConfig
-                        }
-                    }
-                });
-            }
-
-            // Tự động render lại các biểu đồ chuẩn kích thước siêu nét khi mở hộp thoại in
-            window.addEventListener('beforeprint', function () {
-                for (var id in Chart.instances) {
-                    Chart.instances[id].resize();
-                }
-            });
-            window.addEventListener('afterprint', function () {
-                for (var id in Chart.instances) {
-                    Chart.instances[id].resize();
-                }
-            });
-        })();
-    </script>
+    <script src="~/js/thongke-charts.js" asp-append-version="true"></script>
 }
