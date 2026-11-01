@@ -105,7 +105,7 @@
                 </div>
                 <div>
                     <div class="m5-stat-val" id="statDiemTB">
-                        @(Model.DiemTBLop.HasValue ? Model.DiemTBLop.Value.ToString("0.00") : "--")
+                        @(Model.DiemTBLop.HasValue ? Model.DiemTBLop.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "--")
                     </div>
                     <div class="m5-stat-sub"><i class="bi bi-dot text-warning fs-5 align-middle"></i>Thang điểm 10</div>
                 </div>
@@ -224,7 +224,7 @@
                                     <!-- Điểm chuyên cần (10%) -->
                                     <td class="text-center">
                                         <input type="number" 
-                                               step="0.1" 
+                                               step="any" 
                                                min="0" 
                                                max="10" 
                                                name="DanhSachDiem[@i].DiemChuyenCan" 
@@ -237,7 +237,7 @@
                                     <!-- Điểm giữa kỳ (40%) -->
                                     <td class="text-center">
                                         <input type="number" 
-                                               step="0.1" 
+                                               step="any" 
                                                min="0" 
                                                max="10" 
                                                name="DanhSachDiem[@i].DiemGiuaKy" 
@@ -250,7 +250,7 @@
                                     <!-- Điểm cuối kỳ (50%) -->
                                     <td class="text-center">
                                         <input type="number" 
-                                               step="0.1" 
+                                               step="any" 
                                                min="0" 
                                                max="10" 
                                                name="DanhSachDiem[@i].DiemCuoiKy" 
@@ -264,7 +264,7 @@
                                     <td class="text-center">
                                         <span class="fw-bold fs-6 label-tongket @(item.DiemTongKet >= 8.0m ? "text-success" : (item.DiemTongKet >= 5.0m ? "text-primary" : "text-danger"))" 
                                               id="tongket_@i">
-                                            @item.DiemTongKet.ToString("0.00")
+                                            @item.DiemTongKet.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)
                                         </span>
                                     </td>
 

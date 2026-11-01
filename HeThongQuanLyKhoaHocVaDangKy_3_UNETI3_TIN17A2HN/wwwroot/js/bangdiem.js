@@ -4,15 +4,22 @@
     const table = document.getElementById('tableDiem');
     if (!table) return;
 
+    function parseDiem(val) {
+        if (!val) return 0;
+        const clean = String(val).trim().replace(',', '.');
+        const num = parseFloat(clean);
+        return isNaN(num) ? 0 : num;
+    }
+
     function tinhDiemDong(row) {
         const idx = row.getAttribute('data-index');
         const ccInput = row.querySelector('.input-cc');
         const gkInput = row.querySelector('.input-gk');
         const ckInput = row.querySelector('.input-ck');
 
-        let cc = parseFloat(ccInput?.value) || 0;
-        let gk = parseFloat(gkInput?.value) || 0;
-        let ck = parseFloat(ckInput?.value) || 0;
+        let cc = parseDiem(ccInput?.value);
+        let gk = parseDiem(gkInput?.value);
+        let ck = parseDiem(ckInput?.value);
 
         // Giới hạn [0, 10]
         cc = Math.max(0, Math.min(10, cc));
@@ -74,7 +81,7 @@
             const idx = r.getAttribute('data-index');
             const labelTongKet = document.getElementById('tongket_' + idx);
             if (labelTongKet) {
-                const tk = parseFloat(labelTongKet.textContent) || 0;
+                const tk = parseDiem(labelTongKet.textContent);
                 tongDiem += tk;
                 countCham++;
                 if (tk >= 5.0) countDat++;

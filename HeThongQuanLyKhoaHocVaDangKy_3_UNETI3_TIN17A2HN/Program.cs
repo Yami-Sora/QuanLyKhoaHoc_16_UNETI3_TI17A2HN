@@ -1,9 +1,12 @@
-﻿// Họ và tên: Trần Văn Thành
+// Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
 // Module 1: Cấu hình ứng dụng
 
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,10 +30,34 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IHocVienRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.HocVienRepository>();
 builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IDangKyKhoaHocRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.DangKyKhoaHocRepository>();
 
+// 4. Đăng ký Repository Pattern (Module 5: Nguyễn Công Thành - 23103100102)
+builder.Services.AddScoped<IKetQuaHocTapRepository, KetQuaHocTapRepository>();
+builder.Services.AddScoped<IThongKeRepository, ThongKeRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+
+// Cấu hình Culture chuẩn (dấu chấm . cho số thập phân) để tương thích nhập liệu số thực
+var defaultCulture = (CultureInfo)CultureInfo.GetCultureInfo("vi-VN").Clone();
+defaultCulture.NumberFormat.NumberDecimalSeparator = ".";
+defaultCulture.NumberFormat.NumberGroupSeparator = ",";
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Đăng ký ModelBinder hỗ trợ cả 8.5 và 8,5
+    options.ModelBinderProviders.Insert(0, new FlexibleDecimalModelBinderProvider());
+});
 
 var app = builder.Build();
+
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(defaultCulture),
+    SupportedCultures = new[] { defaultCulture },
+    SupportedUICultures = new[] { defaultCulture }
+};
+app.UseRequestLocalization(localizationOptions);
 
 // 3. TỰ ĐỘNG CHẠY MIGRATION VÀ SEED DATA KHI KHỞI ĐỘNG WEB
 using (var scope = app.Services.CreateScope())
@@ -91,4 +118,3 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
- 
