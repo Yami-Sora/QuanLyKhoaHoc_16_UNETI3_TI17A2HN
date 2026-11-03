@@ -1,22 +1,23 @@
 // Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Module 1: Quản lý môn học
+// Module 1: Quản lý môn học (Sử dụng Repository Pattern)
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 {
     public class MonHocController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IMonHocRepository _monHocRepo;
+        private readonly ILogger<MonHocController> _logger;
 
-        public MonHocController(ApplicationDbContext context)
+        public MonHocController(IMonHocRepository monHocRepo, ILogger<MonHocController> logger)
         {
-            _context = context;
+            _monHocRepo = monHocRepo;
+            _logger = logger;
         }
         // 1. CỔNG SINH VIÊN & KHÁCH (PUBLIC PORTAL - CARD GRID)
 
@@ -25,68 +26,23 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         public async Task<IActionResult> Index(string? searchString, int? soTinChi, bool? trangThai, string? sortBy = null, int page = 1, int pageSize = 6, int? pageIndex = null)
         {
             if (pageIndex.HasValue && pageIndex.Value > 0) page = pageIndex.Value;
-            var query = _context.MonHocs.AsNoTracking().AsQueryable();
 
-            // Tìm kiếm theo tên môn học hoặc mã môn học
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                var trimmed = searchString.Trim();
-                var term = trimmed.ToLower();
-                var cleanCode = term.Replace("#", "").Replace("mh", "").TrimStart('0');
-                bool isNumeric = int.TryParse(cleanCode, out int searchId);
+            var (list, totalCount, totalFiltered, totalPages) =
+                await _monHocRepo.GetPublicListAsync(searchString, soTinChi, trangThai, sortBy, page, pageSize);
 
-                query = query.Where(m => m.TenMonHoc.ToLower().Contains(term)
-                                      || (isNumeric && m.MaMonHoc == searchId)
-                                      || m.MaMonHoc.ToString().Contains(term));
-                ViewBag.CurrentSearch = trimmed;
-            }
-
-            // Lọc theo số tín chỉ (2, 3, 4, 5 tín chỉ)
-            if (soTinChi.HasValue && soTinChi.Value > 0)
-            {
-                query = query.Where(m => m.SoTinChi == soTinChi.Value);
-                ViewBag.CurrentTinChi = soTinChi.Value;
-            }
-
-            // Lọc theo trạng thái Đang mở / Tạm dừng
-            if (trangThai.HasValue)
-            {
-                query = query.Where(m => m.TrangThai == trangThai.Value);
-                ViewBag.CurrentTrangThai = trangThai;
-            }
-
-            // Sắp xếp dữ liệu linh hoạt
-            ViewBag.SortBy = sortBy;
-            query = sortBy switch
-            {
-                "ten_asc" => query.OrderBy(m => m.TenMonHoc),
-                "ten_desc" => query.OrderByDescending(m => m.TenMonHoc),
-                "tinchi_asc" => query.OrderBy(m => m.SoTinChi).ThenBy(m => m.TenMonHoc),
-                "tinchi_desc" => query.OrderByDescending(m => m.SoTinChi).ThenBy(m => m.TenMonHoc),
-                "hocphi_asc" => query.OrderBy(m => m.HocPhi).ThenBy(m => m.TenMonHoc),
-                "hocphi_desc" => query.OrderByDescending(m => m.HocPhi).ThenBy(m => m.TenMonHoc),
-                _ => query.OrderBy(m => m.MaMonHoc)
-            };
-
-            // Tổng số môn toàn trường và số môn sau khi lọc
-            ViewBag.TotalCount = await _context.MonHocs.CountAsync();
-            var totalFiltered = await query.CountAsync();
+            ViewBag.TotalCount = totalCount;
             ViewBag.TotalFilteredItems = totalFiltered;
-
-            // Phân trang
-            if (page < 1) page = 1;
-            var totalPages = (int)Math.Ceiling(totalFiltered / (double)pageSize);
-            if (totalPages < 1) totalPages = 1;
-            if (page > totalPages) page = totalPages;
-
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.PageSize = pageSize;
+            ViewBag.SortBy = sortBy;
 
-            var list = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            if (!string.IsNullOrWhiteSpace(searchString))
+                ViewBag.CurrentSearch = searchString.Trim();
+            if (soTinChi.HasValue && soTinChi.Value > 0)
+                ViewBag.CurrentTinChi = soTinChi.Value;
+            if (trangThai.HasValue)
+                ViewBag.CurrentTrangThai = trangThai;
 
             // Phản hồi AJAX nếu yêu cầu từ phía client
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -103,13 +59,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         {
             if (id == null) return NotFound();
 
-            var monHoc = await _context.MonHocs
-                .Include(m => m.KhoaHocs)
-                    .ThenInclude(k => k.GiangVien)
-                .Include(m => m.KhoaHocs)
-                    .ThenInclude(k => k.DangKyKhoaHocs)
-                .FirstOrDefaultAsync(m => m.MaMonHoc == id);
-
+            var monHoc = await _monHocRepo.GetDetailsAsync(id.Value);
             if (monHoc == null) return NotFound();
 
             // 1. Kiểm tra danh sách khóa học mà sinh viên đang đăng nhập đã đăng ký
@@ -117,14 +67,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             var registeredKhoaHocIds = new List<int>();
             if (maTaiKhoan.HasValue)
             {
-                var hocVien = await _context.HocViens.FirstOrDefaultAsync(h => h.MaTaiKhoan == maTaiKhoan.Value);
-                if (hocVien != null)
-                {
-                    registeredKhoaHocIds = await _context.DangKyKhoaHocs
-                        .Where(d => d.MaHocVien == hocVien.MaHocVien && d.TrangThai != "BiHuy")
-                        .Select(d => d.MaKhoaHoc)
-                        .ToListAsync();
-                }
+                registeredKhoaHocIds = await _monHocRepo.GetRegisteredKhoaHocIdsAsync(maTaiKhoan.Value);
             }
             ViewBag.RegisteredKhoaHocIds = registeredKhoaHocIds;
 
@@ -157,54 +100,24 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> QuanLy(string? searchString, bool? trangThai, int page = 1, int pageSize = 10)
         {
+            var (list, totalCount, activeCount, inactiveCount, totalTinChi, avgHocPhi, totalFiltered, totalPages) =
+                await _monHocRepo.GetAdminListAsync(searchString, trangThai, page, pageSize);
+
             // Thống kê số liệu tổng thể phục vụ 4 thẻ Stat Cards
-            ViewBag.TotalCount = await _context.MonHocs.CountAsync();
-            ViewBag.ActiveCount = await _context.MonHocs.CountAsync(m => m.TrangThai);
-            ViewBag.InactiveCount = await _context.MonHocs.CountAsync(m => !m.TrangThai);
-            ViewBag.TotalTinChi = await _context.MonHocs.SumAsync(m => m.SoTinChi);
-            ViewBag.AvgHocPhi = (int)(await _context.MonHocs.AnyAsync()
-                ? await _context.MonHocs.AverageAsync(m => (double)m.HocPhi)
-                : 0);
-
-            var query = _context.MonHocs.Include(m => m.KhoaHocs).AsQueryable();
-
-            // Tìm kiếm theo tên hoặc mã môn
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                var term = searchString.Trim().ToLower();
-                var cleanCode = term.Replace("#", "").Replace("mh", "").TrimStart('0');
-                bool isNumeric = int.TryParse(cleanCode, out int searchId);
-
-                query = query.Where(m => m.TenMonHoc.ToLower().Contains(term)
-                                      || (isNumeric && m.MaMonHoc == searchId)
-                                      || m.MaMonHoc.ToString().Contains(term));
-                ViewBag.CurrentSearch = searchString;
-            }
-
-            // LINQ Lọc theo trạng thái Đang mở / Tạm dừng
-            if (trangThai.HasValue)
-            {
-                query = query.Where(m => m.TrangThai == trangThai.Value);
-                ViewBag.CurrentTrangThai = trangThai;
-            }
-
-            var totalFiltered = await query.CountAsync();
+            ViewBag.TotalCount = totalCount;
+            ViewBag.ActiveCount = activeCount;
+            ViewBag.InactiveCount = inactiveCount;
+            ViewBag.TotalTinChi = totalTinChi;
+            ViewBag.AvgHocPhi = avgHocPhi;
             ViewBag.TotalFilteredItems = totalFiltered;
-
-            if (page < 1) page = 1;
-            var totalPages = (int)Math.Ceiling(totalFiltered / (double)pageSize);
-            if (totalPages < 1) totalPages = 1;
-            if (page > totalPages) page = totalPages;
-
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.PageSize = pageSize;
 
-            var list = await query
-                .OrderByDescending(m => m.MaMonHoc)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            if (!string.IsNullOrWhiteSpace(searchString))
+                ViewBag.CurrentSearch = searchString;
+            if (trangThai.HasValue)
+                ViewBag.CurrentTrangThai = trangThai;
 
             return View(list);
         }
@@ -226,30 +139,21 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             if (ModelState.IsValid)
             {
                 // LINQ Kiểm tra trùng lặp tên môn học an toàn
-                var tenMonTrim = monHoc.TenMonHoc?.Trim().ToLower() ?? string.Empty;
-                bool exists = await _context.MonHocs.AnyAsync(m =>
-                    m.TenMonHoc.Trim().ToLower() == tenMonTrim);
-
-                if (exists)
+                if (await _monHocRepo.ExistsTenMonHocAsync(monHoc.TenMonHoc ?? ""))
                 {
                     ModelState.AddModelError("TenMonHoc", "Tên môn học này đã tồn tại trong hệ thống. Vui lòng nhập tên khác.");
                     return View(monHoc);
                 }
 
-                try
+                var (success, error) = await _monHocRepo.CreateAsync(monHoc);
+                if (success)
                 {
-                    monHoc.TenMonHoc = monHoc.TenMonHoc?.Trim() ?? string.Empty;
-                    monHoc.MoTa = monHoc.MoTa?.Trim();
-                    _context.Add(monHoc);
-                    await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = $"Đã thêm mới môn học '{monHoc.TenMonHoc}' thành công!";
                     return RedirectToAction(nameof(QuanLy));
                 }
-                catch (Exception)
-                {
-                    ModelState.AddModelError(string.Empty, "Không thể lưu môn học do lỗi kết nối CSDL. Vui lòng thử lại sau.");
-                    return View(monHoc);
-                }
+
+                ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+                return View(monHoc);
             }
             return View(monHoc);
         }
@@ -261,7 +165,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         {
             if (id == null) return NotFound();
 
-            var monHoc = await _context.MonHocs.FindAsync(id);
+            var monHoc = await _monHocRepo.GetByIdAsync(id.Value);
             if (monHoc == null) return NotFound();
 
             return View(monHoc);
@@ -278,59 +182,21 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             if (ModelState.IsValid)
             {
                 // Kiểm tra trùng tên môn học
-                var tenMonTrim = monHoc.TenMonHoc?.Trim().ToLower() ?? string.Empty;
-                bool exists = await _context.MonHocs.AnyAsync(m =>
-                    m.MaMonHoc != id && m.TenMonHoc.Trim().ToLower() == tenMonTrim);
-
-                if (exists)
+                if (await _monHocRepo.ExistsTenMonHocAsync(monHoc.TenMonHoc ?? "", id))
                 {
                     ModelState.AddModelError("TenMonHoc", "Tên môn học này đã trùng với môn học khác trong hệ thống.");
                     return View(monHoc);
                 }
 
-                try
+                var (success, error) = await _monHocRepo.UpdateAsync(id, monHoc);
+                if (success)
                 {
-                    // Cập nhật các trường được phép sửa
-                    var existing = await _context.MonHocs.FindAsync(id);
-                    if (existing == null)
-                    {
-                        return NotFound();
-                    }
-
-                    // Kiểm tra khóa học đang hoạt động trước khi tạm dừng (Đề 16 Mục 5.5, 6.7, 8.3)
-                    if (!monHoc.TrangThai && existing.TrangThai)
-                    {
-                        bool coKhoaHocHoatDong = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && (k.TrangThai == "DangMo" || k.TrangThai == "DangHoc" || k.TrangThai == "SapMo"));
-                        if (coKhoaHocHoatDong)
-                        {
-                            ModelState.AddModelError(nameof(monHoc.TrangThai), "Không thể chuyển môn học sang 'Tạm dừng' vì vẫn còn lớp khóa học đang mở, đang học hoặc sắp mở. Vui lòng kết thúc hoặc đóng các lớp học phần trước.");
-                            return View(monHoc);
-                        }
-                    }
-
-                    existing.TenMonHoc = monHoc.TenMonHoc?.Trim() ?? string.Empty;
-                    existing.SoTinChi = monHoc.SoTinChi;
-                    existing.HocPhi = monHoc.HocPhi;
-                    existing.MoTa = monHoc.MoTa?.Trim();
-                    existing.TrangThai = monHoc.TrangThai;
-
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = $"Cập nhật môn học '{existing.TenMonHoc}' thành công!";
+                    TempData["SuccessMessage"] = $"Cập nhật môn học '{monHoc.TenMonHoc}' thành công!";
                     return RedirectToAction(nameof(QuanLy));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await _context.MonHocs.AnyAsync(e => e.MaMonHoc == monHoc.MaMonHoc))
-                    {
-                        return NotFound();
-                    }
-                    throw;
-                }
-                catch (Exception)
-                {
-                    ModelState.AddModelError(string.Empty, "Không thể cập nhật môn học do sự cố CSDL. Vui lòng thử lại.");
-                    return View(monHoc);
-                }
+
+                ModelState.AddModelError(string.IsNullOrEmpty(error) ? string.Empty : (error.Contains("Tạm dừng") ? nameof(monHoc.TrangThai) : string.Empty), error ?? "Lỗi không xác định.");
+                return View(monHoc);
             }
             return View(monHoc);
         }
@@ -342,10 +208,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         {
             if (id == null) return NotFound();
 
-            var monHoc = await _context.MonHocs
-                .Include(m => m.KhoaHocs)
-                .FirstOrDefaultAsync(m => m.MaMonHoc == id);
-
+            var monHoc = await _monHocRepo.GetByIdWithKhoaHocsAsync(id.Value);
             if (monHoc == null) return NotFound();
 
             // Kiểm tra xem môn học đã có khóa học tham chiếu chưa
@@ -359,36 +222,15 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                // BẢO VỆ TOÀN VẸN DỮ LIỆU BẮT BUỘC: Kiểm tra trước khi xóa
-                bool daCoKhoaHoc = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id);
+            var (success, message) = await _monHocRepo.DeleteAsync(id);
 
-                if (daCoKhoaHoc)
-                {
-                    TempData["ErrorMessage"] = "Không thể xóa môn học này vì đã có khóa học đang liên kết. Bạn có thể sửa trạng thái môn học sang 'Tạm dừng'!";
-                    return RedirectToAction(nameof(QuanLy));
-                }
-
-                var monHoc = await _context.MonHocs.FindAsync(id);
-                if (monHoc != null)
-                {
-                    _context.MonHocs.Remove(monHoc);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = $"Đã xóa môn học '{monHoc.TenMonHoc}' thành công.";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Không tìm thấy môn học cần xóa hoặc môn học đã được xóa trước đó.";
-                }
-            }
-            catch (DbUpdateException)
+            if (success)
             {
-                TempData["ErrorMessage"] = "Không thể xóa môn học này vì có dữ liệu liên kết khác trong hệ thống.";
+                TempData["SuccessMessage"] = message;
             }
-            catch (Exception)
+            else
             {
-                TempData["ErrorMessage"] = "Đã xảy ra sự cố khi xóa môn học. Vui lòng thử lại sau.";
+                TempData["ErrorMessage"] = message;
             }
 
             return RedirectToAction(nameof(QuanLy));
@@ -401,35 +243,17 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            try
-            {
-                var monHoc = await _context.MonHocs.FindAsync(id);
-                if (monHoc != null)
-                {
-                    // Kiểm tra khóa học đang hoạt động trước khi tạm dừng (Đề 16 Mục 5.5, 6.7, 8.3)
-                    if (monHoc.TrangThai)
-                    {
-                        bool coKhoaHocHoatDong = await _context.KhoaHocs.AnyAsync(k => k.MaMonHoc == id && (k.TrangThai == "DangMo" || k.TrangThai == "DangHoc" || k.TrangThai == "SapMo"));
-                        if (coKhoaHocHoatDong)
-                        {
-                            TempData["ErrorMessage"] = $"Không thể tạm dừng môn học '{monHoc.TenMonHoc}' vì vẫn còn lớp khóa học đang mở, đang học hoặc sắp mở. Vui lòng đóng hoặc hoàn tất các khóa học trước.";
-                            return RedirectToAction(nameof(QuanLy));
-                        }
-                    }
+            var (success, message, newStatus) = await _monHocRepo.ToggleStatusAsync(id);
 
-                    monHoc.TrangThai = !monHoc.TrangThai;
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = $"Đã đổi trạng thái môn '{monHoc.TenMonHoc}' sang {(monHoc.TrangThai ? "Đang mở" : "Tạm dừng")}.";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Không tìm thấy thông tin môn học cần đổi trạng thái.";
-                }
-            }
-            catch (Exception)
+            if (success)
             {
-                TempData["ErrorMessage"] = "Không thể đổi trạng thái môn học do sự cố CSDL.";
+                TempData["SuccessMessage"] = message;
             }
+            else
+            {
+                TempData["ErrorMessage"] = message;
+            }
+
             return RedirectToAction(nameof(QuanLy));
         }
     }

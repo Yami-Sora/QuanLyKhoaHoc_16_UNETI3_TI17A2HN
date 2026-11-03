@@ -1,7 +1,3 @@
-// Họ và tên: Trần Văn Thành
-// Mã sinh viên: 23103100076
-// Module 1: Cấu hình ứng dụng
-
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
@@ -26,11 +22,15 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// 3. Đăng ký Repository Pattern (Module 3: Ngọc Tùng Lâm - 23103100098)
+// 3. Đăng ký Repository Pattern (Module 1: Trần Văn Thành - 23103100076)
+builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
+builder.Services.AddScoped<IMonHocRepository, MonHocRepository>();
+
+// 4. Đăng ký Repository Pattern (Module 3: Ngọc Tùng Lâm - 23103100098)
 builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IHocVienRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.HocVienRepository>();
 builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IDangKyKhoaHocRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.DangKyKhoaHocRepository>();
 
-// 4. Đăng ký Repository Pattern (Module 5: Nguyễn Công Thành - 23103100102)
+// 5. Đăng ký Repository Pattern (Module 5: Nguyễn Công Thành - 23103100102)
 builder.Services.AddScoped<IKetQuaHocTapRepository, KetQuaHocTapRepository>();
 builder.Services.AddScoped<IThongKeRepository, ThongKeRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();

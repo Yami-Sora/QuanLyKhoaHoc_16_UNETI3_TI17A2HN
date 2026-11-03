@@ -1,26 +1,25 @@
 // Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Module 1: Xác thực, tài khoản và phân quyền
+// Module 1: Xác thực, tài khoản và phân quyền (Sử dụng Repository Pattern)
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 {
     public class TaiKhoanController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITaiKhoanRepository _taiKhoanRepo;
         private readonly ILogger<TaiKhoanController> _logger;
         private readonly IWebHostEnvironment _env;
 
-        public TaiKhoanController(ApplicationDbContext context, ILogger<TaiKhoanController> logger, IWebHostEnvironment env)
+        public TaiKhoanController(ITaiKhoanRepository taiKhoanRepo, ILogger<TaiKhoanController> logger, IWebHostEnvironment env)
         {
-            _context = context;
+            _taiKhoanRepo = taiKhoanRepo;
             _logger = logger;
             _env = env;
         }
@@ -50,12 +49,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             try
             {
-                string cleanUsername = (model.TenDangNhap ?? "").Trim().ToLower();
-
                 // Kiểm tra tài khoản (không phân biệt hoa thường)
-                var user = await _context.TaiKhoans
-                    .Include(t => t.HocVien)
-                    .FirstOrDefaultAsync(t => t.TenDangNhap.ToLower() == cleanUsername);
+                var user = await _taiKhoanRepo.GetByTenDangNhapAsync(model.TenDangNhap);
 
                 // 2. Đối soát mật khẩu băm SHA-256
                 if (user == null)
@@ -79,21 +74,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 }
 
                 // Tự tạo hồ sơ học viên nếu chưa có
-                if (user.VaiTro == "HocVien" && user.HocVien == null)
-                {
-                    var newHocVien = new HocVien
-                    {
-                        MaTaiKhoan = user.MaTaiKhoan,
-                        HoTen = user.HoTen,
-                        Email = user.Email,
-                        SoDienThoai = string.Empty,
-                        NgayDangKy = DateTime.Now,
-                        TrangThai = true
-                    };
-                    _context.HocViens.Add(newHocVien);
-                    await _context.SaveChangesAsync();
-                    user.HocVien = newHocVien;
-                }
+                await _taiKhoanRepo.EnsureHocVienProfileAsync(user);
 
                 // 4. Thiết lập 4 khóa Session thiết yếu theo quy chuẩn Đề 16
                 HttpContext.Session.SetInt32("MaTaiKhoan", user.MaTaiKhoan);
@@ -176,8 +157,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             try
             {
-                var normalizedEmail = (model.Email ?? "").Trim().ToLower();
-                var user = await _context.TaiKhoans.FirstOrDefaultAsync(t => t.Email.ToLower() == normalizedEmail);
+                var user = await _taiKhoanRepo.GetByEmailAsync(model.Email);
 
                 if (user == null)
                 {
@@ -232,8 +212,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             try
             {
-                var normalizedEmail = email.Trim().ToLower();
-                var user = await _context.TaiKhoans.FirstOrDefaultAsync(t => t.Email.ToLower() == normalizedEmail);
+                var user = await _taiKhoanRepo.GetByEmailAsync(email);
                 if (user == null)
                 {
                     TempData["ErrorMessage"] = "Không tìm thấy thông tin tài khoản gắn với yêu cầu này.";
@@ -271,8 +250,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             try
             {
-                var normalizedEmail = (model.Email ?? "").Trim().ToLower();
-                var user = await _context.TaiKhoans.FirstOrDefaultAsync(t => t.Email.ToLower() == normalizedEmail);
+                var user = await _taiKhoanRepo.GetByEmailAsync(model.Email ?? "");
                 if (user == null)
                 {
                     ModelState.AddModelError(string.Empty, "Không tìm thấy thông tin tài khoản tương ứng.");
@@ -292,9 +270,12 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                     return View(model);
                 }
 
-                // Băm và lưu mật khẩu mới
-                user.MatKhau = PasswordHelper.HashPassword(model.MatKhauMoi);
-                await _context.SaveChangesAsync();
+                var (success, error) = await _taiKhoanRepo.ResetPasswordAsync(model.Email, model.MatKhauMoi);
+                if (!success)
+                {
+                    ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+                    return View(model);
+                }
 
                 TempData["SuccessMessage"] = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới.";
                 return RedirectToAction(nameof(Login));
@@ -336,80 +317,32 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             string cleanUsername = (model.TenDangNhap ?? "").Trim();
             string cleanEmail = (model.Email ?? "").Trim();
-            string cleanHoTen = (model.HoTen ?? "").Trim();
-            string cleanPhone = string.IsNullOrWhiteSpace(model.SoDienThoai) ? string.Empty : model.SoDienThoai.Trim();
 
             try
             {
                 // Kiểm tra trùng tên đăng nhập
-                bool isTaken = await _context.TaiKhoans.AnyAsync(t =>
-                    t.TenDangNhap.ToLower() == cleanUsername.ToLower());
-
-                if (isTaken)
+                if (await _taiKhoanRepo.ExistsTenDangNhapAsync(cleanUsername))
                 {
                     ModelState.AddModelError("TenDangNhap", "Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác.");
                     return View(model);
                 }
 
                 // 3. LINQ Kiểm tra trùng Địa chỉ Email
-                bool emailTaken = await _context.TaiKhoans.AnyAsync(t =>
-                    t.Email.ToLower() == cleanEmail.ToLower());
-
-                if (emailTaken)
+                if (await _taiKhoanRepo.ExistsEmailAsync(cleanEmail))
                 {
                     ModelState.AddModelError("Email", "Địa chỉ email này đã được sử dụng bởi một tài khoản khác. Vui lòng chọn email khác.");
                     return View(model);
                 }
 
-                // Dùng transaction lưu tài khoản và học viên
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                try
+                var (success, error) = await _taiKhoanRepo.RegisterAsync(model);
+                if (success)
                 {
-                    // Tạo tài khoản mới với vai trò Học viên
-                    var taiKhoan = new TaiKhoan
-                    {
-                        TenDangNhap = cleanUsername,
-                        MatKhau = PasswordHelper.HashPassword(model.MatKhau),
-                        HoTen = cleanHoTen,
-                        Email = cleanEmail,
-                        VaiTro = VaiTro.HocVien,
-                        TrangThai = true,
-                        NgayTao = DateTime.Now
-                    };
-
-                    _context.TaiKhoans.Add(taiKhoan);
-                    await _context.SaveChangesAsync();
-
-                    // Tạo hồ sơ học viên tương ứng
-                    var hocVien = new HocVien
-                    {
-                        MaTaiKhoan = taiKhoan.MaTaiKhoan,
-                        HoTen = taiKhoan.HoTen,
-                        Email = taiKhoan.Email,
-                        SoDienThoai = cleanPhone,
-                        NgayDangKy = DateTime.Now,
-                        TrangThai = true
-                    };
-                    _context.HocViens.Add(hocVien);
-                    await _context.SaveChangesAsync();
-
-                    // Cam kết Transaction thành công trọn vẹn
-                    await transaction.CommitAsync();
-
                     TempData["SuccessMessage"] = "Đăng ký tài khoản học viên thành công! Vui lòng đăng nhập để bắt đầu.";
                     return RedirectToAction(nameof(Login));
                 }
-                catch (DbUpdateException)
-                {
-                    await transaction.RollbackAsync();
-                    ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc Email có thể đã được người khác sử dụng trong quá trình bạn gửi yêu cầu. Vui lòng thử lại.");
-                    return View(model);
-                }
-                catch (Exception)
-                {
-                    await transaction.RollbackAsync();
-                    throw; // Sẽ được bắt ở khối try-catch bên ngoài
-                }
+
+                ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+                return View(model);
             }
             catch (Exception)
             {
@@ -443,33 +376,16 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 return View(model);
             }
 
-            try
+            var (success, error) = await _taiKhoanRepo.ChangePasswordAsync(maTaiKhoan.Value, model.MatKhauHienTai, model.MatKhauMoi);
+            if (!success)
             {
-                var user = await _context.TaiKhoans.FindAsync(maTaiKhoan.Value);
-                if (user == null)
-                {
-                    return RedirectToAction(nameof(Login));
-                }
-
-                // Kiểm tra mật khẩu hiện tại
-                if (!PasswordHelper.VerifyPassword(model.MatKhauHienTai, user.MatKhau))
-                {
-                    ModelState.AddModelError("MatKhauHienTai", "Mật khẩu hiện tại không chính xác.");
-                    return View(model);
-                }
-
-                // Cập nhật mật khẩu mới đã băm
-                user.MatKhau = PasswordHelper.HashPassword(model.MatKhauMoi);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
-                return RedirectBasedOnRole(user.VaiTro);
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError(string.Empty, "Không thể cập nhật mật khẩu do lỗi kết nối CSDL. Vui lòng thử lại sau.");
+                ModelState.AddModelError("MatKhauHienTai", error ?? "Lỗi không xác định.");
                 return View(model);
             }
+
+            var user = await _taiKhoanRepo.GetByIdAsync(maTaiKhoan.Value);
+            TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
+            return RedirectBasedOnRole(user?.VaiTro);
         }
 
         // QUẢN LÝ DANH SÁCH TÀI KHOẢN (ADMIN & NHÂN VIÊN) - THEO MỤC 5.4 ĐỀ 16
@@ -479,54 +395,25 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [HttpGet]
         public async Task<IActionResult> QuanLy(string? searchString, string? role, bool? trangThai, int page = 1, int pageSize = 10)
         {
-            var query = _context.TaiKhoans.Include(t => t.HocVien).AsQueryable();
+            var (list, totalCount, totalAdmins, totalNhanViens, totalHocViens, totalLocked, totalFiltered, totalPages) =
+                await _taiKhoanRepo.GetListAsync(searchString, role, trangThai, page, pageSize);
 
-            // LINQ Tìm kiếm đa trường (Tên đăng nhập, Họ tên, Email)
-            if (!string.IsNullOrWhiteSpace(searchString))
-            {
-                var term = searchString.Trim().ToLower();
-                query = query.Where(t => t.TenDangNhap.ToLower().Contains(term)
-                                      || t.HoTen.ToLower().Contains(term)
-                                      || t.Email.ToLower().Contains(term));
-                ViewBag.CurrentSearch = searchString;
-            }
-
-            // LINQ Lọc theo vai trò (Admin, NhanVien, HocVien)
-            if (!string.IsNullOrWhiteSpace(role))
-            {
-                query = query.Where(t => t.VaiTro == role);
-                ViewBag.CurrentRole = role;
-            }
-
-            // LINQ Lọc theo trạng thái hoạt động / bị khóa
-            if (trangThai.HasValue)
-            {
-                query = query.Where(t => t.TrangThai == trangThai.Value);
-                ViewBag.CurrentTrangThai = trangThai;
-            }
-
-            ViewBag.TotalCount = await _context.TaiKhoans.CountAsync();
-            ViewBag.TotalAdmins = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "Admin");
-            ViewBag.TotalNhanViens = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "NhanVien");
-            ViewBag.TotalHocViens = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "HocVien");
-            ViewBag.TotalLocked = await _context.TaiKhoans.CountAsync(t => !t.TrangThai);
-            
-            var totalFiltered = await query.CountAsync();
+            ViewBag.TotalCount = totalCount;
+            ViewBag.TotalAdmins = totalAdmins;
+            ViewBag.TotalNhanViens = totalNhanViens;
+            ViewBag.TotalHocViens = totalHocViens;
+            ViewBag.TotalLocked = totalLocked;
             ViewBag.TotalFilteredItems = totalFiltered;
-
-            if (page < 1) page = 1;
-            var totalPages = (int)Math.Ceiling(totalFiltered / (double)pageSize);
-            if (totalPages < 1) totalPages = 1;
-            if (page > totalPages) page = totalPages;
-
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.PageSize = pageSize;
 
-            var list = await query.OrderByDescending(t => t.MaTaiKhoan)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            if (!string.IsNullOrWhiteSpace(searchString))
+                ViewBag.CurrentSearch = searchString;
+            if (!string.IsNullOrWhiteSpace(role))
+                ViewBag.CurrentRole = role;
+            if (trangThai.HasValue)
+                ViewBag.CurrentTrangThai = trangThai;
 
             return View(list);
         }
@@ -562,68 +449,30 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             string cleanUsername = (model.TenDangNhap ?? "").Trim();
             string cleanEmail = (model.Email ?? "").Trim();
-            string cleanHoTen = (model.HoTen ?? "").Trim();
-            string cleanPhone = (model.SoDienThoai ?? "").Trim();
 
             // 1. Kiểm tra trùng tên đăng nhập
-            if (await _context.TaiKhoans.AnyAsync(t => t.TenDangNhap.ToLower() == cleanUsername.ToLower()))
+            if (await _taiKhoanRepo.ExistsTenDangNhapAsync(cleanUsername))
             {
                 ModelState.AddModelError(nameof(model.TenDangNhap), "Tên đăng nhập này đã được sử dụng trong hệ thống.");
                 return View(model);
             }
 
             // 2. Kiểm tra trùng địa chỉ email
-            if (await _context.TaiKhoans.AnyAsync(t => t.Email.ToLower() == cleanEmail.ToLower()))
+            if (await _taiKhoanRepo.ExistsEmailAsync(cleanEmail))
             {
                 ModelState.AddModelError(nameof(model.Email), "Địa chỉ email này đã được sử dụng bởi một tài khoản khác.");
                 return View(model);
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var (success, error) = await _taiKhoanRepo.CreateByAdminAsync(model);
+            if (success)
             {
-                var taiKhoan = new TaiKhoan
-                {
-                    TenDangNhap = cleanUsername,
-                    MatKhau = PasswordHelper.HashPassword(model.MatKhau),
-                    HoTen = cleanHoTen,
-                    Email = cleanEmail,
-                    VaiTro = model.VaiTro,
-                    TrangThai = model.TrangThai,
-                    NgayTao = DateTime.Now
-                };
-
-                _context.TaiKhoans.Add(taiKhoan);
-                await _context.SaveChangesAsync();
-
-                // Nếu vai trò là Học viên, tạo hồ sơ HocVien đồng bộ
-                if (model.VaiTro == VaiTro.HocVien)
-                {
-                    var hocVien = new HocVien
-                    {
-                        MaTaiKhoan = taiKhoan.MaTaiKhoan,
-                        HoTen = cleanHoTen,
-                        Email = cleanEmail,
-                        SoDienThoai = cleanPhone,
-                        NgayDangKy = DateTime.Now,
-                        TrangThai = model.TrangThai
-                    };
-                    _context.HocViens.Add(hocVien);
-                    await _context.SaveChangesAsync();
-                }
-
-                await transaction.CommitAsync();
-
-                TempData["SuccessMessage"] = $"Đã tạo mới tài khoản '{taiKhoan.TenDangNhap}' ({VaiTro.LayTenHienThi(taiKhoan.VaiTro)}) thành công!";
+                TempData["SuccessMessage"] = $"Đã tạo mới tài khoản '{model.TenDangNhap}' ({VaiTro.LayTenHienThi(model.VaiTro)}) thành công!";
                 return RedirectToAction(nameof(QuanLy));
             }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, "Lỗi khi tạo mới tài khoản bởi Admin");
-                ModelState.AddModelError(string.Empty, "Không thể tạo tài khoản do lỗi kết nối CSDL. Vui lòng thử lại sau.");
-                return View(model);
-            }
+
+            ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+            return View(model);
         }
 
         // GET: /TaiKhoan/Edit/5
@@ -631,9 +480,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var user = await _context.TaiKhoans
-                .Include(t => t.HocVien)
-                .FirstOrDefaultAsync(t => t.MaTaiKhoan == id);
+            var user = await _taiKhoanRepo.GetByIdWithHocVienAsync(id);
 
             if (user == null)
             {
@@ -670,21 +517,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 return View(model);
             }
 
-            var user = await _context.TaiKhoans
-                .Include(t => t.HocVien)
-                .FirstOrDefaultAsync(t => t.MaTaiKhoan == id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
             string cleanEmail = (model.Email ?? "").Trim();
-            string cleanHoTen = (model.HoTen ?? "").Trim();
-            string cleanPhone = (model.SoDienThoai ?? "").Trim();
 
             // Kiểm tra trùng email với tài khoản khác
-            if (await _context.TaiKhoans.AnyAsync(t => t.MaTaiKhoan != id && t.Email.ToLower() == cleanEmail.ToLower()))
+            if (await _taiKhoanRepo.ExistsEmailAsync(cleanEmail, id))
             {
                 ModelState.AddModelError(nameof(model.Email), "Địa chỉ email này đã được sử dụng bởi một tài khoản khác.");
                 return View(model);
@@ -707,9 +543,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             }
 
             // Chặn khóa hoặc hạ quyền Admin duy nhất
-            if (user.VaiTro == VaiTro.Admin && (model.VaiTro != VaiTro.Admin || !model.TrangThai))
+            var user = await _taiKhoanRepo.GetByIdWithHocVienAsync(id);
+            if (user != null && user.VaiTro == VaiTro.Admin && (model.VaiTro != VaiTro.Admin || !model.TrangThai))
             {
-                var activeAdminCount = await _context.TaiKhoans.CountAsync(t => t.VaiTro == VaiTro.Admin && t.TrangThai);
+                var activeAdminCount = await _taiKhoanRepo.CountActiveAdminsAsync();
                 if (activeAdminCount <= 1)
                 {
                     ModelState.AddModelError(string.Empty, "Không thể khóa hoặc hạ quyền tài khoản Quản trị viên (Admin) duy nhất còn lại trong hệ thống!");
@@ -717,49 +554,15 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 }
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var (success, error) = await _taiKhoanRepo.UpdateByAdminAsync(id, model);
+            if (success)
             {
-                user.HoTen = cleanHoTen;
-                user.Email = cleanEmail;
-                user.VaiTro = model.VaiTro;
-                user.TrangThai = model.TrangThai;
-
-                // Đồng bộ hồ sơ học viên
-                if (user.HocVien != null)
-                {
-                    user.HocVien.HoTen = cleanHoTen;
-                    user.HocVien.Email = cleanEmail;
-                    user.HocVien.SoDienThoai = cleanPhone;
-                    user.HocVien.TrangThai = model.TrangThai;
-                }
-                else if (model.VaiTro == VaiTro.HocVien)
-                {
-                    // Nếu đổi sang vai trò Học viên mà chưa có hồ sơ
-                    _context.HocViens.Add(new HocVien
-                    {
-                        MaTaiKhoan = user.MaTaiKhoan,
-                        HoTen = cleanHoTen,
-                        Email = cleanEmail,
-                        SoDienThoai = cleanPhone,
-                        NgayDangKy = DateTime.Now,
-                        TrangThai = model.TrangThai
-                    });
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                TempData["SuccessMessage"] = $"Đã cập nhật thông tin tài khoản '{user.TenDangNhap}' thành công!";
+                TempData["SuccessMessage"] = $"Đã cập nhật thông tin tài khoản '{model.TenDangNhap}' thành công!";
                 return RedirectToAction(nameof(QuanLy));
             }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, "Lỗi khi cập nhật thông tin tài khoản ID {Id}", id);
-                ModelState.AddModelError(string.Empty, "Không thể lưu thông tin do lỗi kết nối CSDL.");
-                return View(model);
-            }
+
+            ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+            return View(model);
         }
 
         // POST: /TaiKhoan/ToggleStatus/5
@@ -769,50 +572,19 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan");
-            if (currentUserId == id)
+            var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan") ?? 0;
+            var (success, error, newStatus) = await _taiKhoanRepo.ToggleStatusAsync(id, currentUserId);
+
+            if (!success)
             {
-                TempData["ErrorMessage"] = "Bạn không thể tự khóa tài khoản Admin đang đăng nhập của chính mình!";
-                return RedirectToAction(nameof(QuanLy));
+                TempData["ErrorMessage"] = error;
+            }
+            else
+            {
+                var user = await _taiKhoanRepo.GetByIdAsync(id);
+                TempData["SuccessMessage"] = $"Đã {(newStatus ? "mở khóa" : "khóa")} tài khoản '{user?.TenDangNhap}' thành công.";
             }
 
-            try
-            {
-                var user = await _context.TaiKhoans.FindAsync(id);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                // Chặn khóa tài khoản Admin duy nhất còn lại đang hoạt động
-                if (user.VaiTro == VaiTro.Admin && user.TrangThai)
-                {
-                    var activeAdminCount = await _context.TaiKhoans.CountAsync(t => t.VaiTro == VaiTro.Admin && t.TrangThai);
-                    if (activeAdminCount <= 1)
-                    {
-                        TempData["ErrorMessage"] = "Không thể khóa tài khoản Quản trị viên (Admin) duy nhất còn lại đang hoạt động trong hệ thống!";
-                        return RedirectToAction(nameof(QuanLy));
-                    }
-                }
-
-                user.TrangThai = !user.TrangThai;
-
-                // Đồng bộ trạng thái hồ sơ học viên tương ứng (nếu có)
-                var hocVien = await _context.HocViens.FirstOrDefaultAsync(h => h.MaTaiKhoan == id);
-                if (hocVien != null)
-                {
-                    hocVien.TrangThai = user.TrangThai;
-                }
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Đã {(user.TrangThai ? "mở khóa" : "khóa")} tài khoản '{user.TenDangNhap}' thành công.";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi cập nhật trạng thái tài khoản ID {Id}", id);
-                TempData["ErrorMessage"] = "Không thể cập nhật trạng thái tài khoản do sự cố CSDL.";
-            }
             return RedirectToAction(nameof(QuanLy));
         }
 
@@ -823,27 +595,17 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> ResetPasswordByAdmin(int id)
         {
-            try
+            var (success, message) = await _taiKhoanRepo.ResetPasswordByAdminAsync(id);
+
+            if (success)
             {
-                var user = await _context.TaiKhoans.FindAsync(id);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                // Đặt lại về mật khẩu mặc định 123456
-                const string defaultPassword = "123456";
-
-                user.MatKhau = PasswordHelper.HashPassword(defaultPassword);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Đã đặt lại mật khẩu cho '{user.TenDangNhap}' về mặc định: [{defaultPassword}].";
+                TempData["SuccessMessage"] = message;
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Lỗi khi đặt lại mật khẩu cho tài khoản ID {Id}", id);
-                TempData["ErrorMessage"] = "Không thể đặt lại mật khẩu do sự cố CSDL.";
+                TempData["ErrorMessage"] = message;
             }
+
             return RedirectToAction(nameof(QuanLy));
         }
 
@@ -854,64 +616,18 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> UpdateRole(int id, string vaiTro)
         {
-            if (!VaiTro.DanhSachVaiTro.Contains(vaiTro))
+            var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan") ?? 0;
+            var (success, message) = await _taiKhoanRepo.UpdateRoleAsync(id, vaiTro, currentUserId);
+
+            if (success)
             {
-                TempData["ErrorMessage"] = "Vai trò được chọn không hợp lệ trong hệ thống.";
-                return RedirectToAction(nameof(QuanLy));
+                TempData["SuccessMessage"] = message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = message;
             }
 
-            var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan");
-            if (currentUserId == id && vaiTro != VaiTro.Admin)
-            {
-                TempData["ErrorMessage"] = "Bạn không thể tự hạ quyền Admin của tài khoản đang đăng nhập!";
-                return RedirectToAction(nameof(QuanLy));
-            }
-
-            try
-            {
-                var user = await _context.TaiKhoans.Include(t => t.HocVien).FirstOrDefaultAsync(t => t.MaTaiKhoan == id);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                // Chặn hạ quyền Admin duy nhất còn lại trong hệ thống
-                if (user.VaiTro == VaiTro.Admin && vaiTro != VaiTro.Admin)
-                {
-                    var activeAdminCount = await _context.TaiKhoans.CountAsync(t => t.VaiTro == VaiTro.Admin && t.TrangThai);
-                    if (activeAdminCount <= 1)
-                    {
-                        TempData["ErrorMessage"] = "Không thể hạ quyền tài khoản Quản trị viên (Admin) duy nhất còn lại trong hệ thống!";
-                        return RedirectToAction(nameof(QuanLy));
-                    }
-                }
-
-                var oldRole = user.VaiTro;
-                user.VaiTro = vaiTro;
-
-                // Tự tạo hồ sơ học viên khi chuyển vai trò
-                if (vaiTro == VaiTro.HocVien && user.HocVien == null)
-                {
-                    _context.HocViens.Add(new HocVien
-                    {
-                        MaTaiKhoan = user.MaTaiKhoan,
-                        HoTen = user.HoTen,
-                        Email = user.Email,
-                        SoDienThoai = string.Empty,
-                        NgayDangKy = DateTime.Now,
-                        TrangThai = true
-                    });
-                }
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Đã cập nhật vai trò của tài khoản '{user.TenDangNhap}' từ [{oldRole}] sang [{vaiTro}] thành công.";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi cập nhật vai trò cho tài khoản ID {Id}", id);
-                TempData["ErrorMessage"] = "Không thể cập nhật vai trò tài khoản do sự cố CSDL.";
-            }
             return RedirectToAction(nameof(QuanLy));
         }
 

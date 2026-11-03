@@ -1,5 +1,5 @@
-﻿// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
-// Module 1: UI components (Toast, Confirm Modal)
+﻿
+//UI components (Toast, Confirm Modal)
 
 const UnetiUI = (function () {
     // 1. Toast Notification System

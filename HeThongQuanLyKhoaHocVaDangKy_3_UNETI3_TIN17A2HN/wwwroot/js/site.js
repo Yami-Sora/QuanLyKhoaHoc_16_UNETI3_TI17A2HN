@@ -1,6 +1,3 @@
-// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
-// Module 1: Script hỗ trợ UI & Validation
-
 // Hàm thông báo phân hệ các Module khác đang phát triển (Đề tài 16)
 function thongBaoModule(soModule) {
     if (window.UnetiUI && typeof window.UnetiUI.showModulePending === 'function') {

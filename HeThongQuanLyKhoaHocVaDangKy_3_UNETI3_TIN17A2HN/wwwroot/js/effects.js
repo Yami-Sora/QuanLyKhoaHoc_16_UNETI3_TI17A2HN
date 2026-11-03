@@ -1,6 +1,4 @@
-// Họ và tên: Trần Văn Thành - MSV: 23103100076 - Lớp: TIN17A2HN
-// Module 1: Hiệu ứng giao diện (Scroll, Count-up, Navbar)
-
+// Hiệu ứng giao diện (Scroll, Count-up, Navbar)
 (function () {
     'use strict';
 
