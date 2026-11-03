@@ -25,6 +25,7 @@ builder.Services.AddSession(options =>
 // 3. Đăng ký Repository Pattern (Module 1: Trần Văn Thành - 23103100076)
 builder.Services.AddScoped<ITaiKhoanRepository, TaiKhoanRepository>();
 builder.Services.AddScoped<IMonHocRepository, MonHocRepository>();
+builder.Services.AddScoped<IGiangVienRepository, GiangVienRepository>();
 
 // 4. Đăng ký Repository Pattern (Module 3: Ngọc Tùng Lâm - 23103100098)
 builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IHocVienRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.HocVienRepository>();
