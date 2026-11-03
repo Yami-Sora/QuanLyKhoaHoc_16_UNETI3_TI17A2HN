@@ -4,6 +4,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 
@@ -122,6 +123,35 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(list);
         }
 
+        // GET: /MonHoc/XuatDanhSach
+        // Xuất danh sách môn học (Excel chuẩn .xlsx, thương hiệu UNETI, tự động co giãn cột, kẻ viền và bộ lọc)
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
+        public async Task<IActionResult> XuatDanhSach(string? searchString, bool? trangThai)
+        {
+            var list = await _monHocRepo.GetExportListAsync(searchString, trangThai);
+
+            var headers = new[]
+            {
+                "STT", "Mã môn học", "Tên môn học", "Số tín chỉ", "Học phí định mức", "Số lớp mở", "Trạng thái", "Mô tả"
+            };
+
+            int stt = 1;
+            var rows = list.Select(m => new object?[]
+            {
+                stt++,
+                $"MH{m.MaMonHoc:D2}",
+                m.TenMonHoc,
+                m.SoTinChi,
+                m.HocPhi,
+                m.KhoaHocs?.Count ?? 0,
+                m.TrangThai ? "Đang mở" : "Tạm dừng",
+                m.MoTa ?? ""
+            });
+
+            var bytes = ExportHelper.ToExcelBytes("Danh sách môn học", headers, rows);
+            return File(bytes, ExportHelper.ExcelContentType, "DanhSachMonHoc.xlsx");
+        }
+
         // GET: /MonHoc/Create
         // Quyền: Admin và Nhân viên đều có quyền thêm mới môn học (Mục 25.2 Đề 16)
         [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
@@ -136,25 +166,41 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> Create(MonHoc monHoc)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                          (Request.Headers.Accept.ToString()?.Contains("application/json") ?? false);
+
             if (ModelState.IsValid)
             {
                 // LINQ Kiểm tra trùng lặp tên môn học an toàn
                 if (await _monHocRepo.ExistsTenMonHocAsync(monHoc.TenMonHoc ?? ""))
                 {
-                    ModelState.AddModelError("TenMonHoc", "Tên môn học này đã tồn tại trong hệ thống. Vui lòng nhập tên khác.");
+                    const string duplicateMsg = "Tên môn học này đã tồn tại trong hệ thống. Vui lòng nhập tên khác.";
+                    if (isAjax) return Json(new { success = false, message = duplicateMsg });
+                    ModelState.AddModelError("TenMonHoc", duplicateMsg);
                     return View(monHoc);
                 }
 
                 var (success, error) = await _monHocRepo.CreateAsync(monHoc);
                 if (success)
                 {
-                    TempData["SuccessMessage"] = $"Đã thêm mới môn học '{monHoc.TenMonHoc}' thành công!";
+                    var successMsg = $"Đã thêm mới môn học '{monHoc.TenMonHoc}' thành công!";
+                    TempData["SuccessMessage"] = successMsg;
+                    if (isAjax) return Json(new { success = true, message = successMsg });
                     return RedirectToAction(nameof(QuanLy));
                 }
 
-                ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+                var failMsg = error ?? "Lỗi không xác định khi tạo môn học.";
+                if (isAjax) return Json(new { success = false, message = failMsg });
+                ModelState.AddModelError(string.Empty, failMsg);
                 return View(monHoc);
             }
+
+            var firstError = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m)) ?? "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+
+            if (isAjax) return Json(new { success = false, message = firstError });
             return View(monHoc);
         }
 
@@ -168,6 +214,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             var monHoc = await _monHocRepo.GetByIdAsync(id.Value);
             if (monHoc == null) return NotFound();
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, data = monHoc });
+            }
+
             return View(monHoc);
         }
 
@@ -177,27 +228,47 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         public async Task<IActionResult> Edit(int id, MonHoc monHoc)
         {
-            if (id != monHoc.MaMonHoc) return NotFound();
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                          (Request.Headers.Accept.ToString()?.Contains("application/json") ?? false);
+
+            if (id != monHoc.MaMonHoc)
+            {
+                if (isAjax) return Json(new { success = false, message = "Dữ liệu yêu cầu không hợp lệ." });
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
                 // Kiểm tra trùng tên môn học
                 if (await _monHocRepo.ExistsTenMonHocAsync(monHoc.TenMonHoc ?? "", id))
                 {
-                    ModelState.AddModelError("TenMonHoc", "Tên môn học này đã trùng với môn học khác trong hệ thống.");
+                    const string duplicateMsg = "Tên môn học này đã trùng với môn học khác trong hệ thống.";
+                    if (isAjax) return Json(new { success = false, message = duplicateMsg });
+                    ModelState.AddModelError("TenMonHoc", duplicateMsg);
                     return View(monHoc);
                 }
 
                 var (success, error) = await _monHocRepo.UpdateAsync(id, monHoc);
                 if (success)
                 {
-                    TempData["SuccessMessage"] = $"Cập nhật môn học '{monHoc.TenMonHoc}' thành công!";
+                    var successMsg = $"Cập nhật môn học '{monHoc.TenMonHoc}' thành công!";
+                    TempData["SuccessMessage"] = successMsg;
+                    if (isAjax) return Json(new { success = true, message = successMsg });
                     return RedirectToAction(nameof(QuanLy));
                 }
 
-                ModelState.AddModelError(string.IsNullOrEmpty(error) ? string.Empty : (error.Contains("Tạm dừng") ? nameof(monHoc.TrangThai) : string.Empty), error ?? "Lỗi không xác định.");
+                var failMsg = error ?? "Lỗi không xác định khi cập nhật môn học.";
+                if (isAjax) return Json(new { success = false, message = failMsg });
+                ModelState.AddModelError(string.IsNullOrEmpty(error) ? string.Empty : (error.Contains("Tạm dừng") ? nameof(monHoc.TrangThai) : string.Empty), failMsg);
                 return View(monHoc);
             }
+
+            var firstError = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m)) ?? "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+
+            if (isAjax) return Json(new { success = false, message = firstError });
             return View(monHoc);
         }
 
@@ -222,15 +293,20 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                          (Request.Headers.Accept.ToString()?.Contains("application/json") ?? false);
+
             var (success, message) = await _monHocRepo.DeleteAsync(id);
 
             if (success)
             {
                 TempData["SuccessMessage"] = message;
+                if (isAjax) return Json(new { success = true, message });
             }
             else
             {
                 TempData["ErrorMessage"] = message;
+                if (isAjax) return Json(new { success = false, message });
             }
 
             return RedirectToAction(nameof(QuanLy));

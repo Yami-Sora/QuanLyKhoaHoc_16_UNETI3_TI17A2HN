@@ -5,11 +5,70 @@
     // 1. Kiểm tra giảm chuyển động (prefers-reduced-motion)
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // 1.1 Quản lý Thanh tiến trình đỉnh trang & Màn hình chờ tải trang (Page Preloader)
+    function startTopProgress() {
+        const bar = document.getElementById('unetiTopProgressBar');
+        if (!bar) return;
+        bar.classList.add('is-active');
+        bar.style.width = '35%';
+        setTimeout(function () {
+            if (bar.classList.contains('is-active')) {
+                bar.style.width = '75%';
+            }
+        }, 120);
+    }
+
+    function completeTopProgress() {
+        const bar = document.getElementById('unetiTopProgressBar');
+        if (!bar) return;
+        bar.style.width = '100%';
+        setTimeout(function () {
+            bar.classList.remove('is-active');
+            setTimeout(function () {
+                bar.style.width = '0%';
+            }, 250);
+        }, 180);
+    }
+
+    function hidePageLoader() {
+        const loader = document.getElementById('unetiPageLoader');
+        if (loader) {
+            loader.classList.add('is-hidden');
+        }
+        completeTopProgress();
+    }
+
+    function showPageLoader() {
+        if (prefersReducedMotion) return;
+        const loader = document.getElementById('unetiPageLoader');
+        if (loader) {
+            loader.classList.remove('is-hidden');
+        }
+        startTopProgress();
+    }
+
+    // Tự động tắt Loader khi trang hoàn tất nạp (kèm timeout an toàn)
+    if (document.readyState === 'complete') {
+        setTimeout(hidePageLoader, 100);
+    } else {
+        window.addEventListener('load', function () {
+            setTimeout(hidePageLoader, 100);
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(hidePageLoader, 200);
+        });
+    }
+    // Timeout an toàn tuyệt đối 1.5s đề phòng mạng chậm/CDN
+    setTimeout(hidePageLoader, 1500);
+
     // 2. Chuyển trang mượt mà (Page Transitions)
     function initPageTransitions() {
         if (prefersReducedMotion) return;
 
         document.addEventListener('click', function (e) {
+            // Bỏ qua nếu thao tác click đã bị hủy (ví dụ onclick="return confirm(...)" chọn Hủy)
+            if (e.defaultPrevented) return;
+
             const anchor = e.target.closest('a');
             if (!anchor) return;
 
@@ -30,15 +89,34 @@
                 return;
             }
 
+            // Bỏ qua các liên kết xuất file, tải dữ liệu (Xuat, Export, Download, các định dạng file)
+            const pathLower = (anchor.pathname || '').toLowerCase();
+            const hrefLower = href.toLowerCase();
+            if (pathLower.includes('xuat') ||
+                pathLower.includes('export') ||
+                pathLower.includes('download') ||
+                /\.(csv|xlsx?|pdf|zip|rar|docx?|pptx?)$/i.test(pathLower) ||
+                /\.(csv|xlsx?|pdf|zip|rar|docx?|pptx?)$/i.test(hrefLower)) {
+                return;
+            }
+
             // Kiểm tra link nội bộ cùng origin
             try {
                 const url = new URL(anchor.href, window.location.origin);
                 if (url.origin === window.location.origin && url.pathname !== window.location.pathname) {
                     e.preventDefault();
                     document.body.classList.add('fx-page-exiting');
+                    showPageLoader();
                     setTimeout(function () {
                         window.location.href = anchor.href;
-                    }, 220);
+                    }, 180);
+
+                    // Dự phòng an toàn: nếu trình duyệt không chuyển trang thật sự (ví dụ tệp tải xuống hoặc bị hủy)
+                    // tự động hồi phục lại giao diện để tránh màn hình bị kẹt trắng xóa
+                    setTimeout(function () {
+                        document.body.classList.remove('fx-page-exiting');
+                        hidePageLoader();
+                    }, 1500);
                 }
             } catch (_) {
                 // Ignore URL parsing errors
@@ -249,6 +327,9 @@
     // 7. Hiệu ứng loading khi submit form
     function initFormSubmitLoading() {
         document.addEventListener('submit', function (e) {
+            // Nếu form submit đã bị hủy (onsubmit trả về false, e.preventDefault(), bấm Hủy ở confirm), không kích hoạt loading
+            if (e.defaultPrevented) return;
+
             const form = e.target;
             if (!(form instanceof HTMLFormElement)) return;
 
@@ -259,7 +340,8 @@
                 if (!form.checkValidity()) return;
             }
 
-            const submitBtn = form.querySelector('button[type="submit"]:not([data-no-loading])');
+            // Bỏ qua nút có data-no-loading hoặc các nút icon thao tác nhỏ (.btn-action-icon)
+            const submitBtn = form.querySelector('button[type="submit"]:not([data-no-loading]):not(.btn-action-icon)');
             if (!submitBtn || submitBtn.classList.contains('is-loading')) return;
 
             const loadingText = submitBtn.getAttribute('data-loading-text') || 'Đang xử lý...';
@@ -353,7 +435,9 @@
         refresh: refreshEffects,
         initScrollReveal: initScrollReveal,
         initCountUp: initCountUp,
-        initCardTilt: initCardTilt
+        initCardTilt: initCardTilt,
+        showLoader: showPageLoader,
+        hideLoader: hidePageLoader
     };
 
     // Khởi tạo toàn bộ hiệu ứng khi DOM đã sẵn sàng
@@ -373,6 +457,7 @@
     // (body opacity: 0) từ lúc rời trang khiến trang trắng xóa, mà DOMContentLoaded
     // không chạy lại để gỡ. Phải dọn trạng thái này mỗi khi trang hiển thị lại từ cache.
     window.addEventListener('pageshow', function (e) {
+        hidePageLoader();
         if (!e.persisted) return;
 
         document.body.classList.remove('fx-page-exiting');

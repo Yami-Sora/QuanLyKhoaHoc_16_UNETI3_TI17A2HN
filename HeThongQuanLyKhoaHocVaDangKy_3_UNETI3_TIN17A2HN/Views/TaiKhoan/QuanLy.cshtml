@@ -1,4 +1,4 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Module 1 - Quản trị tài khoản (Admin) — dùng chung bộ CSS trang quản lý
@@ -32,18 +32,21 @@
 <div class="container-fluid py-2">
     <!-- Header trang -->
     <div class="dl-page-head">
-        <div>
-            <h4 class="dl-page-title">
-                <i class="bi bi-people-fill me-2 text-primary"></i>QUẢN LÝ TÀI KHOẢN & PHÂN QUYỀN
-            </h4>
-            <p class="dl-page-sub">Kiểm soát người dùng, phân quyền và khóa/mở tài khoản</p>
+        <div class="dl-head-left">
+            <span class="dl-head-icon">
+                <i class="bi bi-people-fill"></i>
+            </span>
+            <div class="dl-head-text">
+                <h4 class="dl-page-title">Quản lý tài khoản & phân quyền</h4>
+                <p class="dl-page-sub">Kiểm soát người dùng, phân quyền và khóa/mở tài khoản</p>
+            </div>
         </div>
         <div class="d-flex gap-2">
             @if (isCurrentUserAdmin)
             {
-                <a asp-action="Create" class="btn uneti-btn-outline shadow-sm text-decoration-none">
+                <button type="button" class="btn uneti-btn-outline shadow-sm text-decoration-none js-open-create-modal" data-bs-toggle="modal" data-bs-target="#commonCreateUserModal">
                     <i class="bi bi-person-plus-fill me-1"></i>Thêm tài khoản mới
-                </a>
+                </button>
             }
             <a asp-controller="MonHoc" asp-action="QuanLy" class="btn uneti-btn-primary shadow-sm text-decoration-none">
                 <i class="bi bi-book-half me-1"></i>Quản lý môn học
@@ -154,22 +157,14 @@
     <!-- Bảng danh sách tài khoản: lọc nhanh nằm NGAY TRONG đầu bảng, phân trang nằm NGAY chân bảng -->
     <div id="taiKhoanTableContainer" class="position-relative">
         <div class="dl-table-card">
-            <!-- Đầu bảng: tiêu đề + lọc nhanh gộp chung 1 chỗ -->
+            <!-- Đầu bảng: tiêu đề + nút Xuất danh sách (chuẩn như Giảng viên) -->
             <div class="dl-table-head">
                 <div class="d-flex align-items-center gap-2">
                     <span class="dl-head-ic"><i class="bi bi-people"></i></span>
                     <span class="fw-bold text-dark">Danh sách tài khoản</span>
-                    <span class="dl-count-badge"><span id="visibleRowCount">@(Model?.Count() ?? 0)</span> tài khoản</span>
+                    <span class="dl-count-badge">@totalAccounts tài khoản</span>
                 </div>
-                <div style="min-width: 280px;">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
-                        <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (username, họ tên, email, vai trò)..." aria-label="Lọc nhanh trên bảng" />
-                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
-                            <i class="bi bi-x"></i>
-                        </button>
-                    </div>
-                </div>
+                <a asp-action="XuatDanhSach" asp-route-searchString="@currentSearch" asp-route-role="@currentRole" asp-route-trangThai="@currentTrangThai" class="btn btn-sm uneti-btn-outline" download data-no-transition title="Xuất danh sách tài khoản sang file Excel"><i class="bi bi-file-earmark-excel-fill text-success me-1"></i> Xuất Excel</a>
             </div>
             <div class="table-responsive">
                 <table class="table uneti-table align-middle mb-0" style="min-width: 900px;" id="taiKhoanAdminTable">
@@ -185,15 +180,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr id="quickSearchEmptyRow" style="display: none;">
-                            <td colspan="7" class="text-center py-4 text-muted">
-                                <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
-                                <div>Không tìm thấy tài khoản nào khớp với từ khóa "<strong><span id="quickSearchTerm"></span></strong>".</div>
-                                <button type="button" class="btn btn-sm uneti-btn-outline mt-2 rounded-pill" id="btnResetQuickFilter">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc nhanh
-                                </button>
-                            </td>
-                        </tr>
                     @if (Model != null && Model.Any())
                     {
                         int stt = (currentPage - 1) * pageSize + 1;
@@ -270,9 +256,17 @@
                                     {
                                         <!-- Thao tác dạng ICON gọn (giống trang Môn học), có tooltip chú thích -->
                                         <div class="d-inline-flex align-items-center justify-content-center gap-1 flex-nowrap">
-                                            <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan" class="btn-action-icon btn-action-edit" title="Chỉnh sửa thông tin tài khoản">
+                                            <button type="button" class="btn-action-icon btn-action-edit js-open-edit-modal"
+                                                    data-id="@item.MaTaiKhoan"
+                                                    data-username="@item.TenDangNhap"
+                                                    data-fullname="@item.HoTen"
+                                                    data-email="@item.Email"
+                                                    data-phone="@(item.HocVien?.SoDienThoai ?? "")"
+                                                    data-role="@item.VaiTro"
+                                                    data-status="@(item.TrangThai ? "true" : "false")"
+                                                    title="Chỉnh sửa thông tin tài khoản">
                                                 <i class="bi bi-pencil-square"></i>
-                                            </a>
+                                            </button>
                                             <button type="button" class="btn-action-icon btn-action-toggle js-open-role-modal"
                                                     data-id="@item.MaTaiKhoan"
                                                     data-username="@item.TenDangNhap"
@@ -395,57 +389,386 @@
 
 <!-- Modal phân quyền chung -->
 <div class="modal fade" id="commonEditRoleModal" tabindex="-1" aria-labelledby="commonRoleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content uneti-card border-0 shadow">
-            <div class="modal-header bg-light border-bottom py-2.5 px-3">
-                <h5 class="modal-title fw-bold text-dark fs-6" id="commonRoleModalLabel">
-                    <i class="bi bi-shield-lock-fill text-primary me-2"></i>Phân quyền tài khoản
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </span>
+                    <div>
+                        <h5 class="role-modal-title" id="commonRoleModalLabel">
+                            Phân quyền tài khoản
+                        </h5>
+                        <div class="role-modal-sub">Điều chỉnh cấp bậc và phạm vi quyền hạn trên hệ thống</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <form method="post" id="formUpdateRole" asp-action="UpdateRole">
                 @Html.AntiForgeryToken()
-                <div class="modal-body p-3.5 text-start">
-                    <div class="mb-3 p-3 bg-light rounded-3 border">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <span class="user-avatar text-white uneti-icon-box-32 bg-primary fw-bold" id="roleModalAvatar">
+                <div class="role-modal-body text-start">
+                    <!-- Khối thông tin tài khoản được chọn -->
+                    <div class="role-user-card">
+                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                            <span class="role-user-avatar" id="roleModalAvatar">
                                 U
                             </span>
-                            <div>
-                                <div class="fw-bold text-dark" id="roleModalFullName">...</div>
-                                <div class="small text-muted"><span id="roleModalUsername">...</span> • <span id="roleModalEmail">...</span></div>
+                            <div class="role-user-info">
+                                <div class="role-user-name text-truncate" id="roleModalFullName">...</div>
+                                <div class="role-user-meta text-truncate">
+                                    <span id="roleModalUsername">...</span>
+                                    <span class="mx-1">•</span>
+                                    <span id="roleModalEmail">...</span>
+                                </div>
                             </div>
                         </div>
+                        <div class="flex-shrink-0">
+                            <span class="role-current-tag uneti-badge-primary" id="roleModalCurrentRole">
+                                <i class="bi bi-person-badge-fill me-1"></i>Hiện tại: Nhân viên
+                            </span>
+                        </div>
                     </div>
-                    <label class="form-label fw-bold small text-dark mb-2">Chọn vai trò mới cho tài khoản:</label>
-                    <div class="d-flex flex-column gap-2">
-                        <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
-                            <input type="radio" name="vaiTro" value="Admin" id="roleRadioAdmin" class="form-check-input mt-0" />
-                            <div>
-                                <span class="uneti-badge-danger mb-1"><i class="bi bi-shield-lock-fill me-1"></i>Quản trị viên (Admin)</span>
-                                <div class="small text-muted uneti-fs-xs">Toàn quyền hệ thống, quản lý tài khoản & dữ liệu nền</div>
+
+                    <!-- Tiêu đề phần chọn vai trò -->
+                    <div class="d-flex align-items-center justify-content-between mb-2.5">
+                        <label class="form-label fw-bold text-dark small m-0">
+                            <i class="bi bi-check2-circle text-primary me-1"></i>Chọn vai trò mới cho tài khoản:
+                        </label>
+                        <span class="text-muted" style="font-size: 0.78rem;">Chọn 1 trong 3 nhóm quyền</span>
+                    </div>
+
+                    <!-- Danh sách các thẻ vai trò rộng rãi, thoáng mắt, có màu sắc & icon đặc trưng -->
+                    <div class="role-option-list">
+                        <!-- 1. Quản trị viên (Admin) -->
+                        <label class="role-option-card role-theme-admin" for="roleRadioAdmin">
+                            <input type="radio" name="vaiTro" value="Admin" id="roleRadioAdmin" class="form-check-input role-option-radio" />
+                            <span class="role-option-icon">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </span>
+                            <div class="role-option-content">
+                                <div class="role-option-head">
+                                    <span class="role-option-title">Quản trị viên (Admin)</span>
+                                    <span class="uneti-badge-danger role-option-badge">Toàn quyền</span>
+                                </div>
+                                <p class="role-option-desc">
+                                    Toàn quyền hệ thống, quản lý tài khoản &amp; dữ liệu nền
+                                </p>
                             </div>
                         </label>
-                        <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
-                            <input type="radio" name="vaiTro" value="NhanVien" id="roleRadioNhanVien" class="form-check-input mt-0" />
-                            <div>
-                                <span class="uneti-badge-primary mb-1"><i class="bi bi-person-badge me-1"></i>Nhân viên quản lý</span>
-                                <div class="small text-muted uneti-fs-xs">Quản lý khóa học, duyệt đơn đăng ký & cập nhật kết quả</div>
+
+                        <!-- 2. Nhân viên quản lý -->
+                        <label class="role-option-card role-theme-nhanvien" for="roleRadioNhanVien">
+                            <input type="radio" name="vaiTro" value="NhanVien" id="roleRadioNhanVien" class="form-check-input role-option-radio" />
+                            <span class="role-option-icon">
+                                <i class="bi bi-person-badge-fill"></i>
+                            </span>
+                            <div class="role-option-content">
+                                <div class="role-option-head">
+                                    <span class="role-option-title">Nhân viên quản lý</span>
+                                    <span class="uneti-badge-primary role-option-badge">Nghiệp vụ</span>
+                                </div>
+                                <p class="role-option-desc">
+                                    Quản lý khóa học, duyệt đơn đăng ký &amp; cập nhật kết quả
+                                </p>
                             </div>
                         </label>
-                        <label class="p-2.5 border rounded-3 d-flex align-items-center gap-2.5 cursor-pointer">
-                            <input type="radio" name="vaiTro" value="HocVien" id="roleRadioHocVien" class="form-check-input mt-0" />
-                            <div>
-                                <span class="uneti-badge-success mb-1"><i class="bi bi-mortarboard me-1"></i>Học viên</span>
-                                <div class="small text-muted uneti-fs-xs">Xem thông tin khóa học, đăng ký & xem kết quả học tập</div>
+
+                        <!-- 3. Học viên -->
+                        <label class="role-option-card role-theme-hocvien" for="roleRadioHocVien">
+                            <input type="radio" name="vaiTro" value="HocVien" id="roleRadioHocVien" class="form-check-input role-option-radio" />
+                            <span class="role-option-icon">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </span>
+                            <div class="role-option-content">
+                                <div class="role-option-head">
+                                    <span class="role-option-title">Học viên</span>
+                                    <span class="uneti-badge-success role-option-badge">Đào tạo</span>
+                                </div>
+                                <p class="role-option-desc">
+                                    Xem thông tin khóa học, đăng ký &amp; xem kết quả học tập
+                                </p>
                             </div>
                         </label>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top py-2 px-3">
-                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-sm uneti-btn-primary" data-loading-text="Đang lưu...">
-                        <i class="bi bi-check-lg me-1"></i>Lưu vai trò
+
+                <!-- Footer: Hai nút kích thước cân đối chuẩn mực -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" data-loading-text="Đang lưu...">
+                        <i class="bi bi-check-lg"></i>
+                        <span>Lưu vai trò</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm mới tài khoản người dùng (Popup trực tiếp trong trang Quản lý) -->
+<div class="modal fade" id="commonCreateUserModal" tabindex="-1" aria-labelledby="commonCreateUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 620px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </span>
+                    <div>
+                        <h5 class="role-modal-title" id="commonCreateUserModalLabel">
+                            Thêm mới tài khoản người dùng
+                        </h5>
+                        <div class="role-modal-sub">Khởi tạo thông tin đăng nhập, bảo mật, hồ sơ cá nhân và phân quyền</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <form method="post" id="formCreateUser" asp-action="Create">
+                @Html.AntiForgeryToken()
+
+                <div class="role-modal-body text-start">
+                    <!-- Thông báo lỗi khi submit (nếu có) -->
+                    <div id="createModalAlert" class="alert alert-danger py-2 small d-none mb-3" role="alert"></div>
+
+                    <!-- PHẦN 1: THÔNG TIN ĐĂNG NHẬP & BẢO MẬT -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+                            <i class="bi bi-shield-lock-fill text-primary"></i>
+                            <span class="fw-bold text-dark small">1. Thông tin đăng nhập &amp; Bảo mật</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Tên đăng nhập <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person-badge"></i></span>
+                                    <input type="text" name="TenDangNhap" id="createModalTenDangNhap" class="form-control" placeholder="Ví dụ: nguyenvana..." required autocomplete="username" />
+                                </div>
+                                <span class="text-muted" style="font-size: 0.76rem;">3-50 ký tự (chữ không dấu, số, ., _)</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Mật khẩu khởi tạo <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-key"></i></span>
+                                    <input type="password" name="MatKhau" id="createModalMatKhau" class="form-control" placeholder="Tối thiểu 6 ký tự" value="123456" required autocomplete="new-password" />
+                                    <button class="btn btn-outline-secondary btn-sm" type="button" id="btnToggleCreatePassword" title="Hiện/ẩn mật khẩu">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <span class="text-muted" style="font-size: 0.76rem;">Mặc định: 123456 (tối thiểu 6 ký tự)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: THÔNG TIN CÁ NHÂN & LIÊN HỆ -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+                            <i class="bi bi-person-vcard-fill text-primary"></i>
+                            <span class="fw-bold text-dark small">2. Thông tin cá nhân &amp; Liên hệ</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                Họ và tên <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                                <input type="text" name="HoTen" id="createModalHoTen" class="form-control" placeholder="Ví dụ: Nguyễn Văn A..." required autocomplete="name" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Địa chỉ Email <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" name="Email" id="createModalEmail" class="form-control" placeholder="example@email.com" required autocomplete="email" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Số điện thoại
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                                    <input type="tel" name="SoDienThoai" id="createModalSoDienThoai" class="form-control" placeholder="0912 345 678" autocomplete="tel" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 3: VAI TRÒ & QUYỀN HẠN -->
+                    <div class="pt-2 border-top">
+                        <div class="d-flex align-items-center gap-2 pb-2 mb-3">
+                            <i class="bi bi-person-gear text-primary"></i>
+                            <span class="fw-bold text-dark small">3. Vai trò &amp; Quyền hạn</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Vai trò phân quyền <span class="text-danger">*</span>
+                                </label>
+                                <select name="VaiTro" id="createModalVaiTro" class="form-select" required>
+                                    <option value="Admin">Quản trị viên (Admin)</option>
+                                    <option value="NhanVien" selected>Nhân viên đào tạo</option>
+                                    <option value="HocVien">Học viên</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="p-2 border rounded-3 bg-light w-100 d-flex align-items-center">
+                                    <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0" type="checkbox" name="TrangThai" value="true" id="createModalTrangThai" checked style="cursor: pointer; width: 38px; height: 20px;">
+                                        <input type="hidden" name="TrangThai" value="false" />
+                                        <label class="form-check-label small fw-semibold text-dark user-select-none" for="createModalTrangThai" style="cursor: pointer;">
+                                            Kích hoạt hoạt động ngay
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút cân đối chuẩn mực -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" id="btnSubmitCreateUser" data-loading-text="Đang tạo...">
+                        <i class="bi bi-person-plus-fill"></i>
+                        <span>Tạo tài khoản</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chỉnh sửa tài khoản người dùng (Popup trực tiếp trong trang Quản lý) -->
+<div class="modal fade" id="commonEditUserModal" tabindex="-1" aria-labelledby="commonEditUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 600px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </span>
+                    <div>
+                        <h5 class="role-modal-title" id="commonEditUserModalLabel">
+                            Chỉnh sửa tài khoản
+                        </h5>
+                        <div class="role-modal-sub">Cập nhật thông tin cá nhân, liên hệ, vai trò và trạng thái</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <form method="post" id="formEditUser" asp-action="Edit">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="MaTaiKhoan" id="editModalMaTaiKhoan" />
+                <input type="hidden" name="TenDangNhap" id="editModalTenDangNhapHidden" />
+
+                <div class="role-modal-body text-start">
+                    <!-- Thông báo lỗi khi submit (nếu có) -->
+                    <div id="editModalAlert" class="alert alert-danger py-2 small d-none mb-3" role="alert"></div>
+
+                    <!-- Khối thông tin định danh tài khoản -->
+                    <div class="role-user-card mb-3">
+                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                            <span class="role-user-avatar" id="editModalAvatar">
+                                U
+                            </span>
+                            <div class="role-user-info">
+                                <div class="role-user-name text-truncate" id="editModalCardFullName">...</div>
+                                <div class="role-user-meta text-truncate">
+                                    <span class="fw-bold text-primary" id="editModalCardUsername">...</span>
+                                    <span class="mx-1">•</span>
+                                    <span id="editModalCardEmail">...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-light text-muted border py-1 px-2 uneti-fs-xs">
+                                <i class="bi bi-lock-fill me-1 text-secondary"></i>Tên cố định
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 1: THÔNG TIN HỒ SƠ & LIÊN HỆ -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">
+                            Họ và tên <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                            <input type="text" name="HoTen" id="editModalHoTen" class="form-control" placeholder="Họ và tên người dùng..." required autocomplete="name" />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                Địa chỉ Email <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                                <input type="email" name="Email" id="editModalEmail" class="form-control" placeholder="example@email.com" required autocomplete="email" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                Số điện thoại
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                                <input type="tel" name="SoDienThoai" id="editModalSoDienThoai" class="form-control" placeholder="0912 345 678" autocomplete="tel" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: PHÂN QUYỀN & TRẠNG THÁI HỆ THỐNG -->
+                    <div class="row g-3 pt-2 border-top">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                Vai trò hệ thống <span class="text-danger">*</span>
+                            </label>
+                            <select name="VaiTro" id="editModalVaiTro" class="form-select" required>
+                                <option value="Admin">Quản trị viên (Admin)</option>
+                                <option value="NhanVien">Nhân viên quản lý</option>
+                                <option value="HocVien">Học viên đào tạo</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="p-2 border rounded-3 bg-light w-100 d-flex align-items-center">
+                                <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input class="form-check-input mt-0" type="checkbox" name="TrangThai" value="true" id="editModalTrangThai" style="cursor: pointer; width: 38px; height: 20px;">
+                                    <input type="hidden" name="TrangThai" value="false" />
+                                    <label class="form-check-label small fw-semibold text-dark user-select-none" for="editModalTrangThai" style="cursor: pointer;">
+                                        Đang hoạt động
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút cân đối chuẩn mực -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" id="btnSubmitEditUser" data-loading-text="Đang lưu...">
+                        <i class="bi bi-check-lg"></i>
+                        <span>Lưu thay đổi</span>
                     </button>
                 </div>
             </form>
@@ -464,85 +787,379 @@
             const fullNameEl = document.getElementById('roleModalFullName');
             const usernameEl = document.getElementById('roleModalUsername');
             const emailEl = document.getElementById('roleModalEmail');
+            const currentRoleBadgeEl = document.getElementById('roleModalCurrentRole');
 
-            document.addEventListener('click', function (e) {
-                const btn = e.target.closest('.js-open-role-modal');
-                if (!btn) return;
+            function syncActiveRoleCard() {
+                document.querySelectorAll('.role-option-card').forEach(function (card) {
+                    const radio = card.querySelector('input[type="radio"]');
+                    if (radio && radio.checked) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+            }
 
-                const id = btn.getAttribute('data-id');
-                const username = btn.getAttribute('data-username');
-                const fullname = btn.getAttribute('data-fullname');
-                const email = btn.getAttribute('data-email');
-                const role = btn.getAttribute('data-role');
-
-                if (formRole) formRole.action = '/TaiKhoan/UpdateRole/' + id;
-                if (fullNameEl) fullNameEl.textContent = fullname || 'Chưa đặt họ tên';
-                if (usernameEl) usernameEl.textContent = '@@' + (username || '');
-                if (emailEl) emailEl.textContent = email || '';
-                if (avatarEl) avatarEl.textContent = (fullname && fullname.trim().length > 0) ? fullname.trim().charAt(0).toUpperCase() : 'U';
-
-                const targetRadio = document.querySelector(`input[name="vaiTro"][value="${role}"]`);
-                if (targetRadio) targetRadio.checked = true;
-
-                if (roleModal) roleModal.show();
+            // Lắng nghe thay đổi radio để cập nhật viền active mượt mà
+            document.querySelectorAll('input[name="vaiTro"]').forEach(function (radio) {
+                radio.addEventListener('change', syncActiveRoleCard);
             });
 
-            // 2. Lọc nhanh trong bảng hiện tại
-            function initQuickSearch() {
-                const searchInput = document.getElementById('adminTableQuickSearch');
-                const clearBtn = document.getElementById('btnClearQuickSearch');
-                const resetBtn = document.getElementById('btnResetQuickFilter');
-                const emptyRow = document.getElementById('quickSearchEmptyRow');
-                const visibleCountEl = document.getElementById('visibleRowCount');
-                const summaryCountEl = document.getElementById('summaryRowCount');
-                const table = document.getElementById('taiKhoanAdminTable');
-                if (!searchInput || !table) return;
+            // 1a. Quản lý Modal Thêm mới tài khoản người dùng (Popup ngay trong trang)
+            const createModalEl = document.getElementById('commonCreateUserModal');
+            const createModal = createModalEl ? new bootstrap.Modal(createModalEl) : null;
+            const formCreate = document.getElementById('formCreateUser');
+            const createAlert = document.getElementById('createModalAlert');
+            const btnSubmitCreate = document.getElementById('btnSubmitCreateUser');
+            const btnToggleCreatePassword = document.getElementById('btnToggleCreatePassword');
 
-                const rows = table.querySelectorAll('tbody tr:not(#quickSearchEmptyRow)');
+            const createTenDangNhap = document.getElementById('createModalTenDangNhap');
+            const createMatKhau = document.getElementById('createModalMatKhau');
+            const createHoTen = document.getElementById('createModalHoTen');
+            const createEmail = document.getElementById('createModalEmail');
+            const createPhone = document.getElementById('createModalSoDienThoai');
+            const createVaiTro = document.getElementById('createModalVaiTro');
+            const createTrangThai = document.getElementById('createModalTrangThai');
 
-                function doFilter() {
-                    const term = searchInput.value.trim().toLowerCase();
-                    if (clearBtn) clearBtn.style.display = term ? 'inline-block' : 'none';
-                    let visibleCount = 0;
-
-                    rows.forEach(function (row) {
-                        const text = row.textContent.toLowerCase();
-                        if (!term || text.indexOf(term) !== -1) {
-                            row.style.display = '';
-                            visibleCount++;
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
-
-                    if (visibleCountEl) visibleCountEl.textContent = visibleCount;
-                    if (summaryCountEl) summaryCountEl.textContent = visibleCount;
-                    if (emptyRow) {
-                        emptyRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
-                        const termSpan = document.getElementById('quickSearchTerm');
-                        if (termSpan) termSpan.textContent = searchInput.value;
+            if (createModalEl) {
+                createModalEl.addEventListener('show.bs.modal', function () {
+                    if (createAlert) {
+                        createAlert.classList.add('d-none');
+                        createAlert.textContent = '';
                     }
-                }
+                    if (formCreate) {
+                        formCreate.reset();
+                        if (createMatKhau) {
+                            createMatKhau.value = '123456';
+                            createMatKhau.type = 'password';
+                        }
+                        if (btnToggleCreatePassword) {
+                            const icon = btnToggleCreatePassword.querySelector('i');
+                            if (icon) icon.className = 'bi bi-eye';
+                        }
+                        if (createVaiTro) createVaiTro.value = 'NhanVien';
+                        if (createTrangThai) createTrangThai.checked = true;
+                    }
+                    setTimeout(function () {
+                        if (createTenDangNhap) createTenDangNhap.focus();
+                    }, 300);
+                });
+            }
 
-                searchInput.oninput = doFilter;
+            if (btnToggleCreatePassword && createMatKhau) {
+                btnToggleCreatePassword.addEventListener('click', function () {
+                    const isPassword = createMatKhau.type === 'password';
+                    createMatKhau.type = isPassword ? 'text' : 'password';
+                    const icon = btnToggleCreatePassword.querySelector('i');
+                    if (icon) {
+                        icon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+                    }
+                });
+            }
 
-                function resetSearch() {
-                    searchInput.value = '';
-                    doFilter();
-                    searchInput.focus();
-                }
-
-                if (clearBtn) clearBtn.onclick = resetSearch;
-                if (resetBtn) resetBtn.onclick = resetSearch;
-
-                if (searchInput.value.trim()) {
-                    doFilter();
+            function showCreateModalError(msg) {
+                if (createAlert) {
+                    createAlert.textContent = msg;
+                    createAlert.classList.remove('d-none');
+                } else {
+                    alert(msg);
                 }
             }
 
-            initQuickSearch();
+            formCreate?.addEventListener('submit', async function (e) {
+                e.preventDefault();
 
-            // 3. Phân trang AJAX giữ nguyên vị trí cuộn ("Đứng yên", không cuộn/giật lên đầu trang)
+                const usernameVal = createTenDangNhap ? createTenDangNhap.value.trim() : '';
+                const passwordVal = createMatKhau ? createMatKhau.value : '';
+                const hoTenVal = createHoTen ? createHoTen.value.trim() : '';
+                const emailVal = createEmail ? createEmail.value.trim() : '';
+                const phoneVal = createPhone ? createPhone.value.trim() : '';
+
+                if (!usernameVal || usernameVal.length < 3 || usernameVal.length > 50) {
+                    showCreateModalError('Tên đăng nhập phải từ 3 đến 50 ký tự.');
+                    createTenDangNhap?.focus();
+                    return;
+                }
+
+                if (!/^[a-zA-Z0-9_.]+$/.test(usernameVal)) {
+                    showCreateModalError('Tên đăng nhập chỉ chứa chữ cái không dấu, số, dấu gạch dưới (_) và dấu chấm (.).');
+                    createTenDangNhap?.focus();
+                    return;
+                }
+
+                if (!passwordVal || passwordVal.length < 6) {
+                    showCreateModalError('Mật khẩu khởi tạo tối thiểu 6 ký tự.');
+                    createMatKhau?.focus();
+                    return;
+                }
+
+                if (!hoTenVal || hoTenVal.length < 2) {
+                    showCreateModalError('Họ và tên không được để trống và phải từ 2 ký tự trở lên.');
+                    createHoTen?.focus();
+                    return;
+                }
+
+                const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                if (!emailVal || !emailRegex.test(emailVal)) {
+                    showCreateModalError('Địa chỉ email không đúng định dạng.');
+                    createEmail?.focus();
+                    return;
+                }
+
+                if (phoneVal && !/^0[35789][0-9]{8}$/.test(phoneVal)) {
+                    showCreateModalError('Số điện thoại phải là số di động Việt Nam hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09).');
+                    createPhone?.focus();
+                    return;
+                }
+
+                if (createAlert) createAlert.classList.add('d-none');
+
+                const originalBtnHtml = btnSubmitCreate ? btnSubmitCreate.innerHTML : '';
+                if (btnSubmitCreate) {
+                    btnSubmitCreate.disabled = true;
+                    btnSubmitCreate.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang tạo...</span>';
+                }
+
+                try {
+                    const formData = new FormData(formCreate);
+                    const response = await fetch(formCreate.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+
+                    const result = await response.json();
+                    if (result && result.success) {
+                        if (createModal) createModal.hide();
+                        if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                            window.UnetiUI.toast({
+                                type: 'success',
+                                title: 'Thành công',
+                                message: result.message || 'Đã tạo mới tài khoản thành công!'
+                            });
+                        }
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 400);
+                    } else {
+                        showCreateModalError(result.message || 'Không thể tạo tài khoản. Vui lòng kiểm tra lại.');
+                    }
+                } catch (err) {
+                    formCreate.submit();
+                } finally {
+                    if (btnSubmitCreate) {
+                        btnSubmitCreate.disabled = false;
+                        btnSubmitCreate.innerHTML = originalBtnHtml;
+                    }
+                }
+            });
+
+            // 1b. Quản lý Modal Chỉnh sửa tài khoản người dùng (Popup ngay trong trang)
+            const editModalEl = document.getElementById('commonEditUserModal');
+            const editModal = editModalEl ? new bootstrap.Modal(editModalEl) : null;
+            const formEdit = document.getElementById('formEditUser');
+            const editAlert = document.getElementById('editModalAlert');
+            const btnSubmitEdit = document.getElementById('btnSubmitEditUser');
+
+            const editMaTaiKhoan = document.getElementById('editModalMaTaiKhoan');
+            const editTenDangNhapHidden = document.getElementById('editModalTenDangNhapHidden');
+            const editAvatar = document.getElementById('editModalAvatar');
+            const editCardFullName = document.getElementById('editModalCardFullName');
+            const editCardUsername = document.getElementById('editModalCardUsername');
+            const editCardEmail = document.getElementById('editModalCardEmail');
+            const editHoTen = document.getElementById('editModalHoTen');
+            const editEmail = document.getElementById('editModalEmail');
+            const editPhone = document.getElementById('editModalSoDienThoai');
+            const editVaiTro = document.getElementById('editModalVaiTro');
+            const editTrangThai = document.getElementById('editModalTrangThai');
+
+            document.addEventListener('click', function (e) {
+                const createBtn = e.target.closest('.js-open-create-modal');
+                if (createBtn) {
+                    if (createModal) createModal.show();
+                    return;
+                }
+
+                const editBtn = e.target.closest('.js-open-edit-modal');
+                if (editBtn) {
+                    const id = editBtn.getAttribute('data-id');
+                    const username = editBtn.getAttribute('data-username') || '';
+                    const fullname = editBtn.getAttribute('data-fullname') || '';
+                    const email = editBtn.getAttribute('data-email') || '';
+                    const phone = editBtn.getAttribute('data-phone') || '';
+                    const role = editBtn.getAttribute('data-role') || 'HocVien';
+                    const status = editBtn.getAttribute('data-status') === 'true';
+
+                    if (formEdit) formEdit.action = '/TaiKhoan/Edit/' + id;
+                    if (editMaTaiKhoan) editMaTaiKhoan.value = id;
+                    if (editTenDangNhapHidden) editTenDangNhapHidden.value = username;
+
+                    if (editAvatar) editAvatar.textContent = (fullname && fullname.trim().length > 0) ? fullname.trim().charAt(0).toUpperCase() : 'U';
+                    if (editCardFullName) editCardFullName.textContent = fullname || 'Chưa đặt họ tên';
+                    if (editCardUsername) editCardUsername.textContent = '@@' + username;
+                    if (editCardEmail) editCardEmail.textContent = email;
+
+                    if (editHoTen) editHoTen.value = fullname;
+                    if (editEmail) editEmail.value = email;
+                    if (editPhone) editPhone.value = phone;
+                    if (editVaiTro) editVaiTro.value = role;
+                    if (editTrangThai) editTrangThai.checked = status;
+
+                    if (editAlert) {
+                        editAlert.classList.add('d-none');
+                        editAlert.textContent = '';
+                    }
+
+                    // Tải dữ liệu bổ sung mới nhất nếu có
+                    fetch('/TaiKhoan/Edit/' + id, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.success && res.data) {
+                            if (res.data.soDienThoai && editPhone) {
+                                editPhone.value = res.data.soDienThoai;
+                            }
+                        }
+                    })
+                    .catch(() => {});
+
+                    if (editModal) editModal.show();
+                    return;
+                }
+
+                const roleBtn = e.target.closest('.js-open-role-modal');
+                if (roleBtn) {
+                    const id = roleBtn.getAttribute('data-id');
+                    const username = roleBtn.getAttribute('data-username');
+                    const fullname = roleBtn.getAttribute('data-fullname');
+                    const email = roleBtn.getAttribute('data-email');
+                    const role = roleBtn.getAttribute('data-role');
+
+                    if (formRole) formRole.action = '/TaiKhoan/UpdateRole/' + id;
+                    if (fullNameEl) fullNameEl.textContent = fullname || 'Chưa đặt họ tên';
+                    if (usernameEl) usernameEl.textContent = '@@' + (username || '');
+                    if (emailEl) emailEl.textContent = email || '';
+                    if (avatarEl) avatarEl.textContent = (fullname && fullname.trim().length > 0) ? fullname.trim().charAt(0).toUpperCase() : 'U';
+
+                    // Cập nhật huy hiệu vai trò hiện tại
+                    if (currentRoleBadgeEl) {
+                        if (role === 'Admin') {
+                            currentRoleBadgeEl.className = 'role-current-tag uneti-badge-danger';
+                            currentRoleBadgeEl.innerHTML = '<i class="bi bi-shield-lock-fill me-1"></i>Hiện tại: Admin';
+                        } else if (role === 'NhanVien') {
+                            currentRoleBadgeEl.className = 'role-current-tag uneti-badge-primary';
+                            currentRoleBadgeEl.innerHTML = '<i class="bi bi-person-badge-fill me-1"></i>Hiện tại: Nhân viên';
+                        } else {
+                            currentRoleBadgeEl.className = 'role-current-tag uneti-badge-success';
+                            currentRoleBadgeEl.innerHTML = '<i class="bi bi-mortarboard-fill me-1"></i>Hiện tại: Học viên';
+                        }
+                    }
+
+                    const targetRadio = document.querySelector(`input[name="vaiTro"][value="${role}"]`);
+                    if (targetRadio) {
+                        targetRadio.checked = true;
+                    }
+                    syncActiveRoleCard();
+
+                    if (roleModal) roleModal.show();
+                    return;
+                }
+            });
+
+            // Xử lý gửi Form Chỉnh sửa tài khoản
+            formEdit?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const hoTenVal = editHoTen ? editHoTen.value.trim() : '';
+                const emailVal = editEmail ? editEmail.value.trim() : '';
+                const phoneVal = editPhone ? editPhone.value.trim() : '';
+
+                if (!hoTenVal || hoTenVal.length < 2) {
+                    showEditModalError('Họ và tên không được để trống và phải từ 2 ký tự trở lên.');
+                    editHoTen?.focus();
+                    return;
+                }
+
+                const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                if (!emailVal || !emailRegex.test(emailVal)) {
+                    showEditModalError('Địa chỉ email không đúng định dạng.');
+                    editEmail?.focus();
+                    return;
+                }
+
+                if (phoneVal && !/^0[35789][0-9]{8}$/.test(phoneVal)) {
+                    showEditModalError('Số điện thoại phải là số di động Việt Nam hợp lệ (10 số, bắt đầu bằng 03, 05, 07, 08, 09).');
+                    editPhone?.focus();
+                    return;
+                }
+
+                if (editAlert) editAlert.classList.add('d-none');
+
+                const originalBtnHtml = btnSubmitEdit ? btnSubmitEdit.innerHTML : '';
+                if (btnSubmitEdit) {
+                    btnSubmitEdit.disabled = true;
+                    btnSubmitEdit.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang lưu...</span>';
+                }
+
+                try {
+                    const formData = new FormData(formEdit);
+                    const response = await fetch(formEdit.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+
+                    const result = await response.json();
+                    if (result && result.success) {
+                        if (editModal) editModal.hide();
+                        if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                            window.UnetiUI.toast({
+                                type: 'success',
+                                title: 'Thành công',
+                                message: result.message || 'Đã lưu thay đổi thành công!'
+                            });
+                        }
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 400);
+                    } else {
+                        showEditModalError(result.message || 'Không thể lưu thông tin. Vui lòng kiểm tra lại.');
+                    }
+                } catch (err) {
+                    // Fallback gửi form mặc định
+                    formEdit.submit();
+                } finally {
+                    if (btnSubmitEdit) {
+                        btnSubmitEdit.disabled = false;
+                        btnSubmitEdit.innerHTML = originalBtnHtml;
+                    }
+                }
+            });
+
+            function showEditModalError(msg) {
+                if (editAlert) {
+                    editAlert.textContent = msg;
+                    editAlert.classList.remove('d-none');
+                } else {
+                    alert(msg);
+                }
+            }
+
+            // 2. Phân trang AJAX giữ nguyên vị trí cuộn ("Đứng yên", không cuộn/giật lên đầu trang)
             const tableContainer = document.getElementById('taiKhoanTableContainer');
             if (tableContainer) {
                 tableContainer.addEventListener('click', async function (e) {
@@ -579,7 +1196,6 @@
                         if (newContainer) {
                             tableContainer.innerHTML = newContainer.innerHTML;
                             window.history.pushState({ path: href }, '', href);
-                            initQuickSearch();
 
                             // Khởi tạo tooltips
                             if (window.bootstrap && typeof window.bootstrap.Tooltip === 'function') {
@@ -609,7 +1225,6 @@
                             const newContainer = doc.getElementById('taiKhoanTableContainer');
                             if (newContainer) {
                                 tableContainer.innerHTML = newContainer.innerHTML;
-                                initQuickSearch();
                             }
                         }
                     } finally {

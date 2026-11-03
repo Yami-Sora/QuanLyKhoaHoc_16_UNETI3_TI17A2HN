@@ -1,4 +1,4 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Quản trị môn học
@@ -28,18 +28,24 @@
 <div class="container-fluid py-2">
     <!-- Header trang Quản lý cho Admin & Nhân viên -->
     <div class="dl-page-head">
-        <div>
-            <h4 class="dl-page-title">
-                <i class="bi bi-book-half me-2 text-primary"></i>DANH MỤC MÔN HỌC
-            </h4>
-            <p class="dl-page-sub">Hệ thống quản lý dữ liệu môn học, định mức học phí và trạng thái mở lớp đào tạo theo học chế tín chỉ</p>
+        <div class="dl-head-left">
+            <span class="dl-head-icon">
+                <i class="bi bi-book-half"></i>
+            </span>
+            <div class="dl-head-text">
+                <h4 class="dl-page-title">Quản lý môn học</h4>
+                <p class="dl-page-sub">Quản lý danh sách môn học trong hệ thống đào tạo</p>
+            </div>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
+            <a asp-controller="GiangVien" asp-action="Index" class="btn uneti-btn-outline shadow-sm text-decoration-none">
+                <i class="bi bi-person-badge me-1"></i>Quản lý giảng viên
+            </a>
             @if (isManager)
             {
-                <a asp-action="Create" class="btn uneti-btn-primary shadow-sm text-decoration-none">
+                <button type="button" class="btn uneti-btn-primary shadow-sm js-open-create-monhoc-modal" id="btnOpenCreateMonHoc">
                     <i class="bi bi-plus-circle me-1"></i>Thêm môn học mới
-                </a>
+                </button>
             }
         </div>
     </div>
@@ -147,22 +153,14 @@
     <!-- BẢNG DANH MỤC MÔN HỌC QUẢN TRỊ -->
     <div id="monHocTableContainer" class="position-relative">
         <div class="dl-table-card">
-        <!-- Đầu bảng: tiêu đề + thanh lọc nhanh trên bảng hiện tại -->
+        <!-- Đầu bảng: tiêu đề + nút Xuất danh sách (chuẩn như Giảng viên) -->
         <div class="dl-table-head">
             <div class="d-flex align-items-center gap-2">
                 <span class="dl-head-ic"><i class="bi bi-list-check"></i></span>
                 <span class="fw-bold text-dark">Danh sách môn học</span>
-                <span class="dl-count-badge"><span id="visibleRowCount">@(Model?.Count() ?? 0)</span> môn học</span>
+                <span class="dl-count-badge">@totalCount môn học</span>
             </div>
-            <div style="min-width: 280px;">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-filter"></i></span>
-                    <input type="text" id="adminTableQuickSearch" class="form-control border-start-0" placeholder="Lọc nhanh trên bảng (tên, mã, TC)..." aria-label="Lọc nhanh trên bảng" />
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnClearQuickSearch" style="display:none;" title="Xóa lọc nhanh">
-                        <i class="bi bi-x"></i>
-                    </button>
-                </div>
-            </div>
+            <a asp-action="XuatDanhSach" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" class="btn btn-sm uneti-btn-outline" download data-no-transition title="Xuất danh sách môn học sang file Excel"><i class="bi bi-file-earmark-excel-fill text-success me-1"></i> Xuất Excel</a>
         </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 uneti-table" id="monHocAdminTable">
@@ -178,15 +176,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr id="quickSearchEmptyRow" style="display: none;">
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            <i class="bi bi-search fs-2 d-block mb-2 text-secondary"></i>
-                            <div>Không tìm thấy môn học nào khớp với từ khóa "<strong><span id="quickSearchTerm"></span></strong>".</div>
-                            <button type="button" class="btn btn-sm uneti-btn-outline mt-3 rounded-pill" id="btnResetQuickFilter">
-                                <i class="bi bi-arrow-counterclockwise me-1"></i>Xóa lọc nhanh
-                            </button>
-                        </td>
-                    </tr>
                     @if (Model == null || !Model.Any())
                     {
                         <tr>
@@ -254,25 +243,45 @@
                                         </a>
                                         @if (isManager)
                                         {
-                                            <a asp-action="Edit" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-edit" title="Chỉnh sửa môn học">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
+                                            <button type="button" class="btn-action-icon btn-action-edit js-open-edit-monhoc-modal"
+                                                    data-id="@item.MaMonHoc"
+                                                    data-code="@($"#MH{item.MaMonHoc:D3}")"
+                                                    data-name="@item.TenMonHoc"
+                                                    data-tinchi="@item.SoTinChi"
+                                                    data-hocphi="@((long)item.HocPhi)"
+                                                    data-status="@(item.TrangThai ? "true" : "false")"
+                                                    data-desc="@(item.MoTa ?? "")"
+                                                    title="Chỉnh sửa môn học">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
                                             <form asp-action="ToggleStatus" asp-route-id="@item.MaMonHoc" method="post" class="d-inline m-0 p-0"
                                                   data-uneti-confirm="Bạn có chắc chắn muốn thay đổi trạng thái môn '@item.TenMonHoc' sang @(item.TrangThai ? "Tạm dừng" : "Đang mở")?"
                                                   data-uneti-title="Đổi trạng thái môn học"
                                                   data-uneti-type="warning"
                                                   data-uneti-ok="Đổi trạng thái">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn-action-icon btn-action-toggle" title="Đổi trạng thái Đang mở / Tạm dừng">
+                                                <button type="submit" class="btn-action-icon btn-action-toggle" data-no-loading title="Đổi trạng thái Đang mở / Tạm dừng">
                                                     <i class="bi bi-arrow-repeat"></i>
                                                 </button>
                                             </form>
                                         }
                                         @if (isAdmin)
                                         {
-                                            <a asp-action="Delete" asp-route-id="@item.MaMonHoc" class="btn-action-icon btn-action-delete" title="Xóa môn học">
+                                            var hasKhoaHoc = item.KhoaHocs != null && item.KhoaHocs.Any();
+                                            var countKhoaHoc = item.KhoaHocs?.Count ?? 0;
+                                            <button type="button" class="btn-action-icon btn-action-delete js-open-delete-monhoc-modal"
+                                                    data-id="@item.MaMonHoc"
+                                                    data-code="@($"#MH{item.MaMonHoc:D3}")"
+                                                    data-name="@item.TenMonHoc"
+                                                    data-tinchi="@item.SoTinChi"
+                                                    data-hocphi="@item.HocPhi.ToString("N0")"
+                                                    data-status="@(item.TrangThai ? "Đang mở giảng dạy" : "Tạm dừng")"
+                                                    data-status-is-open="@(item.TrangThai ? "true" : "false")"
+                                                    data-has-khoahoc="@(hasKhoaHoc ? "true" : "false")"
+                                                    data-khoahoc-count="@countKhoaHoc"
+                                                    title="Xóa môn học">
                                                 <i class="bi bi-trash"></i>
-                                            </a>
+                                            </button>
                                         }
                                     </div>
                                 </td>
@@ -331,10 +340,849 @@
     </div>
 </div>
 
+<!-- MODAL THÊM MỚI MÔN HỌC (POPUP TRỰC TIẾP TRONG TRANG - CHUẨN GIAO DIỆN TÀI KHOẢN) -->
+<div class="modal fade" id="commonCreateMonHocModal" tabindex="-1" aria-labelledby="commonCreateMonHocModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 600px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon" style="background: #eff6ff; color: #0066ff; border-color: #dbeafe;">
+                        <i class="bi bi-plus-circle-fill"></i>
+                    </span>
+                    <div>
+                        <h5 class="role-modal-title" id="commonCreateMonHocModalLabel">
+                            Thêm môn học mới
+                        </h5>
+                        <div class="role-modal-sub">Khởi tạo học phần mới vào khung chương trình đào tạo tín chỉ</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+
+            <form method="post" id="formCreateMonHoc" asp-action="Create">
+                @Html.AntiForgeryToken()
+
+                <div class="role-modal-body text-start">
+                    <!-- Thông báo lỗi khi submit (nếu có) -->
+                    <div id="createMonHocAlert" class="alert alert-danger py-2 small d-none mb-3" role="alert"></div>
+
+                    <!-- Banner nhận diện tạo mới -->
+                    <div class="role-user-card mb-3" style="background: #f0fdf4; border-color: #bbf7d0;">
+                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                            <span class="role-user-avatar" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                <i class="bi bi-journal-plus fs-5 text-white"></i>
+                            </span>
+                            <div class="role-user-info overflow-hidden">
+                                <div class="role-user-name text-truncate text-dark fw-bold">Môn học đào tạo mới</div>
+                                <div class="role-user-meta text-truncate text-muted">
+                                    Mã môn sẽ được hệ thống sinh tự động (#MH...)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2 uneti-fs-xs fw-semibold">
+                                <i class="bi bi-stars me-1"></i>Tạo mới
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 1: TÊN MÔN HỌC -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">
+                            Tên môn học <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-book"></i></span>
+                            <input type="text" name="TenMonHoc" id="createMonHocTen" class="form-control" placeholder="Ví dụ: Lập trình Cloud với AWS..." required />
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: ĐỊNH MỨC TÍN CHỈ & HỌC PHÍ -->
+                    <div class="card bg-light border-0 rounded-3 p-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-semibold small text-dark">
+                                <i class="bi bi-cash-stack text-success me-1"></i>Công cụ tính học phí tức thì
+                            </span>
+                            <span class="badge bg-white text-primary border small" id="createMonHocFormulaBadge">
+                                3 TC × 1.000.000 đ = 3.000.000 đ
+                            </span>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-sm-4">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Số tín chỉ <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="SoTinChi" id="createMonHocSoTinChi" min="1" max="10" value="3" class="form-control bg-white" required />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Đơn giá 1 tín chỉ
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="createMonHocDonGia" class="form-control bg-white" value="1000000" min="100000" step="50000" />
+                                    <span class="input-group-text bg-white text-muted small">đ</span>
+                                </div>
+                                <div class="d-flex gap-1 mt-1">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 rounded-pill js-create-dongia" style="font-size: 11px;" data-price="800000">800k</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1 rounded-pill js-create-dongia" style="font-size: 11px;" data-price="1000000">1.0tr</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1 rounded-pill js-create-dongia" style="font-size: 11px;" data-price="1200000">1.2tr</button>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Học phí định mức <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" name="HocPhi" id="createMonHocHocPhi" value="3000000" min="0" step="1000" class="form-control fw-bold bg-white" style="color: var(--uneti-primary);" required />
+                                    <span class="input-group-text bg-white text-muted small">đ</span>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size: 11px;">(Tự tính hoặc gõ)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 3: TRẠNG THÁI & MÔ TẢ -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">Trạng thái giảng dạy</label>
+                        <select name="TrangThai" id="createMonHocTrangThai" class="form-select">
+                            <option value="true" selected>Đang mở giảng dạy</option>
+                            <option value="false">Tạm dừng giảng dạy</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-1">
+                        <label class="form-label fw-bold text-dark small mb-1">Mô tả tóm tắt môn học</label>
+                        <textarea name="MoTa" id="createMonHocMoTa" class="form-control" rows="3" placeholder="Nhập mục tiêu môn học, nội dung kiến thức cốt lõi..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút cân đối chuẩn mực theo role-modal -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" id="btnSubmitCreateMonHoc" data-loading-text="Đang lưu...">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Lưu môn học</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CHỈNH SỬA MÔN HỌC (POPUP TRỰC TIẾP TRONG TRANG - CHUẨN GIAO DIỆN TÀI KHOẢN) -->
+<div class="modal fade" id="commonEditMonHocModal" tabindex="-1" aria-labelledby="commonEditMonHocModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 600px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </span>
+                    <div>
+                        <h5 class="role-modal-title" id="commonEditMonHocModalLabel">
+                            Chỉnh sửa môn học
+                        </h5>
+                        <div class="role-modal-sub">Cập nhật thông tin học phần, định mức tín chỉ &amp; học phí đào tạo</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+
+            <form method="post" id="formEditMonHoc" asp-action="Edit">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="MaMonHoc" id="editMonHocMaMonHoc" />
+
+                <div class="role-modal-body text-start">
+                    <!-- Thông báo lỗi khi submit (nếu có) -->
+                    <div id="editMonHocAlert" class="alert alert-danger py-2 small d-none mb-3" role="alert"></div>
+
+                    <!-- Khối thông tin định danh môn học -->
+                    <div class="role-user-card mb-3">
+                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                            <span class="role-user-avatar" id="editMonHocAvatar" style="background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);">
+                                <i class="bi bi-journal-bookmark-fill fs-5"></i>
+                            </span>
+                            <div class="role-user-info overflow-hidden">
+                                <div class="role-user-name text-truncate" id="editMonHocCardName">...</div>
+                                <div class="role-user-meta text-truncate">
+                                    <span class="fw-bold text-primary" id="editMonHocCardCode">#MH...</span>
+                                    <span class="mx-1">•</span>
+                                    <span id="editMonHocCardTinChi">3 tín chỉ</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-light text-muted border py-1 px-2 uneti-fs-xs">
+                                <i class="bi bi-lock-fill me-1 text-secondary"></i>Mã cố định
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 1: TÊN MÔN HỌC -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">
+                            Tên môn học <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-book"></i></span>
+                            <input type="text" name="TenMonHoc" id="editMonHocTen" class="form-control" placeholder="Nhập tên môn học..." required />
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: ĐỊNH MỨC TÍN CHỈ & HỌC PHÍ -->
+                    <div class="card bg-light border-0 rounded-3 p-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-semibold small text-dark">
+                                <i class="bi bi-cash-stack text-success me-1"></i>Công cụ tính học phí tức thì
+                            </span>
+                            <span class="badge bg-white text-primary border small" id="editMonHocFormulaBadge">
+                                3 TC × 533.000 đ = 1.600.000 đ
+                            </span>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-sm-4">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Số tín chỉ <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="SoTinChi" id="editMonHocSoTinChi" min="1" max="10" class="form-control bg-white" required />
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Đơn giá 1 tín chỉ
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="editMonHocDonGia" class="form-control bg-white" value="533000" min="100000" step="50000" />
+                                    <span class="input-group-text bg-white text-muted small">đ</span>
+                                </div>
+                                <div class="d-flex gap-1 mt-1">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 rounded-pill js-monhoc-dongia" style="font-size: 11px;" data-price="800000">800k</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1 rounded-pill js-monhoc-dongia" style="font-size: 11px;" data-price="1000000">1.0tr</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-0 px-1 rounded-pill js-monhoc-dongia" style="font-size: 11px;" data-price="1200000">1.2tr</button>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    Học phí định mức <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" name="HocPhi" id="editMonHocHocPhi" min="0" step="1000" class="form-control fw-bold bg-white" style="color: var(--uneti-primary);" required />
+                                    <span class="input-group-text bg-white text-muted small">đ</span>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size: 11px;">(Tự tính hoặc gõ)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 3: TRẠNG THÁI & MÔ TẢ -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">Trạng thái giảng dạy</label>
+                        <select name="TrangThai" id="editMonHocTrangThai" class="form-select">
+                            <option value="true">Đang mở giảng dạy</option>
+                            <option value="false">Tạm dừng giảng dạy</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-1">
+                        <label class="form-label fw-bold text-dark small mb-1">Mô tả tóm tắt môn học</label>
+                        <textarea name="MoTa" id="editMonHocMoTa" class="form-control" rows="3" placeholder="Nhập mô tả tóm tắt nội dung môn học..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút cân đối chuẩn mực theo role-modal -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" id="btnSubmitEditMonHoc" data-loading-text="Đang lưu...">
+                        <i class="bi bi-check-lg"></i>
+                        <span>Lưu thay đổi</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL XÓA MÔN HỌC (POPUP TRỰC TIẾP TRÊN TRANG - CHUẨN ROLE-MODAL) -->
+<div class="modal fade" id="commonDeleteMonHocModal" tabindex="-1" aria-labelledby="commonDeleteMonHocModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 550px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon" style="background: #fef2f2; color: #dc2626; border-color: #fee2e2;">
+                        <i class="bi bi-trash3-fill"></i>
+                    </span>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="role-modal-title mb-0" id="commonDeleteMonHocModalLabel">
+                                Xác nhận xóa môn học
+                            </h5>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fw-bold" id="deleteMhCardCode" style="font-size: 0.78rem;">#MH...</span>
+                        </div>
+                        <div class="role-modal-sub">Dữ liệu nền học phần đào tạo tín chỉ</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <form method="post" id="formDeleteMonHoc" action="/MonHoc/Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteMhId" />
+
+                <div class="role-modal-body text-start">
+                    <!-- THÔNG BÁO LỖI (NẾU CÓ) -->
+                    <div id="deleteMhAlertError" class="alert alert-danger py-2 small mb-3 d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i><span id="deleteMhAlertErrorText"></span>
+                    </div>
+
+                    <!-- TRƯỜNG HỢP 1: BỊ KHÓA XÓA DO ĐÃ CÓ KHÓA HỌC THAM CHIẾU -->
+                    <div id="deleteMhBlockWarning" class="alert alert-warning border-warning d-flex align-items-start p-3 mb-3 rounded-3 d-none" role="alert">
+                        <i class="bi bi-shield-exclamation text-warning fs-3 me-3 mt-1 flex-shrink-0"></i>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">KHÔNG THỂ XÓA MÔN HỌC NÀY!</h6>
+                            <p class="small text-muted mb-2">
+                                Môn học này hiện đã có <strong id="deleteMhSoKhoaHoc" class="text-danger fw-bold">1</strong> khóa học đang liên kết. Theo quy tắc bảo toàn toàn vẹn dữ liệu, không được phép xóa!
+                            </p>
+                            <span class="badge bg-danger">Giải pháp:</span>
+                            <span class="small text-dark fw-semibold ms-1">Vui lòng chuyển trạng thái môn học sang "Tạm dừng" thay vì xóa!</span>
+                        </div>
+                    </div>
+
+                    <!-- TRƯỜNG HỢP 2: CÓ THỂ XÓA AN TOÀN -->
+                    <div id="deleteMhConfirmAlert" class="alert alert-danger p-3 mb-3 text-center rounded-3 bg-danger-subtle bg-opacity-25" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-2 d-block mb-1"></i>
+                        <h6 class="fw-bold mb-1 text-danger">Bạn có chắc chắn muốn xóa vĩnh viễn môn học này?</h6>
+                        <small class="text-muted">Môn học này chưa có khóa học nào liên kết, thao tác xóa có thể thực hiện an toàn.</small>
+                    </div>
+
+                    <!-- THẺ THÔNG TIN TÓM TẮT MÔN HỌC -->
+                    <div class="role-user-card mb-0">
+                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                            <span class="role-user-avatar" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                <i class="bi bi-journal-x fs-5 text-white"></i>
+                            </span>
+                            <div class="role-user-info overflow-hidden">
+                                <div class="role-user-name text-truncate text-dark fw-bold" id="deleteMhCardName">...</div>
+                                <div class="role-user-meta text-truncate">
+                                    <span id="deleteMhCardTinChi">3 tín chỉ</span>
+                                    <span class="mx-1">•</span>
+                                    <span id="deleteMhCardHocPhi" class="fw-bold text-primary">0 đ</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span id="deleteMhCardStatus" class="uneti-badge-success">
+                                Đang mở
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút cân đối -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy bỏ</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" id="btnSubmitDeleteMonHoc" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-color: #dc2626;" data-loading-text="Đang xóa...">
+                        <i class="bi bi-trash-fill"></i>
+                        <span>Xác nhận xóa</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary disabled d-none d-flex align-items-center gap-1" id="btnBlockDeleteMonHoc" disabled style="height: 42px; border-radius: 12px; font-weight: 600;" title="Bị khóa do có khóa học tham chiếu">
+                        <i class="bi bi-slash-circle"></i>
+                        <span>Không thể xóa</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         (function () {
-            // 1. Lọc nhanh trong bảng môn học
+            // 0. Modal Thêm mới môn học
+            const createModalEl = document.getElementById('commonCreateMonHocModal');
+            const createModal = createModalEl ? bootstrap.Modal.getOrCreateInstance(createModalEl) : null;
+            const formCreate = document.getElementById('formCreateMonHoc');
+            const createAlert = document.getElementById('createMonHocAlert');
+            const btnSubmitCreate = document.getElementById('btnSubmitCreateMonHoc');
+
+            const createTen = document.getElementById('createMonHocTen');
+            const createSoTC = document.getElementById('createMonHocSoTinChi');
+            const createDonGia = document.getElementById('createMonHocDonGia');
+            const createHocPhi = document.getElementById('createMonHocHocPhi');
+            const createTrangThai = document.getElementById('createMonHocTrangThai');
+            const createMoTa = document.getElementById('createMonHocMoTa');
+            const createFormulaBadge = document.getElementById('createMonHocFormulaBadge');
+
+            function updateCreateFormulaBadge(tc, dg, total) {
+                if (createFormulaBadge) {
+                    createFormulaBadge.innerHTML = `${tc} TC × ${dg.toLocaleString('vi-VN')} đ = <strong>${total.toLocaleString('vi-VN')} đ</strong>`;
+                }
+            }
+
+            function calcCreateHocPhi() {
+                const tc = parseInt(createSoTC ? createSoTC.value : 0) || 0;
+                const dg = parseInt(createDonGia ? createDonGia.value : 0) || 0;
+                const total = tc * dg;
+                if (createHocPhi) createHocPhi.value = total;
+                updateCreateFormulaBadge(tc, dg, total);
+            }
+
+            if (createSoTC) createSoTC.addEventListener('input', calcCreateHocPhi);
+            if (createDonGia) createDonGia.addEventListener('input', calcCreateHocPhi);
+
+            if (createHocPhi) {
+                createHocPhi.addEventListener('input', function () {
+                    const tc = parseInt(createSoTC ? createSoTC.value : 0) || 0;
+                    const total = parseInt(this.value) || 0;
+                    if (tc > 0 && total > 0) {
+                        const dg = Math.round(total / tc / 1000) * 1000;
+                        if (createDonGia) createDonGia.value = dg;
+                        updateCreateFormulaBadge(tc, dg, total);
+                    }
+                });
+            }
+
+            function showCreateError(msg) {
+                if (createAlert) {
+                    createAlert.textContent = msg;
+                    createAlert.classList.remove('d-none');
+                } else {
+                    alert(msg);
+                }
+            }
+
+            if (formCreate) {
+                formCreate.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const tenVal = createTen ? createTen.value.trim() : '';
+                    const tcVal = parseInt(createSoTC ? createSoTC.value : 0) || 0;
+                    const hpVal = parseInt(createHocPhi ? createHocPhi.value : 0) || 0;
+
+                    if (!tenVal || tenVal.length < 2) {
+                        showCreateError('Tên môn học không được để trống và phải từ 2 ký tự trở lên.');
+                        createTen?.focus();
+                        return;
+                    }
+
+                    if (tcVal < 1 || tcVal > 10) {
+                        showCreateError('Số tín chỉ phải từ 1 đến 10.');
+                        createSoTC?.focus();
+                        return;
+                    }
+
+                    if (hpVal < 0) {
+                        showCreateError('Học phí không thể là số âm.');
+                        createHocPhi?.focus();
+                        return;
+                    }
+
+                    if (createAlert) createAlert.classList.add('d-none');
+
+                    const originalBtnHtml = btnSubmitCreate ? btnSubmitCreate.innerHTML : '';
+                    if (btnSubmitCreate) {
+                        btnSubmitCreate.disabled = true;
+                        btnSubmitCreate.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang thêm...</span>';
+                    }
+
+                    try {
+                        const formData = new FormData(formCreate);
+                        const response = await fetch(formCreate.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+
+                        const result = await response.json();
+                        if (result && result.success) {
+                            if (createModal) createModal.hide();
+
+                            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                                window.UnetiUI.toast({
+                                    type: 'success',
+                                    title: 'Thành công',
+                                    message: result.message || 'Thêm mới môn học thành công!'
+                                });
+                            }
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 400);
+                        } else {
+                            showCreateError(result.message || 'Không thể tạo môn học. Vui lòng kiểm tra lại.');
+                        }
+                    } catch (err) {
+                        formCreate.submit();
+                    } finally {
+                        if (btnSubmitCreate) {
+                            btnSubmitCreate.disabled = false;
+                            btnSubmitCreate.innerHTML = originalBtnHtml;
+                        }
+                    }
+                });
+            }
+
+            // 1. Modal Chỉnh sửa môn học
+            const editModalEl = document.getElementById('commonEditMonHocModal');
+            const editModal = editModalEl ? bootstrap.Modal.getOrCreateInstance(editModalEl) : null;
+            const formEdit = document.getElementById('formEditMonHoc');
+            const editAlert = document.getElementById('editMonHocAlert');
+            const btnSubmitEdit = document.getElementById('btnSubmitEditMonHoc');
+
+            const editMa = document.getElementById('editMonHocMaMonHoc');
+            const editCardName = document.getElementById('editMonHocCardName');
+            const editCardCode = document.getElementById('editMonHocCardCode');
+            const editCardTinChi = document.getElementById('editMonHocCardTinChi');
+            const editTen = document.getElementById('editMonHocTen');
+            const editSoTC = document.getElementById('editMonHocSoTinChi');
+            const editDonGia = document.getElementById('editMonHocDonGia');
+            const editHocPhi = document.getElementById('editMonHocHocPhi');
+            const editTrangThai = document.getElementById('editMonHocTrangThai');
+            const editMoTa = document.getElementById('editMonHocMoTa');
+            const formulaBadge = document.getElementById('editMonHocFormulaBadge');
+
+            function updateFormulaBadge(tc, dg, total) {
+                if (formulaBadge) {
+                    formulaBadge.innerHTML = `${tc} TC × ${dg.toLocaleString('vi-VN')} đ = <strong>${total.toLocaleString('vi-VN')} đ</strong>`;
+                }
+            }
+
+            function calcHocPhiFromDonGia() {
+                const tc = parseInt(editSoTC ? editSoTC.value : 0) || 0;
+                const dg = parseInt(editDonGia ? editDonGia.value : 0) || 0;
+                const total = tc * dg;
+                if (editHocPhi) editHocPhi.value = total;
+                updateFormulaBadge(tc, dg, total);
+                if (editCardTinChi) editCardTinChi.textContent = tc + ' tín chỉ';
+            }
+
+            if (editSoTC) editSoTC.addEventListener('input', calcHocPhiFromDonGia);
+            if (editDonGia) editDonGia.addEventListener('input', calcHocPhiFromDonGia);
+
+            if (editHocPhi) {
+                editHocPhi.addEventListener('input', function () {
+                    const tc = parseInt(editSoTC ? editSoTC.value : 0) || 0;
+                    const total = parseInt(this.value) || 0;
+                    if (tc > 0 && total > 0) {
+                        const dg = Math.round(total / tc / 1000) * 1000;
+                        if (editDonGia) editDonGia.value = dg;
+                        updateFormulaBadge(tc, dg, total);
+                    }
+                });
+            }
+
+            function showEditError(msg) {
+                if (editAlert) {
+                    editAlert.textContent = msg;
+                    editAlert.classList.remove('d-none');
+                } else {
+                    alert(msg);
+                }
+            }
+
+            if (formEdit) {
+                formEdit.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const tenVal = editTen ? editTen.value.trim() : '';
+                    const tcVal = parseInt(editSoTC ? editSoTC.value : 0) || 0;
+                    const hpVal = parseInt(editHocPhi ? editHocPhi.value : 0) || 0;
+
+                    if (!tenVal || tenVal.length < 2) {
+                        showEditError('Tên môn học không được để trống và phải từ 2 ký tự trở lên.');
+                        editTen?.focus();
+                        return;
+                    }
+
+                    if (tcVal < 1 || tcVal > 10) {
+                        showEditError('Số tín chỉ phải từ 1 đến 10.');
+                        editSoTC?.focus();
+                        return;
+                    }
+
+                    if (hpVal < 0) {
+                        showEditError('Học phí không thể là số âm.');
+                        editHocPhi?.focus();
+                        return;
+                    }
+
+                    if (editAlert) editAlert.classList.add('d-none');
+
+                    const originalBtnHtml = btnSubmitEdit ? btnSubmitEdit.innerHTML : '';
+                    if (btnSubmitEdit) {
+                        btnSubmitEdit.disabled = true;
+                        btnSubmitEdit.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang lưu...</span>';
+                    }
+
+                    try {
+                        const formData = new FormData(formEdit);
+                        const response = await fetch(formEdit.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+
+                        const result = await response.json();
+                        if (result && result.success) {
+                            if (editModal) editModal.hide();
+
+                            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                                window.UnetiUI.toast({
+                                    type: 'success',
+                                    title: 'Thành công',
+                                    message: result.message || 'Cập nhật môn học thành công!'
+                                });
+                            }
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 400);
+                        } else {
+                            showEditError(result.message || 'Không thể lưu thông tin. Vui lòng kiểm tra lại.');
+                        }
+                    } catch (err) {
+                        formEdit.submit();
+                    } finally {
+                        if (btnSubmitEdit) {
+                            btnSubmitEdit.disabled = false;
+                            btnSubmitEdit.innerHTML = originalBtnHtml;
+                        }
+                    }
+                });
+            }
+
+            // 2. Modal Xóa môn học
+            const deleteMhModalEl = document.getElementById('commonDeleteMonHocModal');
+            const deleteMhModal = deleteMhModalEl ? bootstrap.Modal.getOrCreateInstance(deleteMhModalEl) : null;
+            const formDeleteMh = document.getElementById('formDeleteMonHoc');
+            const deleteMhId = document.getElementById('deleteMhId');
+            const deleteMhCardCode = document.getElementById('deleteMhCardCode');
+            const deleteMhCardName = document.getElementById('deleteMhCardName');
+            const deleteMhCardTinChi = document.getElementById('deleteMhCardTinChi');
+            const deleteMhCardHocPhi = document.getElementById('deleteMhCardHocPhi');
+            const deleteMhCardStatus = document.getElementById('deleteMhCardStatus');
+            const deleteMhBlockWarning = document.getElementById('deleteMhBlockWarning');
+            const deleteMhConfirmAlert = document.getElementById('deleteMhConfirmAlert');
+            const deleteMhSoKhoaHoc = document.getElementById('deleteMhSoKhoaHoc');
+            const btnSubmitDeleteMh = document.getElementById('btnSubmitDeleteMonHoc');
+            const btnBlockDeleteMh = document.getElementById('btnBlockDeleteMonHoc');
+            const deleteMhAlertError = document.getElementById('deleteMhAlertError');
+
+            if (formDeleteMh) {
+                formDeleteMh.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const origBtnHtml = btnSubmitDeleteMh ? btnSubmitDeleteMh.innerHTML : '';
+                    if (btnSubmitDeleteMh) {
+                        btnSubmitDeleteMh.disabled = true;
+                        btnSubmitDeleteMh.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang xóa...</span>';
+                    }
+
+                    try {
+                        const formData = new FormData(formDeleteMh);
+                        const response = await fetch(formDeleteMh.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+
+                        const result = await response.json();
+                        if (result && result.success) {
+                            if (deleteMhModal) deleteMhModal.hide();
+                            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                                window.UnetiUI.toast({
+                                    type: 'success',
+                                    title: 'Đã xóa môn học',
+                                    message: result.message || 'Xóa môn học thành công!'
+                                });
+                            }
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 400);
+                        } else {
+                            if (deleteMhAlertError) {
+                                document.getElementById('deleteMhAlertErrorText').textContent = result.message || 'Không thể xóa môn học này.';
+                                deleteMhAlertError.classList.remove('d-none');
+                            } else {
+                                alert(result.message || 'Không thể xóa môn học này.');
+                            }
+                        }
+                    } catch (err) {
+                        formDeleteMh.submit();
+                    } finally {
+                        if (btnSubmitDeleteMh) {
+                            btnSubmitDeleteMh.disabled = false;
+                            btnSubmitDeleteMh.innerHTML = origBtnHtml;
+                        }
+                    }
+                });
+            }
+
+            // 3. Sự kiện Click chung (Event Delegation)
+            document.addEventListener('click', function (e) {
+                // A. Mở modal Thêm mới môn học
+                const btnOpenCreate = e.target.closest('.js-open-create-monhoc-modal');
+                if (btnOpenCreate) {
+                    e.preventDefault();
+                    if (formCreate) formCreate.reset();
+                    if (createSoTC) createSoTC.value = 3;
+                    if (createDonGia) createDonGia.value = 1000000;
+                    if (createHocPhi) createHocPhi.value = 3000000;
+                    if (createTrangThai) createTrangThai.value = 'true';
+                    updateCreateFormulaBadge(3, 1000000, 3000000);
+                    if (createAlert) {
+                        createAlert.classList.add('d-none');
+                        createAlert.textContent = '';
+                    }
+                    if (createModal) createModal.show();
+                    setTimeout(() => createTen?.focus(), 300);
+                    return;
+                }
+
+                // B. Chọn nhanh đơn giá ở form Thêm mới: 800k, 1.0tr, 1.2tr
+                const btnCreatePrice = e.target.closest('.js-create-dongia');
+                if (btnCreatePrice) {
+                    const price = parseInt(btnCreatePrice.getAttribute('data-price')) || 1000000;
+                    if (createDonGia) {
+                        createDonGia.value = price;
+                        calcCreateHocPhi();
+                    }
+                    return;
+                }
+
+                // C. Chọn nhanh đơn giá ở form Chỉnh sửa: 800k, 1.0tr, 1.2tr
+                const btnPrice = e.target.closest('.js-monhoc-dongia');
+                if (btnPrice) {
+                    const price = parseInt(btnPrice.getAttribute('data-price')) || 1000000;
+                    if (editDonGia) {
+                        editDonGia.value = price;
+                        calcHocPhiFromDonGia();
+                    }
+                    return;
+                }
+
+                // D. Mở modal Chỉnh sửa môn học
+                const btnEdit = e.target.closest('.js-open-edit-monhoc-modal');
+                if (btnEdit) {
+                    e.preventDefault();
+
+                    const id = btnEdit.getAttribute('data-id');
+                    const code = btnEdit.getAttribute('data-code');
+                    const name = btnEdit.getAttribute('data-name');
+                    const tinchi = parseInt(btnEdit.getAttribute('data-tinchi')) || 3;
+                    const hocphi = parseInt(btnEdit.getAttribute('data-hocphi')) || 0;
+                    const status = btnEdit.getAttribute('data-status');
+                    const desc = btnEdit.getAttribute('data-desc');
+
+                    if (formEdit) formEdit.action = '/MonHoc/Edit/' + id;
+                    if (editMa) editMa.value = id;
+                    if (editCardName) editCardName.textContent = name || 'Môn học #' + id;
+                    if (editCardCode) editCardCode.textContent = code || ('#MH' + id);
+                    if (editCardTinChi) editCardTinChi.textContent = tinchi + ' tín chỉ';
+
+                    if (editTen) editTen.value = name || '';
+                    if (editSoTC) editSoTC.value = tinchi;
+                    if (editHocPhi) editHocPhi.value = hocphi;
+
+                    const donGia = tinchi > 0 ? (Math.round((hocphi / tinchi) / 1000) * 1000) : 1000000;
+                    if (editDonGia) editDonGia.value = donGia;
+                    updateFormulaBadge(tinchi, donGia, hocphi);
+
+                    if (editTrangThai) editTrangThai.value = (status === 'true' || status === 'True') ? 'true' : 'false';
+                    if (editMoTa) editMoTa.value = desc || '';
+
+                    if (editAlert) {
+                        editAlert.classList.add('d-none');
+                        editAlert.textContent = '';
+                    }
+
+                    if (editModal) editModal.show();
+                    return;
+                }
+
+                // E. Mở modal Xóa môn học
+                const btnDelete = e.target.closest('.js-open-delete-monhoc-modal');
+                if (btnDelete) {
+                    e.preventDefault();
+
+                    const id = btnDelete.getAttribute('data-id');
+                    const code = btnDelete.getAttribute('data-code') || ('#MH' + id);
+                    const name = btnDelete.getAttribute('data-name') || '';
+                    const tinchi = btnDelete.getAttribute('data-tinchi') || '0';
+                    const hocphi = btnDelete.getAttribute('data-hocphi') || '0';
+                    const statusIsOpen = btnDelete.getAttribute('data-status-is-open') === 'true';
+                    const hasKhoaHoc = btnDelete.getAttribute('data-has-khoahoc') === 'true';
+                    const countKhoaHoc = parseInt(btnDelete.getAttribute('data-khoahoc-count')) || 0;
+
+                    if (formDeleteMh) formDeleteMh.action = '/MonHoc/Delete/' + id;
+                    if (deleteMhId) deleteMhId.value = id;
+                    if (deleteMhCardCode) deleteMhCardCode.textContent = code;
+                    if (deleteMhCardName) deleteMhCardName.textContent = name;
+                    if (deleteMhCardTinChi) deleteMhCardTinChi.textContent = tinchi + ' tín chỉ';
+                    if (deleteMhCardHocPhi) deleteMhCardHocPhi.textContent = hocphi + ' đ';
+
+                    if (deleteMhCardStatus) {
+                        if (statusIsOpen) {
+                            deleteMhCardStatus.className = 'uneti-badge-success';
+                            deleteMhCardStatus.innerHTML = '<i class="bi bi-check-circle me-1"></i>Đang mở';
+                        } else {
+                            deleteMhCardStatus.className = 'uneti-badge-danger';
+                            deleteMhCardStatus.innerHTML = '<i class="bi bi-pause-circle me-1"></i>Tạm dừng';
+                        }
+                    }
+
+                    if (deleteMhAlertError) deleteMhAlertError.classList.add('d-none');
+
+                    if (hasKhoaHoc || countKhoaHoc > 0) {
+                        if (deleteMhBlockWarning) deleteMhBlockWarning.classList.remove('d-none');
+                        if (deleteMhConfirmAlert) deleteMhConfirmAlert.classList.add('d-none');
+                        if (deleteMhSoKhoaHoc) deleteMhSoKhoaHoc.textContent = countKhoaHoc + ' khóa học';
+                        if (btnSubmitDeleteMh) btnSubmitDeleteMh.classList.add('d-none');
+                        if (btnBlockDeleteMh) btnBlockDeleteMh.classList.remove('d-none');
+                    } else {
+                        if (deleteMhBlockWarning) deleteMhBlockWarning.classList.add('d-none');
+                        if (deleteMhConfirmAlert) deleteMhConfirmAlert.classList.remove('d-none');
+                        if (btnSubmitDeleteMh) btnSubmitDeleteMh.classList.remove('d-none');
+                        if (btnBlockDeleteMh) btnBlockDeleteMh.classList.add('d-none');
+                    }
+
+                    if (deleteMhModal) deleteMhModal.show();
+                    return;
+                }
+            });
+
+            // 4. Lọc nhanh trong bảng môn học
             function initQuickSearch() {
                 const searchInput = document.getElementById('adminTableQuickSearch');
                 const clearBtn = document.getElementById('btnClearQuickSearch');
@@ -389,7 +1237,7 @@
 
             initQuickSearch();
 
-            // 2. Phân trang AJAX giữ nguyên vị trí cuộn ("Đứng yên", không nhảy lên đầu)
+            // 5. Phân trang AJAX giữ nguyên vị trí cuộn ("Đứng yên", không nhảy lên đầu)
             const tableContainer = document.getElementById('monHocTableContainer');
             if (tableContainer) {
                 tableContainer.addEventListener('click', async function (e) {

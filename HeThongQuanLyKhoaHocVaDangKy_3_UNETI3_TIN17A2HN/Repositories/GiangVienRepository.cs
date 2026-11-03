@@ -196,7 +196,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                 bool dangPhuTrach = await HasAnyKhoaHocAsync(id);
                 if (dangPhuTrach)
                 {
-                    return (false, "Không thể xóa giảng viên này vì đang phụ trách khóa học. Hãy chuyển các khóa học sang giảng viên khác hoặc cho giảng viên nghỉ (Tạm nghỉ) thay vì xóa!");
+                    return (false, "Không thể xóa giảng viên này vì đang phụ trách khóa học trong hệ thống. Vui lòng vào Quản lý khóa học để bàn giao hoặc phân công giảng viên khác thay thế trước khi xóa!");
                 }
 
                 var giangVien = await _context.GiangViens.FindAsync(id);
@@ -233,13 +233,45 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
 
                 giangVien.TrangThai = !giangVien.TrangThai;
                 await _context.SaveChangesAsync();
-                return (true, $"Đã đổi trạng thái giảng viên '{giangVien.HoTen}' sang {(giangVien.TrangThai ? "Đang giảng dạy" : "Tạm nghỉ")}.", giangVien.TrangThai);
+
+                string message;
+                if (!giangVien.TrangThai)
+                {
+                    var (hasActive, activeCourses) = await GetActiveTeachingCoursesAsync(id);
+                    if (hasActive)
+                    {
+                        var summary = string.Join(", ", activeCourses.Take(2)) + (activeCourses.Count > 2 ? $" và {activeCourses.Count - 2} khóa khác" : "");
+                        message = $"Đã chuyển giảng viên '{giangVien.HoTen}' sang Tạm nghỉ. Lưu ý: Giảng viên đang phụ trách {activeCourses.Count} khóa học ({summary}), vui lòng phân công người dạy thay nếu cần!";
+                    }
+                    else
+                    {
+                        message = $"Đã chuyển giảng viên '{giangVien.HoTen}' sang trạng thái Tạm nghỉ.";
+                    }
+                }
+                else
+                {
+                    message = $"Đã kích hoạt giảng viên '{giangVien.HoTen}' sang trạng thái Đang giảng dạy (Sẵn sàng nhận lớp).";
+                }
+
+                return (true, message, giangVien.TrangThai);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi đổi trạng thái giảng viên ID {Id}", id);
                 return (false, "Không thể đổi trạng thái giảng viên do sự cố CSDL.", false);
             }
+        }
+
+        // 11. Kiểm tra giảng viên có đang phụ trách khóa học hoạt động / có lịch dạy không
+        public async Task<(bool HasActiveCourses, List<string> CourseNames)> GetActiveTeachingCoursesAsync(int maGiangVien)
+        {
+            var activeCourses = await _context.KhoaHocs
+                .Where(k => k.MaGiangVien == maGiangVien && k.TrangThai != "DaKetThuc" && k.TrangThai != "BiHuy")
+                .OrderBy(k => k.TenKhoaHoc)
+                .Select(k => k.TenKhoaHoc)
+                .ToListAsync();
+
+            return (activeCourses.Any(), activeCourses);
         }
     }
 }

@@ -421,6 +421,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 ModelState.AddModelError("NgayKetThuc", "Ngày kết thúc phải sau ngày bắt đầu khóa học.");
             }
 
+            // Kiểm tra nghiệp vụ: Giảng viên phụ trách phải đang công tác (không được Tạm nghỉ)
+            var gvPhuTrach = await _context.GiangViens.FindAsync(khoaHoc.MaGiangVien);
+            if (gvPhuTrach == null || !gvPhuTrach.TrangThai)
+            {
+                ModelState.AddModelError("MaGiangVien", "Giảng viên được chọn đang ở trạng thái 'Tạm nghỉ'. Vui lòng chọn giảng viên đang giảng dạy.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -466,6 +473,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             if (khoaHoc.NgayKetThuc <= khoaHoc.NgayBatDau)
             {
                 ModelState.AddModelError("NgayKetThuc", "Ngày kết thúc phải sau ngày bắt đầu khóa học.");
+            }
+
+            // Kiểm tra nghiệp vụ: Giảng viên phụ trách phải đang công tác (không được Tạm nghỉ)
+            var gvPhuTrach = await _context.GiangViens.FindAsync(khoaHoc.MaGiangVien);
+            if (gvPhuTrach == null || !gvPhuTrach.TrangThai)
+            {
+                ModelState.AddModelError("MaGiangVien", "Giảng viên được phân công đang ở trạng thái 'Tạm nghỉ'. Vui lòng chọn giảng viên đang giảng dạy.");
             }
 
             if (ModelState.IsValid)

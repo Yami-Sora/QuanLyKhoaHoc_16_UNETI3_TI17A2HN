@@ -5,6 +5,159 @@
     Nội dung: Hiệu ứng toàn cục
 */
 
+/* ==========================================================================
+   0. HIỆU ỨNG TẢI TRANG (TOP PROGRESS BAR & UNETI PAGE PRELOADER)
+   ========================================================================== */
+
+/* 0.1 Thanh chạy tiến độ trên cùng màn hình (Top Progress Bar) */
+#unetiTopProgressBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #2563eb, #38bdf8, #60a5fa);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.7), 0 0 4px rgba(37, 99, 235, 0.8);
+    z-index: 9999999;
+    pointer-events: none;
+    transition: width 220ms ease, opacity 250ms ease;
+    opacity: 0;
+}
+
+#unetiTopProgressBar.is-active {
+    opacity: 1;
+}
+
+/* 0.2 Màn hình chờ tải trang (UNETI Preloader Overlay) */
+#unetiPageLoader {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999998;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: all;
+}
+
+#unetiPageLoader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Tắt loader ngay nếu trình duyệt không bật JavaScript */
+html:not(.js) #unetiPageLoader,
+html:not(.js) #unetiTopProgressBar {
+    display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #unetiPageLoader,
+    #unetiTopProgressBar {
+        display: none !important;
+    }
+}
+
+.uneti-loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Vòng xoay spinner kép sang trọng */
+.uneti-spinner-ring {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1.15rem;
+}
+
+.uneti-spinner-ring::before,
+.uneti-spinner-ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.uneti-spinner-ring::before {
+    border-top-color: #2563eb;
+    border-right-color: #38bdf8;
+    animation: unetiSpin 0.85s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.uneti-spinner-ring::after {
+    border-bottom-color: #6366f1;
+    border-left-color: #06b6d4;
+    animation: unetiSpinReverse 1.25s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.uneti-spinner-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.35rem;
+    color: #2563eb;
+    animation: unetiPulse 1.6s ease-in-out infinite;
+}
+
+.uneti-loader-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.uneti-loader-sub {
+    font-size: 0.775rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.uneti-loader-dots span {
+    display: inline-block;
+    animation: unetiBounceDot 1.4s infinite ease-in-out both;
+    font-weight: bold;
+}
+.uneti-loader-dots span:nth-child(1) { animation-delay: -0.32s; }
+.uneti-loader-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes unetiSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes unetiSpinReverse {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+}
+
+@keyframes unetiPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+}
+
+@keyframes unetiBounceDot {
+    0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }
+    40% { transform: scale(1.2); opacity: 1; }
+}
+
 /* 1. CHUYỂN TRANG MƯỢT MÀ (PAGE TRANSITIONS) */
 
 body {

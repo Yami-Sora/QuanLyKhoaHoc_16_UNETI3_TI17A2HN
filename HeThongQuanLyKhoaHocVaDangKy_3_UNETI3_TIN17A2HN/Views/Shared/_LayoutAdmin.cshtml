@@ -1,4 +1,4 @@
-﻿@*
+@*
     Bố cục trang quản trị
 *@
 
@@ -19,6 +19,9 @@
     <partial name="_Head" />
 </head>
 <body class="bg-light">
+    <!-- Hiệu ứng tải trang toàn cục (Top Progress Bar & Preloader UNETI) -->
+    <partial name="_PageLoader" />
+
     <!-- Phím tắt điều hướng nhanh -->
     <a href="#adminMain" class="uneti-skip-link">Chuyển đến nội dung chính</a>
 
@@ -156,10 +159,7 @@
             <!-- Topbar thanh công cụ quản trị phía trên -->
             <header class="admin-topbar">
                 <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-light d-lg-none border shadow-none" type="button" id="sidebarToggle" aria-label="Toggle sidebar">
-                        <i class="bi bi-list fs-5"></i>
-                    </button>
-                    <button class="btn btn-light d-none d-lg-inline-flex align-items-center justify-content-center border shadow-none rounded-3 px-2 py-1 text-secondary" type="button" id="sidebarCollapseToggle" aria-label="Thu gọn / Mở rộng sidebar" title="Thu gọn / Mở rộng sidebar">
+                    <button class="btn btn-light align-items-center justify-content-center border shadow-none rounded-3 px-2 py-1 text-secondary" type="button" id="sidebarCollapseToggle" aria-label="Thu gọn / Mở rộng sidebar" title="Thu gọn / Mở rộng sidebar">
                         <i class="bi bi-layout-sidebar-inset fs-5"></i>
                     </button>
                     <div>
@@ -260,7 +260,6 @@
     <script>
         (function () {
             const sidebar = document.getElementById('adminSidebar');
-            const toggleBtn = document.getElementById('sidebarToggle');
             const collapseBtn = document.getElementById('sidebarCollapseToggle');
             const backdrop = document.getElementById('sidebarBackdrop');
 
@@ -292,18 +291,7 @@
             }
             updateTooltips();
 
-            // 3. Toggle thu gọn trên Desktop
-            collapseBtn?.addEventListener('click', function () {
-                if (!sidebar) return;
-                const willCollapse = !sidebar.classList.contains('collapsed');
-                sidebar.classList.toggle('collapsed');
-                try {
-                    localStorage.setItem('uneti_admin_sidebar_collapsed', willCollapse ? '1' : '0');
-                } catch (e) {}
-                updateTooltips();
-            });
-
-            // 4. Toggle Offcanvas trên Mobile
+            // 3. Toggle sidebar (Desktop: thu gọn/mở rộng; Mobile: mở/đóng drawer)
             function openMobileSidebar() {
                 sidebar?.classList.add('show');
                 backdrop?.classList.add('show');
@@ -315,11 +303,21 @@
                 document.body.classList.remove('overflow-hidden');
             }
 
-            toggleBtn?.addEventListener('click', function () {
-                if (sidebar?.classList.contains('show')) {
-                    closeMobileSidebar();
+            collapseBtn?.addEventListener('click', function () {
+                if (!sidebar) return;
+                if (window.innerWidth < 992) {
+                    if (sidebar.classList.contains('show')) {
+                        closeMobileSidebar();
+                    } else {
+                        openMobileSidebar();
+                    }
                 } else {
-                    openMobileSidebar();
+                    const willCollapse = !sidebar.classList.contains('collapsed');
+                    sidebar.classList.toggle('collapsed');
+                    try {
+                        localStorage.setItem('uneti_admin_sidebar_collapsed', willCollapse ? '1' : '0');
+                    } catch (e) {}
+                    updateTooltips();
                 }
             });
 

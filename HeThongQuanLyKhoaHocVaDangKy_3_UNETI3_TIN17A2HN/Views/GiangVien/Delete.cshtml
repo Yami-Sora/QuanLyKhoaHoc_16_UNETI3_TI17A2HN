@@ -32,8 +32,20 @@
                                     Giảng viên này hiện đang phụ trách <strong>@soKhoaHoc khóa học</strong> trong hệ thống.
                                     Theo quy tắc bảo toàn toàn vẹn dữ liệu, không được phép xóa giảng viên còn đang phụ trách khóa học.
                                 </p>
+                                @if (Model.KhoaHocs != null && Model.KhoaHocs.Any())
+                                {
+                                    <div class="bg-white p-2 rounded border mb-2 small text-start">
+                                        <div class="fw-semibold text-secondary mb-1">Các khóa học đang phụ trách:</div>
+                                        <ul class="mb-0 ps-3">
+                                            @foreach (var k in Model.KhoaHocs)
+                                            {
+                                                <li class="py-1"><strong>@k.TenKhoaHoc</strong></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
                                 <span class="badge bg-danger">Giải pháp:</span>
-                                <span class="small text-dark fw-semibold ms-1">Chuyển các khóa học sang giảng viên khác hoặc chuyển giảng viên sang trạng thái "Tạm nghỉ" thay vì xóa!</span>
+                                <span class="small text-dark fw-semibold ms-1">Vui lòng vào <strong>Quản lý khóa học</strong> để bàn giao hoặc chuyển các khóa học này sang giảng viên khác trước khi xóa!</span>
                             </div>
                         </div>
                     }

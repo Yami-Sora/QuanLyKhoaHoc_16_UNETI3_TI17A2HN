@@ -216,16 +216,6 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                     return (false, "Không tìm thấy môn học.");
                 }
 
-                // Kiểm tra khóa học đang hoạt động trước khi tạm dừng (Đề 16 Mục 5.5, 6.7, 8.3)
-                if (!monHoc.TrangThai && existing.TrangThai)
-                {
-                    bool coKhoaHocHoatDong = await HasActiveKhoaHocAsync(id);
-                    if (coKhoaHocHoatDong)
-                    {
-                        return (false, "Không thể chuyển môn học sang 'Tạm dừng' vì vẫn còn lớp khóa học đang mở, đang học hoặc sắp mở. Vui lòng kết thúc hoặc đóng các lớp học phần trước.");
-                    }
-                }
-
                 existing.TenMonHoc = monHoc.TenMonHoc?.Trim() ?? string.Empty;
                 existing.SoTinChi = monHoc.SoTinChi;
                 existing.HocPhi = monHoc.HocPhi;
@@ -294,16 +284,6 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                     return (false, "Không tìm thấy thông tin môn học cần đổi trạng thái.", false);
                 }
 
-                // Kiểm tra khóa học đang hoạt động trước khi tạm dừng (Đề 16 Mục 5.5, 6.7, 8.3)
-                if (monHoc.TrangThai)
-                {
-                    bool coKhoaHocHoatDong = await HasActiveKhoaHocAsync(id);
-                    if (coKhoaHocHoatDong)
-                    {
-                        return (false, $"Không thể tạm dừng môn học '{monHoc.TenMonHoc}' vì vẫn còn lớp khóa học đang mở, đang học hoặc sắp mở. Vui lòng đóng hoặc hoàn tất các khóa học trước.", false);
-                    }
-                }
-
                 monHoc.TrangThai = !monHoc.TrangThai;
                 await _context.SaveChangesAsync();
                 return (true, $"Đã đổi trạng thái môn '{monHoc.TenMonHoc}' sang {(monHoc.TrangThai ? "Đang mở" : "Tạm dừng")}.", monHoc.TrangThai);
@@ -313,6 +293,30 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                 _logger.LogError(ex, "Lỗi khi đổi trạng thái môn học ID {Id}", id);
                 return (false, "Không thể đổi trạng thái môn học do sự cố CSDL.", false);
             }
+        }
+
+        // 14. Xuất danh sách môn học (theo điều kiện lọc)
+        public async Task<List<MonHoc>> GetExportListAsync(string? searchString, bool? trangThai)
+        {
+            var query = _context.MonHocs.Include(m => m.KhoaHocs).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                var term = searchString.Trim().ToLower();
+                var cleanCode = term.Replace("#", "").Replace("mh", "").TrimStart('0');
+                bool isNumeric = int.TryParse(cleanCode, out int searchId);
+
+                query = query.Where(m => m.TenMonHoc.ToLower().Contains(term)
+                                      || (isNumeric && m.MaMonHoc == searchId)
+                                      || m.MaMonHoc.ToString().Contains(term));
+            }
+
+            if (trangThai.HasValue)
+            {
+                query = query.Where(m => m.TrangThai == trangThai.Value);
+            }
+
+            return await query.OrderBy(m => m.MaMonHoc).ToListAsync();
         }
     }
 }

@@ -506,5 +506,31 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        // 19. Xuất danh sách tài khoản (theo điều kiện lọc)
+        public async Task<List<TaiKhoan>> GetExportListAsync(string? searchString, string? role, bool? trangThai)
+        {
+            var query = _context.TaiKhoans.Include(t => t.HocVien).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                var term = searchString.Trim().ToLower();
+                query = query.Where(t => t.TenDangNhap.ToLower().Contains(term)
+                                      || t.HoTen.ToLower().Contains(term)
+                                      || t.Email.ToLower().Contains(term));
+            }
+
+            if (!string.IsNullOrWhiteSpace(role))
+            {
+                query = query.Where(t => t.VaiTro == role);
+            }
+
+            if (trangThai.HasValue)
+            {
+                query = query.Where(t => t.TrangThai == trangThai.Value);
+            }
+
+            return await query.OrderBy(t => t.MaTaiKhoan).ToListAsync();
+        }
     }
 }

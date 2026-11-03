@@ -27,3 +27,36 @@ body {
     color: var(--uneti-text-muted);
     font-size: 0.875rem;
 }
+
+/* ==========================================================================
+   TỐI ƯU KHUNG HIỂN THỊ TRÊN MÀN HÌNH RỘNG (FULL HD 1080P, 2K, DESKTOP)
+   Mở rộng container từ mặc định 1320px lên 1520px - 1560px, khắc phục khoảng trống
+   thừa 300px ở 2 bên mép, đồng thời căn thẳng hàng tuyệt đối giữa Navbar, Footer & Nội dung
+   ========================================================================== */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1520px;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    .uneti-navbar .container-fluid,
+    .uneti-footer .container-fluid {
+        max-width: 1520px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1560px;
+    }
+
+    .uneti-navbar .container-fluid,
+    .uneti-footer .container-fluid {
+        max-width: 1560px;
+    }
+}

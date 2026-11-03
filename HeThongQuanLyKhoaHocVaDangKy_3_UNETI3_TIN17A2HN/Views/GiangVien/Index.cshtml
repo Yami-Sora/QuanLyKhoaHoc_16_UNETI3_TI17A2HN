@@ -1,4 +1,4 @@
-@*
+﻿@*
     Họ và tên: Trần Văn Thành
     Mã sinh viên: 23103100076
     Nội dung: Module 1 - Danh sách giảng viên (Admin / Nhân viên) — dùng chung bộ CSS trang quản lý
@@ -31,13 +31,20 @@
 }
 <div class="container-fluid py-2">
     <div class="dl-page-head">
-        <div>
-            <h4 class="dl-page-title"><i class="bi bi-person-badge-fill text-primary me-2"></i>QUẢN LÝ GIẢNG VIÊN</h4>
-            <p class="dl-page-sub">Quản lý đội ngũ giảng viên, học vị, chuyên môn và trạng thái công tác của trung tâm</p>
+        <div class="dl-head-left">
+            <span class="dl-head-icon">
+                <i class="bi bi-mortarboard-fill"></i>
+            </span>
+            <div class="dl-head-text">
+                <h4 class="dl-page-title">Quản lý giảng viên</h4>
+                <p class="dl-page-sub">Quản lý đội ngũ giảng viên, học vị, chuyên môn và trạng thái công tác của trung tâm</p>
+            </div>
         </div>
         <div class="d-flex gap-2">
             <a asp-controller="MonHoc" asp-action="QuanLy" class="btn uneti-btn-outline shadow-sm"><i class="bi bi-book-half me-1"></i> Quản lý môn học</a>
-            <a asp-action="Create" class="btn uneti-btn-primary shadow-sm"><i class="bi bi-plus-lg me-1"></i> Thêm giảng viên mới</a>
+            <button type="button" class="btn uneti-btn-primary shadow-sm js-open-create-gv-modal" id="btnOpenCreateGvModal">
+                <i class="bi bi-plus-lg me-1"></i> Thêm giảng viên mới
+            </button>
         </div>
     </div>
 
@@ -125,7 +132,7 @@
                     <a asp-action="Index" class="badge rounded-pill text-decoration-none" style="background:#f5f3ff;color:#7c3aed" title="Bỏ lọc nhanh">Đang lọc: có lớp phụ trách <i class="bi bi-x-lg"></i></a>
                 }
             </div>
-            <a asp-action="XuatDanhSach" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc" class="btn btn-sm uneti-btn-outline"><i class="bi bi-download me-1"></i> Xuất danh sách</a>
+            <a asp-action="XuatDanhSach" asp-route-searchString="@currentSearch" asp-route-trangThai="@currentTrangThai" asp-route-coKhoaHoc="@currentCoKhoaHoc" class="btn btn-sm uneti-btn-outline" download data-no-transition title="Xuất danh sách giảng viên sang file Excel"><i class="bi bi-file-earmark-excel-fill text-success me-1"></i> Xuất Excel</a>
         </div>
 
         <div class="table-responsive">
@@ -156,6 +163,11 @@
                     {
                         var gioiTinhGV = GiangVienAvatarHelper.LayGioiTinh(item);
                         var soKhoa = item.KhoaHocs?.Count ?? 0;
+                        var activeCourses = item.KhoaHocs?
+                            .Where(k => k.TrangThai != "DaKetThuc" && k.TrangThai != "BiHuy")
+                            .ToList() ?? new List<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.KhoaHoc>();
+                        var hasActiveCourses = activeCourses.Any();
+                        var dsTenKhoaActive = string.Join(" | ", activeCourses.Select(k => k.TenKhoaHoc));
                         <tr>
                             <td class="ps-3">
                                 <div class="d-flex align-items-center gap-2">
@@ -185,7 +197,16 @@
                             <td class="text-center">
                                 @if (soKhoa > 0)
                                 {
-                                    <span class="badge bg-light text-dark border rounded-pill"><i class="bi bi-mortarboard text-primary me-1"></i>@soKhoa lớp</span>
+                                    var badgeTitle = hasActiveCourses
+                                        ? $"Đang phụ trách {activeCourses.Count} lớp có lịch dạy: {string.Join(", ", activeCourses.Select(k => k.TenKhoaHoc))}"
+                                        : "Tất cả các lớp đã kết thúc hoặc hủy";
+                                    <span class="badge @(hasActiveCourses ? "bg-primary-subtle text-primary border border-primary-subtle" : "bg-light text-muted border") rounded-pill" title="@badgeTitle">
+                                        <i class="bi bi-mortarboard me-1"></i>@soKhoa lớp
+                                        @if (hasActiveCourses)
+                                        {
+                                            <span class="badge bg-primary text-white rounded-pill ms-1" style="font-size: 0.65rem;" title="@activeCourses.Count lớp đang có lịch dạy">@activeCourses.Count đang dạy</span>
+                                        }
+                                    </span>
                                 }
                                 else
                                 {
@@ -204,14 +225,63 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-1">
-                                    <a asp-action="Edit" asp-route-id="@item.MaGiangVien" class="btn-action-icon btn-action-edit" title="Sửa thông tin"><i class="bi bi-pencil-square"></i></a>
-                                    <form asp-action="ToggleStatus" asp-route-id="@item.MaGiangVien" method="post" class="d-inline" onsubmit="return confirm('Đổi trạng thái công tác của giảng viên @item.HoTen?');">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn-action-icon btn-action-view" title="Đổi trạng thái"><i class="bi bi-arrow-repeat"></i></button>
-                                    </form>
+                                    <button type="button" class="btn-action-icon btn-action-edit js-open-edit-gv-modal"
+                                            data-id="@item.MaGiangVien"
+                                            data-code="@($"#GV{item.MaGiangVien:D3}")"
+                                            data-hoten="@item.HoTen"
+                                            data-email="@item.Email"
+                                            data-sodienthoai="@item.SoDienThoai"
+                                            data-gioitinh="@gioiTinhGV"
+                                            data-hocvi="@(item.HocVi ?? "")"
+                                            data-trangthai="@(item.TrangThai ? "true" : "false")"
+                                            data-chuyenmon="@(item.ChuyenMon ?? "")"
+                                            data-has-active="@(hasActiveCourses ? "true" : "false")"
+                                            data-active-count="@activeCourses.Count"
+                                            data-active-courses="@dsTenKhoaActive"
+                                            title="Chỉnh sửa thông tin giảng viên">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    @if (item.TrangThai && hasActiveCourses)
+                                    {
+                                        <button type="button" class="btn-action-icon btn-action-view js-btn-gv-active-warning"
+                                                data-hoten="@item.HoTen"
+                                                data-count="@activeCourses.Count"
+                                                data-courses="@dsTenKhoaActive"
+                                                title="Đang phụ trách @activeCourses.Count lớp có lịch dạy (Không thể đổi sang Tạm nghỉ)">
+                                            <i class="bi bi-arrow-repeat text-warning"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="ToggleStatus" asp-route-id="@item.MaGiangVien" method="post" class="d-inline m-0 p-0"
+                                              data-uneti-confirm="Bạn có chắc chắn muốn đổi trạng thái công tác của giảng viên '@item.HoTen' sang @(item.TrangThai ? "Tạm nghỉ" : "Đang giảng dạy")?"
+                                              data-uneti-title="Đổi trạng thái giảng viên"
+                                              data-uneti-type="warning"
+                                              data-uneti-ok="Đổi trạng thái">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-action-icon btn-action-view" data-no-loading title="Đổi trạng thái công tác (@(item.TrangThai ? "Chuyển sang Tạm nghỉ" : "Kích hoạt Đang dạy"))">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                        </form>
+                                    }
                                     @if (isAdmin)
                                     {
-                                        <a asp-action="Delete" asp-route-id="@item.MaGiangVien" class="btn-action-icon btn-action-delete" title="Xóa (chỉ Admin)"><i class="bi bi-trash"></i></a>
+                                        var gvHasKhoa = item.KhoaHocs != null && item.KhoaHocs.Any();
+                                        var gvCountKhoa = item.KhoaHocs?.Count ?? 0;
+                                        <button type="button" class="btn-action-icon btn-action-delete js-open-delete-gv-modal"
+                                                data-id="@item.MaGiangVien"
+                                                data-code="@($"#GV{item.MaGiangVien:D3}")"
+                                                data-hoten="@item.HoTen"
+                                                data-email="@item.Email"
+                                                data-sdt="@item.SoDienThoai"
+                                                data-hocvi="@(string.IsNullOrEmpty(item.HocVi) ? "—" : item.HocVi)"
+                                                data-chuyenmon="@(string.IsNullOrEmpty(item.ChuyenMon) ? "—" : item.ChuyenMon)"
+                                                data-status="@(item.TrangThai ? "Đang giảng dạy" : "Tạm nghỉ")"
+                                                data-has-khoahoc="@(gvHasKhoa ? "true" : "false")"
+                                                data-khoahoc-count="@gvCountKhoa"
+                                                title="Xóa giảng viên (chỉ Admin)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
                                     }
                                 </div>
                             </td>
@@ -251,3 +321,945 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Chỉnh sửa thông tin Giảng viên (Popup trực tiếp trên trang, chuẩn thiết kế Quản lý tài khoản) -->
+<div class="modal fade" id="modalEditGiangVien" tabindex="-1" aria-labelledby="modalEditGiangVienLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 620px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </span>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="role-modal-title mb-0" id="modalEditGiangVienLabel">
+                                Chỉnh sửa giảng viên
+                            </h5>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace fw-bold" id="editGvBadgeCode" style="font-size: 0.78rem;">#GV000</span>
+                        </div>
+                        <div class="role-modal-sub">Cập nhật hồ sơ cá nhân, chuyên môn và trạng thái công tác</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <form method="post" id="formEditGiangVien" action="/GiangVien/Edit">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="MaGiangVien" id="editGvId" />
+                
+                <div class="role-modal-body text-start">
+                    <!-- THÔNG BÁO LỖI NẾU CÓ -->
+                    <div id="editGvAlertError" class="alert alert-danger py-2 small mb-3 d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i><span id="editGvAlertErrorText"></span>
+                    </div>
+
+                    <!-- Khối thông tin định danh giảng viên (chuẩn role-user-card như Quản lý tài khoản) -->
+                    <div class="role-user-card mb-3">
+                        <div class="d-flex align-items-center gap-3 overflow-hidden">
+                            <span class="role-user-avatar" id="editGvAvatar">
+                                G
+                            </span>
+                            <div class="role-user-info">
+                                <div class="role-user-name text-truncate" id="editGvCardFullName">...</div>
+                                <div class="role-user-meta text-truncate">
+                                    <span class="fw-bold text-primary font-monospace" id="editGvCardCode">#GV000</span>
+                                    <span class="mx-1">•</span>
+                                    <span id="editGvCardEmail">...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge bg-light text-muted border py-1 px-2 uneti-fs-xs">
+                                <i class="bi bi-person-badge me-1 text-primary"></i>Hồ sơ GV
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 1: THÔNG TIN CÁ NHÂN -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 pb-2 mb-3 border-bottom">
+                            <span class="uneti-icon-box-28 bg-primary-subtle text-primary fw-bold">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <span class="fw-bold text-dark small" style="font-size: 0.9rem;">1. Thông tin cá nhân &amp; Liên hệ</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editGvHoTen" class="form-label fw-bold text-dark small mb-1">
+                                Họ và tên <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                                <input type="text" name="HoTen" id="editGvHoTen" class="form-control" required maxlength="100" placeholder="Ví dụ: ThS. Trịnh Quốc Bảo" autocomplete="name" />
+                            </div>
+                            <span class="text-danger small mt-1 d-block" id="valErrorHoTen"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="editGvEmail" class="form-label fw-bold text-dark small mb-1">
+                                    Email liên hệ <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" name="Email" id="editGvEmail" class="form-control" required maxlength="100" placeholder="tqbao@uneti.edu.vn" autocomplete="email" />
+                                </div>
+                                <span class="text-danger small mt-1 d-block" id="valErrorEmail"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editGvSoDienThoai" class="form-label fw-bold text-dark small mb-1">
+                                    Số điện thoại <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                                    <input type="tel" name="SoDienThoai" id="editGvSoDienThoai" class="form-control" required maxlength="15" placeholder="0990123456" autocomplete="tel" />
+                                </div>
+                                <span class="text-danger small mt-1 d-block" id="valErrorSoDienThoai"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label fw-bold text-dark small d-block mb-1">Giới tính</label>
+                            <div class="d-flex align-items-center gap-4 pt-1">
+                                <div class="form-check cursor-pointer m-0">
+                                    <input class="form-check-input" type="radio" name="GioiTinh" value="Nam" id="editGvGioiTinhNam" />
+                                    <label class="form-check-label fw-medium text-dark cursor-pointer" for="editGvGioiTinhNam">
+                                        <i class="bi bi-gender-male me-1 text-primary"></i>Nam
+                                    </label>
+                                </div>
+                                <div class="form-check cursor-pointer m-0">
+                                    <input class="form-check-input" type="radio" name="GioiTinh" value="Nữ" id="editGvGioiTinhNu" />
+                                    <label class="form-check-label fw-medium text-dark cursor-pointer" for="editGvGioiTinhNu">
+                                        <i class="bi bi-gender-female me-1 text-danger"></i>Nữ
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: CHUYÊN MÔN & CÔNG TÁC -->
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center gap-2 pb-2 mb-3 border-bottom">
+                            <span class="uneti-icon-box-28 bg-primary-subtle text-primary fw-bold">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </span>
+                            <span class="fw-bold text-dark small" style="font-size: 0.9rem;">2. Chuyên môn &amp; Trạng thái công tác</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="editGvHocVi" class="form-label fw-bold text-dark small mb-1">Học vị</label>
+                                <select name="HocVi" id="editGvHocVi" class="form-select">
+                                    <option value="">-- Chọn học vị --</option>
+                                    <option value="Cử nhân">Cử nhân</option>
+                                    <option value="Thạc sĩ">Thạc sĩ</option>
+                                    <option value="Tiến sĩ">Tiến sĩ</option>
+                                    <option value="Phó giáo sư">Phó giáo sư</option>
+                                    <option value="Giáo sư">Giáo sư</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editGvTrangThai" class="form-label fw-bold text-dark small mb-1">Trạng thái công tác</label>
+                                <select name="TrangThai" id="editGvTrangThai" class="form-select">
+                                    <option value="true">Đang giảng dạy</option>
+                                    <option value="false">Tạm nghỉ</option>
+                                </select>
+                                <div id="editGvActiveCourseWarning" class="alert alert-warning py-1 px-2 small mb-0 mt-2 d-none" role="alert" style="font-size: 0.78rem; line-height: 1.4;">
+                                    <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
+                                    <span>Giảng viên đang phụ trách <strong><span id="editGvActiveCountText">0</span> lớp</strong> có lịch giảng dạy. Không thể chọn "Tạm nghỉ".</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label for="editGvChuyenMon" class="form-label fw-bold text-dark small mb-1">Chuyên môn đào tạo / Giảng dạy</label>
+                            <input type="text" name="ChuyenMon" id="editGvChuyenMon" class="form-control" maxlength="100" placeholder="Ví dụ: Lập trình Java & Kiến trúc phần mềm doanh nghiệp" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút kích thước cân đối chuẩn mực -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" id="btnSubmitEditGv" data-loading-text="Đang lưu...">
+                        <i class="bi bi-check-lg"></i>
+                        <span>Lưu thay đổi</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm mới giảng viên (Popup trực tiếp trên trang) -->
+<div class="modal fade" id="modalCreateGiangVien" tabindex="-1" aria-labelledby="modalCreateGiangVienLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 620px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </span>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="role-modal-title mb-0" id="modalCreateGiangVienLabel">
+                                Thêm mới giảng viên
+                            </h5>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace fw-bold" style="font-size: 0.78rem;">#Tự sinh mã</span>
+                        </div>
+                        <div class="role-modal-sub">Khởi tạo hồ sơ giảng viên, học vị, chuyên môn và thông tin liên hệ</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <form method="post" id="formCreateGiangVien" action="/GiangVien/Create">
+                @Html.AntiForgeryToken()
+                
+                <div class="role-modal-body text-start">
+                    <!-- THÔNG BÁO LỖI NẾU CÓ -->
+                    <div id="createGvAlertError" class="alert alert-danger py-2 small mb-3 d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i><span id="createGvAlertErrorText"></span>
+                    </div>
+
+                    <!-- PHẦN 1: THÔNG TIN CÁ NHÂN & LIÊN HỆ -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 pb-2 mb-3 border-bottom">
+                            <span class="uneti-icon-box-28 bg-primary-subtle text-primary fw-bold">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <span class="fw-bold text-dark small" style="font-size: 0.9rem;">1. Thông tin cá nhân &amp; Liên hệ</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="createGvHoTen" class="form-label fw-bold text-dark small mb-1">
+                                Họ và tên <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                                <input type="text" name="HoTen" id="createGvHoTen" class="form-control" required maxlength="100" placeholder="Ví dụ: TS. Nguyễn Văn An" autocomplete="name" />
+                            </div>
+                            <span class="text-danger small mt-1 d-block" id="valCreateErrorHoTen"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="createGvEmail" class="form-label fw-bold text-dark small mb-1">
+                                    Email liên hệ <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" name="Email" id="createGvEmail" class="form-control" required maxlength="100" placeholder="ten@uneti.edu.vn" autocomplete="email" />
+                                </div>
+                                <span class="text-danger small mt-1 d-block" id="valCreateErrorEmail"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="createGvSoDienThoai" class="form-label fw-bold text-dark small mb-1">
+                                    Số điện thoại <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                                    <input type="tel" name="SoDienThoai" id="createGvSoDienThoai" class="form-control" required maxlength="15" placeholder="09xxxxxxxx" autocomplete="tel" />
+                                </div>
+                                <span class="text-danger small mt-1 d-block" id="valCreateErrorSoDienThoai"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label fw-bold text-dark small d-block mb-1">Giới tính</label>
+                            <div class="d-flex align-items-center gap-4 pt-1">
+                                <div class="form-check cursor-pointer m-0">
+                                    <input class="form-check-input" type="radio" name="GioiTinh" value="Nam" id="createGvGioiTinhNam" checked />
+                                    <label class="form-check-label fw-medium text-dark cursor-pointer" for="createGvGioiTinhNam">
+                                        <i class="bi bi-gender-male me-1 text-primary"></i>Nam
+                                    </label>
+                                </div>
+                                <div class="form-check cursor-pointer m-0">
+                                    <input class="form-check-input" type="radio" name="GioiTinh" value="Nữ" id="createGvGioiTinhNu" />
+                                    <label class="form-check-label fw-medium text-dark cursor-pointer" for="createGvGioiTinhNu">
+                                        <i class="bi bi-gender-female me-1 text-danger"></i>Nữ
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 2: CHUYÊN MÔN & CÔNG TÁC -->
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center gap-2 pb-2 mb-3 border-bottom">
+                            <span class="uneti-icon-box-28 bg-primary-subtle text-primary fw-bold">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </span>
+                            <span class="fw-bold text-dark small" style="font-size: 0.9rem;">2. Chuyên môn &amp; Trạng thái công tác</span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="createGvHocVi" class="form-label fw-bold text-dark small mb-1">Học vị</label>
+                                <select name="HocVi" id="createGvHocVi" class="form-select">
+                                    <option value="">-- Chọn học vị --</option>
+                                    <option value="Cử nhân">Cử nhân</option>
+                                    <option value="Thạc sĩ">Thạc sĩ</option>
+                                    <option value="Tiến sĩ">Tiến sĩ</option>
+                                    <option value="Phó giáo sư">Phó giáo sư</option>
+                                    <option value="Giáo sư">Giáo sư</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="createGvTrangThai" class="form-label fw-bold text-dark small mb-1">Trạng thái công tác</label>
+                                <select name="TrangThai" id="createGvTrangThai" class="form-select">
+                                    <option value="true" selected>Đang giảng dạy</option>
+                                    <option value="false">Tạm nghỉ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label for="createGvChuyenMon" class="form-label fw-bold text-dark small mb-1">Chuyên môn đào tạo / Giảng dạy</label>
+                            <input type="text" name="ChuyenMon" id="createGvChuyenMon" class="form-control" maxlength="100" placeholder="Ví dụ: Lập trình .NET &amp; Cơ sở dữ liệu" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút kích thước cân đối chuẩn mực -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn role-btn-submit" id="btnSubmitCreateGv" data-loading-text="Đang lưu...">
+                        <i class="bi bi-check-lg"></i>
+                        <span>Lưu giảng viên</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xóa giảng viên (Popup trực tiếp trên trang) -->
+<div class="modal fade" id="modalDeleteGiangVien" tabindex="-1" aria-labelledby="modalDeleteGiangVienLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered role-modal-dialog" style="max-width: 540px;">
+        <div class="modal-content role-modal-content">
+            <div class="role-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="role-modal-header-icon" style="background: #fee2e2; color: #dc2626; border-color: #fecaca;">
+                        <i class="bi bi-trash-fill"></i>
+                    </span>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="role-modal-title mb-0" id="modalDeleteGiangVienLabel">
+                                Xác nhận xóa giảng viên
+                            </h5>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace fw-bold" id="deleteGvCardCode" style="font-size: 0.78rem;">#GV000</span>
+                        </div>
+                        <div class="role-modal-sub">Hồ sơ đội ngũ giảng viên trung tâm</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <form method="post" id="formDeleteGiangVien" action="/GiangVien/Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteGvId" />
+                
+                <div class="role-modal-body text-start">
+                    <!-- THÔNG BÁO LỖI (NẾU CÓ) -->
+                    <div id="deleteGvAlertError" class="alert alert-danger py-2 small mb-3 d-none" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i><span id="deleteGvAlertErrorText"></span>
+                    </div>
+
+                    <!-- TRƯỜNG HỢP 1: BỊ KHÓA XÓA DO ĐANG PHỤ TRÁCH KHÓA HỌC -->
+                    <div id="deleteGvBlockWarning" class="alert alert-warning border-warning d-flex align-items-start p-3 mb-3 rounded-3 d-none">
+                        <i class="bi bi-shield-exclamation text-warning fs-3 me-3 mt-1 flex-shrink-0"></i>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">KHÔNG THỂ XÓA GIẢNG VIÊN NÀY!</h6>
+                            <p class="small text-muted mb-2">
+                                Giảng viên này hiện đang phụ trách <strong id="deleteGvSoKhoaHoc" class="text-danger fw-bold">1</strong> khóa học trong hệ thống. Theo quy tắc bảo toàn toàn vẹn dữ liệu, không được phép xóa!
+                            </p>
+                            <span class="badge bg-danger">Giải pháp:</span>
+                            <span class="small text-dark fw-semibold ms-1">Chuyển các khóa học sang GV khác hoặc chuyển trạng thái sang "Tạm nghỉ" thay vì xóa!</span>
+                        </div>
+                    </div>
+
+                    <!-- TRƯỜNG HỢP 2: CÓ THỂ XÓA AN TOÀN -->
+                    <div id="deleteGvConfirmAlert" class="alert alert-danger p-3 mb-3 text-center rounded-3">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-2 d-block mb-1"></i>
+                        <h6 class="fw-bold mb-1">Bạn có chắc chắn muốn xóa vĩnh viễn giảng viên này?</h6>
+                        <small class="text-muted">Giảng viên này chưa phụ trách khóa học nào, thao tác xóa có thể thực hiện an toàn.</small>
+                    </div>
+
+                    <!-- THÔNG TIN TÓM TẮT GIẢNG VIÊN -->
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-bold text-dark fs-6" id="deleteGvCardFullName">Họ và tên</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="deleteGvCardHocVi">Thạc sĩ</span>
+                        </div>
+                        <div class="small text-secondary d-flex justify-content-between">
+                            <span>Email:</span>
+                            <span class="fw-bold text-dark" id="deleteGvCardEmail">email@uneti.edu.vn</span>
+                        </div>
+                        <div class="small text-secondary d-flex justify-content-between mt-1">
+                            <span>Số điện thoại:</span>
+                            <span id="deleteGvCardPhone">09xxxxxxxx</span>
+                        </div>
+                        <div class="small text-secondary d-flex justify-content-between mt-1">
+                            <span>Trạng thái:</span>
+                            <span id="deleteGvCardStatus" class="fw-medium">Đang giảng dạy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: Hai nút cân đối -->
+                <div class="role-modal-footer">
+                    <button type="button" class="btn role-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Hủy</span>
+                    </button>
+                    <button type="submit" class="btn btn-danger fw-bold px-4 rounded-3 shadow-sm d-flex align-items-center gap-1" id="btnSubmitDeleteGv" style="height: 42px;">
+                        <i class="bi bi-trash"></i>
+                        <span>Xác nhận Xóa</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary px-4 rounded-3 d-none d-flex align-items-center gap-1" id="btnBlockDeleteGv" disabled style="height: 42px;" title="Bị khóa do đang phụ trách khóa học">
+                        <i class="bi bi-slash-circle"></i>
+                        <span>Không thể xóa</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            // 0. Quản lý Modal Xóa giảng viên (Popup trực tiếp)
+            const deleteGvModalEl = document.getElementById('modalDeleteGiangVien');
+            const deleteGvModal = deleteGvModalEl ? new bootstrap.Modal(deleteGvModalEl) : null;
+            const formDeleteGv = document.getElementById('formDeleteGiangVien');
+            const deleteGvId = document.getElementById('deleteGvId');
+            const deleteGvCardCode = document.getElementById('deleteGvCardCode');
+            const deleteGvCardFullName = document.getElementById('deleteGvCardFullName');
+            const deleteGvCardHocVi = document.getElementById('deleteGvCardHocVi');
+            const deleteGvCardEmail = document.getElementById('deleteGvCardEmail');
+            const deleteGvCardPhone = document.getElementById('deleteGvCardPhone');
+            const deleteGvCardStatus = document.getElementById('deleteGvCardStatus');
+            const deleteGvBlockWarning = document.getElementById('deleteGvBlockWarning');
+            const deleteGvConfirmAlert = document.getElementById('deleteGvConfirmAlert');
+            const deleteGvSoKhoaHoc = document.getElementById('deleteGvSoKhoaHoc');
+            const btnSubmitDeleteGv = document.getElementById('btnSubmitDeleteGv');
+            const btnBlockDeleteGv = document.getElementById('btnBlockDeleteGv');
+            const deleteGvAlertError = document.getElementById('deleteGvAlertError');
+
+            document.addEventListener('click', function (e) {
+                const btnDelete = e.target.closest('.js-open-delete-gv-modal');
+                if (!btnDelete) return;
+                e.preventDefault();
+
+                const id = btnDelete.getAttribute('data-id');
+                const code = btnDelete.getAttribute('data-code') || ('#GV' + id);
+                const hoten = btnDelete.getAttribute('data-hoten') || '';
+                const email = btnDelete.getAttribute('data-email') || '';
+                const sdt = btnDelete.getAttribute('data-sdt') || '';
+                const hocvi = btnDelete.getAttribute('data-hocvi') || '—';
+                const status = btnDelete.getAttribute('data-status') || '';
+                const hasKhoaHoc = btnDelete.getAttribute('data-has-khoahoc') === 'true';
+                const countKhoaHoc = parseInt(btnDelete.getAttribute('data-khoahoc-count')) || 0;
+
+                if (formDeleteGv) formDeleteGv.action = '/GiangVien/Delete/' + id;
+                if (deleteGvId) deleteGvId.value = id;
+                if (deleteGvCardCode) deleteGvCardCode.textContent = code;
+                if (deleteGvCardFullName) deleteGvCardFullName.textContent = hoten;
+                if (deleteGvCardHocVi) deleteGvCardHocVi.textContent = hocvi;
+                if (deleteGvCardEmail) deleteGvCardEmail.textContent = email;
+                if (deleteGvCardPhone) deleteGvCardPhone.textContent = sdt;
+                if (deleteGvCardStatus) deleteGvCardStatus.textContent = status;
+                if (deleteGvAlertError) deleteGvAlertError.classList.add('d-none');
+
+                if (hasKhoaHoc || countKhoaHoc > 0) {
+                    if (deleteGvBlockWarning) deleteGvBlockWarning.classList.remove('d-none');
+                    if (deleteGvConfirmAlert) deleteGvConfirmAlert.classList.add('d-none');
+                    if (deleteGvSoKhoaHoc) deleteGvSoKhoaHoc.textContent = countKhoaHoc;
+                    if (btnSubmitDeleteGv) btnSubmitDeleteGv.classList.add('d-none');
+                    if (btnBlockDeleteGv) btnBlockDeleteGv.classList.remove('d-none');
+                } else {
+                    if (deleteGvBlockWarning) deleteGvBlockWarning.classList.add('d-none');
+                    if (deleteGvConfirmAlert) deleteGvConfirmAlert.classList.remove('d-none');
+                    if (btnSubmitDeleteGv) btnSubmitDeleteGv.classList.remove('d-none');
+                    if (btnBlockDeleteGv) btnBlockDeleteGv.classList.add('d-none');
+                }
+
+                if (deleteGvModal) deleteGvModal.show();
+            });
+
+            if (formDeleteGv) {
+                formDeleteGv.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const origBtnHtml = btnSubmitDeleteGv ? btnSubmitDeleteGv.innerHTML : '';
+                    if (btnSubmitDeleteGv) {
+                        btnSubmitDeleteGv.disabled = true;
+                        btnSubmitDeleteGv.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang xóa...</span>';
+                    }
+
+                    try {
+                        const formData = new FormData(formDeleteGv);
+                        const response = await fetch(formDeleteGv.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+
+                        const result = await response.json();
+                        if (result && result.success) {
+                            if (deleteGvModal) deleteGvModal.hide();
+                            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                                window.UnetiUI.toast({
+                                    type: 'success',
+                                    title: 'Đã xóa giảng viên',
+                                    message: result.message || 'Xóa giảng viên thành công!'
+                                });
+                            }
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 400);
+                        } else {
+                            if (deleteGvAlertError) {
+                                document.getElementById('deleteGvAlertErrorText').textContent = result.message || 'Không thể xóa giảng viên này.';
+                                deleteGvAlertError.classList.remove('d-none');
+                            }
+                        }
+                    } catch (err) {
+                        formDeleteGv.submit();
+                    } finally {
+                        if (btnSubmitDeleteGv) {
+                            btnSubmitDeleteGv.disabled = false;
+                            btnSubmitDeleteGv.innerHTML = origBtnHtml;
+                        }
+                    }
+                });
+            }
+
+            // 1. Quản lý Modal Thêm mới giảng viên (Popup trực tiếp)
+            const createGvModalEl = document.getElementById('modalCreateGiangVien');
+            const createGvModal = createGvModalEl ? new bootstrap.Modal(createGvModalEl) : null;
+            const formCreateGv = document.getElementById('formCreateGiangVien');
+
+            const btnOpenCreate = document.getElementById('btnOpenCreateGvModal');
+            const btnSubmitCreate = document.getElementById('btnSubmitCreateGv');
+            const createHoTenInput = document.getElementById('createGvHoTen');
+            const createEmailInput = document.getElementById('createGvEmail');
+            const createSdtInput = document.getElementById('createGvSoDienThoai');
+            const createHocViSelect = document.getElementById('createGvHocVi');
+            const createTrangThaiSelect = document.getElementById('createGvTrangThai');
+            const createChuyenMonInput = document.getElementById('createGvChuyenMon');
+            const createRadioNam = document.getElementById('createGvGioiTinhNam');
+
+            function showCreateGvError(msg) {
+                const alertBox = document.getElementById('createGvAlertError');
+                const alertText = document.getElementById('createGvAlertErrorText');
+                if (alertBox && alertText) {
+                    alertText.textContent = msg;
+                    alertBox.classList.remove('d-none');
+                } else {
+                    alert(msg);
+                }
+            }
+
+            btnOpenCreate?.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (formCreateGv) formCreateGv.reset();
+                if (createRadioNam) createRadioNam.checked = true;
+                if (createTrangThaiSelect) createTrangThaiSelect.value = 'true';
+                document.getElementById('createGvAlertError')?.classList.add('d-none');
+                ['valCreateErrorHoTen', 'valCreateErrorEmail', 'valCreateErrorSoDienThoai'].forEach(function(eid) {
+                    const el = document.getElementById(eid);
+                    if (el) el.textContent = '';
+                });
+                if (createGvModal) createGvModal.show();
+            });
+
+            if (formCreateGv) {
+                formCreateGv.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const hoTenVal = createHoTenInput ? createHoTenInput.value.trim() : '';
+                    const emailVal = createEmailInput ? createEmailInput.value.trim() : '';
+                    const sdtVal = createSdtInput ? createSdtInput.value.trim() : '';
+
+                    const errHoTen = document.getElementById('valCreateErrorHoTen');
+                    const errEmail = document.getElementById('valCreateErrorEmail');
+                    const errSdt = document.getElementById('valCreateErrorSoDienThoai');
+
+                    if (errHoTen) errHoTen.textContent = '';
+                    if (errEmail) errEmail.textContent = '';
+                    if (errSdt) errSdt.textContent = '';
+                    document.getElementById('createGvAlertError')?.classList.add('d-none');
+
+                    if (!hoTenVal || hoTenVal.length < 2) {
+                        showCreateGvError('Họ và tên giảng viên không được để trống và phải từ 2 ký tự trở lên.');
+                        createHoTenInput?.focus();
+                        return;
+                    }
+
+                    const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                    if (!emailVal || !emailRegex.test(emailVal)) {
+                        showCreateGvError('Địa chỉ email không đúng định dạng.');
+                        createEmailInput?.focus();
+                        return;
+                    }
+
+                    if (!sdtVal) {
+                        showCreateGvError('Số điện thoại giảng viên không được để trống.');
+                        createSdtInput?.focus();
+                        return;
+                    }
+
+                    const origHtml = btnSubmitCreate ? btnSubmitCreate.innerHTML : '';
+                    if (btnSubmitCreate) {
+                        btnSubmitCreate.disabled = true;
+                        btnSubmitCreate.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang lưu...</span>';
+                    }
+
+                    try {
+                        const formData = new FormData(formCreateGv);
+                        const response = await fetch(formCreateGv.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+
+                        const result = await response.json();
+                        if (result && result.success) {
+                            if (createGvModal) createGvModal.hide();
+                            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                                window.UnetiUI.toast({
+                                    type: 'success',
+                                    title: 'Thành công',
+                                    message: result.message || 'Thêm mới giảng viên thành công!'
+                                });
+                            }
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 400);
+                        } else {
+                            showCreateGvError(result.message || 'Không thể thêm giảng viên. Vui lòng thử lại.');
+                        }
+                    } catch (err) {
+                        console.error('Lỗi khi gửi form thêm mới:', err);
+                        formCreateGv.submit();
+                    } finally {
+                        if (btnSubmitCreate) {
+                            btnSubmitCreate.disabled = false;
+                            btnSubmitCreate.innerHTML = origHtml;
+                        }
+                    }
+                });
+            }
+
+            // 2. Quản lý Modal Chỉnh sửa giảng viên (Popup trực tiếp)
+            const editGvModalEl = document.getElementById('modalEditGiangVien');
+            const editGvModal = editGvModalEl ? new bootstrap.Modal(editGvModalEl) : null;
+            const formEditGv = document.getElementById('formEditGiangVien');
+
+            const idInput = document.getElementById('editGvId');
+            const badgeCode = document.getElementById('editGvBadgeCode');
+            const avatarEl = document.getElementById('editGvAvatar');
+            const cardFullName = document.getElementById('editGvCardFullName');
+            const cardCode = document.getElementById('editGvCardCode');
+            const cardEmail = document.getElementById('editGvCardEmail');
+
+            const hoTenInput = document.getElementById('editGvHoTen');
+            const emailInput = document.getElementById('editGvEmail');
+            const sdtInput = document.getElementById('editGvSoDienThoai');
+            const hocViSelect = document.getElementById('editGvHocVi');
+            const trangThaiSelect = document.getElementById('editGvTrangThai');
+            const chuyenMonInput = document.getElementById('editGvChuyenMon');
+            const radioNam = document.getElementById('editGvGioiTinhNam');
+            const radioNu = document.getElementById('editGvGioiTinhNu');
+            const btnSubmit = document.getElementById('btnSubmitEditGv');
+
+            let currentTeacherHasActive = false;
+            let currentTeacherActiveCount = 0;
+
+            function showEditGvError(msg) {
+                const alertBox = document.getElementById('editGvAlertError');
+                const alertText = document.getElementById('editGvAlertErrorText');
+                if (alertBox && alertText) {
+                    alertText.textContent = msg;
+                    alertBox.classList.remove('d-none');
+                } else {
+                    alert(msg);
+                }
+            }
+
+            // Event delegation cho nút mở popup (hoạt động trơn tru cả khi lọc & phân trang)
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.js-open-edit-gv-modal');
+                if (!btn) return;
+                e.preventDefault();
+
+                const id = btn.getAttribute('data-id');
+                const code = btn.getAttribute('data-code') || ('#GV' + id);
+                const hoten = btn.getAttribute('data-hoten') || '';
+                const email = btn.getAttribute('data-email') || '';
+                const sdt = btn.getAttribute('data-sodienthoai') || '';
+                const gioitinh = btn.getAttribute('data-gioitinh') || 'Nam';
+                const hocvi = btn.getAttribute('data-hocvi') || '';
+                const trangthai = btn.getAttribute('data-trangthai') || 'true';
+                const chuyenmon = btn.getAttribute('data-chuyenmon') || '';
+                const hasActive = btn.getAttribute('data-has-active') === 'true';
+                const activeCount = parseInt(btn.getAttribute('data-active-count') || '0', 10);
+
+                currentTeacherHasActive = hasActive;
+                currentTeacherActiveCount = activeCount;
+
+                if (formEditGv) formEditGv.action = '/GiangVien/Edit/' + id;
+                if (idInput) idInput.value = id;
+                if (badgeCode) badgeCode.textContent = code;
+
+                // Cập nhật card định danh trên đầu modal
+                const initialChar = (hoten && hoten.trim().length > 0) ? hoten.trim().charAt(0).toUpperCase() : 'G';
+                if (avatarEl) avatarEl.textContent = initialChar;
+                if (cardFullName) cardFullName.textContent = hoten || 'Chưa đặt họ tên';
+                if (cardCode) cardCode.textContent = code;
+                if (cardEmail) cardEmail.textContent = email;
+
+                if (hoTenInput) hoTenInput.value = hoten;
+                if (emailInput) emailInput.value = email;
+                if (sdtInput) sdtInput.value = sdt;
+                if (chuyenMonInput) chuyenMonInput.value = chuyenmon;
+
+                if (hocViSelect) hocViSelect.value = hocvi;
+                if (trangThaiSelect) trangThaiSelect.value = trangthai;
+
+                if (gioitinh === 'Nữ') {
+                    if (radioNu) radioNu.checked = true;
+                } else {
+                    if (radioNam) radioNam.checked = true;
+                }
+
+                // Cập nhật cảnh báo và trạng thái disable của option "Tạm nghỉ"
+                const warningEl = document.getElementById('editGvActiveCourseWarning');
+                const countTextEl = document.getElementById('editGvActiveCountText');
+                const optTamNghi = trangThaiSelect ? trangThaiSelect.querySelector('option[value="false"]') : null;
+
+                if (hasActive) {
+                    if (warningEl) warningEl.classList.remove('d-none');
+                    if (countTextEl) countTextEl.textContent = activeCount;
+                    if (optTamNghi) {
+                        optTamNghi.disabled = true;
+                        optTamNghi.textContent = 'Tạm nghỉ (Đang phụ trách ' + activeCount + ' lớp có lịch dạy)';
+                    }
+                } else {
+                    if (warningEl) warningEl.classList.add('d-none');
+                    if (optTamNghi) {
+                        optTamNghi.disabled = false;
+                        optTamNghi.textContent = 'Tạm nghỉ';
+                    }
+                }
+
+                // Xóa thông báo lỗi cũ nếu có
+                document.getElementById('editGvAlertError')?.classList.add('d-none');
+                ['valErrorHoTen', 'valErrorEmail', 'valErrorSoDienThoai'].forEach(function(eid) {
+                    const el = document.getElementById(eid);
+                    if (el) el.textContent = '';
+                });
+
+                // Tải dữ liệu mới nhất từ server qua AJAX
+                fetch('/GiangVien/Edit/' + id, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success && res.data) {
+                        const d = res.data;
+                        if (d.hoTen && hoTenInput) hoTenInput.value = d.hoTen;
+                        if (d.email && emailInput) emailInput.value = d.email;
+                        if (d.soDienThoai && sdtInput) sdtInput.value = d.soDienThoai;
+                        if (d.chuyenMon !== undefined && chuyenMonInput) chuyenMonInput.value = d.chuyenMon || '';
+                        if (d.hocVi !== undefined && hocViSelect) hocViSelect.value = d.hocVi || '';
+                        if (d.trangThai !== undefined && trangThaiSelect) trangThaiSelect.value = d.trangThai ? 'true' : 'false';
+                        if (d.gioiTinh === 'Nữ' && radioNu) radioNu.checked = true;
+                        else if (radioNam) radioNam.checked = true;
+
+                        if (res.hasActiveCourses) {
+                            currentTeacherHasActive = true;
+                            currentTeacherActiveCount = res.activeCourseCount || activeCount;
+                            if (warningEl) warningEl.classList.remove('d-none');
+                            if (countTextEl) countTextEl.textContent = currentTeacherActiveCount;
+                            if (optTamNghi) {
+                                optTamNghi.disabled = true;
+                                optTamNghi.textContent = 'Tạm nghỉ (Đang phụ trách ' + currentTeacherActiveCount + ' lớp có lịch dạy)';
+                            }
+                        } else {
+                            currentTeacherHasActive = false;
+                            currentTeacherActiveCount = 0;
+                            if (warningEl) warningEl.classList.add('d-none');
+                            if (optTamNghi) {
+                                optTamNghi.disabled = false;
+                                optTamNghi.textContent = 'Tạm nghỉ';
+                            }
+                        }
+                    }
+                })
+                .catch(() => {});
+
+                if (editGvModal) editGvModal.show();
+            });
+
+            // 3. Xử lý khi bấm nút Đổi trạng thái của giảng viên ĐANG CÓ LỚP DẠY (Chặn đổi sang Tạm nghỉ)
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.js-btn-gv-active-warning');
+                if (!btn) return;
+                e.preventDefault();
+
+                const hoTen = btn.getAttribute('data-hoten') || 'Giảng viên';
+                const count = btn.getAttribute('data-count') || '1';
+                const rawCourses = btn.getAttribute('data-courses') || '';
+                const courses = rawCourses.split(' | ').filter(Boolean);
+
+                let coursesListHtml = courses.map(c => `<li class="py-1"><i class="bi bi-mortarboard-fill text-primary me-2"></i><strong>${c}</strong></li>`).join('');
+
+                const contentHtml = `
+                    <div class="text-start">
+                        <p class="mb-2">Giảng viên <strong>${hoTen}</strong> đang được phân công phụ trách <strong>${count} khóa học</strong> đang mở hoặc có lịch giảng dạy:</p>
+                        <ul class="list-unstyled bg-light rounded-3 p-3 border mb-3 small" style="max-height: 150px; overflow-y: auto;">
+                            ${coursesListHtml}
+                        </ul>
+                        <div class="alert alert-danger py-2 px-3 small mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-lock-fill fs-5 flex-shrink-0 text-danger"></i>
+                            <div>
+                                <strong>Không thể chuyển sang trạng thái "Tạm nghỉ":</strong><br>
+                                Giảng viên đang có khóa học với lịch giảng dạy thực tế. Vui lòng vào <em>Quản lý khóa học</em> để bàn giao hoặc phân công giảng viên khác thay thế trước khi cho tạm nghỉ!
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (window.UnetiUI && typeof window.UnetiUI.confirm === 'function') {
+                    window.UnetiUI.confirm({
+                        title: 'Chặn đổi trạng thái công tác',
+                        message: contentHtml,
+                        type: 'warning',
+                        confirmText: 'Đã hiểu',
+                        cancelText: 'Đóng',
+                        onConfirm: function () {}
+                    });
+                } else {
+                    alert(`Giảng viên ${hoTen} đang phụ trách ${count} khóa học có lịch dạy. Không thể chuyển sang Tạm nghỉ!`);
+                }
+            });
+
+            // Gửi form với AJAX + Toast thông báo thành công chuẩn mực
+            if (formEditGv) {
+                formEditGv.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const hoTenVal = hoTenInput ? hoTenInput.value.trim() : '';
+                    const emailVal = emailInput ? emailInput.value.trim() : '';
+                    const sdtVal = sdtInput ? sdtInput.value.trim() : '';
+
+                    const errHoTen = document.getElementById('valErrorHoTen');
+                    const errEmail = document.getElementById('valErrorEmail');
+                    const errSdt = document.getElementById('valErrorSoDienThoai');
+
+                    if (errHoTen) errHoTen.textContent = '';
+                    if (errEmail) errEmail.textContent = '';
+                    if (errSdt) errSdt.textContent = '';
+                    document.getElementById('editGvAlertError')?.classList.add('d-none');
+
+                    if (!hoTenVal || hoTenVal.length < 2) {
+                        showEditGvError('Họ và tên giảng viên không được để trống và phải từ 2 ký tự trở lên.');
+                        hoTenInput?.focus();
+                        return;
+                    }
+
+                    const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+                    if (!emailVal || !emailRegex.test(emailVal)) {
+                        showEditGvError('Địa chỉ email không đúng định dạng.');
+                        emailInput?.focus();
+                        return;
+                    }
+
+                    if (!sdtVal) {
+                        showEditGvError('Số điện thoại giảng viên không được để trống.');
+                        sdtInput?.focus();
+                        return;
+                    }
+
+                    // Ràng buộc nghiệp vụ: Không cho phép chọn Tạm nghỉ khi giảng viên đang có lớp dạy
+                    if (trangThaiSelect && trangThaiSelect.value === 'false' && currentTeacherHasActive) {
+                        showEditGvError(`Giảng viên đang phụ trách ${currentTeacherActiveCount} khóa học có lịch giảng dạy. Không thể chuyển sang trạng thái "Tạm nghỉ"! Vui lòng chuyển giao các khóa học này trước.`);
+                        trangThaiSelect.focus();
+                        return;
+                    }
+
+                    // Hiển thị trạng thái đang xử lý
+                    const origHtml = btnSubmit ? btnSubmit.innerHTML : '';
+                    if (btnSubmit) {
+                        btnSubmit.disabled = true;
+                        btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span>Đang lưu...</span>';
+                    }
+
+                    try {
+                        const formData = new FormData(formEditGv);
+                        const response = await fetch(formEditGv.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+
+                        const result = await response.json();
+                        if (result && result.success) {
+                            if (editGvModal) editGvModal.hide();
+                            if (window.UnetiUI && typeof window.UnetiUI.toast === 'function') {
+                                window.UnetiUI.toast({
+                                    type: 'success',
+                                    title: 'Thành công',
+                                    message: result.message || 'Cập nhật giảng viên thành công!'
+                                });
+                            }
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 400);
+                        } else {
+                            showEditGvError(result.message || 'Không thể lưu thông tin giảng viên. Vui lòng thử lại.');
+                        }
+                    } catch (err) {
+                        console.error('Lỗi khi gửi form chỉnh sửa:', err);
+                        // Fallback submit form thông thường
+                        formEditGv.submit();
+                    } finally {
+                        if (btnSubmit) {
+                            btnSubmit.disabled = false;
+                            btnSubmit.innerHTML = origHtml;
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
+}

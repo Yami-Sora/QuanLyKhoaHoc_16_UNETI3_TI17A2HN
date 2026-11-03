@@ -62,5 +62,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
 
         // 18. Lưu thay đổi
         Task SaveChangesAsync();
+
+        // 19. Xuất danh sách tài khoản (theo điều kiện lọc)
+        Task<List<TaiKhoan>> GetExportListAsync(string? searchString, string? role, bool? trangThai);
     }
 }

@@ -37,5 +37,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
 
         // 10. Đổi trạng thái nhanh Đang giảng dạy / Tạm nghỉ
         Task<(bool Success, string? ErrorMessage, bool NewStatus)> ToggleStatusAsync(int id);
+
+        // 11. Kiểm tra giảng viên có đang phụ trách khóa học đang mở / có lịch giảng dạy không
+        Task<(bool HasActiveCourses, List<string> CourseNames)> GetActiveTeachingCoursesAsync(int maGiangVien);
     }
 }

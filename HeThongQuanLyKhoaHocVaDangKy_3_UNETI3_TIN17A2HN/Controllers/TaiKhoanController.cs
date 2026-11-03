@@ -418,6 +418,36 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(list);
         }
 
+        // GET: /TaiKhoan/XuatDanhSach
+        // Xuất danh sách tài khoản (Excel chuẩn .xlsx, thương hiệu UNETI, tự động co giãn cột, kẻ viền và bộ lọc)
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
+        public async Task<IActionResult> XuatDanhSach(string? searchString, string? role, bool? trangThai)
+        {
+            var list = await _taiKhoanRepo.GetExportListAsync(searchString, role, trangThai);
+
+            var headers = new[]
+            {
+                "STT", "Mã tài khoản", "Tên đăng nhập", "Họ và tên", "Email", "Số điện thoại", "Vai trò", "Trạng thái", "Ngày tạo"
+            };
+
+            int stt = 1;
+            var rows = list.Select(t => new object?[]
+            {
+                stt++,
+                $"TK{t.MaTaiKhoan:D2}",
+                t.TenDangNhap,
+                t.HoTen,
+                t.Email,
+                string.IsNullOrWhiteSpace(t.HocVien?.SoDienThoai) ? "--" : t.HocVien.SoDienThoai,
+                t.VaiTro == VaiTro.Admin ? "Quản trị viên" : (t.VaiTro == VaiTro.NhanVien ? "Nhân viên đào tạo" : "Học viên"),
+                t.TrangThai ? "Hoạt động" : "Bị khóa",
+                t.NgayTao
+            });
+
+            var bytes = ExportHelper.ToExcelBytes("Danh sách tài khoản", headers, rows);
+            return File(bytes, ExportHelper.ExcelContentType, "DanhSachTaiKhoan.xlsx");
+        }
+
         // GET: /TaiKhoan/Index -> chuyển hướng về QuanLy
         [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         [HttpGet]
@@ -442,8 +472,17 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> Create(CreateUserViewModel model)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                          (Request.Headers.Accept.ToString()?.Contains("application/json") ?? false);
+
             if (!ModelState.IsValid)
             {
+                var firstError = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m)) ?? "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+
+                if (isAjax) return Json(new { success = false, message = firstError });
                 return View(model);
             }
 
@@ -453,25 +492,33 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             // 1. Kiểm tra trùng tên đăng nhập
             if (await _taiKhoanRepo.ExistsTenDangNhapAsync(cleanUsername))
             {
-                ModelState.AddModelError(nameof(model.TenDangNhap), "Tên đăng nhập này đã được sử dụng trong hệ thống.");
+                const string userError = "Tên đăng nhập này đã được sử dụng trong hệ thống.";
+                ModelState.AddModelError(nameof(model.TenDangNhap), userError);
+                if (isAjax) return Json(new { success = false, message = userError });
                 return View(model);
             }
 
             // 2. Kiểm tra trùng địa chỉ email
             if (await _taiKhoanRepo.ExistsEmailAsync(cleanEmail))
             {
-                ModelState.AddModelError(nameof(model.Email), "Địa chỉ email này đã được sử dụng bởi một tài khoản khác.");
+                const string emailError = "Địa chỉ email này đã được sử dụng bởi một tài khoản khác.";
+                ModelState.AddModelError(nameof(model.Email), emailError);
+                if (isAjax) return Json(new { success = false, message = emailError });
                 return View(model);
             }
 
             var (success, error) = await _taiKhoanRepo.CreateByAdminAsync(model);
             if (success)
             {
-                TempData["SuccessMessage"] = $"Đã tạo mới tài khoản '{model.TenDangNhap}' ({VaiTro.LayTenHienThi(model.VaiTro)}) thành công!";
+                var successMsg = $"Đã tạo mới tài khoản '{model.TenDangNhap}' ({VaiTro.LayTenHienThi(model.VaiTro)}) thành công!";
+                TempData["SuccessMessage"] = successMsg;
+                if (isAjax) return Json(new { success = true, message = successMsg });
                 return RedirectToAction(nameof(QuanLy));
             }
 
-            ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+            var generalError = error ?? "Lỗi không xác định.";
+            ModelState.AddModelError(string.Empty, generalError);
+            if (isAjax) return Json(new { success = false, message = generalError });
             return View(model);
         }
 
@@ -484,6 +531,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             if (user == null)
             {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Không tìm thấy thông tin tài khoản." });
+                }
                 return NotFound();
             }
 
@@ -498,6 +549,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 TrangThai = user.TrangThai
             };
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, data = model });
+            }
+
             return View(model);
         }
 
@@ -507,13 +563,23 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         [AuthorizeRole(VaiTro.Admin)]
         public async Task<IActionResult> Edit(int id, EditUserViewModel model)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
+                          (Request.Headers.Accept.ToString()?.Contains("application/json") ?? false);
+
             if (id != model.MaTaiKhoan)
             {
+                if (isAjax) return Json(new { success = false, message = "Dữ liệu yêu cầu không hợp lệ." });
                 return NotFound();
             }
 
             if (!ModelState.IsValid)
             {
+                var firstError = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m)) ?? "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
+
+                if (isAjax) return Json(new { success = false, message = firstError });
                 return View(model);
             }
 
@@ -522,7 +588,9 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             // Kiểm tra trùng email với tài khoản khác
             if (await _taiKhoanRepo.ExistsEmailAsync(cleanEmail, id))
             {
-                ModelState.AddModelError(nameof(model.Email), "Địa chỉ email này đã được sử dụng bởi một tài khoản khác.");
+                const string emailError = "Địa chỉ email này đã được sử dụng bởi một tài khoản khác.";
+                ModelState.AddModelError(nameof(model.Email), emailError);
+                if (isAjax) return Json(new { success = false, message = emailError });
                 return View(model);
             }
 
@@ -531,14 +599,18 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             // Không cho phép tự khóa tài khoản hiện tại
             if (currentUserId == id && !model.TrangThai)
             {
-                ModelState.AddModelError(nameof(model.TrangThai), "Bạn không thể tự khóa tài khoản Admin đang đăng nhập của chính mình!");
+                const string lockSelfError = "Bạn không thể tự khóa tài khoản Admin đang đăng nhập của chính mình!";
+                ModelState.AddModelError(nameof(model.TrangThai), lockSelfError);
+                if (isAjax) return Json(new { success = false, message = lockSelfError });
                 return View(model);
             }
 
             // Không cho phép tự hạ quyền Admin hiện tại
             if (currentUserId == id && model.VaiTro != VaiTro.Admin)
             {
-                ModelState.AddModelError(nameof(model.VaiTro), "Bạn không thể tự hạ quyền Admin của tài khoản đang đăng nhập!");
+                const string demoteSelfError = "Bạn không thể tự hạ quyền Admin của tài khoản đang đăng nhập!";
+                ModelState.AddModelError(nameof(model.VaiTro), demoteSelfError);
+                if (isAjax) return Json(new { success = false, message = demoteSelfError });
                 return View(model);
             }
 
@@ -549,7 +621,9 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 var activeAdminCount = await _taiKhoanRepo.CountActiveAdminsAsync();
                 if (activeAdminCount <= 1)
                 {
-                    ModelState.AddModelError(string.Empty, "Không thể khóa hoặc hạ quyền tài khoản Quản trị viên (Admin) duy nhất còn lại trong hệ thống!");
+                    const string lastAdminError = "Không thể khóa hoặc hạ quyền tài khoản Quản trị viên (Admin) duy nhất còn lại trong hệ thống!";
+                    ModelState.AddModelError(string.Empty, lastAdminError);
+                    if (isAjax) return Json(new { success = false, message = lastAdminError });
                     return View(model);
                 }
             }
@@ -557,11 +631,15 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             var (success, error) = await _taiKhoanRepo.UpdateByAdminAsync(id, model);
             if (success)
             {
-                TempData["SuccessMessage"] = $"Đã cập nhật thông tin tài khoản '{model.TenDangNhap}' thành công!";
+                var successMsg = $"Đã cập nhật thông tin tài khoản '{model.TenDangNhap}' thành công!";
+                TempData["SuccessMessage"] = successMsg;
+                if (isAjax) return Json(new { success = true, message = successMsg });
                 return RedirectToAction(nameof(QuanLy));
             }
 
-            ModelState.AddModelError(string.Empty, error ?? "Lỗi không xác định.");
+            var generalError = error ?? "Lỗi không xác định khi cập nhật dữ liệu.";
+            ModelState.AddModelError(string.Empty, generalError);
+            if (isAjax) return Json(new { success = false, message = generalError });
             return View(model);
         }
 

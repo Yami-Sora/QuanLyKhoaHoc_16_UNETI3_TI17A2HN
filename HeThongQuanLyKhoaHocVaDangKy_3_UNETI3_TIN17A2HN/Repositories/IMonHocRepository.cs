@@ -46,5 +46,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
 
         // 13. Đổi trạng thái nhanh Đang mở / Tạm dừng
         Task<(bool Success, string? ErrorMessage, bool NewStatus)> ToggleStatusAsync(int id);
+
+        // 14. Xuất danh sách môn học (theo điều kiện lọc)
+        Task<List<MonHoc>> GetExportListAsync(string? searchString, bool? trangThai);
     }
 }
