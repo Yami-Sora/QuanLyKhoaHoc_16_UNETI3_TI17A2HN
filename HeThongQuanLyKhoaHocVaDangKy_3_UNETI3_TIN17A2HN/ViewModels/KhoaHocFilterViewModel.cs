@@ -1,6 +1,6 @@
 // Họ và tên: Nguyễn Văn Mạnh
 // Mã sinh viên: 23103100096
-// Nội dung thực hiện: Module 2 - ViewModel Tra cứu, Lọc, Sắp xếp và Phân trang Khóa học
+// Nội dung thực hiện: Module 2 - ViewModel tra cứu, lọc, sắp xếp và phân trang khóa học
 
 using System.ComponentModel.DataAnnotations;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
@@ -30,11 +30,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public string? MoTa { get; set; }
 
         /// <summary>
-        /// Mục 6.7: Kiểm tra tính khả dụng giao dịch cho người dùng
-        /// Điều kiện khả dụng:
-        /// 1. Trạng thái khóa học phải là DangMo (Đang mở đăng ký)
-        /// 2. Khóa học còn chỗ (Sĩ số đã đăng ký < Sĩ số tối đa)
-        /// 3. Ngày bắt đầu khóa học phải lớn hơn hoặc bằng ngày hiện tại (chưa quá hạn khai giảng)
+        /// 6.7. Kiểm tra tính khả dụng giao dịch cho người dùng
         /// </summary>
         public bool KhaDungGiaoDich => TrangThai == "DangMo" && ConCho && NgayBatDau.Date >= DateTime.Today;
 
@@ -54,10 +50,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
 
     public class KhoaHocFilterViewModel
     {
-        // 1. Dữ liệu danh sách khóa học hiển thị trên trang hiện tại
+        // Danh sách khóa học hiển thị
         public List<KhoaHocItemViewModel> DanhSachKhoaHoc { get; set; } = new();
 
-        // 2. Thống kê Stat Cards tổng quan
+        // Thống kê tổng quan cho các thẻ thống kê
         public int TongSoKhoaHoc { get; set; }
         public int SoKhoaDangMo { get; set; }
         public int SoKhoaConCho { get; set; }
@@ -65,11 +61,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public decimal HocPhiThapNhat { get; set; }
         public decimal HocPhiCaoNhat { get; set; }
 
-        // 3. Tiêu chí Tìm kiếm (Mục 6.3)
+        // 6.3. Tiêu chí tìm kiếm
         [Display(Name = "Từ khóa tìm kiếm")]
         public string? SearchString { get; set; }
 
-        // 4. Tiêu chí Lọc kết hợp (Mục 6.4)
+        // 6.4. Tiêu chí lọc kết hợp
         [Display(Name = "Môn học")]
         public int? MaMonHoc { get; set; }
 
@@ -85,12 +81,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         [Display(Name = "Tình trạng chỗ")]
         public string? TinhTrangCho { get; set; } // con_cho | het_cho
 
-        // 5. Tiêu chí Sắp xếp (Mục 6.5)
+        // 6.5. Tiêu chí sắp xếp
         [Display(Name = "Sắp xếp theo")]
         public string? SortBy { get; set; } = "ngay_desc";
-        // ten_asc | ten_desc | ngay_asc | ngay_desc | hocphi_asc | hocphi_desc | cho_asc | cho_desc
 
-        // 6. Phân trang chuẩn LINQ Skip/Take (Mục 6.6)
+        // 6.6. Phân trang dữ liệu
         public int PageIndex { get; set; } = 1;
         public int PageSize { get; set; } = 5;
         public int TotalItems { get; set; }
@@ -98,7 +93,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public bool HasPreviousPage => PageIndex > 1;
         public bool HasNextPage => PageIndex < TotalPages;
 
-        // Trợ giúp kiểm tra có bộ lọc đang kích hoạt hay không
+        // Kiểm tra trạng thái bộ lọc đang kích hoạt
         public bool HasActiveFilter =>
             !string.IsNullOrWhiteSpace(SearchString) ||
             (MaMonHoc.HasValue && MaMonHoc.Value > 0) ||

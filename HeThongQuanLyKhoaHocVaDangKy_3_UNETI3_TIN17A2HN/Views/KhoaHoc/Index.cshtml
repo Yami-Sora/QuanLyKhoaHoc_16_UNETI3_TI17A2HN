@@ -1,7 +1,7 @@
 @*
     Họ và tên: Nguyễn Văn Mạnh
     Mã sinh viên: 23103100096
-    Nội dung thực hiện: Module 2 - Cổng thông tin tra cứu & Đăng ký Khóa học (Tìm kiếm tức thì, Bộ lọc hiện đại 2 tầng, Sắp xếp, Phân trang LINQ, AJAX & Skeleton Loading)
+    Nội dung thực hiện: Module 2 - Cổng thông tin tra cứu & đăng ký khóa học
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.KhoaHocFilterViewModel
@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="~/css/monhoc-v2.css" asp-append-version="true" />
 
 <div class="container py-4">
-    <!-- 1. BANNER TIÊU ĐỀ TRANG ĐỒNG BỘ VỚI MÔN HỌC -->
+    <!-- 1. Banner tiêu đề trang -->
     <div class="mh2-page-banner mb-3">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 position-relative" style="z-index: 2;">
             <div class="d-flex align-items-center gap-3">
@@ -71,7 +71,7 @@
         </div>
     }
 
-    <!-- 2. BỐN THẺ THỐNG KÊ (STAT CARDS) TƯƠNG TÁC NHANH -->
+    <!-- 2. Thống kê nhanh (Stat Cards) -->
     <div class="row g-3 mb-3">
         <div class="col-6 col-lg-3">
             <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm rounded-4 js-stat-filter" data-type="all" style="cursor: pointer; transition: transform .2s ease;" title="Bấm để xem tất cả khóa học">
@@ -126,7 +126,7 @@
         </div>
     </div>
 
-    <!-- 3. HỘP CÔNG CỤ TÌM KIẾM & BỘ LỌC HIỆN ĐẠI (2 TẦNG MẠCH LẠC - ĐỒNG BỘ CHUẨN MÔN HỌC) -->
+    <!-- 3. Tìm kiếm và bộ lọc -->
     <div class="mh2-filter-card">
         <form id="filterForm" method="get" asp-action="Index">
             <!-- Hidden inputs điều khiển bởi chip lọc và phân trang -->
@@ -137,9 +137,9 @@
             <input type="hidden" id="pageIndex" name="pageIndex" value="@Model.PageIndex" />
             <input type="hidden" id="pageSize" name="pageSize" value="@Model.PageSize" />
 
-            <!-- TẦNG 1: Ô tìm kiếm rộng rãi & Dropdown Môn học & Dropdown Sắp xếp & Nút đặt lại -->
+            <!-- Tìm kiếm, môn học, sắp xếp và đặt lại -->
             <div class="mh2-search-row">
-                <!-- Ô tìm kiếm tức thì với debounce và nút xóa -->
+                <!-- Ô tìm kiếm khóa học -->
                 <div class="mh2-search-input-wrap">
                     <i class="bi bi-search mh2-search-icon"></i>
                     <input type="text" id="searchString" name="searchString" value="@Model.SearchString"
@@ -150,7 +150,7 @@
                     </button>
                 </div>
 
-                <!-- Dropdown Chọn môn học đào tạo -->
+                <!-- Lọc theo môn học -->
                 <div class="mh2-sort-control" style="min-width: 220px; max-width: 280px;">
                     <i class="bi bi-journal-text mh2-sort-icon"></i>
                     <select id="maMonHoc" name="maMonHoc" class="form-select mh2-sort-select" asp-items="ViewBag.MonHocList">
@@ -158,7 +158,7 @@
                     </select>
                 </div>
 
-                <!-- Dropdown Sắp xếp danh mục -->
+                <!-- Sắp xếp danh sách -->
                 <div class="mh2-sort-control" style="min-width: 215px;">
                     <i class="bi bi-arrow-down-up mh2-sort-icon"></i>
                     <select id="sortBy" name="sortBy" class="form-select mh2-sort-select">
@@ -173,16 +173,16 @@
                     </select>
                 </div>
 
-                <!-- Nút đặt lại toàn bộ bộ lọc -->
+                <!-- Đặt lại bộ lọc -->
                 <button type="button" class="mh2-reset-btn js-clear-filters @(!Model.HasActiveFilter ? "d-none" : "")" id="btnResetFilters" title="Đặt lại bộ lọc về mặc định">
                     <i class="bi bi-arrow-counterclockwise"></i>
                     <span>Đặt lại</span>
                 </button>
             </div>
 
-            <!-- TẦNG 2: Hệ thống Chip lọc 1 chạm (Segmented Filter Chips) -->
+            <!-- Lọc nhanh theo nhóm tiêu chí -->
             <div class="mh2-chips-container">
-                <!-- Nhóm Trạng thái -->
+                <!-- Nhóm trạng thái -->
                 <div class="mh2-chip-cluster">
                     <span class="mh2-chip-label">
                         <i class="bi bi-activity"></i> Trạng thái:
@@ -206,7 +206,7 @@
 
                 <div class="mh2-chip-separator d-none d-lg-block" aria-hidden="true"></div>
 
-                <!-- Nhóm Sĩ số / Chỗ trống -->
+                <!-- Nhóm sĩ số / chỗ trống -->
                 <div class="mh2-chip-cluster">
                     <span class="mh2-chip-label">
                         <i class="bi bi-people"></i> Sĩ số:
@@ -224,7 +224,7 @@
 
                 <div class="mh2-chip-separator d-none d-lg-block" aria-hidden="true"></div>
 
-                <!-- Nhóm Hình thức đào tạo -->
+                <!-- Nhóm hình thức đào tạo -->
                 <div class="mh2-chip-cluster">
                     <span class="mh2-chip-label">
                         <i class="bi bi-building"></i> Hình thức:
@@ -245,7 +245,7 @@
 
                 <div class="mh2-chip-separator d-none d-lg-block" aria-hidden="true"></div>
 
-                <!-- Nhóm Khoảng học phí -->
+                <!-- Nhóm khoảng học phí -->
                 <div class="mh2-chip-cluster">
                     <span class="mh2-chip-label">
                         <i class="bi bi-cash-stack"></i> Học phí:
@@ -270,7 +270,7 @@
         </form>
     </div>
 
-    <!-- 4. KHUNG DANH SÁCH KHÓA HỌC (HỖ TRỢ AJAX & SKELETON) -->
+    <!-- 4. Danh sách khóa học -->
     <div id="khoaHocGridContainer" class="position-relative min-vh-25">
         <partial name="_KhoaHocGrid" model="Model" />
     </div>
@@ -472,7 +472,7 @@
                 });
             }
 
-            // 2. Dropdown Môn học & Dropdown Sắp xếp
+            // 2. Dropdown môn học và dropdown sắp xếp
             if (selectMonHoc) {
                 selectMonHoc.addEventListener('change', () => {
                     updateFilterUI();
@@ -495,7 +495,7 @@
                 });
             }
 
-            // 3. Xử lý Chip lọc nhanh (Trạng thái, Sĩ số, Hình thức, Học phí)
+            // 3. Xử lý chip lọc nhanh (trạng thái, sĩ số, hình thức, học phí)
             document.querySelectorAll('.js-filter-chip').forEach(chip => {
                 chip.addEventListener('click', function () {
                     const type = this.getAttribute('data-type');
@@ -517,7 +517,7 @@
                 });
             });
 
-            // 4. Bấm vào Thẻ Thống Kê (Stat Cards) để lọc nhanh
+            // 4. Bấm vào thẻ thống kê (Stat Cards) để lọc nhanh
             document.querySelectorAll('.js-stat-filter').forEach(card => {
                 card.addEventListener('click', function () {
                     const type = this.getAttribute('data-type');

@@ -1,125 +1,109 @@
 @*
     Họ và tên: Nguyễn Văn Mạnh
     Mã sinh viên: 23103100096
-    Nội dung thực hiện: Module 2 - Giao diện Xác nhận Xóa Khóa học (Bảo vệ Ràng buộc Toàn vẹn CSDL)
+    Nội dung thực hiện: Module 2 - Xóa khóa học
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.KhoaHoc
 @{
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
-    ViewData["Title"] = "Xóa khóa học - " + Model.TenKhoaHoc;
+    ViewData["Title"] = "Xác nhận xóa khóa học - " + Model.TenKhoaHoc;
     bool hasDangKy = ViewBag.HasDangKy ?? (Model.DangKyKhoaHocs?.Any() ?? false);
+    int soLuongDangKy = Model.DangKyKhoaHocs?.Count(dk => dk.TrangThai != "BiHuy") ?? 0;
 }
 
 <div class="container py-4">
-    <!-- Header trang -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <h3 class="fw-bold mb-1 text-danger">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>XÁC NHẬN XÓA KHÓA HỌC
-            </h3>
-            <p class="text-muted mb-0 small">Cảnh báo hành động xóa dữ liệu và kiểm tra ràng buộc toàn vẹn dữ liệu hệ thống</p>
-        </div>
-        <div class="mt-2 mt-md-0">
-            <a asp-action="QuanLy" class="btn uneti-btn-outline shadow-sm text-decoration-none">
-                <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
-            </a>
-        </div>
-    </div>
-
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- CẢNH BÁO RÀNG BUỘC DỮ LIỆU -->
-            @if (hasDangKy)
-            {
-                <div class="alert alert-danger border-0 p-4 rounded-3 mb-4 shadow-sm">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-shield-slash-fill fs-1 text-danger flex-shrink-0"></i>
-                        <div>
-                            <h5 class="fw-bold mb-1 text-danger">KHÔNG THỂ XÓA KHÓA HỌC NÀY!</h5>
-                            <p class="mb-2 small">
-                                Khóa học <strong>"@Model.TenKhoaHoc"</strong> đã phát sinh lịch sử đăng ký của học viên trong CSDL. Việc xóa bản ghi này sẽ vi phạm ràng buộc toàn vẹn dữ liệu (Integrity Constraint Rule 6.2).
-                            </p>
-                            <div class="p-2 bg-white rounded border border-danger-subtle text-danger small">
-                                <i class="bi bi-info-circle me-1"></i><strong>Giải pháp:</strong> Bạn có thể chuyển trạng thái khóa học sang <strong>"Đã hủy"</strong> để ngừng nhận đăng ký mà vẫn giữ được lịch sử giao dịch.
+        <div class="col-md-8 col-lg-7">
+            <div class="uneti-card overflow-hidden shadow-sm">
+                <div class="card-header bg-danger text-white py-3 px-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>XÁC NHẬN XÓA KHÓA HỌC
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    @if (hasDangKy)
+                    {
+                        <!-- 6.2. Cảnh báo bảo vệ toàn vẹn dữ liệu -->
+                        <div class="alert alert-warning border-warning d-flex align-items-start p-3 mb-4 rounded-3" role="alert">
+                            <i class="bi bi-shield-exclamation text-warning fs-2 me-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">KHÔNG THỂ XÓA KHÓA HỌC NÀY!</h6>
+                                <p class="small text-muted mb-2">
+                                    Khóa học <strong>"@Model.TenKhoaHoc"</strong> hiện đã phát sinh lịch sử đăng ký của học viên trong cơ sở dữ liệu. 
+                                    Theo quy định nghiệp vụ Đề tài 16 (Mục 6.2 - Không xóa đối tượng đã phát sinh lịch sử nếu làm mất tính toàn vẹn dữ liệu), hành động xóa này bị hệ thống chặn hoàn toàn.
+                                </p>
+                                <span class="badge bg-danger">Giải pháp thay thế:</span>
+                                <span class="small text-dark fw-semibold ms-1">Vui lòng chuyển trạng thái khóa học sang <strong>"Đã hủy"</strong> để dừng tiếp nhận học viên mà vẫn bảo toàn lịch sử giao dịch!</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-warning border-0 p-4 rounded-3 mb-4 shadow-sm">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-exclamation-triangle-fill fs-1 text-warning flex-shrink-0"></i>
-                        <div>
-                            <h5 class="fw-bold mb-1 text-dark">Bạn có chắc chắn muốn xóa khóa học này?</h5>
-                            <p class="mb-0 small text-muted">
-                                Hành động này sẽ xóa hoàn toàn bản ghi khỏi CSDL và không thể phục hồi. Vui lòng kiểm tra kỹ thông tin trước khi thực hiện.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            }
-
-            <!-- BẢNG THÔNG TIN BẢN GHI SẼ XÓA -->
-            <div class="uneti-card p-4 shadow-sm mb-4">
-                <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
-                    <i class="bi bi-mortarboard me-2 text-primary"></i>Thông tin khóa học chọn xóa
-                </h5>
-
-                <dl class="row mb-0 small">
-                    <dt class="col-sm-4 text-muted">Mã khóa học:</dt>
-                    <dd class="col-sm-8 fw-bold text-dark">#KH0@(Model.MaKhoaHoc)</dd>
-
-                    <dt class="col-sm-4 text-muted">Tên khóa học:</dt>
-                    <dd class="col-sm-8 fw-bold text-dark">@Model.TenKhoaHoc</dd>
-
-                    <dt class="col-sm-4 text-muted">Môn học liên kết:</dt>
-                    <dd class="col-sm-8 text-dark">@(Model.MonHoc?.TenMonHoc ?? "N/A")</dd>
-
-                    <dt class="col-sm-4 text-muted">Giảng viên phụ trách:</dt>
-                    <dd class="col-sm-8 text-dark">@(Model.GiangVien?.HoTen ?? "N/A")</dd>
-
-                    <dt class="col-sm-4 text-muted">Thời gian tổ chức:</dt>
-                    <dd class="col-sm-8 text-dark">@Model.NgayBatDau.ToString("dd/MM/yyyy") → @Model.NgayKetThuc.ToString("dd/MM/yyyy")</dd>
-
-                    <dt class="col-sm-4 text-muted">Học phí & Sĩ số:</dt>
-                    <dd class="col-sm-8 text-dark">@Model.HocPhi.ToString("N0") đ (Tối đa @Model.SoLuongToiDa học viên)</dd>
-
-                    <dt class="col-sm-4 text-muted">Trạng thái khóa học:</dt>
-                    <dd class="col-sm-8">
-                        <span class="badge bg-secondary">
-                            @HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers.KhoaHocController.GetStatusLabel(Model.TrangThai)
-                        </span>
-                    </dd>
-                </dl>
-            </div>
-
-            <!-- CỤM NÚT HÀNH ĐỘNG -->
-            <form asp-action="Delete" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="MaKhoaHoc" />
-
-                <div class="d-flex justify-content-end gap-2">
-                    <a asp-action="QuanLy" class="btn uneti-btn-outline px-4">
-                        <i class="bi bi-x-lg me-1"></i>Hủy bỏ
-                    </a>
-                    @if (!hasDangKy)
-                    {
-                        <button type="submit" class="btn btn-danger px-4 fw-semibold shadow-sm">
-                            <i class="bi bi-trash me-1"></i>Xác nhận xóa khóa học
-                        </button>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-secondary px-4 fw-semibold" disabled title="Khóa học đã có lịch sử đăng ký, không thể xóa">
-                            <i class="bi bi-slash-circle me-1"></i>Bị khóa (Có dữ liệu đăng ký)
-                        </button>
+                        <div class="alert alert-danger p-3 mb-4 text-center rounded-3">
+                            <i class="bi bi-trash-fill fs-2 d-block mb-1"></i>
+                            <h6 class="fw-bold mb-0">Bạn có chắc chắn muốn xóa vĩnh viễn khóa học này khỏi hệ thống?</h6>
+                            <small class="text-muted">Khóa học này chưa có học viên nào đăng ký, thao tác xóa có thể thực hiện an toàn mà không làm mất tính toàn vẹn.</small>
+                        </div>
                     }
+
+                    <!-- Thông tin chi tiết khóa học cần xóa -->
+                    <div class="bg-light p-3 rounded-3 mb-4 border">
+                        <dl class="row mb-0 small">
+                            <dt class="col-sm-4 text-muted">Mã khóa học:</dt>
+                            <dd class="col-sm-8 fw-bold text-dark">#KH0@(Model.MaKhoaHoc)</dd>
+
+                            <dt class="col-sm-4 text-muted">Tên khóa học:</dt>
+                            <dd class="col-sm-8 fw-bold text-primary">@Model.TenKhoaHoc</dd>
+
+                            <dt class="col-sm-4 text-muted">Môn học liên kết:</dt>
+                            <dd class="col-sm-8 text-dark">@(Model.MonHoc?.TenMonHoc ?? "N/A")</dd>
+
+                            <dt class="col-sm-4 text-muted">Giảng viên phụ trách:</dt>
+                            <dd class="col-sm-8 text-dark">@(Model.GiangVien?.HoTen ?? "N/A")</dd>
+
+                            <dt class="col-sm-4 text-muted">Thời gian tổ chức:</dt>
+                            <dd class="col-sm-8 text-dark">@Model.NgayBatDau.ToString("dd/MM/yyyy") &rarr; @Model.NgayKetThuc.ToString("dd/MM/yyyy")</dd>
+
+                            <dt class="col-sm-4 text-muted">Học phí & Sĩ số:</dt>
+                            <dd class="col-sm-8 text-dark">@Model.HocPhi.ToString("N0") đ (Tối đa @Model.SoLuongToiDa học viên)</dd>
+
+                            <dt class="col-sm-4 text-muted">Trạng thái hiện tại:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-secondary">
+                                    @HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers.KhoaHocController.GetStatusLabel(Model.TrangThai)
+                                </span>
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <!-- Cụm nút hành động -->
+                    <form asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.MaKhoaHoc" />
+
+                        <div class="d-flex justify-content-between pt-3 border-top">
+                            <a asp-action="QuanLy" class="btn uneti-btn-outline text-decoration-none">
+                                <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+                            </a>
+
+                            @if (!hasDangKy)
+                            {
+                                <button type="submit" class="btn btn-danger fw-bold px-4 rounded-3 shadow-sm">
+                                    <i class="bi bi-trash me-1"></i>Xác nhận Xóa
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-secondary px-4 rounded-3" disabled title="Bị khóa do có học viên đăng ký">
+                                    <i class="bi bi-slash-circle me-1"></i>Không thể xóa
+                                </button>
+                            }
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-

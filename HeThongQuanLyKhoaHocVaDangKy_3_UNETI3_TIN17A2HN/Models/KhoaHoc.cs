@@ -1,6 +1,6 @@
 // Họ và tên: Nguyễn Văn Mạnh
 // Mã sinh viên: 23103100096
-// Nội dung thực hiện: Module 2 - Entity Khóa học (Phục vụ liên kết Môn học và Đăng ký học)
+// Nội dung thực hiện: Module 2 - Entity khóa học
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -66,7 +66,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models
         [DataType(DataType.MultilineText)]
         public string? MoTa { get; set; }
 
-        // Navigation Properties (Module 2)
+        // Navigation properties
         [ForeignKey("MaMonHoc")]
         public virtual MonHoc? MonHoc { get; set; }
 

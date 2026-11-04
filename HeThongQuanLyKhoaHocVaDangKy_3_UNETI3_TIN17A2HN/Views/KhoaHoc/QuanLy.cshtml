@@ -1,7 +1,7 @@
 @*
     Họ và tên: Nguyễn Văn Mạnh
     Mã sinh viên: 23103100096
-    Nội dung thực hiện: Module 2 - Giao diện Quản trị Khóa học (CRUD, Tìm kiếm đa tiêu chí & Thống kê)
+    Nội dung thực hiện: Module 2 - Quản trị khóa học
 *@
 
 @model IEnumerable<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models.KhoaHoc>
@@ -26,7 +26,7 @@
     string? currentSortBy = ViewBag.CurrentSortBy ?? "id_desc";
 
     int pageIndex = ViewBag.PageIndex ?? 1;
-    int pageSize = ViewBag.PageSize ?? 5;
+    int pageSize = ViewBag.PageSize ?? 10;
     int totalItems = ViewBag.TotalItems ?? (Model?.Count() ?? 0);
     int totalPages = ViewBag.TotalPages ?? 1;
 
@@ -38,251 +38,198 @@
                            !string.IsNullOrWhiteSpace(currentTinhTrangCho);
 }
 
-<div class="container py-4">
-    <!-- Header trang Quản lý Khóa học -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+<div class="container-fluid py-2">
+    <!-- Tiêu đề trang quản lý -->
+    <div class="dl-page-head">
         <div>
-            <h3 class="fw-bold mb-1 text-dark">
-                <i class="bi bi-mortarboard-fill me-2" style="color: var(--uneti-primary);"></i>QUẢN LÝ KHÓA HỌC & LỚP HỌC PHẦN
-            </h3>
-            <p class="text-muted mb-0 small">Thiết lập danh sách khóa học, phân công giảng viên, tìm kiếm đa tiêu chí và quản lý trạng thái vòng đời khóa học</p>
+            <h4 class="dl-page-title">
+                <i class="bi bi-mortarboard-fill me-2 text-primary"></i>QUẢN LÝ KHÓA HỌC & LỚP HỌC PHẦN
+            </h4>
+            <p class="dl-page-sub">Hệ thống quản lý khóa học đào tạo, phân công giảng viên, định mức học phí và quản lý trạng thái mở lớp</p>
         </div>
         <div class="mt-2 mt-md-0 d-flex gap-2">
             <a asp-action="Create" class="btn uneti-btn-primary shadow-sm text-decoration-none">
-                <i class="bi bi-plus-circle me-1"></i>Mở khóa học mới
+                <i class="bi bi-plus-circle me-1"></i>Thêm khóa học mới
+            </a>
+            <a asp-action="QuanLy" class="btn btn-outline-secondary shadow-sm text-decoration-none" title="Làm mới dữ liệu">
+                <i class="bi bi-arrow-clockwise me-1"></i>Tải lại
             </a>
         </div>
     </div>
 
-    <!-- 4 THẺ THỐNG KÊ (STAT CARDS) -->
-    <div class="row g-3 mb-4">
+    <!-- 4 thẻ thống kê số liệu -->
+    <div class="row g-3 mb-3">
         <!-- 1. Tổng số khóa học -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-primary-subtle text-primary" style="width: 52px; height: 52px; min-width: 52px;">
-                    <i class="bi bi-mortarboard fs-3"></i>
-                </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Tổng số khóa học</span>
-                    <h3 class="fw-bold text-dark mb-0">@totalCount</h3>
-                    <small class="text-secondary" style="font-size: 11px;">Khóa đã thiết lập</small>
-                </div>
-            </div>
+            <a asp-action="QuanLy" class="dl-stat-card dl-blue @(currentTrangThai == null ? "dl-active" : "")" title="Xem tất cả khóa học">
+                <span class="dl-stat-icon"><i class="bi bi-journal-bookmark-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Tổng số khóa học</span>
+                    <span class="dl-stat-num">@totalCount</span>
+                    <span class="dl-stat-sub">Khóa trong hệ thống</span>
+                </span>
+            </a>
         </div>
 
         <!-- 2. Đang mở đăng ký -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-success-subtle text-success" style="width: 52px; height: 52px; min-width: 52px;">
-                    <i class="bi bi-door-open fs-3"></i>
-                </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Đang mở đăng ký</span>
-                    <h3 class="fw-bold text-success mb-0">@dangMoCount</h3>
-                    <small class="text-success" style="font-size: 11px;">Sẵn sàng tiếp nhận</small>
-                </div>
-            </div>
+            <a asp-action="QuanLy" asp-route-trangThai="DangMo" class="dl-stat-card dl-green @(currentTrangThai == "DangMo" ? "dl-active" : "")" title="Lọc các khóa đang mở đăng ký">
+                <span class="dl-stat-icon"><i class="bi bi-door-open-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Đang mở đăng ký</span>
+                    <span class="dl-stat-num">@dangMoCount</span>
+                    <span class="dl-stat-sub">Sẵn sàng tiếp nhận học viên</span>
+                </span>
+            </a>
         </div>
 
         <!-- 3. Đang giảng dạy -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-info-subtle text-info-emphasis" style="width: 52px; height: 52px; min-width: 52px;">
-                    <i class="bi bi-play-circle fs-3"></i>
-                </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Đang giảng dạy</span>
-                    <h3 class="fw-bold text-info-emphasis mb-0">@dangHocCount</h3>
-                    <small class="text-info-emphasis" style="font-size: 11px;">Lớp đang hoạt động</small>
-                </div>
-            </div>
+            <a asp-action="QuanLy" asp-route-trangThai="DangHoc" class="dl-stat-card dl-amber @(currentTrangThai == "DangHoc" ? "dl-active" : "")" title="Lọc các lớp đang học">
+                <span class="dl-stat-icon"><i class="bi bi-play-circle-fill"></i></span>
+                <span>
+                    <span class="dl-stat-label">Đang giảng dạy</span>
+                    <span class="dl-stat-num">@dangHocCount</span>
+                    <span class="dl-stat-sub">Lớp đang diễn ra</span>
+                </span>
+            </a>
         </div>
 
-        <!-- 4. Học phí trung bình -->
+        <!-- 4. Đã kết thúc / học phí trung bình -->
         <div class="col-sm-6 col-xl-3">
-            <div class="uneti-card p-3 d-flex align-items-center gap-3 h-100 shadow-sm">
-                <div class="d-flex align-items-center justify-content-center rounded-3 bg-warning-subtle text-warning-emphasis" style="width: 52px; height: 52px; min-width: 52px;">
-                    <i class="bi bi-cash-stack fs-3"></i>
-                </div>
-                <div class="overflow-hidden">
-                    <span class="text-muted small fw-semibold d-block text-uppercase" style="font-size: 11px;">Học phí trung bình</span>
-                    <h4 class="fw-bold text-dark mb-0">@avgHocPhi.ToString("N0") <small class="fs-6 fw-normal text-muted">đ</small></h4>
-                    <small class="text-secondary" style="font-size: 11px;">Đã kết thúc: <strong>@daKetThucCount</strong> khóa</small>
-                </div>
-            </div>
+            <a asp-action="QuanLy" asp-route-trangThai="DaKetThuc" class="dl-stat-card dl-red @(currentTrangThai == "DaKetThuc" ? "dl-active" : "")" title="Lọc các lớp đã hoàn thành">
+                <span class="dl-stat-icon"><i class="bi bi-check2-circle"></i></span>
+                <span>
+                    <span class="dl-stat-label">Đã kết thúc (@daKetThucCount)</span>
+                    <span class="dl-stat-num" style="font-size: 1.35rem;">@avgHocPhi.ToString("N0") <small style="font-size: 0.8rem;">đ</small></span>
+                    <span class="dl-stat-sub">Học phí trung bình/khóa</span>
+                </span>
+            </a>
         </div>
     </div>
 
-    <!-- Thông báo TempData -->
+    <!-- Thông báo TempData phản hồi hệ thống -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show uneti-card border-success-subtle mb-4 py-3" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-success-subtle mb-3 py-2 px-3 shadow-sm" role="alert">
             <i class="bi bi-check-circle-fill text-success me-2 fs-5 align-middle"></i>
             <span class="align-middle fw-semibold text-dark">@TempData["SuccessMessage"]</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
         </div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show uneti-card border-danger-subtle mb-4 py-3" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show border-danger-subtle mb-3 py-2 px-3 shadow-sm" role="alert">
             <i class="bi bi-exclamation-triangle-fill text-danger me-2 fs-5 align-middle"></i>
             <span class="align-middle fw-semibold text-dark">@TempData["ErrorMessage"]</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
         </div>
     }
 
-    <!-- THANH TÌM KIẾM ĐA TIÊU CHÍ & BỘ LỌC KẾT HỢP (MỤC 6.3, 6.4, 6.5) -->
-    <div class="uneti-card p-3 p-md-4 mb-4 shadow-sm border">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
-            <div class="d-flex align-items-center gap-2">
-                <span class="uneti-icon-box-32 bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                    <i class="bi bi-funnel-fill"></i>
-                </span>
-                <div>
-                    <span class="fw-bold text-dark fs-6">Tìm kiếm & Lọc kết hợp khóa học</span>
-                    <span class="d-block text-muted uneti-fs-xs">Kết hợp đa tiêu chí: Từ khóa, Môn học, Sắp xếp, Hình thức, Trạng thái, Học phí & Sĩ số</span>
-                </div>
-            </div>
-            @if (hasActiveFilter)
-            {
-                <a asp-action="QuanLy" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 uneti-fs-xs fw-semibold">
-                    <i class="bi bi-x-circle me-1"></i>Xóa bộ lọc
-                </a>
-            }
-        </div>
-
+    <!-- Bộ lọc và tìm kiếm -->
+    <div class="dl-filter-card mb-3">
         <form method="get" asp-action="QuanLy" id="quanLyFilterForm">
             <input type="hidden" name="page" value="1" />
             <input type="hidden" name="pageSize" value="@pageSize" />
 
-            <!-- KHỐI 1: TỪ KHÓA, MÔN HỌC, SẮP XẾP VÀ NÚT TÌM KIẾM -->
-            <div class="row g-2 align-items-end mb-3">
-                <!-- 1. Từ khóa tìm kiếm -->
+            <!-- Hàng 1: Từ khóa, môn học, sắp xếp và nút tìm kiếm -->
+            <div class="row g-2 align-items-center mb-2">
+                <!-- 6.3. Tìm kiếm theo tên khóa học, môn học, giảng viên -->
                 <div class="col-12 col-md-5 col-lg-4">
-                    <label class="form-label small fw-semibold text-secondary mb-1">
-                        <i class="bi bi-search me-1 text-primary"></i>Từ khóa tìm kiếm
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 text-muted">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white text-muted">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="text" name="searchString" value="@currentSearch" class="form-control border-start-0 ps-1" placeholder="Nhập tên khóa học, môn học, giảng viên..." />
+                        <input type="text" name="searchString" value="@currentSearch" class="form-control" placeholder="Tìm tên khóa học, môn học, giảng viên..." />
                     </div>
                 </div>
 
-                <!-- 2. Lọc môn học -->
+                <!-- 6.4. Lọc theo môn học -->
                 <div class="col-12 col-sm-6 col-md-3 col-lg-3">
-                    <label class="form-label small fw-semibold text-secondary mb-1">
-                        <i class="bi bi-journal-text me-1 text-primary"></i>Môn học đào tạo
-                    </label>
-                    <select name="maMonHoc" class="form-select" asp-items="ViewBag.MonHocList">
+                    <select name="maMonHoc" class="form-select form-select-sm" asp-items="ViewBag.MonHocList">
                         <option value="">-- Tất cả môn học --</option>
                     </select>
                 </div>
 
-                <!-- 3. Sắp xếp: Hiện rõ chữ Sắp xếp -->
+                <!-- 6.5. Sắp xếp đa tiêu chí -->
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    <label class="form-label small fw-semibold text-secondary mb-1">
-                        <i class="bi bi-arrow-down-up me-1 text-primary"></i>Sắp xếp danh sách
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 text-muted px-2 small">
-                            <span class="fw-semibold text-dark uneti-fs-xs">Sắp xếp:</span>
-                        </span>
-                        <select name="sortBy" class="form-select border-start-0 ps-1">
-                            <option value="id_desc" selected="@(currentSortBy == "id_desc")">Mới nhất (Mặc định)</option>
-                            <option value="ten_asc" selected="@(currentSortBy == "ten_asc")">Tên khóa học: A &rarr; Z</option>
-                            <option value="ten_desc" selected="@(currentSortBy == "ten_desc")">Tên khóa học: Z &rarr; A</option>
-                            <option value="ngay_asc" selected="@(currentSortBy == "ngay_asc")">Ngày bắt đầu: Tăng dần (Sớm nhất)</option>
-                            <option value="ngay_desc" selected="@(currentSortBy == "ngay_desc")">Ngày bắt đầu: Giảm dần (Muộn nhất)</option>
-                            <option value="hocphi_asc" selected="@(currentSortBy == "hocphi_asc")">Học phí: Thấp &rarr; Cao</option>
-                            <option value="hocphi_desc" selected="@(currentSortBy == "hocphi_desc")">Học phí: Cao &rarr; Thấp</option>
-                            <option value="cho_desc" selected="@(currentSortBy == "cho_desc")">Chỗ trống còn lại: Nhiều &rarr; Ít</option>
-                            <option value="cho_asc" selected="@(currentSortBy == "cho_asc")">Chỗ trống còn lại: Ít &rarr; Nhiều</option>
-                        </select>
-                    </div>
+                    <select name="sortBy" class="form-select form-select-sm">
+                        <option value="id_desc" selected="@(currentSortBy == "id_desc")">Mới nhất (Mặc định)</option>
+                        <option value="ten_asc" selected="@(currentSortBy == "ten_asc")">Tên khóa học: A &rarr; Z</option>
+                        <option value="ten_desc" selected="@(currentSortBy == "ten_desc")">Tên khóa học: Z &rarr; A</option>
+                        <option value="ngay_asc" selected="@(currentSortBy == "ngay_asc")">Ngày bắt đầu: Tăng dần (Sớm nhất)</option>
+                        <option value="ngay_desc" selected="@(currentSortBy == "ngay_desc")">Ngày bắt đầu: Giảm dần (Muộn nhất)</option>
+                        <option value="hocphi_asc" selected="@(currentSortBy == "hocphi_asc")">Học phí: Thấp &rarr; Cao</option>
+                        <option value="hocphi_desc" selected="@(currentSortBy == "hocphi_desc")">Học phí: Cao &rarr; Thấp</option>
+                        <option value="cho_desc" selected="@(currentSortBy == "cho_desc")">Chỗ trống còn lại: Nhiều &rarr; Ít</option>
+                        <option value="cho_asc" selected="@(currentSortBy == "cho_asc")">Chỗ trống còn lại: Ít &rarr; Nhiều</option>
+                    </select>
                 </div>
 
-                <!-- 4. Nút Thao tác -->
-                <div class="col-12 col-md-12 col-lg-2 d-flex gap-2">
-                    <button type="submit" class="btn uneti-btn-primary flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-1">
+                <!-- Cụm nút thao tác -->
+                <div class="col-12 col-md-12 col-lg-2 d-flex gap-1">
+                    <button type="submit" class="btn btn-sm uneti-btn-primary flex-grow-1 shadow-sm d-flex align-items-center justify-content-center gap-1">
                         <i class="bi bi-funnel-fill"></i>
-                        <span>Lọc</span>
+                        <span>Tìm & Lọc</span>
                     </button>
-                    <a asp-action="QuanLy" class="btn uneti-btn-outline px-3 d-flex align-items-center justify-content-center" title="Làm mới & Xóa bộ lọc">
+                    <a asp-action="QuanLy" class="btn btn-sm btn-outline-secondary px-2 d-flex align-items-center justify-content-center" title="Đặt lại bộ lọc">
                         <i class="bi bi-arrow-counterclockwise"></i>
                     </a>
                 </div>
             </div>
 
-            <!-- KHỐI 2: CÁC TIÊU CHÍ LỌC CHI TIẾT (CÓ LABEL RÕ RÀNG DỄ NHẬN BIẾT) -->
-            <div class="p-3 bg-light rounded-3 border">
-                <div class="row g-2 align-items-center">
-                    <!-- Hình thức -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-building me-1"></i>Hình thức đào tạo
-                        </label>
-                        <select name="hinhThuc" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả hình thức --</option>
-                            <option value="Trực tiếp" selected="@(currentHinhThuc == "Trực tiếp")">Trực tiếp (Tại lớp)</option>
-                            <option value="Trực tuyến" selected="@(currentHinhThuc == "Trực tuyến")">Trực tuyến (Online)</option>
-                            <option value="Kết hợp" selected="@(currentHinhThuc == "Kết hợp")">Kết hợp (Hybrid)</option>
-                        </select>
-                    </div>
+            <!-- Hàng 2: Bộ lọc chi tiết -->
+            <div class="row g-2 pt-1 border-top align-items-center">
+                <!-- 6.4. Lọc theo hình thức đào tạo -->
+                <div class="col-6 col-md-3">
+                    <select name="hinhThuc" class="form-select form-select-sm">
+                        <option value="">-- Tất cả hình thức --</option>
+                        <option value="Trực tiếp" selected="@(currentHinhThuc == "Trực tiếp")">Trực tiếp</option>
+                        <option value="Trực tuyến" selected="@(currentHinhThuc == "Trực tuyến")">Trực tuyến</option>
+                        <option value="Kết hợp" selected="@(currentHinhThuc == "Kết hợp")">Kết hợp</option>
+                    </select>
+                </div>
 
-                    <!-- Trạng thái -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-activity me-1"></i>Trạng thái khóa học
-                        </label>
-                        <select name="trangThai" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả trạng thái --</option>
-                            <option value="DangMo" selected="@(currentTrangThai == "DangMo")">Đang mở đăng ký</option>
-                            <option value="SapMo" selected="@(currentTrangThai == "SapMo")">Sắp mở</option>
-                            <option value="DangHoc" selected="@(currentTrangThai == "DangHoc")">Đang giảng dạy</option>
-                            <option value="DaKetThuc" selected="@(currentTrangThai == "DaKetThuc")">Đã kết thúc</option>
-                            <option value="BiHuy" selected="@(currentTrangThai == "BiHuy")">Đã hủy</option>
-                        </select>
-                    </div>
+                <!-- 6.4. Lọc theo trạng thái -->
+                <div class="col-6 col-md-3">
+                    <select name="trangThai" class="form-select form-select-sm">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="DangMo" selected="@(currentTrangThai == "DangMo")">Đang mở đăng ký</option>
+                        <option value="SapMo" selected="@(currentTrangThai == "SapMo")">Sắp mở</option>
+                        <option value="DangHoc" selected="@(currentTrangThai == "DangHoc")">Đang giảng dạy</option>
+                        <option value="DaKetThuc" selected="@(currentTrangThai == "DaKetThuc")">Đã kết thúc</option>
+                        <option value="BiHuy" selected="@(currentTrangThai == "BiHuy")">Đã hủy</option>
+                    </select>
+                </div>
 
-                    <!-- Khoảng học phí -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-cash-stack me-1"></i>Khoảng học phí
-                        </label>
-                        <select name="khoangHocPhi" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả khoảng giá --</option>
-                            <option value="duoi_2tr" selected="@(currentKhoangHocPhi == "duoi_2tr")">Dưới 2.000.000 đ</option>
-                            <option value="2tr_4tr" selected="@(currentKhoangHocPhi == "2tr_4tr")">Từ 2.000.000 - 4.000.000 đ</option>
-                            <option value="4tr_6tr" selected="@(currentKhoangHocPhi == "4tr_6tr")">Từ 4.000.000 - 6.000.000 đ</option>
-                            <option value="tren_6tr" selected="@(currentKhoangHocPhi == "tren_6tr")">Trên 6.000.000 đ</option>
-                        </select>
-                    </div>
+                <!-- 6.4. Lọc theo khoảng học phí -->
+                <div class="col-6 col-md-3">
+                    <select name="khoangHocPhi" class="form-select form-select-sm">
+                        <option value="">-- Tất cả học phí --</option>
+                        <option value="duoi_2tr" selected="@(currentKhoangHocPhi == "duoi_2tr")">Dưới 2.000.000 đ</option>
+                        <option value="2tr_4tr" selected="@(currentKhoangHocPhi == "2tr_4tr")">2 - 4 triệu đ</option>
+                        <option value="4tr_6tr" selected="@(currentKhoangHocPhi == "4tr_6tr")">4 - 6 triệu đ</option>
+                        <option value="tren_6tr" selected="@(currentKhoangHocPhi == "tren_6tr")">Trên 6.000.000 đ</option>
+                    </select>
+                </div>
 
-                    <!-- Tình trạng chỗ -->
-                    <div class="col-6 col-md-3">
-                        <label class="form-label uneti-fs-xs fw-semibold text-secondary mb-1">
-                            <i class="bi bi-people me-1"></i>Tình trạng chỗ ngồi
-                        </label>
-                        <select name="tinhTrangCho" class="form-select form-select-sm bg-white">
-                            <option value="">-- Tất cả tình trạng --</option>
-                            <option value="con_cho" selected="@(currentTinhTrangCho == "con_cho")">Còn chỗ đăng ký</option>
-                            <option value="het_cho" selected="@(currentTinhTrangCho == "het_cho")">Đã hết chỗ (Đủ sĩ số)</option>
-                        </select>
-                    </div>
+                <!-- 6.4. Lọc theo tình trạng chỗ -->
+                <div class="col-6 col-md-3">
+                    <select name="tinhTrangCho" class="form-select form-select-sm">
+                        <option value="">-- Tình trạng chỗ --</option>
+                        <option value="con_cho" selected="@(currentTinhTrangCho == "con_cho")">Còn chỗ đăng ký</option>
+                        <option value="het_cho" selected="@(currentTinhTrangCho == "het_cho")">Đã hết chỗ</option>
+                    </select>
                 </div>
             </div>
         </form>
     </div>
 
-    <!-- Thanh trạng thái kết quả tìm kiếm -->
+    <!-- Thanh tag lọc đang kích hoạt -->
     @if (hasActiveFilter)
     {
-        <div class="d-flex flex-wrap align-items-center gap-2 mb-3 px-1 small">
-            <span class="text-muted">
-                Tìm thấy <strong class="text-dark">@totalItems</strong> / <strong>@totalCount</strong> khóa học
-            </span>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2 px-1 small">
+            <span class="text-muted">Tìm thấy <strong class="text-dark">@totalItems</strong> / <strong>@totalCount</strong> khóa học</span>
             @if (!string.IsNullOrWhiteSpace(currentSearch))
             {
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill">
@@ -292,19 +239,19 @@
             @if (currentMaMonHoc.HasValue)
             {
                 <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">
-                    <i class="bi bi-journal-text me-1"></i>Môn học đã lọc
+                    <i class="bi bi-journal-text me-1"></i>Môn học đã chọn
                 </span>
             }
             @if (!string.IsNullOrWhiteSpace(currentTrangThai))
             {
-                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">
+                <span class="badge bg-light text-dark border px-2 py-1 rounded-pill">
                     <i class="bi bi-funnel me-1"></i>Trạng thái: @HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers.KhoaHocController.GetStatusLabel(currentTrangThai)
                 </span>
             }
             @if (!string.IsNullOrWhiteSpace(currentHinhThuc))
             {
                 <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 rounded-pill">
-                    <i class="bi bi-display me-1"></i>@currentHinhThuc
+                    <i class="bi bi-building me-1"></i>@currentHinhThuc
                 </span>
             }
             @if (!string.IsNullOrWhiteSpace(currentKhoangHocPhi))
@@ -326,22 +273,30 @@
         </div>
     }
 
-    <!-- BẢNG DANH SÁCH KHÓA HỌC QUẢN TRỊ -->
-    <div class="uneti-card overflow-hidden shadow-sm">
+    <!-- Bảng danh sách khóa học -->
+    <div class="dl-table-card">
+        <div class="dl-table-head">
+            <div class="d-flex align-items-center gap-2">
+                <span class="dl-head-ic"><i class="bi bi-mortarboard-fill"></i></span>
+                <span class="fw-bold text-dark">Danh sách khóa học đào tạo</span>
+            </div>
+            <span class="dl-count-badge">@totalItems khóa học</span>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 uneti-table">
+            <table class="table table-hover align-middle mb-0 uneti-table" style="min-width: 1180px;">
                 <thead>
                     <tr>
-                        <th class="ps-3" style="width: 90px;">Mã KH</th>
-                        <th>Tên khóa học</th>
-                        <th>Môn học</th>
-                        <th>Giảng viên</th>
-                        <th class="text-center" style="width: 130px;">Thời gian</th>
-                        <th class="text-center" style="width: 80px;">Sĩ số</th>
-                        <th class="text-end" style="width: 130px;">Học phí</th>
-                        <th class="text-center" style="width: 110px;">Hình thức</th>
-                        <th class="text-center" style="width: 140px;">Trạng thái</th>
-                        <th class="text-center" style="width: 160px;">Thao tác</th>
+                        <th class="ps-3 text-nowrap" style="width: 75px; min-width: 75px;">Mã KH</th>
+                        <th class="text-nowrap" style="min-width: 230px; width: 22%;">Tên khóa học</th>
+                        <th class="text-nowrap" style="min-width: 170px; width: 16%;">Môn học liên kết</th>
+                        <th class="text-nowrap" style="min-width: 180px; width: 17%;">Giảng viên</th>
+                        <th class="text-center text-nowrap" style="width: 125px; min-width: 120px;">Thời gian</th>
+                        <th class="text-center text-nowrap" style="width: 95px; min-width: 90px;">Sĩ số</th>
+                        <th class="text-end text-nowrap" style="width: 115px; min-width: 110px;">Học phí</th>
+                        <th class="text-center text-nowrap" style="width: 100px; min-width: 95px;">Hình thức</th>
+                        <th class="text-center text-nowrap" style="width: 120px; min-width: 115px;">Trạng thái</th>
+                        <th class="text-center text-nowrap" style="width: 130px; min-width: 125px;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -352,11 +307,11 @@
                                 <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
                                 @if (hasActiveFilter)
                                 {
-                                    <span>Không tìm thấy khóa học nào phù hợp với tiêu chí tìm kiếm.</span>
+                                    <span>Không tìm thấy khóa học nào phù hợp với điều kiện tìm kiếm.</span>
                                 }
                                 else
                                 {
-                                    <span>Chưa có khóa học nào trong hệ thống. Hãy bắt đầu bằng cách <a asp-action="Create" class="text-decoration-none fw-semibold" style="color: var(--uneti-primary);">mở khóa học mới</a>.</span>
+                                    <span>Chưa có khóa học nào trong hệ thống. Hãy bắt đầu bằng cách <a asp-action="Create" class="text-decoration-none fw-semibold text-primary">thêm khóa học mới</a>.</span>
                                 }
                             </td>
                         </tr>
@@ -366,20 +321,25 @@
                         @foreach (var item in Model)
                         {
                             var dangKyCount = item.DangKyKhoaHocs?.Count(dk => dk.TrangThai != "BiHuy") ?? 0;
+                            var phanTram = item.SoLuongToiDa > 0 ? (int)Math.Min(100, Math.Round((double)dangKyCount / item.SoLuongToiDa * 100)) : 0;
+                            var conLai = Math.Max(0, item.SoLuongToiDa - dangKyCount);
+
                             <tr>
-                                <td class="ps-3 fw-bold text-muted">#KH0@(item.MaKhoaHoc)</td>
+                                <td class="ps-3 fw-bold text-muted text-nowrap">#KH0@(item.MaKhoaHoc)</td>
                                 <td>
-                                    <div class="fw-bold text-dark">@item.TenKhoaHoc</div>
+                                    <a asp-action="Details" asp-route-id="@item.MaKhoaHoc" class="text-decoration-none fw-bold text-dark hover-primary d-block">
+                                        @item.TenKhoaHoc
+                                    </a>
                                     @if (!string.IsNullOrEmpty(item.MoTa))
                                     {
-                                        <small class="text-muted text-truncate d-block" style="max-width: 260px;">@item.MoTa</small>
+                                        <small class="text-muted text-truncate d-block" style="max-width: 260px;" title="@item.MoTa">@item.MoTa</small>
                                     }
                                 </td>
                                 <td>
                                     @if (item.MonHoc != null)
                                     {
                                         <div class="fw-semibold text-dark small">@item.MonHoc.TenMonHoc</div>
-                                        <small class="text-muted" style="font-size: 11px;">@item.MonHoc.SoTinChi TC</small>
+                                        <small class="text-muted d-block mt-0.5">@item.MonHoc.SoTinChi tín chỉ</small>
                                     }
                                     else
                                     {
@@ -389,51 +349,52 @@
                                 <td>
                                     @if (item.GiangVien != null)
                                     {
-                                        <div class="fw-semibold text-dark small">@item.GiangVien.HoTen</div>
+                                        <div class="fw-semibold text-dark small text-nowrap">@item.GiangVien.HoTen</div>
                                         @if (!string.IsNullOrEmpty(item.GiangVien.HocVi))
                                         {
-                                            <small class="text-muted" style="font-size: 11px;">@item.GiangVien.HocVi</small>
+                                            <small class="text-muted text-truncate d-block" style="max-width: 200px;" title="@item.GiangVien.HocVi - @item.GiangVien.ChuyenMon">
+                                                @item.GiangVien.HocVi - @item.GiangVien.ChuyenMon
+                                            </small>
                                         }
                                     }
                                     else
                                     {
-                                        <span class="text-muted small">N/A</span>
+                                        <span class="text-muted small">Chưa phân công</span>
                                     }
                                 </td>
-                                <td class="text-center small">
-                                    <div>@item.NgayBatDau.ToString("dd/MM/yyyy")</div>
-                                    <div class="text-muted" style="font-size: 11px;">→ @item.NgayKetThuc.ToString("dd/MM/yyyy")</div>
+                                <td class="text-center text-nowrap small">
+                                    <div class="fw-medium text-dark">@item.NgayBatDau.ToString("dd/MM/yyyy")</div>
+                                    <div class="text-muted uneti-fs-xs">&rarr; @item.NgayKetThuc.ToString("dd/MM/yyyy")</div>
                                 </td>
-                                <td class="text-center">
-                                    <span class="badge bg-light text-dark border">
-                                        <i class="bi bi-people me-1" style="color: var(--uneti-primary);"></i>@dangKyCount/@item.SoLuongToiDa
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <div class="fw-bold" style="color: var(--uneti-primary); font-size: 0.9rem;">
-                                        @item.HocPhi.ToString("N0") đ
+                                <td class="text-center text-nowrap">
+                                    <div class="d-flex align-items-center justify-content-center gap-1 mb-1">
+                                        <span class="badge @(conLai > 0 ? "bg-light text-dark" : "bg-danger text-white") border small">
+                                            <strong>@dangKyCount</strong> / @item.SoLuongToiDa
+                                        </span>
+                                    </div>
+                                    <div class="progress" style="height: 4px; width: 65px; margin: 0 auto;">
+                                        <div class="progress-bar @(phanTram >= 100 ? "bg-danger" : phanTram >= 75 ? "bg-warning" : "bg-success")"
+                                             role="progressbar" style="width: @(phanTram)%" aria-valuenow="@phanTram" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-end text-nowrap">
+                                    <span class="fw-bold text-primary">@item.HocPhi.ToString("N0") đ</span>
+                                </td>
+                                <td class="text-center text-nowrap">
                                     @{
                                         var hinhThucBadge = item.HinhThuc switch
                                         {
-                                            "Trực tuyến" => "bg-info-subtle text-info-emphasis border-info-subtle",
+                                            "Trực tuyến" => "bg-info-subtle text-info border-info-subtle",
                                             "Kết hợp" => "bg-warning-subtle text-warning-emphasis border-warning-subtle",
                                             _ => "bg-secondary-subtle text-secondary border-secondary-subtle"
                                         };
-                                        var hinhThucIcon = item.HinhThuc switch
-                                        {
-                                            "Trực tuyến" => "bi-camera-video",
-                                            "Kết hợp" => "bi-shuffle",
-                                            _ => "bi-building"
-                                        };
                                     }
-                                    <span class="badge @hinhThucBadge border px-2 py-1 small">
-                                        <i class="bi @hinhThucIcon me-1"></i>@item.HinhThuc
+                                    <span class="badge @hinhThucBadge border px-2 py-1 uneti-fs-xs">
+                                        @item.HinhThuc
                                     </span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center text-nowrap">
                                     @{
                                         var (badgeClass, icon, label) = item.TrangThai switch
                                         {
@@ -445,11 +406,11 @@
                                             _ => ("uneti-badge-secondary", "bi-question-circle", item.TrangThai)
                                         };
                                     }
-                                    <span class="@badgeClass">
+                                    <span class="@badgeClass text-nowrap">
                                         <i class="bi @icon me-1"></i>@label
                                     </span>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center text-nowrap">
                                     <div class="d-inline-flex align-items-center justify-content-center gap-1">
                                         <a asp-action="Details" asp-route-id="@item.MaKhoaHoc" class="btn-action-icon btn-action-view" title="Xem chi tiết khóa học">
                                             <i class="bi bi-eye"></i>
@@ -457,14 +418,20 @@
                                         <a asp-action="Edit" asp-route-id="@item.MaKhoaHoc" class="btn-action-icon btn-action-edit" title="Chỉnh sửa khóa học">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <!-- Dropdown đổi trạng thái -->
+                                        <!-- Dropdown đổi trạng thái nhanh -->
                                         <div class="dropdown d-inline">
                                             <button class="btn-action-icon btn-action-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Cập nhật trạng thái">
                                                 <i class="bi bi-arrow-repeat"></i>
                                             </button>
-                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 180px;">
-                                                <li><h6 class="dropdown-header">Chuyển trạng thái</h6></li>
-                                                @foreach (var s in new[] { ("SapMo", "Sắp mở", "bi-clock text-warning"), ("DangMo", "Đang mở đăng ký", "bi-door-open text-success"), ("DangHoc", "Đang giảng dạy", "bi-play-circle text-primary"), ("DaKetThuc", "Đã kết thúc", "bi-check-circle text-secondary"), ("BiHuy", "Đã hủy", "bi-x-circle text-danger") })
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 170px;">
+                                                <li><h6 class="dropdown-header small">Chuyển trạng thái</h6></li>
+                                                @foreach (var s in new[] {
+                                                    ("SapMo", "Sắp mở", "bi-clock text-warning"),
+                                                    ("DangMo", "Đang mở đăng ký", "bi-door-open text-success"),
+                                                    ("DangHoc", "Đang giảng dạy", "bi-play-circle text-primary"),
+                                                    ("DaKetThuc", "Đã kết thúc", "bi-check-circle text-secondary"),
+                                                    ("BiHuy", "Đã hủy", "bi-x-circle text-danger")
+                                                })
                                                 {
                                                     if (s.Item1 != item.TrangThai)
                                                     {
@@ -472,7 +439,7 @@
                                                             <form asp-action="UpdateStatus" asp-route-id="@item.MaKhoaHoc" method="post" class="d-inline">
                                                                 @Html.AntiForgeryToken()
                                                                 <input type="hidden" name="newStatus" value="@s.Item1" />
-                                                                <button type="submit" class="dropdown-item py-2 small">
+                                                                <button type="submit" class="dropdown-item py-1 small">
                                                                     <i class="bi @s.Item3 me-2"></i>@s.Item2
                                                                 </button>
                                                             </form>
@@ -495,9 +462,13 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3 bg-light border-top d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-muted">
-            <span>Hiển thị <strong>@(Model?.Count() ?? 0)</strong> / <strong>@totalItems</strong> khóa học sau lọc (Trang @pageIndex/@(totalPages == 0 ? 1 : totalPages))</span>
-            
+
+        <!-- 6.6. Phân trang dữ liệu -->
+        <div class="dl-table-foot">
+            <span class="small text-muted">
+                Hiển thị <strong>@(Model?.Count() ?? 0)</strong> / <strong>@totalItems</strong> khóa học (Trang @pageIndex/@(totalPages == 0 ? 1 : totalPages))
+            </span>
+
             @if (totalPages > 1)
             {
                 <nav aria-label="Phân trang quản lý khóa học">
@@ -598,4 +569,3 @@
         </div>
     </div>
 </div>
-

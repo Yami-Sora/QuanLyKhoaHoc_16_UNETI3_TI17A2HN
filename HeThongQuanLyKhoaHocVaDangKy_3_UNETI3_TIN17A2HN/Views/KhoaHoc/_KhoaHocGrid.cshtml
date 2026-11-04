@@ -1,7 +1,7 @@
 @*
     Họ và tên: Nguyễn Văn Mạnh
     Mã sinh viên: 23103100096
-    Nội dung thực hiện: Module 2 - Partial View hiển thị danh sách khóa học (Grid/List Card), Phân trang LINQ & Trạng thái khả dụng giao dịch
+    Nội dung thực hiện: Module 2 - Danh sách khóa học và phân trang
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.KhoaHocFilterViewModel
@@ -115,7 +115,7 @@
     </div>
 </div>
 
-<!-- LƯỚI DANH SÁCH KHÓA HỌC -->
+<!-- Lưới danh sách khóa học -->
 <div id="khoaHocCardList" class="row g-4 view-grid stagger-group">
     @if (Model.DanhSachKhoaHoc == null || !Model.DanhSachKhoaHoc.Any())
     {
@@ -171,7 +171,7 @@
             <div class="col-12 col-md-6 col-lg-4 khoa-hoc-col reveal" style="--i: @(itemIdx % 6);">
                 <div class="uneti-card uneti-card-hover h-100 p-4 d-flex flex-column uneti-card-surface position-relative" data-tilt>
                     
-                    <!-- Hàng 1: Mã khóa học, Hình thức & Trạng thái -->
+                    <!-- Hàng 1: Mã khóa học, hình thức & trạng thái -->
                     <div class="d-flex justify-content-between align-items-center mb-2 gap-1">
                         <div class="d-flex align-items-center gap-1">
                             <span class="badge bg-light text-secondary border px-2 py-1 fw-semibold uneti-fs-12">
@@ -186,7 +186,7 @@
                         </span>
                     </div>
 
-                    <!-- Môn học liên kết (Dữ liệu nền) -->
+                    <!-- Môn học liên kết (dữ liệu nền) -->
                     <div class="small text-muted mb-1 d-flex align-items-center gap-1">
                         <i class="bi bi-journal-text text-primary"></i>
                         <span class="fw-semibold text-truncate">@HighlightText(item.TenMonHoc, Model.SearchString)</span>
@@ -214,7 +214,7 @@
                         <span>@item.NgayBatDau.ToString("dd/MM/yyyy") &rarr; @item.NgayKetThuc.ToString("dd/MM/yyyy")</span>
                     </div>
 
-                    <!-- Thanh tiến độ sĩ số & Số chỗ còn lại -->
+                    <!-- Thanh tiến độ sĩ số & số chỗ còn lại -->
                     <div class="mb-3 p-2.5 rounded-3 bg-light border small">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="text-secondary" style="font-size: 12px;">Sĩ số đăng ký:</span>
@@ -250,7 +250,7 @@
                         </div>
                     </div>
 
-                    <!-- MỤC 6.7: HIỂN THỊ RÕ TRẠNG THÁI KHẢ DỤNG / KHÔNG KHẢ DỤNG & ĐIỀU KIỆN GIAO DỊCH -->
+                    <!-- 6.7. Hiển thị trạng thái khả dụng giao dịch -->
                     <div class="mb-3">
                         @if (item.KhaDungGiaoDich)
                         {
@@ -277,7 +277,7 @@
                         {
                             if (isLoggedIn && isHocVien)
                             {
-                                <!-- Đã đăng nhập vai trò Học viên: Đăng ký trực tiếp -->
+                                <!-- Đã đăng nhập vai trò học viên: Đăng ký trực tiếp -->
                                 <a asp-controller="DangKyKhoaHoc" asp-action="DangKy" asp-route-maKhoaHoc="@item.MaKhoaHoc" class="btn uneti-btn-primary rounded-3 fw-semibold py-2 px-3 d-flex align-items-center justify-content-center uneti-fs-13 text-decoration-none shadow-sm" title="Đăng ký tham gia khóa học ngay">
                                     <i class="bi bi-pencil-square me-1"></i>Đăng ký
                                 </a>
@@ -313,7 +313,7 @@
     }
 </div>
 
-<!-- MỤC 6.6: PHÂN TRANG LINQ Skip()/Take() KẾT HỢP GIỮ NGUYÊN BỘ LỌC, TÌM KIẾM & SẮP XẾP -->
+<!-- 6.6. Phân trang dữ liệu -->
 @if (Model.TotalPages > 1)
 {
     <div class="mt-5 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
