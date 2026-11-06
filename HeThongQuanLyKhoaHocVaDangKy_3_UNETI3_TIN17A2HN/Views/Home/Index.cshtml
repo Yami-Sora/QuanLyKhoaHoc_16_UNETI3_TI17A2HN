@@ -221,9 +221,9 @@
     <div class="mb-5" id="lo-trinh-dao-tao">
         <div class="uh2-section-head reveal">
             <div>
-                <span class="uh2-kicker">🧭 Lộ trình</span>
+                <span class="uh2-kicker">🧭 Hướng dẫn</span>
                 <h2 class="uh2-section-title">Quy Trình Học Tập</h2>
-                <p class="uh2-section-sub">3 bước đơn giản để bắt đầu hành trình học tập tại nhà trường</p>
+                <p class="uh2-section-sub">3 bước đơn giản để đăng ký và bắt đầu học tập trên hệ thống</p>
             </div>
         </div>
 
@@ -232,12 +232,12 @@
                 <div class="uh2-step">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="uh2-step-num uh2-step-num--1">1</div>
-                        <span class="uh2-step-tag uh2-step-tag--1">Khám phá</span>
+                        <span class="uh2-step-tag uh2-step-tag--1">Tạo tài khoản</span>
                     </div>
-                    <h6>Chọn môn học phù hợp</h6>
-                    <p>Tra cứu danh mục môn học trong học kỳ, xem thông tin số tín chỉ, định mức học phí và lộ trình đào tạo chuẩn.</p>
-                    <a asp-controller="MonHoc" asp-action="Index" class="uh2-step-btn uh2-step-btn--1">
-                        <i class="bi bi-search me-1"></i>Tìm môn học ngay
+                    <h6>Đăng ký tài khoản học viên</h6>
+                    <p>Tạo tài khoản trên hệ thống với họ tên, email và mật khẩu. Tài khoản được kích hoạt ngay để bắt đầu sử dụng các chức năng.</p>
+                    <a asp-controller="TaiKhoan" asp-action="Register" class="uh2-step-btn uh2-step-btn--1">
+                        <i class="bi bi-person-plus me-1"></i>Đăng ký ngay
                     </a>
                 </div>
             </div>
@@ -245,12 +245,12 @@
                 <div class="uh2-step">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="uh2-step-num uh2-step-num--2">2</div>
-                        <span class="uh2-step-tag uh2-step-tag--2">Đăng ký</span>
+                        <span class="uh2-step-tag uh2-step-tag--2">Tra cứu</span>
                     </div>
-                    <h6>Đăng ký &amp; Xếp lớp</h6>
-                    <p>Chọn lớp học phần phù hợp với thời khóa biểu cá nhân, xác nhận đăng ký trực tuyến an toàn và nhanh chóng.</p>
-                    <a asp-controller="TaiKhoan" asp-action="Register" class="uh2-step-btn uh2-step-btn--2">
-                        <i class="bi bi-person-plus me-1"></i>Đăng ký tài khoản
+                    <h6>Tra cứu môn học &amp; Khóa học</h6>
+                    <p>Xem danh mục môn học đang mở, thông tin số tín chỉ, học phí và chọn khóa học phù hợp với kế hoạch học tập cá nhân.</p>
+                    <a asp-controller="MonHoc" asp-action="Index" class="uh2-step-btn uh2-step-btn--2">
+                        <i class="bi bi-search me-1"></i>Tìm môn học
                     </a>
                 </div>
             </div>
@@ -258,12 +258,12 @@
                 <div class="uh2-step">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="uh2-step-num uh2-step-num--3">3</div>
-                        <span class="uh2-step-tag uh2-step-tag--3">Học tập ngay</span>
+                        <span class="uh2-step-tag uh2-step-tag--3">Đăng ký học</span>
                     </div>
-                    <h6>Vào học &amp; Theo dõi tiến độ</h6>
-                    <p>Truy cập tài liệu môn học, tham gia lớp học phần, kiểm tra định kỳ và nhận kết quả đánh giá học tập.</p>
+                    <h6>Đăng ký khóa học &amp; Theo dõi kết quả</h6>
+                    <p>Chọn khóa học phù hợp, nộp đơn đăng ký trực tuyến và theo dõi trạng thái xét duyệt, kết quả học tập trên hệ thống.</p>
                     <a asp-controller="KhoaHoc" asp-action="Index" class="uh2-step-btn uh2-step-btn--3">
-                        <i class="bi bi-calendar2-check me-1"></i>Xem lớp mở ngay <i class="bi bi-arrow-right ms-1"></i>
+                        <i class="bi bi-journal-check me-1"></i>Xem khóa học <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -274,16 +274,16 @@
     <div class="mb-5">
         <div class="reveal mb-4">
             <span class="uh2-kicker">✨ Điểm nổi bật</span>
-            <h2 class="uh2-section-title">Mọi thứ bạn cần cho hành trình học tập</h2>
-            <p class="uh2-section-sub">Hệ thống học tập hiện đại, linh hoạt, đồng hành cùng bạn trên mọi lộ trình</p>
+            <h2 class="uh2-section-title">Tại sao chọn hệ thống của chúng tôi?</h2>
+            <p class="uh2-section-sub">Nền tảng quản lý khóa học và đăng ký học tập trực tuyến, minh bạch, tiện lợi</p>
         </div>
 
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 stagger-group">
             <div class="col reveal">
                 <div class="uh2-feature">
-                    <div class="uh2-feature-icon uh2-stat-icon--blue"><i class="bi bi-display"></i></div>
-                    <h6>Chủ động thời gian</h6>
-                    <p>Học mọi lúc, mọi nơi trên mọi thiết bị.</p>
+                    <div class="uh2-feature-icon uh2-stat-icon--blue"><i class="bi bi-clipboard2-check"></i></div>
+                    <h6>Đăng ký trực tuyến</h6>
+                    <p>Đăng ký khóa học mọi lúc, không cần đến trực tiếp.</p>
                 </div>
             </div>
             <div class="col reveal">
@@ -295,9 +295,9 @@
             </div>
             <div class="col reveal">
                 <div class="uh2-feature">
-                    <div class="uh2-feature-icon uh2-course-icon--purple"><i class="bi bi-people-fill"></i></div>
-                    <h6>Giảng viên chất lượng</h6>
-                    <p>Đội ngũ giàu kinh nghiệm, tận tâm.</p>
+                    <div class="uh2-feature-icon uh2-course-icon--purple"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h6>Theo dõi tiến độ</h6>
+                    <p>Xem trạng thái đăng ký và kết quả học tập dễ dàng.</p>
                 </div>
             </div>
             <div class="col reveal">
@@ -309,9 +309,9 @@
             </div>
             <div class="col reveal">
                 <div class="uh2-feature">
-                    <div class="uh2-feature-icon uh2-stat-icon--cyan"><i class="bi bi-headset"></i></div>
-                    <h6>Hỗ trợ 24/7</h6>
-                    <p>Luôn sẵn sàng giải đáp thắc mắc.</p>
+                    <div class="uh2-feature-icon uh2-stat-icon--cyan"><i class="bi bi-database-fill-gear"></i></div>
+                    <h6>Quản lý tập trung</h6>
+                    <p>Môn học, khóa học, học viên trên một nền tảng duy nhất.</p>
                 </div>
             </div>
         </div>
@@ -341,7 +341,7 @@
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            Bạn nhấn vào mục <strong>Đăng ký</strong> ở thanh menu, nhập họ tên, email, tên đăng nhập và mật khẩu. Tài khoản học viên sẽ được kích hoạt ngay lập tức để bạn bắt đầu tra cứu và đăng ký học phần.
+                            Bạn nhấn vào mục <strong>Đăng ký</strong> ở thanh menu, nhập họ tên, email, tên đăng nhập và mật khẩu. Tài khoản học viên sẽ được kích hoạt ngay lập tức để bạn bắt đầu tra cứu môn học và đăng ký khóa học.
                         </div>
                     </div>
                 </div>
@@ -371,6 +371,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            <span class="uh2-faq-num uh2-stat-icon--cyan"><i class="bi bi-journal-bookmark-fill"></i></span>
+                            Làm sao để đăng ký một khóa học trên hệ thống?
+                        </button>
+                    </h2>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Sau khi đăng nhập, bạn vào mục <strong>Khóa học</strong> để xem danh sách các khóa đang mở. Chọn khóa học muốn tham gia, nhấn <strong>Đăng ký</strong>, hệ thống sẽ ghi nhận đơn của bạn. Nhân viên quản lý sẽ xét duyệt và bạn có thể theo dõi trạng thái đăng ký ngay trên hệ thống.
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -397,10 +410,13 @@
                     else
                     {
                         <h3>Sẵn sàng cho kỳ học mới, @hoTen?</h3>
-                        <p>Tra cứu danh mục môn học, xem số tín chỉ và học phí để chuẩn bị cho kỳ học mới.</p>
+                        <p>Tra cứu môn học, chọn khóa học phù hợp và đăng ký ngay trên hệ thống.</p>
                         <div class="d-flex flex-wrap gap-3">
                             <a asp-controller="MonHoc" asp-action="Index" class="uh2-cta-btn-w">
                                 <i class="bi bi-search"></i>Tra cứu môn học ngay
+                            </a>
+                            <a asp-controller="KhoaHoc" asp-action="Index" class="uh2-cta-btn-o">
+                                <i class="bi bi-journal-check"></i>Xem khóa học
                             </a>
                         </div>
                     }
