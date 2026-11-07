@@ -15,7 +15,7 @@
     ViewData["Title"] = "Chi tiết khóa học - " + Model.TenKhoaHoc;
     var dangKyCount = Model.DangKyKhoaHocs?.Count(dk => dk.TrangThai != "BiHuy") ?? 0;
     var conCho = (Model.SoLuongToiDa - dangKyCount) > 0;
-    var khaDung = Model.TrangThai == "DangMo" && conCho && Model.NgayBatDau.Date >= DateTime.Today;
+    var khaDung = Model.TrangThai == "DangMo" && conCho && Model.NgayBatDau.Date > DateTime.Today;
 }
 
 <div class="@(isStaffOrAdmin ? "container-fluid py-2" : "container py-4")">

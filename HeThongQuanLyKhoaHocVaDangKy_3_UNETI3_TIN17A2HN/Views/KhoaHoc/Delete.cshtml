@@ -25,17 +25,17 @@
                 <div class="card-body p-4">
                     @if (hasDangKy)
                     {
-                        <!-- 6.2. Cảnh báo bảo vệ toàn vẹn dữ liệu -->
+                        <!-- Cảnh báo bảo vệ toàn vẹn dữ liệu -->
                         <div class="alert alert-warning border-warning d-flex align-items-start p-3 mb-4 rounded-3" role="alert">
                             <i class="bi bi-shield-exclamation text-warning fs-2 me-3 mt-1 flex-shrink-0"></i>
                             <div>
                                 <h6 class="fw-bold text-dark mb-1">KHÔNG THỂ XÓA KHÓA HỌC NÀY!</h6>
                                 <p class="small text-muted mb-2">
                                     Khóa học <strong>"@Model.TenKhoaHoc"</strong> hiện đã phát sinh lịch sử đăng ký của học viên trong cơ sở dữ liệu. 
-                                    Theo quy định nghiệp vụ Đề tài 16 (Mục 6.2 - Không xóa đối tượng đã phát sinh lịch sử nếu làm mất tính toàn vẹn dữ liệu), hành động xóa này bị hệ thống chặn hoàn toàn.
+                                    Để bảo vệ toàn vẹn dữ liệu hệ thống, không được xóa đối tượng đã phát sinh giao dịch.
                                 </p>
-                                <span class="badge bg-danger">Giải pháp thay thế:</span>
-                                <span class="small text-dark fw-semibold ms-1">Vui lòng chuyển trạng thái khóa học sang <strong>"Đã hủy"</strong> để dừng tiếp nhận học viên mà vẫn bảo toàn lịch sử giao dịch!</span>
+                                <span class="badge bg-secondary">Lưu ý:</span>
+                                <span class="small text-dark fw-semibold ms-1">Khóa học đã phát sinh học viên đăng ký không được phép xóa hoặc hủy để bảo toàn lịch sử giao dịch của học viên!</span>
                             </div>
                         </div>
                     }

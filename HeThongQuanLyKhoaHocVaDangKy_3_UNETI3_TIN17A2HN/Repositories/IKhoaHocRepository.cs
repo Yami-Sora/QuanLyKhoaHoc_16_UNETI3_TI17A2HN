@@ -1,6 +1,6 @@
 // Họ và tên: Nguyễn Văn Mạnh
 // Mã sinh viên: 23103100096
-// Nội dung thực hiện: Module 2 - Interface repository cho quản lý khóa học
+// Nội dung thực hiện: Module 2 - Interface Repository cho Quản lý Khóa học
 
 using Microsoft.AspNetCore.Mvc.Rendering;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
@@ -8,103 +8,50 @@ using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
 {
-    /// <summary>
-    /// Kết quả truy vấn trang quản trị khóa học
-    /// </summary>
-    public class KhoaHocQuanLyResult
-    {
-        public List<KhoaHoc> Items { get; set; } = new();
-        public int TotalCount { get; set; }
-        public int DangMoCount { get; set; }
-        public int DangHocCount { get; set; }
-        public int DaKetThucCount { get; set; }
-        public long AvgHocPhi { get; set; }
-        public int TotalItems { get; set; }
-        public int TotalPages { get; set; }
-        public int PageIndex { get; set; }
-        public int PageSize { get; set; }
-        public SelectList MonHocList { get; set; } = null!;
-    }
-
     public interface IKhoaHocRepository
     {
-        /// <summary>
-        /// Tự động đồng bộ vòng đời khóa học theo thời gian thực
-        /// </summary>
+        // 1. Đồng bộ vòng đời khóa học theo ngày thực tế
         Task DongBoVongDoiKhoaHocAsync();
 
-        /// <summary>
-        /// Cổng tra cứu khóa học công khai
-        /// </summary>
+        // 2. Tra cứu, lọc, sắp xếp và phân trang khóa học (công khai)
         Task<(KhoaHocFilterViewModel Filter, SelectList MonHocList)> GetFilterViewModelAsync(KhoaHocFilterViewModel filter, int? page = null);
 
-        /// <summary>
-        /// Quản trị khóa học
-        /// </summary>
-        Task<KhoaHocQuanLyResult> GetQuanLyDataAsync(
-            string? searchString,
-            int? maMonHoc,
-            string? trangThai,
-            string? hinhThuc,
-            string? khoangHocPhi,
-            string? tinhTrangCho,
-            string? sortBy,
-            int page,
-            int pageSize);
+        // 3. Danh sách quản trị khóa học (tìm kiếm, lọc, phân trang) với stat cards
+        Task<(List<KhoaHoc> Items, int TotalCount, int DangMoCount, int DangHocCount, int DaKetThucCount, long AvgHocPhi, int TotalFiltered, int TotalPages, SelectList MonHocList)> GetQuanLyDataAsync(
+            string? searchString, int? maMonHoc, string? trangThai, string? hinhThuc,
+            string? khoangHocPhi, string? tinhTrangCho, string? sortBy, int page, int pageSize);
 
-        /// <summary>
-        /// Lấy chi tiết thông tin khóa học
-        /// </summary>
+        // 4. Chi tiết khóa học kèm môn học, giảng viên và danh sách đăng ký
         Task<KhoaHoc?> GetByIdWithDetailsAsync(int id);
 
-        /// <summary>
-        /// Kiểm tra học viên đã đăng ký khóa học hay chưa
-        /// </summary>
+        // 5. Kiểm tra học viên đã đăng ký khóa học chưa
         Task<bool> CheckHocVienDaDangKyAsync(int maKhoaHoc, int maTaiKhoan);
 
-        /// <summary>
-        /// Lấy thông tin khóa học theo mã
-        /// </summary>
+        // 6. Lấy khóa học theo Id
         Task<KhoaHoc?> GetByIdAsync(int id);
 
-        /// <summary>
-        /// Lấy dữ liệu dropdown cho môn học và giảng viên
-        /// </summary>
+        // 7. Lấy dữ liệu dropdown môn học và giảng viên
         Task<(SelectList MonHocList, SelectList GiangVienList)> GetDropdownDataAsync(int? selectedMonHoc = null, int? selectedGiangVien = null);
 
-        /// <summary>
-        /// Thêm mới khóa học
-        /// </summary>
+        // 8. Thêm mới khóa học
         Task<(bool Success, string? ErrorMessage, int MaKhoaHoc)> CreateKhoaHocAsync(KhoaHoc khoaHoc);
 
-        /// <summary>
-        /// Cập nhật thông tin khóa học
-        /// </summary>
+        // 9. Cập nhật thông tin khóa học
         Task<(bool Success, string? ErrorMessage)> UpdateKhoaHocAsync(KhoaHoc khoaHoc);
 
-        /// <summary>
-        /// Lấy thông tin khóa học trước khi xóa
-        /// </summary>
+        // 10. Lấy thông tin khóa học để xác nhận xóa
         Task<KhoaHoc?> GetByIdForDeleteAsync(int id);
 
-        /// <summary>
-        /// Kiểm tra khóa học đã phát sinh lịch sử đăng ký chưa
-        /// </summary>
+        // 11. Kiểm tra khóa học đã có đăng ký chưa
         Task<bool> HasDangKyAsync(int id);
 
-        /// <summary>
-        /// Xóa khóa học an toàn
-        /// </summary>
+        // 12. Xóa khóa học an toàn
         Task<(bool Success, string? ErrorMessage)> DeleteKhoaHocAsync(int id);
 
-        /// <summary>
-        /// Cập nhật trạng thái khóa học
-        /// </summary>
+        // 13. Cập nhật nhanh trạng thái khóa học
         Task<(bool Success, string? ErrorMessage, string StatusLabel)> UpdateStatusAsync(int id, string newStatus);
 
-        /// <summary>
-        /// Lấy nhãn trạng thái tiếng Việt
-        /// </summary>
+        // 14. Định dạng nhãn trạng thái tiếng Việt
         string GetStatusLabel(string? trangThai);
     }
 }

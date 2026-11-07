@@ -31,11 +31,11 @@
     int totalPages = ViewBag.TotalPages ?? 1;
 
     bool hasActiveFilter = !string.IsNullOrWhiteSpace(currentSearch) ||
-                           currentMaMonHoc.HasValue ||
-                           !string.IsNullOrWhiteSpace(currentTrangThai) ||
-                           !string.IsNullOrWhiteSpace(currentHinhThuc) ||
-                           !string.IsNullOrWhiteSpace(currentKhoangHocPhi) ||
-                           !string.IsNullOrWhiteSpace(currentTinhTrangCho);
+                           (currentMaMonHoc.HasValue && currentMaMonHoc.Value > 0) ||
+                           (!string.IsNullOrWhiteSpace(currentTrangThai) && !currentTrangThai.Equals("all", StringComparison.OrdinalIgnoreCase)) ||
+                           (!string.IsNullOrWhiteSpace(currentHinhThuc) && !currentHinhThuc.Equals("all", StringComparison.OrdinalIgnoreCase)) ||
+                           (!string.IsNullOrWhiteSpace(currentKhoangHocPhi) && !currentKhoangHocPhi.Equals("all", StringComparison.OrdinalIgnoreCase)) ||
+                           (!string.IsNullOrWhiteSpace(currentTinhTrangCho) && !currentTinhTrangCho.Equals("all", StringComparison.OrdinalIgnoreCase));
 }
 
 <div class="container-fluid py-2">
@@ -140,29 +140,29 @@
                         <span class="input-group-text bg-white text-muted">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="text" name="searchString" value="@currentSearch" class="form-control" placeholder="Tìm tên khóa học, môn học, giảng viên..." />
+                        <input type="text" name="searchString" value="@currentSearch" class="form-control" placeholder="Tìm kiếm: Tên khóa học, môn học, giảng viên..." />
                     </div>
                 </div>
 
                 <!-- 6.4. Lọc theo môn học -->
                 <div class="col-12 col-sm-6 col-md-3 col-lg-3">
                     <select name="maMonHoc" class="form-select form-select-sm" asp-items="ViewBag.MonHocList">
-                        <option value="">-- Tất cả môn học --</option>
+                        <option value="">-- Môn học: Tất cả --</option>
                     </select>
                 </div>
 
                 <!-- 6.5. Sắp xếp đa tiêu chí -->
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <select name="sortBy" class="form-select form-select-sm">
-                        <option value="id_desc" selected="@(currentSortBy == "id_desc")">Mới nhất (Mặc định)</option>
-                        <option value="ten_asc" selected="@(currentSortBy == "ten_asc")">Tên khóa học: A &rarr; Z</option>
-                        <option value="ten_desc" selected="@(currentSortBy == "ten_desc")">Tên khóa học: Z &rarr; A</option>
-                        <option value="ngay_asc" selected="@(currentSortBy == "ngay_asc")">Ngày bắt đầu: Tăng dần (Sớm nhất)</option>
-                        <option value="ngay_desc" selected="@(currentSortBy == "ngay_desc")">Ngày bắt đầu: Giảm dần (Muộn nhất)</option>
-                        <option value="hocphi_asc" selected="@(currentSortBy == "hocphi_asc")">Học phí: Thấp &rarr; Cao</option>
-                        <option value="hocphi_desc" selected="@(currentSortBy == "hocphi_desc")">Học phí: Cao &rarr; Thấp</option>
-                        <option value="cho_desc" selected="@(currentSortBy == "cho_desc")">Chỗ trống còn lại: Nhiều &rarr; Ít</option>
-                        <option value="cho_asc" selected="@(currentSortBy == "cho_asc")">Chỗ trống còn lại: Ít &rarr; Nhiều</option>
+                        <option value="id_desc" selected="@(currentSortBy == "id_desc")">Sắp xếp: Mới nhất (Mặc định)</option>
+                        <option value="ten_asc" selected="@(currentSortBy == "ten_asc")">Sắp xếp: Tên A &rarr; Z</option>
+                        <option value="ten_desc" selected="@(currentSortBy == "ten_desc")">Sắp xếp: Tên Z &rarr; A</option>
+                        <option value="ngay_asc" selected="@(currentSortBy == "ngay_asc")">Sắp xếp: Khai giảng sớm nhất</option>
+                        <option value="ngay_desc" selected="@(currentSortBy == "ngay_desc")">Sắp xếp: Khai giảng muộn nhất</option>
+                        <option value="hocphi_asc" selected="@(currentSortBy == "hocphi_asc")">Sắp xếp: Học phí thấp &rarr; cao</option>
+                        <option value="hocphi_desc" selected="@(currentSortBy == "hocphi_desc")">Sắp xếp: Học phí cao &rarr; thấp</option>
+                        <option value="cho_desc" selected="@(currentSortBy == "cho_desc")">Sắp xếp: Chỗ trống nhiều &rarr; ít</option>
+                        <option value="cho_asc" selected="@(currentSortBy == "cho_asc")">Sắp xếp: Chỗ trống ít &rarr; nhiều</option>
                     </select>
                 </div>
 
@@ -179,46 +179,46 @@
             </div>
 
             <!-- Hàng 2: Bộ lọc chi tiết -->
-            <div class="row g-2 pt-1 border-top align-items-center">
+            <div class="row g-2 align-items-center">
                 <!-- 6.4. Lọc theo hình thức đào tạo -->
                 <div class="col-6 col-md-3">
                     <select name="hinhThuc" class="form-select form-select-sm">
-                        <option value="">-- Tất cả hình thức --</option>
-                        <option value="Trực tiếp" selected="@(currentHinhThuc == "Trực tiếp")">Trực tiếp</option>
-                        <option value="Trực tuyến" selected="@(currentHinhThuc == "Trực tuyến")">Trực tuyến</option>
-                        <option value="Kết hợp" selected="@(currentHinhThuc == "Kết hợp")">Kết hợp</option>
+                        <option value="">-- Hình thức: Tất cả --</option>
+                        <option value="Trực tiếp" selected="@(currentHinhThuc == "Trực tiếp")">Hình thức: Trực tiếp</option>
+                        <option value="Trực tuyến" selected="@(currentHinhThuc == "Trực tuyến")">Hình thức: Trực tuyến</option>
+                        <option value="Kết hợp" selected="@(currentHinhThuc == "Kết hợp")">Hình thức: Kết hợp</option>
                     </select>
                 </div>
 
                 <!-- 6.4. Lọc theo trạng thái -->
                 <div class="col-6 col-md-3">
                     <select name="trangThai" class="form-select form-select-sm">
-                        <option value="">-- Tất cả trạng thái --</option>
-                        <option value="DangMo" selected="@(currentTrangThai == "DangMo")">Đang mở đăng ký</option>
-                        <option value="SapMo" selected="@(currentTrangThai == "SapMo")">Sắp mở</option>
-                        <option value="DangHoc" selected="@(currentTrangThai == "DangHoc")">Đang giảng dạy</option>
-                        <option value="DaKetThuc" selected="@(currentTrangThai == "DaKetThuc")">Đã kết thúc</option>
-                        <option value="BiHuy" selected="@(currentTrangThai == "BiHuy")">Đã hủy</option>
+                        <option value="">-- Trạng thái: Tất cả --</option>
+                        <option value="DangMo" selected="@(currentTrangThai == "DangMo")">Trạng thái: Đang mở đăng ký</option>
+                        <option value="SapMo" selected="@(currentTrangThai == "SapMo")">Trạng thái: Sắp mở</option>
+                        <option value="DangHoc" selected="@(currentTrangThai == "DangHoc")">Trạng thái: Đang giảng dạy</option>
+                        <option value="DaKetThuc" selected="@(currentTrangThai == "DaKetThuc")">Trạng thái: Đã kết thúc</option>
+                        <option value="BiHuy" selected="@(currentTrangThai == "BiHuy")">Trạng thái: Đã hủy</option>
                     </select>
                 </div>
 
                 <!-- 6.4. Lọc theo khoảng học phí -->
                 <div class="col-6 col-md-3">
                     <select name="khoangHocPhi" class="form-select form-select-sm">
-                        <option value="">-- Tất cả học phí --</option>
-                        <option value="duoi_2tr" selected="@(currentKhoangHocPhi == "duoi_2tr")">Dưới 2.000.000 đ</option>
-                        <option value="2tr_4tr" selected="@(currentKhoangHocPhi == "2tr_4tr")">2 - 4 triệu đ</option>
-                        <option value="4tr_6tr" selected="@(currentKhoangHocPhi == "4tr_6tr")">4 - 6 triệu đ</option>
-                        <option value="tren_6tr" selected="@(currentKhoangHocPhi == "tren_6tr")">Trên 6.000.000 đ</option>
+                        <option value="">-- Học phí: Tất cả --</option>
+                        <option value="duoi_2tr" selected="@(currentKhoangHocPhi == "duoi_2tr")">Học phí: Dưới 2 triệu đ</option>
+                        <option value="2tr_4tr" selected="@(currentKhoangHocPhi == "2tr_4tr")">Học phí: 2 - 4 triệu đ</option>
+                        <option value="4tr_6tr" selected="@(currentKhoangHocPhi == "4tr_6tr")">Học phí: 4 - 6 triệu đ</option>
+                        <option value="tren_6tr" selected="@(currentKhoangHocPhi == "tren_6tr")">Học phí: Trên 6 triệu đ</option>
                     </select>
                 </div>
 
                 <!-- 6.4. Lọc theo tình trạng chỗ -->
                 <div class="col-6 col-md-3">
                     <select name="tinhTrangCho" class="form-select form-select-sm">
-                        <option value="">-- Tình trạng chỗ --</option>
-                        <option value="con_cho" selected="@(currentTinhTrangCho == "con_cho")">Còn chỗ đăng ký</option>
-                        <option value="het_cho" selected="@(currentTinhTrangCho == "het_cho")">Đã hết chỗ</option>
+                        <option value="">-- Tình trạng chỗ: Tất cả --</option>
+                        <option value="con_cho" selected="@(currentTinhTrangCho == "con_cho")">Chỗ trống: Còn chỗ đăng ký</option>
+                        <option value="het_cho" selected="@(currentTinhTrangCho == "het_cho")">Chỗ trống: Đã hết chỗ</option>
                     </select>
                 </div>
             </div>
@@ -236,31 +236,31 @@
                     <i class="bi bi-search me-1"></i>Từ khóa: "@currentSearch"
                 </span>
             }
-            @if (currentMaMonHoc.HasValue)
+            @if (currentMaMonHoc.HasValue && currentMaMonHoc.Value > 0)
             {
                 <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">
                     <i class="bi bi-journal-text me-1"></i>Môn học đã chọn
                 </span>
             }
-            @if (!string.IsNullOrWhiteSpace(currentTrangThai))
+            @if (!string.IsNullOrWhiteSpace(currentTrangThai) && !currentTrangThai.Equals("all", StringComparison.OrdinalIgnoreCase))
             {
                 <span class="badge bg-light text-dark border px-2 py-1 rounded-pill">
                     <i class="bi bi-funnel me-1"></i>Trạng thái: @HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers.KhoaHocController.GetStatusLabel(currentTrangThai)
                 </span>
             }
-            @if (!string.IsNullOrWhiteSpace(currentHinhThuc))
+            @if (!string.IsNullOrWhiteSpace(currentHinhThuc) && !currentHinhThuc.Equals("all", StringComparison.OrdinalIgnoreCase))
             {
                 <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 rounded-pill">
                     <i class="bi bi-building me-1"></i>@currentHinhThuc
                 </span>
             }
-            @if (!string.IsNullOrWhiteSpace(currentKhoangHocPhi))
+            @if (!string.IsNullOrWhiteSpace(currentKhoangHocPhi) && !currentKhoangHocPhi.Equals("all", StringComparison.OrdinalIgnoreCase))
             {
                 <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill">
                     <i class="bi bi-cash me-1"></i>Học phí đã lọc
                 </span>
             }
-            @if (!string.IsNullOrWhiteSpace(currentTinhTrangCho))
+            @if (!string.IsNullOrWhiteSpace(currentTinhTrangCho) && !currentTinhTrangCho.Equals("all", StringComparison.OrdinalIgnoreCase))
             {
                 <span class="badge @(currentTinhTrangCho == "con_cho" ? "bg-success-subtle text-success border-success-subtle" : "bg-danger-subtle text-danger border-danger-subtle") border px-2 py-1 rounded-pill">
                     <i class="bi @(currentTinhTrangCho == "con_cho" ? "bi-check2-circle" : "bi-x-circle") me-1"></i>
@@ -439,7 +439,7 @@
                                                             <form asp-action="UpdateStatus" asp-route-id="@item.MaKhoaHoc" method="post" class="d-inline">
                                                                 @Html.AntiForgeryToken()
                                                                 <input type="hidden" name="newStatus" value="@s.Item1" />
-                                                                <button type="submit" class="dropdown-item py-1 small">
+                                                                <button type="submit" class="dropdown-item py-1 small" @(s.Item1 == "BiHuy" ? "onclick=\"return confirm('Bạn có chắc chắn muốn hủy khóa học này? Lưu ý: Chỉ hủy được khi chưa có học viên nào đăng ký.');\"" : "")>
                                                                     <i class="bi @s.Item3 me-2"></i>@s.Item2
                                                                 </button>
                                                             </form>
@@ -465,9 +465,7 @@
 
         <!-- 6.6. Phân trang dữ liệu -->
         <div class="dl-table-foot">
-            <span class="small text-muted">
-                Hiển thị <strong>@(Model?.Count() ?? 0)</strong> / <strong>@totalItems</strong> khóa học (Trang @pageIndex/@(totalPages == 0 ? 1 : totalPages))
-            </span>
+            <span class="small text-muted">Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalItems</strong> khóa học @if (totalPages > 1) { <text>• Trang <strong>@pageIndex</strong>/<strong>@totalPages</strong></text> }</span>
 
             @if (totalPages > 1)
             {
