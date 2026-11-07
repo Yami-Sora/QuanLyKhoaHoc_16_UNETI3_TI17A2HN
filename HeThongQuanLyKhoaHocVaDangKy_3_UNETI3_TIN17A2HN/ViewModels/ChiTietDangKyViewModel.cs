@@ -1,6 +1,6 @@
 // Họ và tên: Bạch Đức Sự
 // Mã sinh viên: 23103100063
-// Nội dung thực hiện: Module 4 - Tiếp nhận đăng ký, Xác nhận/Hủy đăng ký và Quản lý trạng thái.
+// Nội dung thực hiện: Tiếp nhận đăng ký, xử lý trạng thái bằng Repository Pattern, đồng bộ UI.
 
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
 

@@ -1,7 +1,7 @@
 @*
 // Họ và tên: Bạch Đức Sự
 // Mã sinh viên: 23103100063
-// Nội dung thực hiện: Module 4 - Tiếp nhận đăng ký, Xác nhận/Hủy đăng ký và Quản lý trạng thái.
+// Nội dung thực hiện: Tiếp nhận đăng ký, xử lý trạng thái bằng Repository Pattern, đồng bộ UI.
 *@
 
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.CapNhatTrangThaiViewModel
@@ -14,7 +14,7 @@
     <!-- Breadcrumb & Tiêu đề -->
     <div class="mb-4 pb-2 border-bottom">
         <h3 class="fw-bold mb-1 text-dark">
-            <i class="bi bi-sliders me-2" style="color: var(--uneti-primary);"></i>CẬP NHẬT TRẠNG THÁI & ĐỐI SOÁT HỌC PHÍ
+            <i class="bi bi-sliders me-2 text-primary"></i>CẬP NHẬT TRẠNG THÁI & ĐỐI SOÁT HỌC PHÍ
         </h3>
         <p class="text-muted mb-0 small">Hồ sơ đăng ký #@Model.MaDangKy — Học viên: <strong>@Model.HoTenHocVien</strong></p>
     </div>
@@ -22,7 +22,7 @@
     <!-- Thông báo lỗi tổng thể (Validation Summary) -->
     @if (!ViewData.ModelState.IsValid)
     {
-        <div class="alert alert-danger uneti-card border-danger-subtle mb-4 py-3" role="alert">
+        <div class="alert alert-danger card border-danger-subtle mb-4 py-3 shadow-sm" role="alert">
             <div class="fw-bold d-flex align-items-center gap-2 mb-2">
                 <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
                 <span>Phát hiện vi phạm điều kiện nghiệp vụ:</span>
@@ -32,7 +32,7 @@
     }
 
     <!-- CARD THÔNG TIN TỔNG QUAN HỒ SƠ ĐĂNG KÝ -->
-    <div class="uneti-card p-3 mb-4 shadow-sm bg-light">
+    <div class="card p-3 mb-4 shadow-sm border-0 bg-light">
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="small text-muted mb-1">Học viên đăng ký:</div>
@@ -56,8 +56,8 @@
         </div>
     </div>
 
-    <!-- KHỐI QUY TẮC LUỒNG TRẠNG THÁI -->
-    <div class="alert alert-primary border-0 rounded-3 mb-4 p-3 bg-primary-subtle text-primary-emphasis">
+    <!-- KHỐI QUY TẮC LUỒNG TRẠNG THÁI (FINITE STATE MACHINE) -->
+    <div class="alert alert-primary border-0 rounded-3 mb-4 p-3 bg-primary-subtle text-primary-emphasis shadow-sm">
         <div class="fw-bold mb-1 small text-uppercase"><i class="bi bi-diagram-3-fill me-1"></i>Quy tắc luồng trạng thái chuẩn:</div>
         <div class="small">
             <strong>[Chờ xử lý]</strong> &rarr; <strong>[Đang xử lý]</strong> &rarr; <strong>[Hoàn thành]</strong> (hoặc <strong>[Đã hủy]</strong>). Không cho phép nhảy cóc sai quy trình thẩm định.
@@ -65,7 +65,7 @@
     </div>
 
     <!-- FORM CẬP NHẬT TRẠNG THÁI -->
-    <div class="uneti-card p-4 shadow-sm">
+    <div class="card p-4 shadow-sm border-0 bg-white">
         <form asp-action="CapNhatTrangThai" method="post" id="formCapNhat">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="MaDangKy" />
@@ -78,8 +78,8 @@
                     <div class="form-control form-control-sm bg-light text-muted fw-bold">
                         @switch (Model.TrangThaiHienTai)
                         {
-                            case "ChoXuLy": <span><i class="bi bi-clock text-warning me-1"></i>Chờ xử lý</span>; break;
-                            case "DangXuLy": <span><i class="bi bi-gear text-primary me-1"></i>Đang xử lý</span>; break;
+                            case "ChoXuLy": <span><i class="bi bi-clock-history text-warning me-1"></i>Chờ xử lý</span>; break;
+                            case "DangXuLy": <span><i class="bi bi-hourglass-split text-info me-1"></i>Đang xử lý</span>; break;
                             case "HoanThanh": <span><i class="bi bi-check-circle-fill text-success me-1"></i>Hoàn thành</span>; break;
                             case "BiHuy": <span><i class="bi bi-x-circle-fill text-danger me-1"></i>Đã hủy</span>; break;
                             default: <span>@Model.TrangThaiHienTai</span>; break;
@@ -157,7 +157,7 @@
                 <a asp-action="Details" asp-route-id="@Model.MaDangKy" class="btn btn-sm btn-outline-secondary px-3">
                     <i class="bi bi-arrow-left me-1"></i>Hủy thao tác
                 </a>
-                <button type="submit" class="btn btn-sm uneti-btn-primary px-4 fw-semibold shadow-sm">
+                <button type="submit" class="btn btn-sm btn-primary px-4 fw-semibold shadow-sm">
                     <i class="bi bi-check-circle me-1"></i>Lưu cập nhật hồ sơ
                 </button>
             </div>
@@ -187,4 +187,3 @@
         inputDaDong.addEventListener('input', updateConLai);
     </script>
 }
-

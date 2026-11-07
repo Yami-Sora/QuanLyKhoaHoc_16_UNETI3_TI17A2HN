@@ -34,6 +34,9 @@ builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repos
 builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IHocVienRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.HocVienRepository>();
 builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.IDangKyKhoaHocRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.DangKyKhoaHocRepository>();
 
+// Đăng ký Repository Pattern (Module 4: Bạch Đức Sự - 23103100063)
+builder.Services.AddScoped<HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.ITiepNhanDangKyRepository, HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories.TiepNhanDangKyRepository>();
+
 // 5. Đăng ký Repository Pattern (Module 5: Nguyễn Công Thành - 23103100102)
 builder.Services.AddScoped<IKetQuaHocTapRepository, KetQuaHocTapRepository>();
 builder.Services.AddScoped<IThongKeRepository, ThongKeRepository>();

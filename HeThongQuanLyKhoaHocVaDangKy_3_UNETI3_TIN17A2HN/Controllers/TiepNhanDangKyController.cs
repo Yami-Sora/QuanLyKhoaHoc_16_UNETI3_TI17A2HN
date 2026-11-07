@@ -1,12 +1,11 @@
 // Họ và tên: Bạch Đức Sự
 // Mã sinh viên: 23103100063
-// Nội dung thực hiện: Module 4 - Tiếp nhận đăng ký, Xác nhận/Hủy đăng ký và Quản lý trạng thái.
+// Nội dung thực hiện: Tiếp nhận đăng ký, xử lý trạng thái bằng Repository Pattern, đồng bộ UI.
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
-using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Helpers;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
@@ -14,26 +13,31 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
     [AuthorizeRole("Admin", "NhanVien")]
     public class TiepNhanDangKyController : Controller
     {
-        private readonly TiepNhanDangKyService _service;
+        private readonly ITiepNhanDangKyRepository _repo;
+        private readonly ILogger<TiepNhanDangKyController> _logger;
 
-        public TiepNhanDangKyController(ApplicationDbContext context)
+        // Constructor Injection Repository Pattern - Loại bỏ hoàn toàn DbContext trực tiếp
+        public TiepNhanDangKyController(ITiepNhanDangKyRepository repo, ILogger<TiepNhanDangKyController> logger)
         {
-            _service = new TiepNhanDangKyService(context);
+            _repo = repo;
+            _logger = logger;
         }
 
+        // GET: /TiepNhanDangKy (Danh sách, tìm kiếm, lọc đa tiêu chí, phân trang)
         [HttpGet]
         public async Task<IActionResult> Index(TiepNhanFilterViewModel filter)
         {
-            var result = await _service.GetDanhSachDangKyAsync(filter);
+            var result = await _repo.GetDanhSachDangKyAsync(filter);
             return View(result);
         }
 
+        // GET: /TiepNhanDangKy/Details/5 (Chi tiết hồ sơ, sĩ số, lịch sử)
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var model = await _service.GetChiTietDangKyAsync(id.Value);
+            var model = await _repo.GetChiTietDangKyAsync(id.Value);
             if (model == null)
             {
                 TempData["ErrorMessage"] = "Không tìm thấy hồ sơ đăng ký khóa học này.";
@@ -43,12 +47,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(model);
         }
 
+        // GET: /TiepNhanDangKy/CapNhatTrangThai/5
         [HttpGet]
         public async Task<IActionResult> CapNhatTrangThai(int? id)
         {
             if (id == null) return NotFound();
 
-            var viewModel = await _service.GetCapNhatTrangThaiViewModelAsync(id.Value);
+            var viewModel = await _repo.GetCapNhatTrangThaiViewModelAsync(id.Value);
             if (viewModel == null)
             {
                 TempData["ErrorMessage"] = "Không tìm thấy thông tin đơn đăng ký cần cập nhật.";
@@ -58,13 +63,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(viewModel);
         }
 
+        // POST: /TiepNhanDangKy/CapNhatTrangThai
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CapNhatTrangThai(CapNhatTrangThaiViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                var refreshed = await _service.GetCapNhatTrangThaiViewModelAsync(model.MaDangKy);
+                var refreshed = await _repo.GetCapNhatTrangThaiViewModelAsync(model.MaDangKy);
                 if (refreshed != null)
                 {
                     model.HoTenHocVien = refreshed.HoTenHocVien;
@@ -82,11 +88,11 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
                 return View(model);
             }
 
-            var result = await _service.CapNhatTrangThaiAsync(model);
+            var result = await _repo.CapNhatTrangThaiAsync(model);
             if (!result.ThanhCong)
             {
                 ModelState.AddModelError(string.Empty, result.ThongBao);
-                var refreshed = await _service.GetCapNhatTrangThaiViewModelAsync(model.MaDangKy);
+                var refreshed = await _repo.GetCapNhatTrangThaiViewModelAsync(model.MaDangKy);
                 if (refreshed != null)
                 {
                     model.HoTenHocVien = refreshed.HoTenHocVien;
@@ -108,11 +114,12 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return RedirectToAction(nameof(Details), new { id = model.MaDangKy });
         }
 
+        // POST: /TiepNhanDangKy/TiepNhanNhanh/5 (Chuyển nhanh từ Chờ xử lý -> Đang xử lý)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> TiepNhanNhanh(int id)
         {
-            var result = await _service.TiepNhanNhanhAsync(id);
+            var result = await _repo.TiepNhanNhanhAsync(id);
             if (result.ThanhCong)
             {
                 TempData["SuccessMessage"] = result.ThongBao;
@@ -125,11 +132,12 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: /TiepNhanDangKy/XacNhanHoanThanh/5 (Chuyển sang Hoàn thành & Ghi nhận tiền)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> XacNhanHoanThanh(int id, decimal? soTienDong, string? ghiChuXacNhan)
         {
-            var result = await _service.XacNhanHoanThanhAsync(id, soTienDong, ghiChuXacNhan);
+            var result = await _repo.XacNhanHoanThanhAsync(id, soTienDong, ghiChuXacNhan);
             if (result.ThanhCong)
             {
                 TempData["SuccessMessage"] = result.ThongBao;
@@ -142,11 +150,12 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: /TiepNhanDangKy/HuyDangKy/5 (Hủy/Từ chối kèm lý do)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> HuyDangKy(int id, string lyDoHuy)
         {
-            var result = await _service.HuyDangKyAsync(id, lyDoHuy);
+            var result = await _repo.HuyDangKyAsync(id, lyDoHuy);
             if (result.ThanhCong)
             {
                 TempData["SuccessMessage"] = result.ThongBao;
@@ -159,6 +168,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: /TiepNhanDangKy/Create (Ghi danh tại quầy)
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -166,13 +176,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(new TaoDangKyMoiViewModel { TrangThai = "ChoXuLy", SoTienDaDong = 0 });
         }
 
+        // POST: /TiepNhanDangKy/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TaoDangKyMoiViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var result = await _service.TaoDangKyMoiAsync(model);
+                var result = await _repo.TaoDangKyMoiAsync(model);
                 if (result.ThanhCong)
                 {
                     TempData["SuccessMessage"] = result.ThongBao;
@@ -186,12 +197,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(model);
         }
 
+        // GET: /TiepNhanDangKy/InPhieuDangKy/5 (Trang in biểu mẫu chính thức)
         [HttpGet]
         public async Task<IActionResult> InPhieuDangKy(int? id)
         {
             if (id == null) return NotFound();
 
-            var dangKy = await _service.GetDangKyForPrintAsync(id.Value);
+            var dangKy = await _repo.GetDangKyForPrintAsync(id.Value);
             if (dangKy == null) return NotFound();
 
             return View(dangKy);
@@ -199,7 +211,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
         private async Task NapDuLieuDropDownList()
         {
-            var (hocViens, khoaHocs) = await _service.LayDuLieuDropDownListAsync();
+            var (hocViens, khoaHocs) = await _repo.LayDuLieuDropDownListAsync();
             ViewBag.HocViens = new SelectList(hocViens, "MaHocVien", "ThongTin");
             ViewBag.KhoaHocs = new SelectList(khoaHocs, "MaKhoaHoc", "ThongTin");
         }
