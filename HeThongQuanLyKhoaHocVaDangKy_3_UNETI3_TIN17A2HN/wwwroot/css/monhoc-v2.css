@@ -1,15 +1,3 @@
-/*
-    ==========================================================================
-    MONHOC V2 - Thẻ môn học chuẩn thiết kế hiện đại
-    Phù hợp 100% ảnh mẫu:
-    1. Gradient chéo 2 tông màu (--c1 -> --c2), accent đồng bộ
-    2. Banner gọn thấp 110px
-    3. Icon trắng 56px ở giữa, chấm bi & sóng mờ
-    4. Thân thẻ đè lên banner (margin-top: -18px, bo góc)
-    5. Màu nhấn đồng bộ (nút, giá, tín chỉ)
-    6. Chip đ/tín nền xám nhạt dễ đọc
-    ========================================================================== */
-
 #monHocCardList .card,
 .mh-card {
     background: #fff;

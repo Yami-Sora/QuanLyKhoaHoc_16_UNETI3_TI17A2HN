@@ -1,10 +1,3 @@
-/*
-    ==========================================================================
-    HOME V2 - Thiết kế lại trang chủ (phong cách SÁNG, tươi, hiện đại)
-    Prefix: uh2- (tránh xung đột với design system hiện có)
-    Trang sử dụng: Views/Home/Index.cshtml
-    ========================================================================== */
-
 /* ============ 1. HERO ============ */
 .uh2-hero {
     position: relative;

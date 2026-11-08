@@ -29,6 +29,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             return View(model);
         }
 
+        // GET: /ThongKe/InBaoCao — Trang in báo cáo thống kê (standalone, Layout = null)
+        [HttpGet]
+        public async Task<IActionResult> InBaoCao()
+        {
+            var model = await _thongKeRepo.GetThongKeAsync();
+            return View(model);
+        }
+
         // API: Lọc số đăng ký theo tháng phục vụ biểu đồ (Hỗ trợ: 12months, year, all)
         [HttpGet]
         public async Task<IActionResult> GetDangKyTheoThang(string filterType = "12months", int? year = null)

@@ -1,0 +1,519 @@
+@*
+    Trang in báo cáo thống kê tổng hợp (standalone, Layout = null)
+    Tương tự cách làm của InPhieu.cshtml — trang riêng, không dùng layout admin
+*@
+
+@model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.ThongKeViewModel
+@{
+    Layout = null;
+    var tongKhoaHoc = Model.HocVienTheoKhoa.Count;
+    var tongHocVien = Model.HocVienTheoKhoa.Sum(x => x.SoHocVienDangKy);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Báo cáo Thống kê Tổng hợp Đào tạo & Tài chính</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 24px;
+            font-size: 13px;
+        }
+        .print-container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 36px 44px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .section-title {
+            color: #1d4ed8;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #1d4ed8;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            margin-top: 24px;
+        }
+        .section-title .badge-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #1d4ed8;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            margin-right: 8px;
+        }
+        .table-report {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+        .table-report th, .table-report td {
+            padding: 7px 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .table-report th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            text-align: center;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .kpi-box {
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        .kpi-box .kpi-label {
+            font-size: 10.5px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .kpi-box .kpi-value {
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .kpi-box .kpi-sub {
+            font-size: 10.5px;
+            color: #94a3b8;
+        }
+        .text-success { color: #16a34a !important; }
+        .text-warning-emphasis { color: #b45309 !important; }
+        .text-danger { color: #dc2626 !important; }
+        .text-primary { color: #1d4ed8 !important; }
+        .text-muted { color: #64748b !important; }
+        .fw-bold { font-weight: 700 !important; }
+        .text-center { text-align: center !important; }
+        .text-end { text-align: right !important; }
+        .small { font-size: 11.5px !important; }
+        .progress-bar-print {
+            height: 6px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        .progress-bar-print .fill {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+        @@media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+                margin: 0;
+            }
+            .print-container {
+                box-shadow: none;
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @@page {
+                size: A4 portrait;
+                margin: 10mm 10mm 12mm 10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <!-- Nút in (ẩn khi in) -->
+        <div class="d-flex justify-content-end mb-4 pb-3 border-bottom no-print">
+            <button onclick="window.print()" class="btn btn-primary btn-sm fw-semibold px-3">
+                <i class="bi bi-printer-fill me-1"></i>In báo cáo thống kê
+            </button>
+        </div>
+
+        <!-- TIÊU ĐỀ BÁO CÁO -->
+        <table style="width: 100%; border: none; margin-bottom: 16px;">
+            <tr>
+                <td style="width: 50%; text-align: center; vertical-align: top; border: none;">
+                    <div style="font-size: 12px;">BỘ CÔNG THƯƠNG</div>
+                    <div style="font-weight: bold; font-size: 12px;">TRƯỜNG ĐẠI HỌC KINH TẾ - KỸ THUẬT CÔNG NGHIỆP</div>
+                    <div style="width: 60px; border-bottom: 1.5px solid #000; margin: 4px auto;"></div>
+                </td>
+                <td style="width: 50%; text-align: center; vertical-align: top; border: none;">
+                    <div style="font-weight: bold; font-size: 12px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                    <div style="font-weight: bold; font-size: 12px;">Độc lập — Tự do — Hạnh phúc</div>
+                    <div style="width: 100px; border-bottom: 1.5px solid #000; margin: 4px auto;"></div>
+                </td>
+            </tr>
+        </table>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="font-size: 17px; font-weight: 800; color: #1d4ed8; text-transform: uppercase; margin: 0;">
+                BÁO CÁO THỐNG KÊ TỔNG HỢP ĐÀO TẠO & TÀI CHÍNH HỌC PHÍ
+            </h2>
+
+        </div>
+
+        <!-- KPI TỔNG QUAN -->
+        <div class="kpi-grid">
+            <div class="kpi-box" style="border-left: 3px solid #16a34a;">
+                <div class="kpi-label">Doanh thu thực thu</div>
+                <div class="kpi-value text-success">@Model.TongDoanhThu.ToString("N0") <span style="font-size: 12px;">đ</span></div>
+                <div class="kpi-sub">Học phí đã vào quỹ</div>
+            </div>
+            <div class="kpi-box" style="border-left: 3px solid #f59e0b;">
+                <div class="kpi-label">Công nợ học phí</div>
+                <div class="kpi-value text-warning-emphasis">@Model.TongCongNo.ToString("N0") <span style="font-size: 12px;">đ</span></div>
+                <div class="kpi-sub">Chờ học viên hoàn tất</div>
+            </div>
+            <div class="kpi-box" style="border-left: 3px solid #6366f1;">
+                <div class="kpi-label">Tỷ lệ đạt chuẩn (≥ 5.0đ)</div>
+                <div class="kpi-value text-primary">@Model.TyLeDat%</div>
+                <div class="kpi-sub">@Model.SoDat đạt / @Model.TongSoKetQua HV có điểm</div>
+            </div>
+            <div class="kpi-box" style="border-left: 3px solid #0ea5e9;">
+                <div class="kpi-label">Lượt HV ghi danh</div>
+                <div class="kpi-value" style="color: #0f172a;">@tongHocVien.ToString("N0")</div>
+                <div class="kpi-sub">Tại @tongKhoaHoc lớp • @Model.KhoaHocTheoMon.Count môn</div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: SỐ KHÓA HỌC THEO MÔN -->
+        <div class="section-title">
+            <span class="badge-num">1</span>Cơ cấu số khóa học theo từng môn học
+        </div>
+        <table class="table-report">
+            <thead>
+                <tr>
+                    <th style="width: 90px;">Mã môn</th>
+                    <th>Tên môn học</th>
+                    <th style="width: 100px;">Tín chỉ</th>
+                    <th style="width: 110px;">Số lớp mở</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.KhoaHocTheoMon)
+                {
+                    <tr>
+                        <td class="text-center fw-bold text-primary">#MH@(item.MaMonHoc.ToString("D2"))</td>
+                        <td class="fw-bold">@item.TenMonHoc</td>
+                        <td class="text-center">@item.SoTinChi TC</td>
+                        <td class="text-center fw-bold text-primary">@item.SoKhoaHoc</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- SECTION 2: HỌC VIÊN THEO KHÓA & TỶ LỆ LẤP ĐẦY -->
+        <div class="section-title">
+            <span class="badge-num">2</span>Số học viên đăng ký theo từng khóa & Tỷ lệ lấp đầy
+        </div>
+        <table class="table-report">
+            <thead>
+                <tr>
+                    <th>Tên khóa học</th>
+                    <th>Môn học</th>
+                    <th style="width: 100px;">Sĩ số ĐK</th>
+                    <th style="width: 100px;">Chỉ tiêu</th>
+                    <th style="width: 140px;">Tỷ lệ lấp đầy</th>
+                    <th style="width: 110px;">Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.HocVienTheoKhoa)
+                {
+                    var isFull = item.SoHocVienDangKy >= item.SoLuongToiDa;
+                    var isNearlyFull = !isFull && item.TyLeLapDay >= 80;
+                    <tr>
+                        <td>
+                            <span class="fw-bold">@item.TenKhoaHoc</span><br />
+                            <span class="small text-muted">#KH@(item.MaKhoaHoc.ToString("D2"))</span>
+                        </td>
+                        <td>@(item.TenMonHoc ?? "--")</td>
+                        <td class="text-center fw-bold text-primary">@item.SoHocVienDangKy HV</td>
+                        <td class="text-center">@item.SoLuongToiDa HV</td>
+                        <td class="text-center">
+                            <span class="fw-bold @(isFull ? "text-danger" : (isNearlyFull ? "text-warning-emphasis" : "text-primary"))">
+                                @item.TyLeLapDay%
+                            </span>
+                            <div class="progress-bar-print" style="margin-top: 3px;">
+                                <div class="fill" style="width: @Math.Min(100, item.TyLeLapDay)%; background: @(isFull ? "#dc2626" : (isNearlyFull ? "#f59e0b" : "#3b82f6"));"></div>
+                            </div>
+                        </td>
+                        <td class="text-center small">
+                            @if (isFull)
+                            {
+                                <span class="text-danger fw-bold">Hết chỗ</span>
+                            }
+                            else
+                            {
+                                <span class="text-success">Còn @(item.SoLuongToiDa - item.SoHocVienDangKy) chỗ</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- SECTION 3: TOP KHÓA HỌC NHIỀU HỌC VIÊN -->
+        <div class="section-title">
+            <span class="badge-num">3</span>Top 5 khóa học có số lượng học viên đăng ký nhiều nhất
+        </div>
+        <table class="table-report">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">Hạng</th>
+                    <th>Tên khóa học</th>
+                    <th>Môn học</th>
+                    <th>Giảng viên</th>
+                    <th style="width: 110px;">Sĩ số</th>
+                    <th style="width: 130px;">Học phí</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.TopKhoaHocNhieuHocVien.Count; i++)
+                {
+                    var top = Model.TopKhoaHocNhieuHocVien[i];
+                    <tr>
+                        <td class="text-center fw-bold text-primary">#@(i + 1)</td>
+                        <td class="fw-bold">@top.TenKhoaHoc</td>
+                        <td>@(top.TenMonHoc ?? "--")</td>
+                        <td>@(top.TenGiangVien ?? "Đang cập nhật")</td>
+                        <td class="text-center"><span class="fw-bold text-primary">@top.SoHocVien</span> / @top.SoLuongToiDa</td>
+                        <td class="text-end fw-bold text-success">@top.HocPhi.ToString("N0") đ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- SECTION 4: DOANH THU HỌC PHÍ -->
+        <div class="section-title">
+            <span class="badge-num">4</span>Báo cáo doanh thu học phí theo từng khóa học
+        </div>
+        <table class="table-report">
+            <thead>
+                <tr>
+                    <th>Khóa học</th>
+                    <th>Môn học</th>
+                    <th style="width: 120px;">HV đã đóng</th>
+                    <th style="width: 150px;">Doanh thu thực thu</th>
+                    <th style="width: 100px;">Tỷ trọng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DoanhThuTheoKhoa)
+                {
+                    var pct = Model.TongDoanhThu > 0 ? Math.Round((double)item.DoanhThu / (double)Model.TongDoanhThu * 100, 1) : 0;
+                    <tr>
+                        <td>
+                            <span class="fw-bold">@item.TenKhoaHoc</span><br />
+                            <span class="small text-muted">#KH@(item.MaKhoaHoc.ToString("D2"))</span>
+                        </td>
+                        <td>@(item.TenMonHoc ?? "--")</td>
+                        <td class="text-center fw-bold text-success">@item.SoHocVienDaDong HV</td>
+                        <td class="text-end fw-bold text-success">@item.DoanhThu.ToString("N0") đ</td>
+                        <td class="text-center fw-bold">@pct%</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f0fdf4;">
+                    <td colspan="3" class="text-end fw-bold">TỔNG DOANH THU THỰC THU:</td>
+                    <td class="text-end fw-bold text-success" style="font-size: 14px;">@Model.TongDoanhThu.ToString("N0") đ</td>
+                    <td class="text-center fw-bold">100%</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- SECTION 5: CÔNG NỢ HỌC PHÍ -->
+        <div class="section-title">
+            <span class="badge-num">5</span>Quản lý tổng công nợ học phí còn tồn đọng
+        </div>
+        @if (Model.CongNoTheoKhoa != null && Model.CongNoTheoKhoa.Any())
+        {
+            <table class="table-report">
+                <thead>
+                    <tr>
+                        <th>Khóa học có công nợ</th>
+                        <th style="width: 160px;">Số HV còn nợ</th>
+                        <th style="width: 180px;">Khoản nợ tồn đọng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.CongNoTheoKhoa)
+                    {
+                        <tr>
+                            <td>
+                                <span class="fw-bold">@item.TenKhoaHoc</span><br />
+                                <span class="small text-muted">#KH@(item.MaKhoaHoc.ToString("D2"))</span>
+                            </td>
+                            <td class="text-center fw-bold">@item.SoHocVienConNo học viên</td>
+                            <td class="text-end fw-bold text-danger">@item.CongNo.ToString("N0") đ</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr style="background-color: #fef2f2;">
+                        <td colspan="2" class="text-end fw-bold">TỔNG CÔNG NỢ CẦN THU HỒI:</td>
+                        <td class="text-end fw-bold text-danger" style="font-size: 14px;">@Model.TongCongNo.ToString("N0") đ</td>
+                    </tr>
+                </tfoot>
+            </table>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;">
+                <strong class="text-success">✓ KHÔNG CÓ CÔNG NỢ TỒN ĐỌNG</strong><br />
+                <span class="small text-muted">Toàn bộ học viên đã hoàn tất 100% nghĩa vụ học phí.</span>
+            </div>
+        }
+
+        <!-- SECTION 6: ĐIỂM TRUNG BÌNH THEO KHÓA -->
+        <div class="section-title">
+            <span class="badge-num">6</span>Điểm trung bình và chất lượng đào tạo theo từng khóa
+        </div>
+        @if (Model.DiemTBTheoKhoa != null && Model.DiemTBTheoKhoa.Any())
+        {
+            <table class="table-report">
+                <thead>
+                    <tr>
+                        <th>Khóa học</th>
+                        <th>Môn học</th>
+                        <th style="width: 90px;">HV có điểm</th>
+                        <th style="width: 100px;">Điểm TB</th>
+                        <th style="width: 80px;">Xếp loại</th>
+                        <th style="width: 80px;">Đạt</th>
+                        <th style="width: 90px;">Không đạt</th>
+                        <th style="width: 90px;">Tỷ lệ đạt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.DiemTBTheoKhoa)
+                    {
+                        var tyLe = item.SoHocVienCoKetQua > 0 ? Math.Round((double)item.SoDat / item.SoHocVienCoKetQua * 100, 1) : 0;
+                        var scoreText = item.DiemTB >= 8.0m ? "Giỏi" : (item.DiemTB >= 6.5m ? "Khá" : (item.DiemTB >= 5.0m ? "TB" : "Yếu"));
+                        var scoreColor = item.DiemTB >= 8.0m ? "#16a34a" : (item.DiemTB >= 6.5m ? "#1d4ed8" : (item.DiemTB >= 5.0m ? "#f59e0b" : "#dc2626"));
+                        <tr>
+                            <td class="fw-bold">@item.TenKhoaHoc</td>
+                            <td>@(item.TenMonHoc ?? "--")</td>
+                            <td class="text-center">@item.SoHocVienCoKetQua HV</td>
+                            <td class="text-center fw-bold" style="color: @scoreColor;">@item.DiemTB.ToString("0.00")</td>
+                            <td class="text-center" style="color: @scoreColor;">@scoreText</td>
+                            <td class="text-center text-success fw-bold">@item.SoDat</td>
+                            <td class="text-center text-danger fw-bold">@item.SoKhongDat</td>
+                            <td class="text-center fw-bold text-success">@tyLe%</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div style="text-align: center; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <span class="text-muted">Chưa có khóa học nào hoàn thành việc nhập điểm trong hệ thống.</span>
+            </div>
+        }
+
+        <!-- SECTION 7: TỶ LỆ ĐẠT / KHÔNG ĐẠT -->
+        <div class="section-title">
+            <span class="badge-num">7</span>Tỷ lệ Đạt / Không đạt toàn hệ thống
+        </div>
+        <table class="table-report" style="width: 60%; margin: 0 auto;">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Chỉ tiêu</th>
+                    <th style="width: 25%;">Số lượng</th>
+                    <th style="width: 25%;">Tỷ lệ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="fw-bold text-success">Đạt chuẩn (≥ 5.0 điểm)</td>
+                    <td class="text-center fw-bold text-success">@Model.SoDat HV</td>
+                    <td class="text-center fw-bold text-success">@Model.TyLeDat%</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold text-danger">Không đạt (< 5.0 điểm)</td>
+                    <td class="text-center fw-bold text-danger">@Model.SoKhongDat HV</td>
+                    <td class="text-center fw-bold text-danger">@Model.TyLeKhongDat%</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f8fafc;">
+                    <td class="fw-bold">Tổng HV đã có điểm</td>
+                    <td class="text-center fw-bold">@Model.TongSoKetQua HV</td>
+                    <td class="text-center fw-bold">100%</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- SECTION 8: ĐĂNG KÝ THEO THÁNG -->
+        @if (Model.DangKyTheoThang != null && Model.DangKyTheoThang.Any())
+        {
+            <div class="section-title">
+                <span class="badge-num">8</span>Biến động hồ sơ đăng ký theo tháng
+            </div>
+            <table class="table-report">
+                <thead>
+                    <tr>
+                        @foreach (var item in Model.DangKyTheoThang)
+                        {
+                            <th>@item.NhanThang</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @foreach (var item in Model.DangKyTheoThang)
+                        {
+                            <td class="text-center fw-bold text-primary">@item.SoDangKy</td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        }
+
+        <!-- KHUNG CHỮ KÝ PHÊ DUYỆT -->
+        <table style="width: 100%; border: none; margin-top: 40px;">
+            <tr>
+                <td style="width: 33.33%; text-align: center; vertical-align: top; border: none;">
+                    <div style="font-weight: bold; font-size: 11px;">NGƯỜI LẬP BÁO CÁO</div>
+                    <div style="font-style: italic; font-size: 10px; color: #555;">(Ký, ghi rõ họ tên)</div>
+                    <div style="height: 60px;"></div>
+                </td>
+                <td style="width: 33.33%; text-align: center; vertical-align: top; border: none;">
+                    <div style="font-weight: bold; font-size: 11px;">PHÒNG ĐÀO TẠO / KẾ TOÁN</div>
+                    <div style="font-style: italic; font-size: 10px; color: #555;">(Ký, ghi rõ họ tên)</div>
+                    <div style="height: 60px;"></div>
+                </td>
+                <td style="width: 33.33%; text-align: center; vertical-align: top; border: none;">
+                    <div style="font-style: italic; font-size: 10px; color: #555; margin-bottom: 2px;">
+                        Hà Nội, ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year
+                    </div>
+                    <div style="font-weight: bold; font-size: 11px;">BAN GIÁM HIỆU DUYỆT</div>
+                    <div style="font-style: italic; font-size: 10px; color: #555;">(Ký, đóng dấu)</div>
+                    <div style="height: 60px;"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

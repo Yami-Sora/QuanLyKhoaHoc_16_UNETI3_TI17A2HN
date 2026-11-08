@@ -86,5 +86,28 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 
             return View(viewModel);
         }
+
+        // 5. Trang in bảng điểm cá nhân (standalone, Layout = null)
+        [AuthorizeRole("HocVien", "Admin", "NhanVien")]
+        [HttpGet]
+        public async Task<IActionResult> InBangDiem()
+        {
+            var maTaiKhoan = HttpContext.Session.GetInt32("MaTaiKhoan");
+            if (!maTaiKhoan.HasValue)
+            {
+                return RedirectToAction("Login", "TaiKhoan");
+            }
+
+            var vaiTro = HttpContext.Session.GetString("VaiTro");
+            var viewModel = await _ketQuaRepo.GetKetQuaCuaToiAsync(maTaiKhoan.Value, vaiTro);
+
+            if (viewModel == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hồ sơ học viên tương ứng với tài khoản này.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(viewModel);
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿@*
+@*
     Họ và tên: Nguyễn Công Thành
     Mã sinh viên: 23103100102
     Nội dung thực hiện: Module 5 - Giao diện Báo cáo & Thống kê tổng hợp toàn diện
@@ -61,10 +61,10 @@
 
             <!-- Cụm nút tác vụ phía trên -->
             <div class="d-flex align-items-center gap-2">
-                <button type="button" class="m5-banner-btn" onclick="window.print()">
+                <a asp-controller="ThongKe" asp-action="InBaoCao" target="_blank" class="m5-banner-btn text-decoration-none">
                     <i class="bi bi-printer-fill"></i>
                     <span>In báo cáo</span>
-                </button>
+                </a>
                 <a asp-controller="QuanTri" asp-action="Dashboard" class="m5-banner-btn-white">
                     <i class="bi bi-speedometer2"></i>
                     <span>Về Dashboard</span>
