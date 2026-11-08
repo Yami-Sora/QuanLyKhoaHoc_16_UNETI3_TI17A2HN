@@ -292,10 +292,15 @@
                             }
                             else if (!isLoggedIn)
                             {
-                                <!-- Khách chưa đăng nhập: Yêu cầu đăng nhập trước khi đăng ký -->
-                                <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "KhoaHoc")" class="btn uneti-btn-primary rounded-3 fw-semibold py-2 px-3 d-flex align-items-center justify-content-center uneti-fs-13 text-decoration-none shadow-sm" title="Đăng nhập để đăng ký khóa học">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i>Đăng ký
-                                </a>
+                                <!-- Khách chưa đăng nhập: Bật modal thông báo & xác nhận đăng nhập/đăng ký -->
+                                <button type="button"
+                                        class="btn uneti-btn-primary rounded-3 fw-semibold py-2 px-3 d-flex align-items-center justify-content-center uneti-fs-13 text-decoration-none shadow-sm js-require-login-btn"
+                                        data-khoahoc-id="@item.MaKhoaHoc"
+                                        data-khoahoc-name="@item.TenKhoaHoc"
+                                        data-khoahoc-fee="@item.HocPhi.ToString("N0")"
+                                        title="Đăng ký tham gia khóa học">
+                                    <i class="bi bi-pencil-square me-1"></i>Đăng ký
+                                </button>
                             }
                             else
                             {

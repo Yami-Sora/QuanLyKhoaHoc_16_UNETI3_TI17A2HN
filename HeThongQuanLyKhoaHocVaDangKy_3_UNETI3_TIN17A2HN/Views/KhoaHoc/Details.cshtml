@@ -355,9 +355,13 @@
                         }
                         else if (!isLoggedIn)
                         {
-                            <a asp-controller="TaiKhoan" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "KhoaHoc", new { id = Model.MaKhoaHoc })" class="btn uneti-btn-primary w-100 fw-semibold py-2 mt-3">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập để đăng ký
-                            </a>
+                            <!-- Khách chưa đăng nhập: Bật modal thông báo & xác nhận đăng nhập/đăng ký -->
+                            <button type="button" class="btn uneti-btn-primary w-100 fw-semibold py-2 mt-3 js-require-login-btn"
+                                    data-khoahoc-id="@Model.MaKhoaHoc"
+                                    data-khoahoc-name="@Model.TenKhoaHoc"
+                                    data-khoahoc-fee="@Model.HocPhi.ToString("N0")">
+                                <i class="bi bi-pencil-square me-1"></i>Đăng ký khóa học này
+                            </button>
                         }
                     }
                     else
@@ -394,4 +398,7 @@
             }
         </div>
     </div>
+
+    <!-- Modal thông báo & xác nhận đăng nhập/đăng ký cho khách chưa đăng nhập -->
+    <partial name="_AuthPromptModal" />
 </div>
