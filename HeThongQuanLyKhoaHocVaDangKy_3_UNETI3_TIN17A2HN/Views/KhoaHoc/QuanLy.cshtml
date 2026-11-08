@@ -439,7 +439,7 @@
                                                             <form asp-action="UpdateStatus" asp-route-id="@item.MaKhoaHoc" method="post" class="d-inline">
                                                                 @Html.AntiForgeryToken()
                                                                 <input type="hidden" name="newStatus" value="@s.Item1" />
-                                                                <button type="submit" class="dropdown-item py-1 small" @(s.Item1 == "BiHuy" ? "onclick=\"return confirm('Bạn có chắc chắn muốn hủy khóa học này? Lưu ý: Chỉ hủy được khi chưa có học viên nào đăng ký.');\"" : "")>
+                                                                <button type="submit" class="dropdown-item py-1 small" @(s.Item1 == "BiHuy" ? "onclick=\"return confirm('Bạn có chắc chắn muốn hủy khóa học này? Lưu ý: Chỉ hủy được khi lớp không có học viên nào đăng ký và tham gia học.');\"" : "")>
                                                                     <i class="bi @s.Item3 me-2"></i>@s.Item2
                                                                 </button>
                                                             </form>
@@ -465,7 +465,11 @@
 
         <!-- 6.6. Phân trang dữ liệu -->
         <div class="dl-table-foot">
-            <span class="small text-muted">Hiển thị <strong><span id="summaryRowCount">@(Model?.Count() ?? 0)</span></strong> trên tổng số <strong>@totalItems</strong> khóa học @if (totalPages > 1) { <text>• Trang <strong>@pageIndex</strong>/<strong>@totalPages</strong></text> }</span>
+            @{
+                int fromItem = totalItems == 0 ? 0 : ((pageIndex - 1) * pageSize + 1);
+                int toItem = Math.Min(pageIndex * pageSize, totalItems);
+            }
+            <span class="small text-muted">Hiển thị <strong>@fromItem</strong> – <strong>@toItem</strong> trong tổng số <strong>@totalItems</strong> khóa học</span>
 
             @if (totalPages > 1)
             {

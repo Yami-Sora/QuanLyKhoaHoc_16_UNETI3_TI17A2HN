@@ -735,6 +735,65 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data
                     context.SaveChanges();
                 }
             }
+
+            // 9. Đảm bảo các khóa học đang giảng dạy (DangHoc) có dữ liệu học viên đăng ký và tham gia học
+            {
+                // Khôi phục trạng thái DangHoc cho các lớp học mẫu nếu trước đó bị chuyển nhầm sang BiHuy khi test
+                var khoaMang = context.KhoaHocs.FirstOrDefault(k => k.TenKhoaHoc == "Mạng máy tính & Quản trị mạng doanh nghiệp");
+                if (khoaMang != null && khoaMang.TrangThai == "BiHuy")
+                {
+                    khoaMang.TrangThai = "DangHoc";
+                    context.SaveChanges();
+                }
+
+                var khoaCSharp = context.KhoaHocs.FirstOrDefault(k => k.TenKhoaHoc == "Lập trình C# và .NET Core MVC - Lớp K17B");
+                if (khoaCSharp != null && khoaCSharp.TrangThai == "BiHuy")
+                {
+                    khoaCSharp.TrangThai = "DangHoc";
+                    context.SaveChanges();
+                }
+
+                var dsKhoaDangHoc = context.KhoaHocs.Where(k => k.TrangThai == "DangHoc").ToList();
+                var dsHocVien = context.HocViens.ToList();
+                bool coDangKyMoi = false;
+
+                if (dsHocVien.Any() && dsKhoaDangHoc.Any())
+                {
+                    for (int i = 0; i < dsKhoaDangHoc.Count; i++)
+                    {
+                        var kh = dsKhoaDangHoc[i];
+                        // Nếu khóa học đang giảng dạy chưa có học viên đăng ký hợp lệ
+                        bool coHocVien = context.DangKyKhoaHocs.Any(d => d.MaKhoaHoc == kh.MaKhoaHoc && d.TrangThai != "BiHuy");
+                        if (!coHocVien)
+                        {
+                            for (int j = 0; j < 3 && j < dsHocVien.Count; j++)
+                            {
+                                var hv = dsHocVien[(i * 3 + j) % dsHocVien.Count];
+                                if (!context.DangKyKhoaHocs.Any(d => d.MaKhoaHoc == kh.MaKhoaHoc && d.MaHocVien == hv.MaHocVien))
+                                {
+                                    context.DangKyKhoaHocs.Add(new DangKyKhoaHoc
+                                    {
+                                        MaHocVien = hv.MaHocVien,
+                                        MaKhoaHoc = kh.MaKhoaHoc,
+                                        NgayDangKy = kh.NgayBatDau.AddDays(-10),
+                                        TrangThai = "HoanThanh",
+                                        SoTienDaDong = kh.HocPhi,
+                                        SoTienConLai = 0,
+                                        NgayXacNhan = kh.NgayBatDau.AddDays(-3),
+                                        GhiChu = "Đã thu đủ 100% học phí, học viên đang tham gia lớp học."
+                                    });
+                                    coDangKyMoi = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (coDangKyMoi)
+                    {
+                        context.SaveChanges();
+                    }
+                }
+            }
         }
     }
 }

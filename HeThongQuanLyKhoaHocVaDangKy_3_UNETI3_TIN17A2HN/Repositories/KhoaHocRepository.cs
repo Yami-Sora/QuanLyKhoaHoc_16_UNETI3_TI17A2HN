@@ -456,13 +456,24 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                 }
             }
 
-            // 5. Chuyển sang "Đã hủy": chỉ được thực hiện khi khóa học không có học sinh nào đăng ký
+            // 5. Chuyển sang "Đã hủy": chỉ cho phép khi lớp không có học viên nào đăng ký và tham gia khóa học đó
             if (newStatus == "BiHuy")
             {
-                var soLuongDangKy = await _context.DangKyKhoaHocs.CountAsync(dk => dk.MaKhoaHoc == khoaHoc.MaKhoaHoc);
-                if (soLuongDangKy > 0)
+                if (khoaHoc.TrangThai == "DaKetThuc")
                 {
-                    return (false, $"Không thể hủy khóa học vì đã có {soLuongDangKy} học viên đăng ký. Khóa học chỉ được phép hủy khi chưa có học viên nào đăng ký!");
+                    return (false, "Không thể chuyển khóa học sang trạng thái 'Đã hủy' vì khóa học đã kết thúc.");
+                }
+
+                // Kiểm tra xem khóa học có học viên nào đăng ký và tham gia hay không (loại trừ các đơn đã hủy)
+                var soHocVienDangKy = await _context.DangKyKhoaHocs
+                    .CountAsync(dk => dk.MaKhoaHoc == khoaHoc.MaKhoaHoc && dk.TrangThai != "BiHuy");
+
+                var tongSoDangKy = await _context.DangKyKhoaHocs
+                    .CountAsync(dk => dk.MaKhoaHoc == khoaHoc.MaKhoaHoc);
+
+                if (soHocVienDangKy > 0 || tongSoDangKy > 0)
+                {
+                    return (false, "Khóa học vẫn còn học viên / số buổi chưa hoàn thành.");
                 }
             }
 

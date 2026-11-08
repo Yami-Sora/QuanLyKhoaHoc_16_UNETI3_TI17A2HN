@@ -44,7 +44,11 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 px-1 gap-2">
     <div class="d-flex align-items-center flex-wrap gap-2 small">
         <span class="mh2-result-count">
-            Hiển thị <strong>@Model.DanhSachKhoaHoc.Count</strong> / <strong>@Model.TotalItems</strong> khóa học phù hợp (Tổng <strong>@Model.TongSoKhoaHoc</strong> khóa)
+            @{
+                int fromGridTop = Model.TotalItems == 0 ? 0 : ((Model.PageIndex - 1) * Model.PageSize + 1);
+                int toGridTop = Math.Min(Model.PageIndex * Model.PageSize, Model.TotalItems);
+            }
+            Hiển thị <strong>@fromGridTop</strong> – <strong>@toGridTop</strong> trong tổng số <strong>@Model.TotalItems</strong> khóa học
         </span>
 
         @if (!string.IsNullOrWhiteSpace(Model.SearchString))
@@ -322,8 +326,12 @@
 {
     <div class="mt-5 pt-2 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
         <div class="text-muted small">
+            @{
+                int fromGrid = Model.TotalItems == 0 ? 0 : ((Model.PageIndex - 1) * Model.PageSize + 1);
+                int toGrid = Math.Min(Model.PageIndex * Model.PageSize, Model.TotalItems);
+            }
             <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-xs">
-                <i class="bi bi-layers text-primary me-1"></i>Trang <strong>@Model.PageIndex</strong> / <strong>@Model.TotalPages</strong> (Tổng <strong>@Model.TotalItems</strong> khóa học sau lọc)
+                Hiển thị <strong>@fromGrid</strong> – <strong>@toGrid</strong> trong tổng số <strong>@Model.TotalItems</strong> khóa học
             </span>
         </div>
         <nav aria-label="Phân trang khóa học">
