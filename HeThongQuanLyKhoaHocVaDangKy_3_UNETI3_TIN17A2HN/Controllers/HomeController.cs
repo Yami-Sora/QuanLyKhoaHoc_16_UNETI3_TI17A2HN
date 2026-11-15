@@ -1,50 +1,39 @@
 // Họ và tên: Trần Văn Thành
 // Mã sinh viên: 23103100076
-// Controller Trang chủ
+// Controller Trang chủ (Đã chuyển sang Repository Pattern)
 
-using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Data;
-using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IHomeRepository _homeRepo;
+        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ApplicationDbContext context)
+        public HomeController(IHomeRepository homeRepo, ILogger<HomeController> logger)
         {
-            _context = context;
+            _homeRepo = homeRepo;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            var tongSoMon = await _context.MonHocs.AsNoTracking().CountAsync();
-            var dangMo = _context.MonHocs.AsNoTracking().Where(m => m.TrangThai);
-            var soMonDangMo = await dangMo.CountAsync();
+            var data = await _homeRepo.GetHomeDataAsync();
 
-            // Thống kê dữ liệu cho trang chủ
-            ViewBag.TongSoMon = tongSoMon;
-            ViewBag.TongMonDangMo = soMonDangMo;
-            ViewBag.TongTinChi = await dangMo.SumAsync(m => (int?)m.SoTinChi) ?? 0;
-            ViewBag.HocPhiTb = await dangMo.AverageAsync(m => (decimal?)m.HocPhi) ?? 0m;
-            ViewBag.HocPhiThapNhat = await dangMo.MinAsync(m => (decimal?)m.HocPhi) ?? 0m;
+            // Đồng bộ dữ liệu thống kê sang ViewBag để Views/Home/Index.cshtml hiển thị
+            ViewBag.TongSoMon = data.TongSoMon;
+            ViewBag.TongMonDangMo = data.SoMonDangMo;
+            ViewBag.TongTinChi = data.TongTinChi;
+            ViewBag.HocPhiTb = data.HocPhiTb;
+            ViewBag.HocPhiThapNhat = data.HocPhiThapNhat;
+            ViewBag.TongHocVien = data.TongHocVien;
 
-            // Số liệu uy tín cho Hero banner
-            ViewBag.TongHocVien = await _context.HocViens.AsNoTracking().CountAsync();
-
-            // Nạp 4 môn học tiêu biểu đang mở giảng dạy từ CSDL
-            var monHocs = await dangMo
-                .OrderBy(m => m.MaMonHoc)
-                .Take(4)
-                .ToListAsync();
-
-            return View(monHocs);
+            return View(data.MonHocTieuBieu);
         }
-
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
