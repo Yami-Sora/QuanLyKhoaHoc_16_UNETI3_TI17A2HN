@@ -29,7 +29,7 @@
                     </div>
                     <h1 class="m5-banner-title">BẢNG ĐIỂM: @Model.TenKhoaHoc</h1>
                     <p class="m5-banner-sub">
-                        Giảng viên phụ trách: <strong>@(Model.TenGiangVien ?? "Chưa phân công")</strong> • Hệ thống tự động tính điểm tổng kết &amp; xếp loại tức thì
+                        Giảng viên phụ trách: <strong>@(Model.TenGiangVien ?? "Chưa phân công")</strong>
                     </p>
                 </div>
             </div>
@@ -196,7 +196,9 @@
                             for (int i = 0; i < Model.DanhSachDiem.Count; i++)
                             {
                                 var item = Model.DanhSachDiem[i];
-                                var isDat = item.KetQua == "Dat";
+                                var du3Diem = item.DiemChuyenCan.HasValue && item.DiemGiuaKy.HasValue && item.DiemCuoiKy.HasValue;
+                                var coDiemNao = item.DiemChuyenCan.HasValue || item.DiemGiuaKy.HasValue || item.DiemCuoiKy.HasValue;
+                                var isDat = du3Diem && item.KetQua == "Dat";
 
                                 <tr class="diem-row" data-index="@i">
                                     <!-- STT -->
@@ -228,10 +230,10 @@
                                                min="0" 
                                                max="10" 
                                                name="DanhSachDiem[@i].DiemChuyenCan" 
-                                               value="@item.DiemChuyenCan.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" 
+                                               value="@(item.DiemChuyenCan.HasValue ? item.DiemChuyenCan.Value.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) : "")" 
                                                class="form-control form-control-sm text-center fw-semibold diem-input input-cc" 
                                                data-index="@i" 
-                                               placeholder="0.0" />
+                                               placeholder="--" />
                                     </td>
 
                                     <!-- Điểm giữa kỳ (40%) -->
@@ -241,10 +243,10 @@
                                                min="0" 
                                                max="10" 
                                                name="DanhSachDiem[@i].DiemGiuaKy" 
-                                               value="@item.DiemGiuaKy.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" 
+                                               value="@(item.DiemGiuaKy.HasValue ? item.DiemGiuaKy.Value.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) : "")" 
                                                class="form-control form-control-sm text-center fw-semibold diem-input input-gk" 
                                                data-index="@i" 
-                                               placeholder="0.0" />
+                                               placeholder="--" />
                                     </td>
 
                                     <!-- Điểm cuối kỳ (50%) -->
@@ -254,32 +256,32 @@
                                                min="0" 
                                                max="10" 
                                                name="DanhSachDiem[@i].DiemCuoiKy" 
-                                               value="@item.DiemCuoiKy.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)" 
+                                               value="@(item.DiemCuoiKy.HasValue ? item.DiemCuoiKy.Value.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) : "")" 
                                                class="form-control form-control-sm text-center fw-semibold diem-input input-ck" 
                                                data-index="@i" 
-                                               placeholder="0.0" />
+                                               placeholder="--" />
                                     </td>
 
                                     <!-- Điểm tổng kết tự động -->
                                     <td class="text-center">
-                                        <span class="fw-bold fs-6 label-tongket @(item.DiemTongKet >= 8.0m ? "text-success" : (item.DiemTongKet >= 5.0m ? "text-primary" : "text-danger"))" 
+                                        <span class="fw-bold fs-6 label-tongket @(du3Diem && item.DiemTongKet.HasValue ? (item.DiemTongKet >= 8.0m ? "text-success" : (item.DiemTongKet >= 5.0m ? "text-primary" : "text-danger")) : "text-muted")" 
                                               id="tongket_@i">
-                                            @item.DiemTongKet.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)
+                                            @(du3Diem && item.DiemTongKet.HasValue ? item.DiemTongKet.Value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : "--")
                                         </span>
                                     </td>
 
                                     <!-- Xếp loại -->
                                     <td class="text-center">
-                                        <span class="badge bg-light text-dark border px-2 py-1 label-xeploai" id="xeploai_@i">
-                                            @TranslateXepLoai(item.XepLoai)
+                                        <span class="badge @(du3Diem ? "bg-light text-dark border" : "bg-light text-muted border") px-2 py-1 label-xeploai" id="xeploai_@i">
+                                            @(du3Diem ? item.TenXepLoai : (coDiemNao ? "Chờ nhập đủ" : "Chưa chấm"))
                                         </span>
                                     </td>
 
                                     <!-- Kết quả -->
                                     <td class="text-center">
-                                        <span class="badge @(isDat ? "bg-success" : (item.KetQua == "KhongDat" ? "bg-danger" : "bg-secondary")) px-2.5 py-1 rounded-pill label-ketqua" 
+                                        <span class="badge @(du3Diem ? (isDat ? "bg-success" : "bg-danger") : "bg-secondary") px-2.5 py-1 rounded-pill label-ketqua" 
                                               id="ketqua_@i">
-                                            @(isDat ? "ĐẠT" : (item.KetQua == "KhongDat" ? "KHÔNG ĐẠT" : "Chưa có"))
+                                            @(du3Diem ? (isDat ? "ĐẠT" : "KHÔNG ĐẠT") : "Chưa có")
                                         </span>
                                     </td>
                                 </tr>
@@ -316,20 +318,6 @@
     </div>
 </div>
 
-@functions {
-    public static string TranslateXepLoai(string? xl)
-    {
-        return xl switch
-        {
-            "XuatSac" => "Xuất sắc",
-            "Gioi" => "Giỏi",
-            "Kha" => "Khá",
-            "TrungBinh" => "Trung bình",
-            "Yeu" => "Yếu",
-            _ => xl ?? "Chưa xếp loại"
-        };
-    }
-}
 
 @section Scripts {
     <script src="~/js/bangdiem.js" asp-append-version="true"></script>

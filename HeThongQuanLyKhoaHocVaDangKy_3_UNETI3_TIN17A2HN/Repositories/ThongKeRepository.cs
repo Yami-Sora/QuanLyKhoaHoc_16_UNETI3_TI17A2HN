@@ -108,12 +108,12 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
             model.DiemTBTheoKhoa = khoaHocList.Select(k =>
             {
                 var dsKetQua = k.DangKyKhoaHocs
-                    .Where(d => d.KetQuaHocTap != null)
+                    .Where(d => d.KetQuaHocTap != null && d.KetQuaHocTap.DiemTongKet.HasValue)
                     .Select(d => d.KetQuaHocTap!)
                     .ToList();
 
                 var count = dsKetQua.Count;
-                var dtb = count > 0 ? Math.Round(dsKetQua.Average(kq => kq.DiemTongKet), 2) : 0;
+                var dtb = count > 0 ? Math.Round(dsKetQua.Average(kq => kq.DiemTongKet!.Value), 2) : 0;
                 var dat = dsKetQua.Count(kq => kq.KetQua == "Dat");
                 var khongDat = dsKetQua.Count(kq => kq.KetQua == "KhongDat");
 
@@ -132,8 +132,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
             .OrderByDescending(x => x.DiemTB)
             .ToList();
 
-            // 7. Tỷ lệ Đạt / Không đạt — LINQ Count(), Any()
-            model.TongSoKetQua = await _context.KetQuaHocTaps.CountAsync();
+            // 7. Tỷ lệ Đạt / Không đạt — LINQ Count(), Any() (chỉ tính các kết quả đã hoàn tất điểm tổng kết)
+            model.TongSoKetQua = await _context.KetQuaHocTaps.CountAsync(k => k.DiemTongKet.HasValue);
             model.SoDat = await _context.KetQuaHocTaps.CountAsync(k => k.KetQua == "Dat");
             model.SoKhongDat = await _context.KetQuaHocTaps.CountAsync(k => k.KetQua == "KhongDat");
 

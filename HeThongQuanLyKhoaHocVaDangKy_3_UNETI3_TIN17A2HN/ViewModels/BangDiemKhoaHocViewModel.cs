@@ -19,20 +19,31 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
 
         [Range(0, 10, ErrorMessage = "Điểm chuyên cần phải từ 0 đến 10")]
         [Display(Name = "Điểm CC (10%)")]
-        public decimal DiemChuyenCan { get; set; }
+        public decimal? DiemChuyenCan { get; set; }
 
         [Range(0, 10, ErrorMessage = "Điểm giữa kỳ phải từ 0 đến 10")]
         [Display(Name = "Điểm GK (40%)")]
-        public decimal DiemGiuaKy { get; set; }
+        public decimal? DiemGiuaKy { get; set; }
 
         [Range(0, 10, ErrorMessage = "Điểm cuối kỳ phải từ 0 đến 10")]
         [Display(Name = "Điểm CK (50%)")]
-        public decimal DiemCuoiKy { get; set; }
+        public decimal? DiemCuoiKy { get; set; }
 
         // Điểm và xếp loại tự tính
-        public decimal DiemTongKet { get; set; }
+        public decimal? DiemTongKet { get; set; }
         public string? XepLoai { get; set; }
         public string? KetQua { get; set; }
+
+        // Tên xếp loại hiển thị tiếng Việt (thay thế TranslateXepLoai trong View)
+        public string TenXepLoai => XepLoai switch
+        {
+            "XuatSac" => "Xuất sắc",
+            "Gioi" => "Giỏi",
+            "Kha" => "Khá",
+            "TrungBinh" => "Trung bình",
+            "Yeu" => "Yếu",
+            _ => XepLoai ?? "Chưa xếp loại"
+        };
     }
 
     // Bảng điểm chi tiết của khóa học
@@ -55,8 +66,8 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public decimal? DiemTBLop { get; set; }
         public int SoDat { get; set; }
         public int SoKhongDat { get; set; }
-        public double TyLeDat => TongSoDangKyHoanThanh > 0
-            ? Math.Round((double)SoDat / TongSoDangKyHoanThanh * 100, 1)
+        public double TyLeDat => SoDaCoKetQua > 0
+            ? Math.Round((double)SoDat / SoDaCoKetQua * 100, 1)
             : 0;
 
         // Danh sách điểm từng học viên

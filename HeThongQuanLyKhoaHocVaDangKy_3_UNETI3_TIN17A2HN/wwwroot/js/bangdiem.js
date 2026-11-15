@@ -5,10 +5,11 @@
     if (!table) return;
 
     function parseDiem(val) {
-        if (!val) return 0;
+        if (val === null || val === undefined) return null;
         const clean = String(val).trim().replace(',', '.');
+        if (clean === '') return null;
         const num = parseFloat(clean);
-        return isNaN(num) ? 0 : num;
+        return isNaN(num) ? null : num;
     }
 
     function tinhDiemDong(row) {
@@ -17,17 +18,40 @@
         const gkInput = row.querySelector('.input-gk');
         const ckInput = row.querySelector('.input-ck');
 
-        let cc = parseDiem(ccInput?.value);
-        let gk = parseDiem(gkInput?.value);
-        let ck = parseDiem(ckInput?.value);
+        const cc = parseDiem(ccInput?.value);
+        const gk = parseDiem(gkInput?.value);
+        const ck = parseDiem(ckInput?.value);
 
-        // Giới hạn [0, 10]
-        cc = Math.max(0, Math.min(10, cc));
-        gk = Math.max(0, Math.min(10, gk));
-        ck = Math.max(0, Math.min(10, ck));
+        const labelTongKet = document.getElementById('tongket_' + idx);
+        const labelXepLoai = document.getElementById('xeploai_' + idx);
+        const labelKetQua = document.getElementById('ketqua_' + idx);
+
+        // Quy tắc: Chỉ khi nhập ĐỦ CẢ 3 ĐẦU ĐIỂM (Chuyên cần, Giữa kỳ, Cuối kỳ) mới tính tổng kết & xếp loại
+        const daNhapDu3Diem = (cc !== null && gk !== null && ck !== null);
+
+        if (!daNhapDu3Diem) {
+            if (labelTongKet) {
+                labelTongKet.textContent = '--';
+                labelTongKet.className = 'fw-bold fs-6 label-tongket text-muted';
+            }
+            if (labelXepLoai) {
+                const daNhapDiemNao = (cc !== null || gk !== null || ck !== null);
+                labelXepLoai.textContent = daNhapDiemNao ? 'Chờ nhập đủ' : 'Chưa chấm';
+                labelXepLoai.className = 'badge bg-light text-muted border px-2 py-1 label-xeploai';
+            }
+            if (labelKetQua) {
+                labelKetQua.textContent = 'Chưa có';
+                labelKetQua.className = 'badge bg-secondary px-2.5 py-1 rounded-pill label-ketqua';
+            }
+            return;
+        }
+
+        const ccVal = Math.max(0, Math.min(10, cc));
+        const gkVal = Math.max(0, Math.min(10, gk));
+        const ckVal = Math.max(0, Math.min(10, ck));
 
         // Công thức: CC*0.1 + GK*0.4 + CK*0.5
-        const tongKet = Math.round((cc * 0.1 + gk * 0.4 + ck * 0.5) * 100) / 100;
+        const tongKet = Math.round((ccVal * 0.1 + gkVal * 0.4 + ckVal * 0.5) * 100) / 100;
 
         // Xếp loại
         let xepLoai = "Yếu";
@@ -49,10 +73,6 @@
         const isDat = tongKet >= 5.0;
 
         // Cập nhật DOM trên dòng
-        const labelTongKet = document.getElementById('tongket_' + idx);
-        const labelXepLoai = document.getElementById('xeploai_' + idx);
-        const labelKetQua = document.getElementById('ketqua_' + idx);
-
         if (labelTongKet) {
             labelTongKet.textContent = tongKet.toFixed(2);
             labelTongKet.className = 'fw-bold fs-6 label-tongket ' + badgeClass;
@@ -60,6 +80,7 @@
 
         if (labelXepLoai) {
             labelXepLoai.textContent = xepLoai;
+            labelXepLoai.className = 'badge bg-light text-dark border px-2 py-1 label-xeploai';
         }
 
         if (labelKetQua) {
@@ -80,12 +101,14 @@
         rows.forEach(r => {
             const idx = r.getAttribute('data-index');
             const labelTongKet = document.getElementById('tongket_' + idx);
-            if (labelTongKet) {
-                const tk = parseDiem(labelTongKet.textContent);
-                tongDiem += tk;
-                countCham++;
-                if (tk >= 5.0) countDat++;
-                else countKhongDat++;
+            if (labelTongKet && labelTongKet.textContent.trim() !== '--') {
+                const tk = parseFloat(labelTongKet.textContent.trim());
+                if (!isNaN(tk)) {
+                    tongDiem += tk;
+                    countCham++;
+                    if (tk >= 5.0) countDat++;
+                    else countKhongDat++;
+                }
             }
         });
 
@@ -100,7 +123,7 @@
         const elChuaCham = document.getElementById('statChuaCham');
 
         if (elDiemTB) elDiemTB.textContent = dtb;
-        if (elTyLeDat) elTyLeDat.textContent = tyLeDat + '%';
+        if (elTyLeDat) elTyLeDat.textContent = tyLeDat;
         if (elSoDat) elSoDat.textContent = String(countDat);
         if (elSoKhongDat) elSoKhongDat.textContent = String(countKhongDat);
         if (elDaCham) elDaCham.textContent = String(countCham);

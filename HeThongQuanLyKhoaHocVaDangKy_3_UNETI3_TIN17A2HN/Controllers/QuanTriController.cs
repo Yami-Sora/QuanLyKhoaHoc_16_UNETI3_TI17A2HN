@@ -13,12 +13,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
     public class QuanTriController : Controller
     {
         private readonly IDashboardRepository _dashboardRepo;
-        private readonly ILogger<QuanTriController> _logger;
 
-        public QuanTriController(IDashboardRepository dashboardRepo, ILogger<QuanTriController> logger)
+        public QuanTriController(IDashboardRepository dashboardRepo)
         {
             _dashboardRepo = dashboardRepo;
-            _logger = logger;
         }
 
         // GET: /QuanTri hoặc /QuanTri/Dashboard

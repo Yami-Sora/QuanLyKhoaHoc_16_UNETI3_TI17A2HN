@@ -8,8 +8,8 @@
 @{
     Layout = "_LayoutAdmin";
     ViewData["Title"] = "Báo cáo & Thống kê Đào tạo";
-    var tongKhoaHoc = Model.HocVienTheoKhoa.Count;
-    var tongHocVien = Model.HocVienTheoKhoa.Sum(x => x.SoHocVienDangKy);
+    var tongKhoaHoc = Model.TongSoKhoaHocBaoCao;
+    var tongHocVien = Model.TongSoHocVienBaoCao;
 }
 
 <link rel="stylesheet" href="~/css/module5-v2.css" asp-append-version="true" />
@@ -36,7 +36,7 @@
         </h2>
         <p style="font-size: 11px; color: #555; margin: 4px 0 0;">
             Thời điểm kết xuất: @DateTime.Now.ToString("HH:mm, 'ngày' dd 'tháng' MM 'năm' yyyy")
-            &bull; Người lập: Nguyễn Công Thành — MSV: 23103100102 — Lớp: TIN17A2HN
+            &bull; Người lập: @Context.Session.GetString("HoTen") — Lớp: TIN17A2HN
         </p>
     </div>
 </div>
@@ -776,8 +776,7 @@
                     <div style="font-weight: bold; font-size: 11px;">NGƯỜI LẬP BÁO CÁO</div>
                     <div style="font-style: italic; font-size: 10px; color: #555;">(Ký, ghi rõ họ tên)</div>
                     <div style="height: 55px;"></div>
-                    <div style="font-weight: bold; font-size: 11px;">Nguyễn Công Thành</div>
-                    <div style="font-size: 10px; color: #555;">MSV: 23103100102</div>
+                    <div style="font-weight: bold; font-size: 11px;">@Context.Session.GetString("HoTen")</div>
                 </td>
                 <td style="width: 33.33%; text-align: center; vertical-align: top; border: none;">
                     <div style="font-weight: bold; font-size: 11px;">PHÒNG ĐÀO TẠO / KẾ TOÁN</div>

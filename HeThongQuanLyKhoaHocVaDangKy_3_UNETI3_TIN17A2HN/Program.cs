@@ -90,6 +90,22 @@ using (var scope = app.Services.CreateScope())
                     ALTER TABLE [dbo].[HocVien] ADD [HinhAnh] nvarchar(255) NULL;
                 END
             ");
+
+            // Module 5: Đảm bảo các cột điểm trong KetQuaHocTap cho phép NULL để nhập điểm theo từng đợt
+            context.Database.ExecuteSqlRaw(@"
+                IF EXISTS (
+                    SELECT * FROM sys.columns 
+                    WHERE object_id = OBJECT_ID(N'[dbo].[KetQuaHocTap]') 
+                    AND name = 'DiemChuyenCan' 
+                    AND is_nullable = 0
+                )
+                BEGIN
+                    ALTER TABLE [dbo].[KetQuaHocTap] ALTER COLUMN [DiemChuyenCan] decimal(4,2) NULL;
+                    ALTER TABLE [dbo].[KetQuaHocTap] ALTER COLUMN [DiemGiuaKy] decimal(4,2) NULL;
+                    ALTER TABLE [dbo].[KetQuaHocTap] ALTER COLUMN [DiemCuoiKy] decimal(4,2) NULL;
+                    ALTER TABLE [dbo].[KetQuaHocTap] ALTER COLUMN [DiemTongKet] decimal(4,2) NULL;
+                END
+            ");
         }
         catch { }
 

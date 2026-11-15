@@ -4,6 +4,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels;
 
@@ -12,16 +13,14 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
     public class KetQuaHocTapController : Controller
     {
         private readonly IKetQuaHocTapRepository _ketQuaRepo;
-        private readonly ILogger<KetQuaHocTapController> _logger;
 
-        public KetQuaHocTapController(IKetQuaHocTapRepository ketQuaRepo, ILogger<KetQuaHocTapController> logger)
+        public KetQuaHocTapController(IKetQuaHocTapRepository ketQuaRepo)
         {
             _ketQuaRepo = ketQuaRepo;
-            _logger = logger;
         }
 
         // 1. Danh sách khóa học để nhập điểm (Dành cho Admin & Nhân viên)
-        [AuthorizeRole("Admin", "NhanVien")]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         [HttpGet]
         public async Task<IActionResult> Index(KetQuaFilterViewModel filter)
         {
@@ -31,7 +30,7 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // 2. Bảng điểm chi tiết & Form nhập điểm hàng loạt (Admin & Nhân viên)
-        [AuthorizeRole("Admin", "NhanVien")]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         [HttpGet]
         public async Task<IActionResult> BangDiem(int maKhoaHoc)
         {
@@ -46,15 +45,21 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // 3. Lưu bảng điểm hàng loạt (POST)
-        [AuthorizeRole("Admin", "NhanVien")]
+        [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LuuDiem(BangDiemKhoaHocViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Dữ liệu điểm không hợp lệ. Vui lòng kiểm tra lại các ô điểm (0-10).";
+                return RedirectToAction(nameof(BangDiem), new { maKhoaHoc = model.MaKhoaHoc });
+            }
+
             var (success, countSaved, errorMessage) = await _ketQuaRepo.LuuDiemAsync(model);
             if (success)
             {
-                TempData["SuccessMessage"] = $"Lưu bảng điểm thành công cho toàn bộ {countSaved} học viên!";
+                TempData["SuccessMessage"] = $"Lưu bảng điểm thành công ({countSaved} học viên có đủ 3 đầu điểm đã được ghi nhận)!";
             }
             else
             {
@@ -65,18 +70,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // 4. Kết quả học tập của tôi (Dành riêng cho Học viên xem điểm cá nhân)
-        [AuthorizeRole("HocVien", "Admin", "NhanVien")]
+        [AuthorizeRole(VaiTro.HocVien, VaiTro.Admin, VaiTro.NhanVien)]
         [HttpGet]
         public async Task<IActionResult> KetQuaCuaToi()
         {
-            var maTaiKhoan = HttpContext.Session.GetInt32("MaTaiKhoan");
-            if (!maTaiKhoan.HasValue)
-            {
+            var (isAuthenticated, viewModel) = await LoadKetQuaCuaToiAsync();
+            if (!isAuthenticated)
                 return RedirectToAction("Login", "TaiKhoan");
-            }
-
-            var vaiTro = HttpContext.Session.GetString("VaiTro");
-            var viewModel = await _ketQuaRepo.GetKetQuaCuaToiAsync(maTaiKhoan.Value, vaiTro);
 
             if (viewModel == null)
             {
@@ -88,18 +88,13 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
         }
 
         // 5. Trang in bảng điểm cá nhân (standalone, Layout = null)
-        [AuthorizeRole("HocVien", "Admin", "NhanVien")]
+        [AuthorizeRole(VaiTro.HocVien, VaiTro.Admin, VaiTro.NhanVien)]
         [HttpGet]
         public async Task<IActionResult> InBangDiem()
         {
-            var maTaiKhoan = HttpContext.Session.GetInt32("MaTaiKhoan");
-            if (!maTaiKhoan.HasValue)
-            {
+            var (isAuthenticated, viewModel) = await LoadKetQuaCuaToiAsync();
+            if (!isAuthenticated)
                 return RedirectToAction("Login", "TaiKhoan");
-            }
-
-            var vaiTro = HttpContext.Session.GetString("VaiTro");
-            var viewModel = await _ketQuaRepo.GetKetQuaCuaToiAsync(maTaiKhoan.Value, vaiTro);
 
             if (viewModel == null)
             {
@@ -108,6 +103,17 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
             }
 
             return View(viewModel);
+        }
+
+        private async Task<(bool isAuthenticated, KetQuaCuaToiViewModel? viewModel)> LoadKetQuaCuaToiAsync()
+        {
+            var maTaiKhoan = HttpContext.Session.GetInt32("MaTaiKhoan");
+            if (!maTaiKhoan.HasValue)
+                return (false, null);
+
+            var vaiTro = HttpContext.Session.GetString("VaiTro");
+            var viewModel = await _ketQuaRepo.GetKetQuaCuaToiAsync(maTaiKhoan.Value, vaiTro);
+            return (true, viewModel);
         }
     }
 }

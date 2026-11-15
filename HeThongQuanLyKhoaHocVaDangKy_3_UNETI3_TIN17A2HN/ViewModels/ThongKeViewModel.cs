@@ -32,6 +32,10 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
         public List<int> DanhSachNamCoDuLieu { get; set; } = new();
 
         public List<ThongKeDangKyTheoThangViewModel> DangKyTheoThang { get; set; } = new();
+
+        // Computed: tổng số khóa học và học viên cho báo cáo (thay thế LINQ aggregate trong View)
+        public int TongSoKhoaHocBaoCao => HocVienTheoKhoa.Count;
+        public int TongSoHocVienBaoCao => HocVienTheoKhoa.Sum(x => x.SoHocVienDangKy);
     }
 
     //1. Số khóa học theo môn

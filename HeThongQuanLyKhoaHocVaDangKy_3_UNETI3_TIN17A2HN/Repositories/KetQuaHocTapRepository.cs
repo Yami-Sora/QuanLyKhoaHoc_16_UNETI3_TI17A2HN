@@ -72,11 +72,17 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
             {
                 var dsHoanThanh = k.DangKyKhoaHocs.Where(d => d.TrangThai == "HoanThanh").ToList();
                 var countHoanThanh = dsHoanThanh.Count;
-                var dsCoKetQua = dsHoanThanh.Where(d => d.KetQuaHocTap != null).ToList();
+                var dsCoKetQua = dsHoanThanh
+                    .Where(d => d.KetQuaHocTap != null 
+                             && d.KetQuaHocTap.DiemChuyenCan.HasValue 
+                             && d.KetQuaHocTap.DiemGiuaKy.HasValue 
+                             && d.KetQuaHocTap.DiemCuoiKy.HasValue 
+                             && d.KetQuaHocTap.DiemTongKet.HasValue)
+                    .ToList();
                 var countCoKetQua = dsCoKetQua.Count;
 
-                decimal? diemTB = dsCoKetQua.Any()
-                    ? Math.Round(dsCoKetQua.Average(d => d.KetQuaHocTap!.DiemTongKet), 2)
+                decimal? diemTB = dsCoKetQua.Any(d => d.KetQuaHocTap!.DiemTongKet.HasValue)
+                    ? Math.Round(dsCoKetQua.Average(d => d.KetQuaHocTap!.DiemTongKet!.Value), 2)
                     : null;
 
                 return new KhoaHocKetQuaViewModel
@@ -169,20 +175,21 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                     HoTenHocVien = d.HocVien?.HoTen ?? $"HV #{d.MaHocVien}",
                     EmailHocVien = d.HocVien?.Email,
                     MaKetQua = kq?.MaKetQua,
-                    DiemChuyenCan = kq?.DiemChuyenCan ?? 0,
-                    DiemGiuaKy = kq?.DiemGiuaKy ?? 0,
-                    DiemCuoiKy = kq?.DiemCuoiKy ?? 0,
-                    DiemTongKet = kq?.DiemTongKet ?? 0,
-                    XepLoai = kq?.XepLoai ?? "Chưa xếp loại",
-                    KetQua = kq?.KetQua ?? "Chưa đánh giá"
+                    DiemChuyenCan = kq?.DiemChuyenCan,
+                    DiemGiuaKy = kq?.DiemGiuaKy,
+                    DiemCuoiKy = kq?.DiemCuoiKy,
+                    DiemTongKet = kq?.DiemTongKet,
+                    XepLoai = kq?.XepLoai,
+                    KetQua = kq?.KetQua
                 };
             }).ToList();
 
-            var daCoKetQua = danhSachDiem.Where(d => d.DaCoKetQua).ToList();
+            // Chỉ coi là đã có kết quả khi đã nhập đủ cả 3 đầu điểm
+            var daCoKetQua = danhSachDiem.Where(d => d.DiemChuyenCan.HasValue && d.DiemGiuaKy.HasValue && d.DiemCuoiKy.HasValue && d.DaCoKetQua).ToList();
             var soDat = daCoKetQua.Count(d => d.KetQua == "Dat");
             var soKhongDat = daCoKetQua.Count(d => d.KetQua == "KhongDat");
-            decimal? diemTB = daCoKetQua.Any()
-                ? Math.Round(daCoKetQua.Average(d => d.DiemTongKet), 2)
+            decimal? diemTB = daCoKetQua.Any(d => d.DiemTongKet.HasValue)
+                ? Math.Round(daCoKetQua.Where(d => d.DiemTongKet.HasValue).Average(d => d.DiemTongKet!.Value), 2)
                 : null;
 
             return new BangDiemKhoaHocViewModel
@@ -217,27 +224,6 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
 
                 foreach (var item in model.DanhSachDiem)
                 {
-                    // Chuẩn hóa điểm trong khoảng [0, 10] (chống lỗi parse dấu chấm/phẩy)
-                    decimal cc = NormalizeDiem(item.DiemChuyenCan);
-                    decimal gk = NormalizeDiem(item.DiemGiuaKy);
-                    decimal ck = NormalizeDiem(item.DiemCuoiKy);
-
-                    // Công thức chuẩn: CC * 0.1 + GK * 0.4 + CK * 0.5
-                    decimal tongKet = Math.Round(cc * 0.1m + gk * 0.4m + ck * 0.5m, 2);
-
-                    // Xếp loại học lực theo thang 10
-                    string xepLoai = tongKet switch
-                    {
-                        >= 9.0m => "XuatSac",
-                        >= 8.0m => "Gioi",
-                        >= 6.5m => "Kha",
-                        >= 5.0m => "TrungBinh",
-                        _ => "Yeu"
-                    };
-
-                    // Kết quả: Đạt nếu ĐTK >= 5.0
-                    string ketQua = tongKet >= 5.0m ? "Dat" : "KhongDat";
-
                     // Tìm bản ghi điểm hiện có
                     KetQuaHocTap? ketQuaDb = null;
                     if (item.MaKetQua.HasValue && item.MaKetQua.Value > 0)
@@ -247,6 +233,46 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                     else
                     {
                         ketQuaDb = await _context.KetQuaHocTaps.FirstOrDefaultAsync(k => k.MaDangKy == item.MaDangKy);
+                    }
+
+                    // Kiểm tra tình trạng nhập điểm: có ít nhất 1 đầu điểm hay đã đủ cả 3
+                    bool coDiemNao = item.DiemChuyenCan.HasValue || item.DiemGiuaKy.HasValue || item.DiemCuoiKy.HasValue;
+                    bool hasAll3 = item.DiemChuyenCan.HasValue && item.DiemGiuaKy.HasValue && item.DiemCuoiKy.HasValue;
+
+                    // Nếu cả 3 ô đều trống
+                    if (!coDiemNao)
+                    {
+                        // Nếu trước đó đã có bản ghi trong DB mà giờ xóa bớt/để trống toàn bộ -> Xóa bản ghi điểm
+                        if (ketQuaDb != null)
+                        {
+                            _context.KetQuaHocTaps.Remove(ketQuaDb);
+                            countSaved++;
+                        }
+                        continue;
+                    }
+
+                    // Có ít nhất 1 đầu điểm: hỗ trợ lưu theo từng đợt
+                    decimal? cc = item.DiemChuyenCan.HasValue ? NormalizeDiem(item.DiemChuyenCan.Value) : null;
+                    decimal? gk = item.DiemGiuaKy.HasValue ? NormalizeDiem(item.DiemGiuaKy.Value) : null;
+                    decimal? ck = item.DiemCuoiKy.HasValue ? NormalizeDiem(item.DiemCuoiKy.Value) : null;
+
+                    decimal? tongKet = null;
+                    string? xepLoai = null;
+                    string? ketQua = null;
+
+                    // Chỉ khi nhập ĐỦ CẢ 3 ĐẦU ĐIỂM mới tính điểm tổng kết & xếp loại
+                    if (hasAll3)
+                    {
+                        tongKet = Math.Round(cc!.Value * 0.1m + gk!.Value * 0.4m + ck!.Value * 0.5m, 2);
+                        xepLoai = tongKet switch
+                        {
+                            >= 9.0m => "XuatSac",
+                            >= 8.0m => "Gioi",
+                            >= 6.5m => "Kha",
+                            >= 5.0m => "TrungBinh",
+                            _ => "Yeu"
+                        };
+                        ketQua = tongKet >= 5.0m ? "Dat" : "KhongDat";
                     }
 
                     if (ketQuaDb != null)
@@ -326,6 +352,12 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
             var dsItems = dsDangKy.Select(d =>
             {
                 var kq = d.KetQuaHocTap;
+                bool daDuDiem = kq != null 
+                    && kq.DiemChuyenCan.HasValue 
+                    && kq.DiemGiuaKy.HasValue 
+                    && kq.DiemCuoiKy.HasValue 
+                    && kq.DiemTongKet.HasValue;
+
                 return new KetQuaCuaToiItem
                 {
                     MaDangKy = d.MaDangKy,
@@ -335,22 +367,22 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories
                     SoTinChi = d.KhoaHoc?.MonHoc?.SoTinChi ?? 0,
                     TenGiangVien = d.KhoaHoc?.GiangVien?.HoTen,
                     HinhThucHoc = d.KhoaHoc?.HinhThuc,
-                    DaCoKetQua = kq != null,
-                    DiemChuyenCan = kq?.DiemChuyenCan ?? 0,
-                    DiemGiuaKy = kq?.DiemGiuaKy ?? 0,
-                    DiemCuoiKy = kq?.DiemCuoiKy ?? 0,
-                    DiemTongKet = kq?.DiemTongKet ?? 0,
+                    DaCoKetQua = daDuDiem,
+                    DiemChuyenCan = kq?.DiemChuyenCan,
+                    DiemGiuaKy = kq?.DiemGiuaKy,
+                    DiemCuoiKy = kq?.DiemCuoiKy,
+                    DiemTongKet = kq?.DiemTongKet,
                     XepLoai = kq?.XepLoai,
                     KetQua = kq?.KetQua,
                     NgayCapNhat = kq?.NgayCapNhat
                 };
             }).ToList();
 
-            var dsCoKetQua = dsItems.Where(i => i.DaCoKetQua).ToList();
+            var dsCoKetQua = dsItems.Where(i => i.DaCoKetQua && i.DiemTongKet.HasValue).ToList();
             var soDat = dsCoKetQua.Count(i => i.KetQua == "Dat");
             var soKhongDat = dsCoKetQua.Count(i => i.KetQua == "KhongDat");
             decimal? dtb = dsCoKetQua.Any()
-                ? Math.Round(dsCoKetQua.Average(i => i.DiemTongKet), 2)
+                ? Math.Round(dsCoKetQua.Average(i => i.DiemTongKet!.Value), 2)
                 : null;
 
             var tongTinChi = dsItems.Sum(i => i.SoTinChi);

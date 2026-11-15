@@ -44,12 +44,23 @@ namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels
 
         // Điểm và kết quả
         public bool DaCoKetQua { get; set; }
-        public decimal DiemChuyenCan { get; set; }
-        public decimal DiemGiuaKy { get; set; }
-        public decimal DiemCuoiKy { get; set; }
-        public decimal DiemTongKet { get; set; }
+        public decimal? DiemChuyenCan { get; set; }
+        public decimal? DiemGiuaKy { get; set; }
+        public decimal? DiemCuoiKy { get; set; }
+        public decimal? DiemTongKet { get; set; }
         public string? XepLoai { get; set; }
         public string? KetQua { get; set; }
         public DateTime? NgayCapNhat { get; set; }
+
+        // Tên xếp loại hiển thị tiếng Việt (thay thế TranslateXepLoai trong View)
+        public string TenXepLoai => XepLoai switch
+        {
+            "XuatSac" => "Xuất sắc",
+            "Gioi" => "Giỏi",
+            "Kha" => "Khá",
+            "TrungBinh" => "Trung bình",
+            "Yeu" => "Yếu",
+            _ => XepLoai ?? "Chưa xếp loại"
+        };
     }
 }

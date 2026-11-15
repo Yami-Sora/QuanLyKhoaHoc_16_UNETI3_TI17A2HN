@@ -4,21 +4,20 @@
 
 using Microsoft.AspNetCore.Mvc;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Filters;
+using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Models;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Repositories;
 using HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels;
 
 namespace HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.Controllers
 {
-    [AuthorizeRole("Admin", "NhanVien")]
+    [AuthorizeRole(VaiTro.Admin, VaiTro.NhanVien)]
     public class ThongKeController : Controller
     {
         private readonly IThongKeRepository _thongKeRepo;
-        private readonly ILogger<ThongKeController> _logger;
 
-        public ThongKeController(IThongKeRepository thongKeRepo, ILogger<ThongKeController> logger)
+        public ThongKeController(IThongKeRepository thongKeRepo)
         {
             _thongKeRepo = thongKeRepo;
-            _logger = logger;
         }
 
         // GET: /ThongKe hoặc /ThongKe/Index

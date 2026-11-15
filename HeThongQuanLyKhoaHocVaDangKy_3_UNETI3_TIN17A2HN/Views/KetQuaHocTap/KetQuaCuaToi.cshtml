@@ -163,30 +163,30 @@
                                 {
                                     <!-- Điểm CC -->
                                     <td class="text-center fw-medium text-dark">
-                                        @item.DiemChuyenCan.ToString("0.0")
+                                        @(item.DiemChuyenCan?.ToString("0.0") ?? "--")
                                     </td>
 
                                     <!-- Điểm GK -->
                                     <td class="text-center fw-medium text-dark">
-                                        @item.DiemGiuaKy.ToString("0.0")
+                                        @(item.DiemGiuaKy?.ToString("0.0") ?? "--")
                                     </td>
 
                                     <!-- Điểm CK -->
                                     <td class="text-center fw-medium text-dark">
-                                        @item.DiemCuoiKy.ToString("0.0")
+                                        @(item.DiemCuoiKy?.ToString("0.0") ?? "--")
                                     </td>
 
                                     <!-- Điểm TK -->
                                     <td class="text-center">
                                         <span class="fw-bold fs-6 @(item.DiemTongKet >= 8.0m ? "text-success" : (item.DiemTongKet >= 5.0m ? "text-primary" : "text-danger"))">
-                                            @item.DiemTongKet.ToString("0.00")
+                                            @(item.DiemTongKet?.ToString("0.00") ?? "--")
                                         </span>
                                     </td>
 
                                     <!-- Xếp loại -->
                                     <td class="text-center">
                                         <span class="badge bg-light text-dark border px-2 py-1">
-                                            @TranslateXepLoai(item.XepLoai)
+                                            @item.TenXepLoai
                                         </span>
                                     </td>
 
@@ -248,17 +248,4 @@
     </div>
 </div>
 
-@functions {
-    public static string TranslateXepLoai(string? xl)
-    {
-        return xl switch
-        {
-            "XuatSac" => "Xuất sắc",
-            "Gioi" => "Giỏi",
-            "Kha" => "Khá",
-            "TrungBinh" => "Trung bình",
-            "Yeu" => "Yếu",
-            _ => xl ?? "Chưa xếp loại"
-        };
-    }
-}
+

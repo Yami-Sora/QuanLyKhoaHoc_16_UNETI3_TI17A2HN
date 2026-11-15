@@ -6,8 +6,8 @@
 @model HeThongQuanLyKhoaHocVaDangKy_3_UNETI3_TIN17A2HN.ViewModels.ThongKeViewModel
 @{
     Layout = null;
-    var tongKhoaHoc = Model.HocVienTheoKhoa.Count;
-    var tongHocVien = Model.HocVienTheoKhoa.Sum(x => x.SoHocVienDangKy);
+    var tongKhoaHoc = Model.TongSoKhoaHocBaoCao;
+    var tongHocVien = Model.TongSoHocVienBaoCao;
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -126,7 +126,7 @@
             }
             .print-container {
                 box-shadow: none;
-                padding: 15px;
+                padding: 12mm 15mm;
                 max-width: 100%;
                 border-radius: 0;
             }
@@ -135,7 +135,7 @@
             }
             @@page {
                 size: A4 portrait;
-                margin: 10mm 10mm 12mm 10mm;
+                margin: 0;
             }
         }
     </style>
